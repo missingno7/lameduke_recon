@@ -5918,7 +5918,7 @@ void keepaway(long *x, long *y, short clipwall)
 raytrace (long x, long y, long xvect, long yvect, long *intx, long *inty)
 {
 	short z, hitwall;
-	long x1, y1, x2, y2, x3, y3, x4, y4, bot, topu, nintx, ninty;
+	long x1, x2, x3, x4, y1, y2, y3, y4, dx, dy, bot, topu, nintx, ninty;
 	long templong1, templong2, templong3, templong4, cnt;
 
 	x3 = x; y3 = y;
@@ -5931,8 +5931,9 @@ raytrace (long x, long y, long xvect, long yvect, long *intx, long *inty)
 		x1 = clipx1[z]; y1 = clipy1[z];
 		x2 = clipx2[z]; y2 = clipy2[z];
 
-		templong1 = (x2-x1)*(y3-y1) - (x3-x1)*(y2-y1);
-		templong2 = (x2-x1)*(y4-y1) - (x4-x1)*(y2-y1);
+		dx = x2-x1; dy = y2-y1;
+		templong1 = dx*(y3-y1) - (x3-x1)*dy;
+		templong2 = dx*(y4-y1) - (x4-x1)*dy;
 		if ((templong1 >= 0) && (templong2 < 0))
 		{
 			templong3 = (x4-x3)*(y1-y3) - (x1-x3)*(y4-y3);
@@ -6826,8 +6827,10 @@ setview(long x1, long y1, long x2, long y2)
 		startdmost[i] = k+j;
 	}
 	j = y1-startumost[0];
-	if (option[0] != 7) k = 320; else k = 640;
-	k *= j;
+	if (option[0] != 7)
+		k = (j*5)<<6;
+	else
+		k = (j*5)<<7;
 	viewoffset = k+x1;
 
 	if (xdimen < XDIM)
@@ -6838,18 +6841,16 @@ setview(long x1, long y1, long x2, long y2)
 		}
 	if (option[0] == 7)
 	{
-		k = ydimen;
-		j = YDIM-k;
-		ytop = j>>1;
-		j = YDIM+k;
-		j >>= 1;
+		j = ydimen;
+		ytop = (YDIM-j)>>1;
+		k = YDIM; k += j; k >>= 1;
 	}
 	else
 	{
 		ytop = 0;
-		j = YDIM;
+		k = YDIM;
 	}
-	ybot = j;
+	ybot = k;
 }
 
 precache()

@@ -302,3 +302,9 @@ Each entry names the command or artefact that supports it.
   the whole game; operate_helpers.h and the #pragma aux aliases are gone.
 - PROVEN recursive functions are inlined one level deep and the copy keeps its self-calls (oracle self-calls:
   operatesectors 2, parse 40, parsecommand 5) — the earlier "recursive callees are not inlined" was wrong.
+
+## Engine compiled without inlining (engfix3 2026-11-26)
+- PROVEN the engine profile (-4r -s -or, no -oe) reproduces all 181 intra-engine calls; every tested -oe threshold loses
+  STRICT matches (consistent with Ken's makefiles). Engine plateau at 81/103: remaining NEAR are allocation ties
+  (scansector 7 B, hline 8 B confirmed by cg95), rotatesprite 35 bytes long (three shared returns), and the VESA buffer
+  binding (naming it moves it in BSS). 8 dated snapshots and 30 historical objects compared; no closer December form.
