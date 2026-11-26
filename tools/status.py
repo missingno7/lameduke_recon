@@ -43,6 +43,9 @@ def main():
         t = json.load(open(v))["totals"]
         print(f"  reconstructed STRICT C/asm       {t['strict_bytes']:7d} bytes ({100*t['strict_bytes']/total:5.1f}%), "
               f"{t['strict']} functions; CODE_BYTES_MATCH {t['code_bytes_match']}")
+        if "verified_data" in t:
+            print(f"  verified initialised data (CONST/_DATA) {t['verified_data']:7d} bytes of 45,056 file-backed obj2; "
+                  f"verified _BSS layout {t['verified_bss']} bytes")
         for comp, c in sorted(t.get("by_component", {}).items()):
             print(f"    {comp:30s} STRICT {c['strict']:4d}/{c['functions']:4d} functions, {c['strict_bytes']:7d} bytes")
     return 0
