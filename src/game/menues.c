@@ -53,67 +53,67 @@ void initmenus(void)
 
     menu_pause.x = 100;
     menu_pause.y = 40;
-    menu_pause.lines = 6;
     menu_pause.tile = 1129;
+    menu_pause.lines = 6;
     menu_pause.text = "Return to Game\nHow to Play Me\nSave a Game\nRestore a Game\n"
         "Game Options\nQuit to Main Menu";
     menu_pause.flags = 7;
 
     menu_episode.x = 100;
     menu_episode.y = 40;
-    menu_episode.lines = 5;
     menu_episode.tile = 616;
+    menu_episode.lines = 5;
     menu_episode.text = "Mr. Caliber\nMission Cockroach\nSuck Hole\nHard Landing\nBack";
     menu_episode.flags = 7;
 
     menu_skill.x = 100;
     menu_skill.y = 40;
-    menu_skill.lines = 5;
-    menu_skill.tile = 617;
     menu_skill.text = "Easy\nMedium\nHard\nHarder\nBack";
+    menu_skill.tile = 617;
+    menu_skill.lines = 5;
     menu_skill.flags = 7;
 
     menu_load.x = 100;
     menu_load.y = 40;
-    menu_load.lines = 9;
     menu_load.tile = 613;
+    menu_load.lines = 9;
     menu_load.text = SAVE_SLOTS;
     menu_load.flags = 7;
 
     menu_save.x = 100;
     menu_save.y = 40;
-    menu_save.lines = 9;
     menu_save.tile = 1137;
+    menu_save.lines = 9;
     menu_save.text = SAVE_SLOTS;
     menu_save.flags = 7;
 
     menu_instructions.x = 100;
     menu_instructions.y = 40;
-    menu_instructions.lines = 1;
     menu_instructions.tile = 615;
-    menu_instructions.text = "Back";
+    menu_instructions.lines = 1;
     menu_instructions.flags = 4;
+    menu_instructions.text = "Back";
 
     menu_options.x = 80;
     menu_options.y = 40;
-    menu_options.lines = 5;
-    menu_options.tile = 1128;
-    menu_options.text = "Sound Volume\nMusic Volume\nMouse Sensitivity\nJoystick\nBack";
     menu_options.flags = 7;
+    menu_options.tile = 1128;
+    menu_options.lines = 5;
+    menu_options.text = "Sound Volume\nMusic Volume\nMouse Sensitivity\nJoystick\nBack";
 
     menu_ordering.x = 100;
     menu_ordering.y = 40;
-    menu_ordering.lines = 1;
     menu_ordering.tile = 1127;
     menu_ordering.text = "Back";
+    menu_ordering.lines = 1;
     menu_ordering.flags = 4;
 
     menu_scores.x = 100;
     menu_scores.y = 40;
-    menu_scores.lines = 0;
     menu_scores.tile = 1138;
     menu_scores.text = "\0";
     menu_scores.flags = 7;
+    menu_scores.lines = 0;
 }
 
 
@@ -163,13 +163,15 @@ void draw_menu_slider(short x, short y, short *value, short shade)
 
 
 /* Draw menu item text (big font) with the pointer line pulsing; returns the x after the last glyph. */
-long menutext(long x, long y, unsigned char *t, short s,
+long menutext(long x, long y, unsigned char *t, long s,
     short cursor)
 {
+    /* long s and this local order: COMPILER_STEERED (inlined copies in menus; menutext itself is
+       STRICT with either short or long s). */
     unsigned char shade;
-    short ac;
-    short base_shade;
     short start_x;
+    short base_shade;
+    short ac;
 
     if (ps[0].dimensionmode == 2) return 0;
     start_x = x;

@@ -2129,7 +2129,7 @@
    "provenance": "BINARY_DERIVED with raynorpat/lameduke and Duke3D 1.5 MENUES.C semantics; menues worker 2026-11-26",
    "functions": {
     "initmenus": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "draw_menu_slider": {
      "status": "STRICT"
@@ -2256,7 +2256,7 @@
      "status": "NEAR_MATCH"
     },
     "getinput": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "update_air": {
      "status": "STRICT"
@@ -2265,7 +2265,7 @@
      "status": "NEAR_MATCH"
     },
     "animateknuckles": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     }
    },
    "segments": {

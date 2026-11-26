@@ -366,3 +366,17 @@ Each entry names the command or artefact that supports it.
 - NEGATIVE 20 meter-loop spellings, cameratext shade types, next_text_shade forms, 54 gametext variants, EGS
   statement orders/parameter types, newgame, checkcommandline, lotsofglass, declaration-order searches over 13 more
   functions.
+
+## PLAYER/ACTORS/MENUES NEAR round 2 (r2pam, 2026-11-26; worker files build/workers/r2pam/, integrated)
+- PROVEN getinput STRICT: menu-path zeroing as three statements `syncvel[snum] = 0; syncsvel[snum] = 0;
+  syncangvel[snum] = 0;` (not a chained assignment). Natural source.
+- PROVEN initmenus STRICT: only the field order inside each menu block changed (blocks contiguous, same order,
+  each starts with x, y); order found by hill-climbing against the oracle's store sequence.
+- PROVEN animateknuckles STRICT: displayweapon spelled with `short frame`, `weapon_xoffset = xvel +
+  ((6 - weapon_pos) << 4) + 12` and if/else for `cw` puts the knee jump-table case labels at the oracle offsets
+  (table relocation targets verified). displayweapon itself stays NEAR (frame in DH, stack homes).
+- menutext uses `long s` and a new local order (COMPILER_STEERED, marked in source); menus diffs 3442 -> 2566.
+- NEGATIVE draw_and_probe (`unsigned char s` gives exact code, but menus' tables sit in its extent and menutext
+  then swaps a stack slot; 1,296 variants), hitradius (>1,000 spellings; tie on the i*38 multiply's savings),
+  movefta (~120 combinations), ms (best loop form 131 -> 105 unmatched, not adopted). guts holds moveactors' table
+  (targets 15 KB into moveactors): STRICT only together with moveactors.

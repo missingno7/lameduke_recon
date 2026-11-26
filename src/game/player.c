@@ -235,12 +235,15 @@ void displayweapon(short snum)
         return;
     gun_pos = (weapon_pos << 4) - 32;
     gun_pos -= sintable[ps[snum].bobcounter & 2047] >> 12;
-    weapon_xoffset = xvel + 12 + ((6 - weapon_pos) << 4);
-    cw = ps[snum].last_weapon >= 0 ? ps[snum].last_weapon : ps[snum].curr_weapon;
+    weapon_xoffset = xvel + ((6 - weapon_pos) << 4) + 12;
+    if (ps[snum].last_weapon >= 0)
+        cw = ps[snum].last_weapon;
+    else
+        cw = ps[snum].curr_weapon;
 
     switch (cw) {
     case CLUB: {
-        unsigned char frame = knee_frames[ps[snum].knee_sequence][ps[snum].kickback_pic];
+        short frame = knee_frames[ps[snum].knee_sequence][ps[snum].kickback_pic];  /* oracle keeps it in DH; see NOTES (r2pam) */
 
         switch (frame) {
         case 0:
@@ -419,7 +422,9 @@ void getinput(short snum)
     if (ps[myconnectindex].gm & MODE_MENU) {
         vel = 0;
         syncbits[myconnectindex] = 0;
-        syncangvel[snum] = syncsvel[snum] = syncvel[snum] = 0;
+        syncvel[snum] = 0;
+        syncsvel[snum] = 0;
+        syncangvel[snum] = 0;
         angvel = svel = 0;
         return;
     }

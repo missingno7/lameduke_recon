@@ -74,7 +74,33 @@ def main():
     text = README.read_text(encoding="utf-8")
     a, b = text.index(BEGIN), text.index(END) + len(END)
     README.write_text(text[:a] + "\n".join(lines) + text[b:], encoding="utf-8", newline="\n")
-    print(f"README.md progress updated: {strict:,} / {own:,} STRICT bytes")
+    status_table(v)
+    print(f"README.md and docs/STATUS.md updated: {strict:,} / {own:,} STRICT bytes")
+
+
+def status_table(v):
+    """Rewrite the per-unit table and totals line of docs/STATUS.md from the same verify.json."""
+    rows = []
+    for unit, fs in v["units"].items():
+        fs = {k: r for k, r in fs.items() if isinstance(r, dict) and "status" in r}
+        if not fs:
+            continue
+        s = [r for r in fs.values() if r["status"] == "STRICT"]
+        rows.append(f"| {unit} | {len(fs)} | {len(s)} | {sum(r['size'] for r in s):,} |")
+    t = v["totals"]
+    c = t["by_component"]
+    tot = (f"Totals: {t['strict']} STRICT / {t['functions']} functions, {t['strict_bytes']:,} bytes; LameDuke "
+           f"{c['lameduke']['strict']} STRICT ({c['lameduke']['strict_bytes']:,} bytes); Apogee Sound System "
+           f"{c['apogee_sound_system']['strict']} ({c['apogee_sound_system']['strict_bytes']:,} bytes); "
+           f"CODE_BYTES_MATCH {t['code_bytes_match']}; verified data {t['verified_data']:,} bytes, verified _BSS "
+           f"layout {t['verified_bss']:,} bytes.")
+    p = ROOT / "docs/STATUS.md"
+    s = p.read_text(encoding="utf-8")
+    a, z = s.index("| Unit |"), s.index("Totals:")
+    z2 = s.index("\n", z)
+    s = s[:a] + "| Unit | Functions | STRICT | STRICT bytes |\n|---|---:|---:|---:|\n" + "\n".join(rows) + \
+        "\n\n" + tot + s[z2:]
+    p.write_text(s, encoding="utf-8", newline="\n")
     return 0
 
 
