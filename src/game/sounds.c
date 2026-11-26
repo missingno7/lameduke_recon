@@ -39,7 +39,7 @@ struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLO
     unsigned char reserved[4];
 };
 #pragma pack()
-extern struct user_settings userdefs;
+extern struct user_settings ud;
 
 /* dataown: one object, one name. The spellings below are the GLOBAL definitions or fields of
    its settings block; the extern declarations above keep this unit's symbol slots. */

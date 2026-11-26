@@ -29,10 +29,10 @@ extern void setvmode(long mode);
     "int 0x10" \
     parm [eax];
 
-extern char quote_text[13][32];
+extern char fta_quotes[13][32];
 
-extern unsigned char scan_ascii[128];
-extern unsigned char scan_ascii_shift[128];
+extern unsigned char scantoasc[128];
+extern unsigned char scantoascwithshift[128];
 
 extern void (__interrupt __far *oldtimerhandler)(void);
 extern short hudpulse;
@@ -45,7 +45,7 @@ extern long frameplace;
 extern short screenpeek;
 extern short myconnectindex;
 extern short tilesizx[4096];
-extern unsigned char input_text[], input_text_length;
+extern unsigned char typemessage[], typemessageleng;
 extern short moustat, menu_mouse, menu_previous_buttons, menu_drag, menu_x, menu_y;
 
 extern long reccnt;
@@ -73,7 +73,7 @@ struct user_settings {
 
 typedef char user_settings_size_check[sizeof(struct user_settings) == 21 ? 1 : -1];
 
-extern struct user_settings userdefs;
+extern struct user_settings ud;
 extern char score_names[12][33];
 extern long high_scores[12], recstat;
 extern const char userdefs_filename[];
@@ -112,16 +112,16 @@ extern struct player_view ps[17];
 extern char demo_filename[], demo_missing[];
 
 extern long hittype[4096][5], msx[1024], msy[1024];
-long mspos;                     /* PREMAP _BSS at 2:0ac60 (gamesplit/dataown evidence) */
+long tempwallptr;                     /* PREMAP _BSS at 2:0ac60 (gamesplit/dataown evidence) */
 extern long *actorscrptr[4096];
 extern short connecthead, connectpoint2[], randomstash;
-extern short camerasprite, viewscreen, gamepaused, numplayers, numsectors, numwalls;
+extern short camerasprite, camsprite, gamepaused, numplayers, numsectors, numwalls;
 extern unsigned char show2dsprite[512], show2dwall[1024];
 extern unsigned char parallaxtype, visibility, option[];
 extern long waloff[4096], totalclock, lockclock, randomseed;
 extern long animatecnt;
 extern short numanimwalls, tilesizy[4096];
-extern char music_files[4][10][13];
+extern char music_fn[4][10][13];
 
 extern long krand(void);
 extern long ksqrt(long square);
@@ -228,7 +228,7 @@ struct animwall_entry {
 extern struct animwall_entry animwall[256];
 
 /* Declarations used by the functions in 1:04cd0-0ba30. */
-extern char level_warp;
+extern char warp_on;
 extern char output_path[];
 extern char savegame_filename[], saveboard_filename[], saveboard_missing[];
 extern char help_banner[], help_usage[], help_help[], help_level[], help_volume[];
@@ -269,15 +269,15 @@ extern char score_rank_title[], score_quote_title[], score_score_title[];
 
 
 /* dataown: one object, one name. GLOBAL defines the timer ramps as angvel/svel/vel and the 21-byte settings
-   block as userdefs; the separate spellings used here are its fields. */
+   block as ud; the separate spellings used here are its fields. */
 extern long angvel, svel, vel;
 #define turn_velocity angvel
 #define strafe_velocity svel
 #define forward_velocity vel
-#define disable_armor userdefs.debug
-#define gamepaused userdefs.paused
-#define camerasprite userdefs.camera
-#define facing_sprite userdefs.camera
+#define disable_armor ud.debug
+#define gamepaused ud.paused
+#define camerasprite ud.camera
+#define facing_sprite ud.camera
 
 /* The status bar drawing, written out through the helper calls. */
 
@@ -411,28 +411,28 @@ void spawn(long j, short pn)
         sprite[i].cstat |= 0x40;
         sprite[i].picnum += 2;
         sprite[i].z = sector[sect].ceilingz + 12288;
-        hittype[i][4] = mspos;
-        msx[mspos] = sprite[i].x;
-        msy[mspos] = sprite[i].y;
-        msx[mspos + 2] = sprite[i].z;
+        hittype[i][4] = tempwallptr;
+        msx[tempwallptr] = sprite[i].x;
+        msy[tempwallptr] = sprite[i].y;
+        msx[tempwallptr + 2] = sprite[i].z;
         for (k = headspritestat[0]; k >= 0; k = nextspritestat[k]) {
             if (sprite[k].picnum == 1174 && sprite[k].hitag == sprite[i].hitag) {
                 hittype[i][1] = sprite[k].sectnum;
                 sprite[k].xrepeat = 48;
                 sprite[k].yrepeat = 128;
-                msx[mspos + 1] = sprite[k].x;
-                msy[mspos + 1] = sprite[k].y;
+                msx[tempwallptr + 1] = sprite[k].x;
+                msy[tempwallptr + 1] = sprite[k].y;
                 sprite[k].x = sprite[i].x;
                 sprite[k].y = sprite[i].y;
                 sprite[k].z = sprite[i].z;
                 sprite[k].shade = sprite[i].shade;
-                msy[mspos + 2] = k;
+                msy[tempwallptr + 2] = k;
                 setsprite(k, sprite[k].x, sprite[k].y, sprite[k].z);
                 break;
             }
         }
         sprite[i].owner = -1;
-        mspos += 3;
+        tempwallptr += 3;
         changespritestat(i, 6);
         break;
     }
@@ -609,10 +609,10 @@ void spawn(long j, short pn)
             sprite[i].xrepeat = 64;
             sprite[i].yrepeat = 64;
             sprite[i].shade = 0;
-            hittype[i][1] = mspos;
+            hittype[i][1] = tempwallptr;
             for (k = 0; k < numsectors; k++) {
                 if (sector[k].hitag == sprite[i].hitag) {
-                    msx[mspos++] = k;
+                    msx[tempwallptr++] = k;
                     hittype[i][0]++;
                 }
             }
@@ -685,12 +685,12 @@ void spawn(long j, short pn)
         case 0: case 2: case 5: case 6: case 14: case 15: case 16: case 25: case 26: {
             short s;
 
-            hittype[i][1] = mspos;
+            hittype[i][1] = tempwallptr;
             wall_end = sector[sect].wallptr + sector[sect].wallnum;
             for (k = sector[sect].wallptr; k < wall_end; k++) {
-                msx[mspos] = wall[k].x - sprite[i].x;
-                msy[mspos] = wall[k].y - sprite[i].y;
-                mspos++;
+                msx[tempwallptr] = wall[k].x - sprite[i].x;
+                msy[tempwallptr] = wall[k].y - sprite[i].y;
+                tempwallptr++;
             }
             if (sprite[i].lotag == 6 || sprite[i].lotag == 14 || sprite[i].lotag == 5) {
                 if (sector[sprite[i].sectnum].hitag != -1) {
@@ -862,7 +862,7 @@ void resetprestat(short p)
     turn_velocity = 0;
     camerasprite = -1;
     ps[p].oposz = ps[p].posz;
-    viewscreen = -1;
+    camsprite = -1;
     ps[p].oang = ps[p].ang;
     gamepaused = 0;
     ps[p].ocursectnum = ps[p].cursectnum;
@@ -870,9 +870,9 @@ void resetprestat(short p)
     ps[p].parallax_sector = -1;
     screenpeek = myconnectindex;
     parallaxtype = 0;
-    visibility = userdefs.visibility;
+    visibility = ud.visibility;
     animatecnt = 0;
-    mspos = 0;
+    tempwallptr = 0;
     randomseed = 17;
     resetplayer(p);
 }
@@ -1072,7 +1072,7 @@ void enterlevel(unsigned char mode)
         updatesector(sprite[i].x, sprite[i].y, &ps[p].cursectnum);
         i = nextspritestat[i];
     }
-    ps[myconnectindex].music = music_files[ps[myconnectindex].volume][0] + 13 * ps[myconnectindex].level;
+    ps[myconnectindex].music = music_fn[ps[myconnectindex].volume][0] + 13 * ps[myconnectindex].level;
     playmusic(ps[myconnectindex].music);
     displaystatus(myconnectindex);
     lockclock = totalclock = 0;

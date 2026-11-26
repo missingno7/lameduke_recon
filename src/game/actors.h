@@ -53,11 +53,11 @@ extern sectortype sector[MAXSECTORS];
 extern playertype ps[MAXPLAYERS];
 extern short sintable[2048];
 extern short headspritestat[], nextspritestat[], headspritesect[], nextspritesect[];
-extern short screenpeek, viewscreen, music_volume;
+extern short screenpeek, camsprite, music_volume;
 extern short randomstash, disable_armor;
 extern unsigned long syncbits[];
 extern unsigned char synctics, parallaxtype;
-extern char music_files[4][10][13], env_music[10][13];
+extern char music_fn[4][10][13], env_music_fn[10][13];
 
 extern long hittype[MAXSPRITES][5], msy[1024], msx[1024];
 

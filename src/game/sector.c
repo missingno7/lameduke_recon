@@ -8,7 +8,7 @@ extern animwalltype animwall[MAXANIMWALLS];
 extern short numanimwalls;
 /* Interim host. The only _BSS of the object that starts after GAME's (2:0ac60); its users are spawn,
    resetplayer and prelevel. See OWNERSHIP.md for the second GAME-range object. */
-/* mspos: PREMAP _BSS (gamesplit) */
+/* tempwallptr: PREMAP _BSS (gamesplit) */
 extern short neartagsprite, neartagsector, neartagwall;
 extern long neartaghitdist;
 
@@ -19,13 +19,13 @@ struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLO
     unsigned char reserved[4];
 };
 #pragma pack()
-extern struct user_settings userdefs;
+extern struct user_settings ud;
 
 /* dataown: one object, one name. The spellings below are the GLOBAL definitions or fields of
    its settings block; the extern declarations above keep this unit's symbol slots. */
 extern long current_menu;
-#define gamepaused userdefs.paused
-#define disable_armor userdefs.debug
+#define gamepaused ud.paused
+#define disable_armor ud.debug
 #define menupage current_menu
 
 short checkcursectnums(short sn)
@@ -139,8 +139,8 @@ void animatecamsprite(short p)
 {
     short i, camera;
 
-    if (viewscreen != -1) {
-        i = viewscreen;
+    if (camsprite != -1) {
+        i = camsprite;
         if (hittype[i][0] >= 11) {
             hittype[i][0] = 0;
             if (ps[p].camera >= 0)

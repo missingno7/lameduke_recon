@@ -4988,10 +4988,6 @@
     "addr": "2:02b10",
     "evidence": "gamedef worker 2026-11-26: Sixty consecutive LE fixups to complete keyword strings with end at index 0; scanned by keyword, transword and inlined keyword handling."
    },
-   "actor_header": {
-    "addr": "2:a5240",
-    "evidence": "gamedef worker 2026-11-26: Start of the current four-dword actor header, assigned to actorscrptr. Execute and spawn independently consume that format."
-   },
    "parsing_state": {
     "addr": "2:b1dfe",
     "evidence": "gamedef worker 2026-11-26: State definition sets the byte, ends clears it; actor and move declarations test it and use state-specific diagnostics."
@@ -5003,14 +4999,6 @@
    "checking_ifelse": {
     "addr": "2:b1dfc",
     "evidence": "gamedef worker 2026-11-26: If and else backpatch handlers increment/decrement it; include saves and restores it, actor initializes it."
-   },
-   "music_files": {
-    "addr": "2:0ac70",
-    "evidence": "gamedef worker 2026-11-26: Compiler writes 13-byte name slots with 130-byte group stride. Stage loading reads music track names using the same indexing."
-   },
-   "env_music": {
-    "addr": "2:a5308",
-    "evidence": "gamedef worker 2026-11-26: Volume-zero filenames have 13-byte slots. Game/environment music callers use this separate table."
    },
    "hittype": {
     "addr": "2:893e0",
@@ -5920,10 +5908,6 @@
     "addr": "2:a53a8",
     "evidence": "sector worker 2026-11-26: prelevel resets this word and increments it as it appends walls. Shared by animatewalls and switch handling."
    },
-   "viewscreen": {
-    "addr": "2:a538a",
-    "evidence": "sector worker 2026-11-26: Initialization resets it to -1. Actor movesprite code sets the word for the monitor tile; both the standalone camera update and the inline display path test it."
-   },
    "neartagsprite": {
     "addr": "2:a53a2",
     "evidence": "sector worker 2026-11-26: Dedicated short output supplied as the eighth argument to engine neartag, whose historical Build signature and writes identify the sprite output."
@@ -5996,10 +5980,6 @@
     "addr": "2:005e4",
     "evidence": "game2 worker 2026-11-26: The open path is shared by both explicitly identified user stats routines. String matches the supplied USERDEFS.TMP filename."
    },
-   "userdefs": {
-    "addr": "2:a57a8",
-    "evidence": "game2 worker 2026-11-26: Both user stats routines transfer exactly 21 bytes from this base. Visibility, brightness, audio and mouse references agree with the fields inside the block."
-   },
    "score_names": {
     "addr": "2:023dc",
     "evidence": "game2 worker 2026-11-26: I/O transfers 396 bytes here. The display and insertion routines use 33-byte slots; bytes match the first score block in USERDEFS.TMP."
@@ -6027,14 +6007,6 @@
    "randomstash": {
     "addr": "2:a53a0",
     "evidence": "actors worker 2026-11-26: GAME tic paths at 000d10 and 008ea0 store the low word from krand here. ACTORS reads this state for flicker, blood and attack angles, matching the same reuse in the prototype reference."
-   },
-   "scan_ascii": {
-    "addr": "2:02738",
-    "evidence": "game2 worker 2026-11-26: Indexed by event scan code along the unshifted branch in 1:02a40 and main's input path. Printable ASCII mappings follow the US PC set-1 key layout."
-   },
-   "scan_ascii_shift": {
-    "addr": "2:027b8",
-    "evidence": "game2 worker 2026-11-26: The corresponding input branches select this base when either shift key is held. Uppercase and punctuation entries independently identify the US shifted map."
    },
    "rzi": {
     "addr": "2:b5ab0",
@@ -6068,25 +6040,9 @@
     "addr": "2:b6ad0",
     "evidence": "engine worker 2026-11-26: drawsprite stores projected Y at 1:3ea44 after adding globalhoriz shifted by 16. The next checks clamp this array to the top and bottom screen rows. 11 exact-address LE fixup sites."
    },
-   "input_text": {
-    "addr": "2:9d3e0",
-    "evidence": "game2 worker 2026-11-26: Both arms of the US scan-code lookup append here in strget. The synchronous text paths at 1:00d10, 1:01120 and 1:018c0 deposit text at the same base."
-   },
-   "input_text_length": {
-    "addr": "2:a57c2",
-    "evidence": "game2 worker 2026-11-26: Byte used for append and termination in strget. In 1:01120 and 1:018c0 incoming text bytes increment the same length and use it to index the bound input buffer."
-   },
    "menu_previous_buttons": {
     "addr": "2:a5396",
     "evidence": "game2 worker 2026-11-26: The cursor updater saves the previous value of independently bound menu_drag here before asking the mouse driver for fresh buttons. On release, the saved word becomes menu_mouse. Located between independently named menu_mouse and menu_drag."
-   },
-   "mspos": {
-    "addr": "2:0ac60",
-    "evidence": "gameC worker 2026-11-26: Cleared by prelevel at 12338; indexed into the separately bound msx/msy arrays by the crane and moving wall sections of both prelevel and spawn."
-   },
-   "quote_text": {
-    "addr": "2:02598",
-    "evidence": "gameC worker 2026-11-26: FTA at 02674 and displayquotes independently reference the start of the 13 by 32-byte quote table; layout and inbound references are surveyed in docs/units/game.md."
    },
    "msgtime": {
     "addr": "2:a538e",
@@ -6304,10 +6260,6 @@
     "addr": "2:00134",
     "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Level' (6 bytes incl. NUL) referenced at 1:536d; provisional extern for the literal until the whole GAME pool is reconstructed"
    },
-   "level_warp": {
-    "addr": "2:0ac56",
-    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: byte cleared at checkcommandline entry (1:05589), set by the /l case (1:0571d) before ps[0].level is parsed, tested by main at 1:05dc5/05df4 to choose newgame+enterlevel(4) over the attract demos and cleared at 1:06030"
-   },
    "output_path": {
     "addr": "2:0ee78",
     "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: byte buffer filled by checkcommandline /o from the argument tail (1:056bf), NUL-terminated (1:056e4) and passed to printf with the rerouted message (1:056d3)"
@@ -6459,6 +6411,54 @@
    "synctics": {
     "addr": "2:a57c1",
     "evidence": "gamedef worker 2026-11-26: Game tick loop and player/actor routines use this 8-bit tick increment. Execute adds the same increment to the sprite animation counter. | renamed from script_tics (docs/RENAMES.md)"
+   },
+   "fta_quotes": {
+    "addr": "2:02598",
+    "evidence": "gameC worker 2026-11-26: FTA at 02674 and displayquotes independently reference the start of the 13 by 32-byte quote table; layout and inbound references are surveyed in docs/units/game.md. | renamed from quote_text (docs/RENAMES.md)"
+   },
+   "scantoasc": {
+    "addr": "2:02738",
+    "evidence": "game2 worker 2026-11-26: Indexed by event scan code along the unshifted branch in 1:02a40 and main's input path. Printable ASCII mappings follow the US PC set-1 key layout. | renamed from scan_ascii (docs/RENAMES.md)"
+   },
+   "scantoascwithshift": {
+    "addr": "2:027b8",
+    "evidence": "game2 worker 2026-11-26: The corresponding input branches select this base when either shift key is held. Uppercase and punctuation entries independently identify the US shifted map. | renamed from scan_ascii_shift (docs/RENAMES.md)"
+   },
+   "warp_on": {
+    "addr": "2:0ac56",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: byte cleared at checkcommandline entry (1:05589), set by the /l case (1:0571d) before ps[0].level is parsed, tested by main at 1:05dc5/05df4 to choose newgame+enterlevel(4) over the attract demos and cleared at 1:06030 | renamed from level_warp (docs/RENAMES.md)"
+   },
+   "tempwallptr": {
+    "addr": "2:0ac60",
+    "evidence": "gameC worker 2026-11-26: Cleared by prelevel at 12338; indexed into the separately bound msx/msy arrays by the crane and moving wall sections of both prelevel and spawn. | renamed from mspos (docs/RENAMES.md)"
+   },
+   "music_fn": {
+    "addr": "2:0ac70",
+    "evidence": "gamedef worker 2026-11-26: Compiler writes 13-byte name slots with 130-byte group stride. Stage loading reads music track names using the same indexing. | renamed from music_files (docs/RENAMES.md)"
+   },
+   "typemessage": {
+    "addr": "2:9d3e0",
+    "evidence": "game2 worker 2026-11-26: Both arms of the US scan-code lookup append here in strget. The synchronous text paths at 1:00d10, 1:01120 and 1:018c0 deposit text at the same base. | renamed from input_text (docs/RENAMES.md)"
+   },
+   "parsing_actor": {
+    "addr": "2:a5240",
+    "evidence": "gamedef worker 2026-11-26: Start of the current four-dword actor header, assigned to actorscrptr. Execute and spawn independently consume that format. | renamed from actor_header (docs/RENAMES.md)"
+   },
+   "env_music_fn": {
+    "addr": "2:a5308",
+    "evidence": "gamedef worker 2026-11-26: Volume-zero filenames have 13-byte slots. Game/environment music callers use this separate table. | renamed from env_music (docs/RENAMES.md)"
+   },
+   "camsprite": {
+    "addr": "2:a538a",
+    "evidence": "sector worker 2026-11-26: Initialization resets it to -1. Actor movesprite code sets the word for the monitor tile; both the standalone camera update and the inline display path test it. | renamed from viewscreen (docs/RENAMES.md)"
+   },
+   "ud": {
+    "addr": "2:a57a8",
+    "evidence": "game2 worker 2026-11-26: Both user stats routines transfer exactly 21 bytes from this base. Visibility, brightness, audio and mouse references agree with the fields inside the block. | renamed from userdefs (docs/RENAMES.md)"
+   },
+   "typemessageleng": {
+    "addr": "2:a57c2",
+    "evidence": "game2 worker 2026-11-26: Byte used for append and termination in strget. In 1:01120 and 1:018c0 incoming text bytes increment the same length and use it to index the bound input buffer. | renamed from input_text_length (docs/RENAMES.md)"
    }
   }
  }

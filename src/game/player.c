@@ -17,14 +17,14 @@ struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLO
     unsigned char reserved[4];
 };
 #pragma pack()
-extern struct user_settings userdefs;
+extern struct user_settings ud;
 
 /* dataown: one object, one name. The spellings below are the GLOBAL definitions or fields of
    its settings block; the extern declarations above keep this unit's symbol slots. */
-#define user_visibility userdefs.visibility
-#define mouse_sensitivity userdefs.mouse_sensitivity
-#define sound_volume userdefs.sound_volume
-#define disable_armor userdefs.debug
+#define user_visibility ud.visibility
+#define mouse_sensitivity ud.mouse_sensitivity
+#define sound_volume ud.sound_volume
+#define disable_armor ud.debug
 
 void kickview(short p, short i)
 {

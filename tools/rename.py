@@ -85,12 +85,24 @@ def main(argv):
         applied.append((cur, new))
     tmp = {cur: f"__REN{i}__" for i, (cur, _) in enumerate(applied)}
 
-    def rewrite(s):
+    # String and character literals are never touched (e.g. "userdefs.tmp" is CONST data, not an identifier).
+    literal = re.compile(r'"(?:\\.|[^"\\\n])*"|' + r"'(?:\\.|[^'\\\n])*'")
+
+    def rewrite_code(s):
         for cur, _ in applied:
             s = re.sub(r"\b" + re.escape(cur) + r"\b", tmp[cur], s)
         for cur, new in applied:
             s = s.replace(tmp[cur], new)
         return s
+
+    def rewrite(s):
+        out, pos = [], 0
+        for m in literal.finditer(s):
+            out.append(rewrite_code(s[pos:m.start()]))
+            out.append(m.group(0))
+            pos = m.end()
+        out.append(rewrite_code(s[pos:]))
+        return "".join(out)
     if not dry:
         for f, s in texts.items():
             n = rewrite(s)

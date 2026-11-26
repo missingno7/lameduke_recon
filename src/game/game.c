@@ -29,10 +29,10 @@ extern void setvmode(long mode);
     "int 0x10" \
     parm [eax];
 
-extern char quote_text[13][32];
+extern char fta_quotes[13][32];
 
-extern unsigned char scan_ascii[128];
-extern unsigned char scan_ascii_shift[128];
+extern unsigned char scantoasc[128];
+extern unsigned char scantoascwithshift[128];
 
 void (__interrupt __far *oldtimerhandler)(void);
 extern short hudpulse;
@@ -45,7 +45,7 @@ extern long frameplace;
 extern short screenpeek;
 extern short myconnectindex;
 extern short tilesizx[4096];
-extern unsigned char input_text[], input_text_length;
+extern unsigned char typemessage[], typemessageleng;
 extern short moustat, menu_mouse, menu_previous_buttons, menu_drag, menu_x, menu_y;
 
 extern long reccnt;
@@ -73,7 +73,7 @@ struct user_settings {
 
 typedef char user_settings_size_check[sizeof(struct user_settings) == 21 ? 1 : -1];
 
-extern struct user_settings userdefs;
+extern struct user_settings ud;
 extern char score_names[12][33];
 extern long high_scores[12], recstat;
 #define userdefs_filename "userdefs.tmp"
@@ -112,16 +112,16 @@ extern struct player_view ps[17];
 #define demo_filename "mydemo__.dmo"
 #define demo_missing "Demo not found."
 
-extern long hittype[4096][5], msx[1024], msy[1024], mspos;
+extern long hittype[4096][5], msx[1024], msy[1024], tempwallptr;
 extern long *actorscrptr[4096];
 extern short connecthead, connectpoint2[], randomstash;
-extern short camerasprite, viewscreen, gamepaused, numplayers, numsectors, numwalls;
+extern short camerasprite, camsprite, gamepaused, numplayers, numsectors, numwalls;
 extern unsigned char show2dsprite[512], show2dwall[1024];
 extern unsigned char parallaxtype, visibility, option[];
 extern long waloff[4096], totalclock, lockclock, randomseed;
 extern long animatecnt;
 extern short numanimwalls, tilesizy[4096];
-extern char music_files[4][10][13];
+extern char music_fn[4][10][13];
 
 extern long krand(void);
 extern long ksqrt(long square);
@@ -228,7 +228,7 @@ struct animwall_entry {
 extern struct animwall_entry animwall[256];
 
 /* Declarations used by the functions in 1:04cd0-0ba30. */
-char level_warp;
+char warp_on;
 extern char output_path[];
 #define savegame_filename "SAVE___0.SAV"
 #define saveboard_filename "SAVE_000.SAV"
@@ -310,15 +310,15 @@ extern void qsetmode640350(void);
 
 
 /* dataown: one object, one name. GLOBAL defines the timer ramps as angvel/svel/vel and the 21-byte settings
-   block as userdefs; the separate spellings used here are its fields. */
+   block as ud; the separate spellings used here are its fields. */
 extern long angvel, svel, vel;
 #define turn_velocity angvel
 #define strafe_velocity svel
 #define forward_velocity vel
-#define disable_armor userdefs.debug
-#define gamepaused userdefs.paused
-#define camerasprite userdefs.camera
-#define facing_sprite userdefs.camera
+#define disable_armor ud.debug
+#define gamepaused ud.paused
+#define camerasprite ud.camera
+#define facing_sprite ud.camera
 
 /* The status bar drawing, written out through the helper calls. */
 
@@ -512,12 +512,12 @@ void getpackets(void)
                 }
                 break;
             case 4:
-                input_text_length = 0; /* 9.5b keeps only the xor, as in the oracle */
+                typemessageleng = 0; /* 9.5b keeps only the xor, as in the oracle */
                 for (j = 1; j < packbufleng; j++)
-                    input_text[input_text_length++] = tempbuf[j];
-                msgtext = input_text;
-                msgtime = input_text_length << 4;
-                input_text[0] = 0;
+                    typemessage[typemessageleng++] = tempbuf[j];
+                msgtext = typemessage;
+                msgtime = typemessageleng << 4;
+                typemessage[0] = 0;
                 break;
             case 5:
                 playerreadyflag[other] = 1;
@@ -681,14 +681,14 @@ void operatefta(short p)
         ps[p].quote_time[ps[p].quote_index]--;
         if (ps[p].screen_size >= 0)
             offset -= 23;
-        minitext(24, offset + 189, (unsigned char *)quote_text[ps[p].quote_index], 0);
+        minitext(24, offset + 189, (unsigned char *)fta_quotes[ps[p].quote_index], 0);
     }
 }
 
 void FTA(short q)
 {
-    if (userdefs.quotes == 1 && ps[screenpeek].quote_time[q] == 0) {
-        ps[screenpeek].quote_time[q] = strlen(quote_text[q]) << 2;
+    if (ud.quotes == 1 && ps[screenpeek].quote_time[q] == 0) {
+        ps[screenpeek].quote_time[q] = strlen(fta_quotes[q]) << 2;
         ps[screenpeek].quote_index = q;
     }
 }
@@ -806,37 +806,37 @@ int strget(long x, long y, long shade, long limit)
         {
             if ((keystatus[0x2a] | keystatus[0x36]) != 0)
             {
-                if (scan_ascii_shift[scan] != 0)
+                if (scantoascwithshift[scan] != 0)
                 {
-                    if (input_text_length < 79)
-                        input_text[input_text_length++] = scan_ascii_shift[scan];
+                    if (typemessageleng < 79)
+                        typemessage[typemessageleng++] = scantoascwithshift[scan];
                     keystatus[scan] = 0;
                 }
             }
             else
             {
-                if (scan_ascii[scan] != 0)
+                if (scantoasc[scan] != 0)
                 {
-                    if (input_text_length < 159)
-                        input_text[input_text_length++] = scan_ascii[scan];
+                    if (typemessageleng < 159)
+                        typemessage[typemessageleng++] = scantoasc[scan];
                     keystatus[scan] = 0;
                 }
             }
 
-            if (input_text_length > maxlen)
-                input_text_length = maxlen;
+            if (typemessageleng > maxlen)
+                typemessageleng = maxlen;
 
             if (keystatus[0xe] > 0)   /* Backspace */
             {
                     /* Here's a trick of making key repeat after a 1/2 second */
                 if ((keystatus[0xe] == 1) || (keystatus[0xe] == 60))
                 {
-                    if (input_text_length > 0)
-                        input_text_length--;
+                    if (typemessageleng > 0)
+                        typemessageleng--;
                     else
-                        input_text_length = 0;
+                        typemessageleng = 0;
                 }
-                input_text[input_text_length] = 0;
+                typemessage[typemessageleng] = 0;
                 if (keystatus[0xe] < 60)
                 {
                     keystatus[0xe] += synctics;
@@ -846,10 +846,10 @@ int strget(long x, long y, long shade, long limit)
         }
 
     if (drawshade < 128) {
-        x = minitext(x, y, input_text, drawshade & 127);
+        x = minitext(x, y, typemessage, drawshade & 127);
         myos(x, y, 1023, drawshade, 0);
     } else {
-        x = gametext(x, y, input_text, drawshade & 127);
+        x = gametext(x, y, typemessage, drawshade & 127);
         myos(x, y, 1022, drawshade, 0);
     }
     return (keystatus[KEY_ACCEPT] | keystatus[KEY_EXTENDED_ACCEPT]) != 0;
@@ -1373,10 +1373,10 @@ void nonsharedkeys(void)
     }
     if (keystatus[0x44]) {
         keystatus[0x44] = 0;
-        userdefs.brightness++;
-        if (userdefs.brightness > 4)
-            userdefs.brightness = 0;
-        setbrightness(userdefs.brightness);
+        ud.brightness++;
+        if (ud.brightness > 4)
+            ud.brightness = 0;
+        setbrightness(ud.brightness);
     }
     if (keystatus[0x14] > 0) {
         keystatus[0x14] = 0;
@@ -1384,27 +1384,27 @@ void nonsharedkeys(void)
     }
     if (keystatus[0x20]) {
         keystatus[0x20] = 0;
-        userdefs.debug ^= 1;
+        ud.debug ^= 1;
     }
     if (option[2] && keystatus[0x32]) {
         keystatus[0x32] = 0;
-        userdefs.music ^= 1;
-        if (userdefs.music == 0)
+        ud.music ^= 1;
+        if (ud.music == 0)
             MUSIC_Pause();
         else
             MUSIC_Continue();
     }
     if (option[1] && keystatus[0x1f]) {
         keystatus[0x1f] = 0;
-        userdefs.sound ^= 1;
-        if (userdefs.sound == 0)
+        ud.sound ^= 1;
+        if (ud.sound == 0)
             FX_StopAllSounds();
     }
     if (keystatus[0x2f]) {
         keystatus[0x2f] = 0;
-        userdefs.visibility--;
-        if (userdefs.visibility < 7)
-            userdefs.visibility = 16;
+        ud.visibility--;
+        if (ud.visibility < 7)
+            ud.visibility = 16;
     }
     if (keystatus[0x25]) {
         screenpeek = connectpoint2[screenpeek];
@@ -1421,7 +1421,7 @@ void nonsharedkeys(void)
         vscrn(screenpeek);
         keystatus[0x25] = 0;
     }
-    if (keystatus[0x11] && userdefs.debug && (ps[myconnectindex].gm & 16) == 0) {
+    if (keystatus[0x11] && ud.debug && (ps[myconnectindex].gm & 16) == 0) {
         keystatus[0x11] = 0;
         while ((keystatus[0x1c] | keystatus[0x9c] | keystatus[0x39] | keystatus[1]) == 0) {
             displayrooms(screenpeek);
@@ -1478,8 +1478,8 @@ void checkcommandline(int argc, char **argv)
     short i, j;
     char *c, *mapname;
 
-    userdefs.quotes = 0;
-    level_warp = 0;
+    ud.quotes = 0;
+    warp_on = 0;
     i = 1;
     if (argc > 1) {
     while (i < argc) {
@@ -1494,7 +1494,7 @@ void checkcommandline(int argc, char **argv)
                 exit(0);
             case 'q':
             case 'Q':
-                userdefs.quotes = 1;
+                ud.quotes = 1;
                 break;
             case 'r':
             case 'R':
@@ -1520,11 +1520,11 @@ void checkcommandline(int argc, char **argv)
                 break;
             case 'd':
             case 'D':
-                userdefs.debug = 1;
+                ud.debug = 1;
                 break;
             case 'l':
             case 'L':
-                level_warp = 1;
+                warp_on = 1;
                 c++;
                 ps[0].level = atoi(c) - 1;
                 break;
@@ -1615,29 +1615,29 @@ void main(int argc, char **argv)
         if (status)
             gameexit(FX_ErrorString(status));
         FX_SetCallBack(TestCallBack);
-        FX_SetVolume(userdefs.sound_volume);
+        FX_SetVolume(ud.sound_volume);
     }
     if (option[2]) {
         puts(main_init_music);
         status = MUSIC_Init(sound_device_map[option[1]], 0);
         if (status)
             gameexit(MUSIC_ErrorString(status));
-        MUSIC_SetVolume(userdefs.music_volume);
+        MUSIC_SetVolume(ud.music_volume);
     }
     if (option[4]) {
         puts(main_locating);
         wait_for_players();
     }
     setgamemode();
-    if (level_warp) {
+    if (warp_on) {
         newgame(ps[0].volume, ps[0].level, ps[0].skill);
         enterlevel(4);
     }
 
 attract:
-    if (level_warp == 0)
+    if (warp_on == 0)
         playback();
-    level_warp = 0;
+    warp_on = 0;
 
 play:
     while ((ps[myconnectindex].gm & 128) == 0) {
@@ -1649,20 +1649,20 @@ play:
 
                 tempbuf[0] = 4;
                 j = 1;
-                for (p = 0; p < input_text_length; p++)
-                    tempbuf[j++] = input_text[p];
+                for (p = 0; p < typemessageleng; p++)
+                    tempbuf[j++] = typemessage[p];
                 for (k = connecthead; k >= 0; k = connectpoint2[k])
                     if (k != myconnectindex)
                         sendpacket(k, (unsigned char *)tempbuf, p);
                 ps[myconnectindex].gm ^= 16;
             }
         }
-        if (userdefs.paused && ps[screenpeek].display_mode == 3)
+        if (ud.paused && ps[screenpeek].display_mode == 3)
             draw_pause_sign();
         if ((ps[myconnectindex].gm & 4) &&
             (((ps[myconnectindex].gm & 1) == 0 && numplayers < 2) ||
              ((ps[myconnectindex].gm & 1) && numplayers >= 2))) {
-            if (totalclock < 360 && numplayers > 1 && userdefs.debug) {
+            if (totalclock < 360 && numplayers > 1 && ud.debug) {
                 if (myconnectindex == connecthead) {
                     gametext(120, 48, main_master, 0);
                 } else {
@@ -1696,7 +1696,7 @@ play:
         nextpage();
         pan3dsound();
     }
-    if (userdefs.debug == 0 && (ps[myconnectindex].gm & 2) == 0) {
+    if (ud.debug == 0 && (ps[myconnectindex].gm & 2) == 0) {
         p = newscore();
         if (p >= 0) {
             while (getscorename(p) == 0) {
@@ -1704,7 +1704,7 @@ play:
                 displayrooms(screenpeek);
                 displayhighscores();
             }
-            memcpy(score_names[p], input_text, 31);
+            memcpy(score_names[p], typemessage, 31);
         }
         do {
             displayrooms(screenpeek);
@@ -1821,7 +1821,7 @@ restart:
             displayrooms(screenpeek);
             if (ps[screenpeek].newowner >= 0)
                 cameratext();
-            else if (userdefs.camera == -1) {
+            else if (ud.camera == -1) {
                 displayweapon(screenpeek);
                 displaystatus(screenpeek);
                 operatefta(screenpeek);
@@ -1835,7 +1835,7 @@ restart:
                 ps[myconnectindex].gm &= ~16;
                 menus();
             }
-            if (userdefs.camera >= 0)
+            if (ud.camera >= 0)
                 overwritesprite(268, 156, 481, 0, 4, 0);
             pan3dsound();
             nextpage();
@@ -1871,10 +1871,10 @@ void domovethings(void)
     short p;
 
     randomstash = krand();
-    userdefs.camera = -1;
+    ud.camera = -1;
     lockclock += synctics;
     doanimations(synctics);
-    if (userdefs.paused == 0) {
+    if (ud.paused == 0) {
         if (recstat == 1)
             record(0);
         moveexplosions();
@@ -1882,12 +1882,12 @@ void domovethings(void)
     }
     for (p = connecthead; p >= 0; p = connectpoint2[p]) {
         cheatkeys(p);
-        if (userdefs.paused == 0) {
+        if (ud.paused == 0) {
             processinput(p);
             checksectors(p);
         }
     }
-    if (userdefs.paused == 0) {
+    if (ud.paused == 0) {
         moveplayers();
         moveweapons();
         movestandables();
@@ -1991,7 +1991,7 @@ void update_menu_cursor(short tile)
         menu_mouse = menu_drag;
 
     if (moustat != 0) {
-        scale = userdefs.mouse_sensitivity + 129;
+        scale = ud.mouse_sensitivity + 129;
         menu_x += (dx * scale) >> 9;
         menu_y += (dy * scale) >> 9;
         if (menu_x < 0)
@@ -2158,16 +2158,16 @@ void read_userdefs(void)
     recstat = 0;
     file = open(userdefs_filename, O_RDWR | O_BINARY, S_IREAD);
     if (file == -1) {
-        userdefs.mouse_sensitivity = 128;
-        userdefs.visibility = 13;
-        userdefs.sound_volume = 255;
-        userdefs.music_volume = 255;
-        userdefs.brightness = 1;
-        userdefs.sound = 1;
-        userdefs.music = 1;
+        ud.mouse_sensitivity = 128;
+        ud.visibility = 13;
+        ud.sound_volume = 255;
+        ud.music_volume = 255;
+        ud.brightness = 1;
+        ud.sound = 1;
+        ud.music = 1;
         return;
     }
-    read(file, &userdefs, sizeof(userdefs));
+    read(file, &ud, sizeof(ud));
     read(file, score_names, sizeof(score_names));
     read(file, high_scores, sizeof(high_scores));
     close(file);
@@ -2179,7 +2179,7 @@ void write_userdefs(void)
 
     /* Both text and binary flag bits are present in the original call. */
     file = open(userdefs_filename, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT | O_BINARY, 0xb0);
-    write(file, &userdefs, sizeof(userdefs));
+    write(file, &ud, sizeof(ud));
     write(file, score_names, sizeof(score_names));
     write(file, high_scores, sizeof(high_scores));
     close(file);

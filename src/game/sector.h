@@ -90,7 +90,7 @@ extern long hittype[MAXSPRITES][5];
 extern short connecthead, connectpoint2[];
 extern short headspritestat[], nextspritestat[];
 extern short headspritesect[], nextspritesect[];
-extern short numsectors, screenpeek, viewscreen;
+extern short numsectors, screenpeek, camsprite;
 extern char gotpic[];
 extern long waloff[];
 extern short sintable[];

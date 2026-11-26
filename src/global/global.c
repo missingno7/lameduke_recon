@@ -103,7 +103,7 @@ void animatesprites(short ang);
 short animatesect[512];
 long *animateptr[512];
 long animategoal[512];
-struct user_settings userdefs;
+struct user_settings ud;
 void draw_water_distortion(void);
 void displayrooms(short p);
 void nonsharedkeys(void);
@@ -127,7 +127,7 @@ void write_userdefs(void);
 char bootleg_cache[300000];
 struct player_view ps[17];
 long hittype[4096][5];
-unsigned char input_text[80];
+unsigned char typemessage[80];
 char unref_9d430[16384];
 short numanimwalls;
 struct menu menu_main;
@@ -229,7 +229,7 @@ unsigned char *msgtext;
 short menu_mouse;
 short menu_previous_buttons;
 struct menu menu_load;
-unsigned char input_text_length;
+unsigned char typemessageleng;
 extern short nextsectorneighborz(short sectnum, long z, short topbottom, short direction);
 extern void updatesector(long x, long y, short *sectnum);
 extern void setview(long x1, long y1, long x2, long y2);
@@ -246,7 +246,7 @@ void animatecamsprite(short p);
 /* symbol page 8 */
 long *actorscrptr[4096];
 char output_path[80];
-long *actor_header;
+long *parsing_actor;
 long *labelcode;
 short screenpeek;
 short msgtime;
@@ -268,13 +268,13 @@ void checkhitwall(long w, long x, long y, long z, short weapon);
 char checkhitceiling(short sn);
 
 /* symbol page 9 */
-char music_files[4][10][13];
+char music_fn[4][10][13];
 long *insptr;
 char *textptr;
 long labelcnt;
 char *label;
-char env_music[10][13];
-short viewscreen;
+char env_music_fn[10][13];
+short camsprite;
 signed char syncvel[17];
 signed char osyncvel[17];
 signed char syncsvel[17];
@@ -311,7 +311,7 @@ char score_names[12][33] = {
 
 long high_scores[12] = { 8675309, 131072, 40961, 666, 69, 4 };
 
-char quote_text[13][32] = {
+char fta_quotes[13][32] = {
     "She's tougher than she looks!",
     "Go get the gun.",
     "The reactor must be destroyed!",
@@ -328,7 +328,7 @@ char quote_text[13][32] = {
 };
 
 /* US PC set-1 printable keys, with zero entries for non-text keys. */
-unsigned char scan_ascii[128] =
+unsigned char scantoasc[128] =
     "\0\0" "1234567890-=" "\0\0"                 /* 00-0f */
     "qwertyuiop[]" "\0\0" "as"                    /* 10-1f */
     "dfghjkl;'\x60" "\0" "\\zxcv"                  /* 20-2f */
@@ -336,7 +336,7 @@ unsigned char scan_ascii[128] =
     "\0\0\0\0\0\0\0" "789-456+1"                   /* 40-4f */
     "230.";                                       /* 50-53 */
 
-unsigned char scan_ascii_shift[128] =
+unsigned char scantoascwithshift[128] =
     "\0\0" "!@#$%^&*()_+" "\0\0"                 /* 00-0f */
     "QWERTYUIOP{}" "\0\0" "AS"                    /* 10-1f */
     "DFGHJKL:\"~" "\0" "|ZXCV"                     /* 20-2f */

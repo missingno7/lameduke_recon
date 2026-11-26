@@ -41,12 +41,12 @@ struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLO
     unsigned char reserved[4];
 };
 #pragma pack()
-extern struct user_settings userdefs;
+extern struct user_settings ud;
 
 /* dataown: one object, one name. The spellings below are the GLOBAL definitions or fields of
    its settings block; the extern declarations above keep this unit's symbol slots. */
-#define disable_armor userdefs.debug
-#define music_volume userdefs.music_volume
+#define disable_armor ud.debug
+#define music_volume ud.music_volume
 
 void addweapon(short p, unsigned short weapon, unsigned char force)
 {
@@ -316,7 +316,7 @@ void moveactors(void)
         t = hittype[i];
         if (sprite[i].picnum == CAM1) {
             if (dist < 2048)
-                viewscreen = i;
+                camsprite = i;
             continue;
         }
         if (sprite[i].picnum == MASTERSWITCH) {
@@ -1368,9 +1368,9 @@ void movefx(void)
             switch (hittype[i][0]) {
             case 0: case 2:
                 if (hittype[i][0] == 0)
-                    song = music_files[ps[screenpeek].volume][ps[screenpeek].level];
+                    song = music_fn[ps[screenpeek].volume][ps[screenpeek].level];
                 else
-                    song = env_music[sprite[i].lotag];
+                    song = env_music_fn[sprite[i].lotag];
                 hittype[i][0]++;
                 if (song != ps[screenpeek].music) {
                     ps[screenpeek].music = song;

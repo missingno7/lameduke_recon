@@ -37,12 +37,12 @@ struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLO
     unsigned char reserved[4];
 };
 #pragma pack()
-extern struct user_settings userdefs;
+extern struct user_settings ud;
 
 /* dataown: one object, one name. The spellings below are the GLOBAL definitions or fields of
    its settings block; the extern declarations above keep this unit's symbol slots. */
-#define disable_armor userdefs.debug
-#define facing_sprite userdefs.camera
+#define disable_armor ud.debug
+#define facing_sprite ud.camera
 
 short getincangle(short a, short na, short shift)
 {
@@ -233,7 +233,7 @@ char parsecommand(void)
         return 0;
 
     case CON_STATE:
-        if (!actor_header && !parsing_state) {
+        if (!parsing_actor && !parsing_state) {
             getlabel();
             parsing_state = 1;
             labelcode[labelcnt++] = (long)--scriptptr;
@@ -298,7 +298,7 @@ char parsecommand(void)
         return 1;
 
     case CON_MOVE:
-        if (actor_header || parsing_state) {
+        if (parsing_actor || parsing_state) {
             transnum();
             j = 0;
             for (;;) {
@@ -350,14 +350,14 @@ char parsecommand(void)
                 }
                 i = 0;
                 while ((c = textptr[i], TOKEN_CHAR(c))) {
-                    music_files[k][j][i] = textptr[i];
+                    music_fn[k][j][i] = textptr[i];
                     i++;
                 }
                 textptr += i;
-                music_files[k][j][i] = 0;
+                music_fn[k][j][i] = 0;
             }
             for (i = 9; i > j; i--)
-                strcpy(music_files[k][i], music_files[k][j]);
+                strcpy(music_fn[k][i], music_fn[k][j]);
         } else {
             for (j = 0; j < 10; j++) {
                 i = keyword();
@@ -371,13 +371,13 @@ char parsecommand(void)
                 }
                 i = 0;
                 while ((c = textptr[i], TOKEN_CHAR(c))) {
-                    env_music[j][i] = textptr[i];
+                    env_music_fn[j][i] = textptr[i];
                     i++;
                 }
                 textptr += i;
             }
             for (i = 9; i > j; i--)
-                strcpy(env_music[i], env_music[j]);
+                strcpy(env_music_fn[i], env_music_fn[j]);
         }
         return 0;
 
@@ -418,7 +418,7 @@ char parsecommand(void)
         return 0;
 
     case CON_ACTION:
-        if (actor_header || parsing_state) {
+        if (parsing_actor || parsing_state) {
             transnum();
             return 0;
         }
@@ -449,16 +449,16 @@ char parsecommand(void)
             printf("  * ERROR!(L%ld) Found 'actor' within 'state'.\n", (long)line_number);
             error++;
         }
-        if (actor_header) {
+        if (parsing_actor) {
             printf("  * ERROR!(L%ld) Found 'actor' within 'actor'.\n", (long)line_number);
             error++;
         }
         brace_depth = 0;
-        actor_header = --scriptptr;
+        parsing_actor = --scriptptr;
         transnum();
-        actorscrptr[*--scriptptr] = actor_header;
+        actorscrptr[*--scriptptr] = parsing_actor;
         for (i = 0; i < 4; i++)
-            actor_header[i] = 0;
+            parsing_actor[i] = 0;
         for (i = 0; i < 4; i++) {
             if (i == 3) {
                 j = 0;
@@ -478,7 +478,7 @@ char parsecommand(void)
                 break;
             }
             transnum();
-            actor_header[i] = scriptptr[-1];
+            parsing_actor[i] = scriptptr[-1];
         }
         checking_ifelse = 0;
         return 0;
@@ -554,7 +554,7 @@ char parsecommand(void)
         return 0;
 
     case CON_ENDA:
-        if (!actor_header) {
+        if (!parsing_actor) {
             printf("  * ERROR!(L%ld) Found 'aend' without defining 'actor'.\n", (long)line_number);
             error++;
             return 0;
@@ -568,7 +568,7 @@ char parsecommand(void)
             error++;
             return 0;
         }
-        actor_header = 0;
+        parsing_actor = 0;
         return 0;
 
     case -1:
