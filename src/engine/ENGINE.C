@@ -571,8 +571,9 @@ void calcwalls(short bunch)
 {
 	char cstat1, cstat2, andwstat2, andwstat1;
 	short z, wallnum, sectnum, nextsectnum;
-	long i, j, k, l, m, n, top, topinc, bot, botinc, x, y;
-	long xrepeat, templong, z1, z2, hplc, hplc2, hinc, daplc, llin, rlin, scalej;
+	// COMPILER_STEERED: Watcom stack-home order for topinc, n, z1 and z2.
+	long i, j, k, templong, m, n, top, topinc, bot, botinc, x, y;
+	long xrepeat, l, z2, z1, hplc, hplc2, hinc, daplc, llin, rlin, scalej;
 
 	z = bunchfirst[bunch];
 	sectnum = thesector[z];
@@ -2308,7 +2309,8 @@ modeset:
 
 hline (long xl, long xr, long yp, short sectnum)
 {
-	long temp, p, r, x, y, xinc, yinc, tempx, tempy, shade;
+	// COMPILER_STEERED: Watcom stack-home order for r and xr.
+	long y, p, r, x, temp, xinc, yinc, tempx, tempy, shade;
 
 	if (xl > xr) return;
 	if (yp == globalhoriz-1)
@@ -7005,16 +7007,21 @@ wallmost(long *mostbuf, long w, long z)
 
 rotatesprite(long sx, long sy, long z, short a, short picnum)
 {
+	// COMPILER_STEERED: Save the column origins and keep the raster
+	// height and count widths explicit to recover the historical extent.
 	long xsiz, ysiz, cosang, sinang, xstep, ystep;
 	long gx, gy, t, firstx, lastx, x, y1, y2, yoffs;
-	long umin, umax, vmin, vmax, u, v, du, dv, i, k;
+	long startu, startv, umin, umax, vmin, vmax, u, v, du, dv, i, k;
 	long bufplc, p, pitch, buf, frac, inc, stride;
-	short count;
+	long count;
+	short tileheight;
 
 	if (z <= 16) return(0);
 	if ((tilesizx[picnum]|tilesizy[picnum]) == 0) return(0);
 	if ((picanm[picnum]&192) != 0) picnum += animateoffs(picnum);
-	xsiz = tilesizx[picnum]; ysiz = tilesizy[picnum];
+	xsiz = tilesizx[picnum];
+	tileheight = tilesizy[picnum];
+	ysiz = tileheight;
 
 	t = mulscale(z,xsiz+ysiz,1);
 	if ((sx+t < 0) || (sy+t < 0) || (sx-t > (320L<<16)) ||
@@ -7059,6 +7066,7 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 
 	for(x=firstx;x<=lastx;x++)
 	{
+		startv = v; startu = u;
 		y1 = startumost[x-windowx1]-yoffs;
 		y2 = startdmost[x-windowx1]-yoffs-1;
 
@@ -7104,8 +7112,8 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 
 		if ((y1 <= y2) && (y2 >= 0) && (y1 < YDIM))
 		{
-			i = v+ystep*y1;
-			k = u+xstep*y1;
+			v += ystep*y1;
+			u += xstep*y1;
 			count = y2-y1;
 
 			if (option[0] == 0)
@@ -7125,30 +7133,30 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 				pitch = 640;
 			}
 
-			buf = bufplc+(k>>16)*ysiz;
+			buf = bufplc+(u>>16)*tileheight;
 			if (xstep > 0)
 			{
 				inc = xstep>>16;
-				inc *= ysiz;
+				inc *= tileheight;
 				frac = xstep&65535;
-				k &= 65535;
-				stride = ysiz;
+				u &= 65535;
+				stride = tileheight;
 			}
 			else
 			{
 				inc = -((-xstep)>>16);
-				inc *= ysiz;
+				inc *= tileheight;
 				frac = (-xstep)&65535;
-				k = (-k)&65535;
-				stride = -ysiz;
+				u = (-u)&65535;
+				stride = -tileheight;
 			}
 			asm1 = pitch;
 			asm4 = stride;
 			asm3 = frac<<16;
 			asm2 = inc;
-			spritevline(ystep,i,count,k<<16,buf,p);
+			spritevline(ystep,v,(short)count,u<<16,buf,p);
 		}
-		v -= xstep; u += ystep;
+		v = startv-xstep; u = startu+ystep;
 	}
 	return(0);
 }

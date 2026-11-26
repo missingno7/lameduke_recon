@@ -380,3 +380,11 @@ Each entry names the command or artefact that supports it.
   then swaps a stack slot; 1,296 variants), hitradius (>1,000 spellings; tie on the i*38 multiply's savings),
   movefta (~120 combinations), ms (best loop form 131 -> 105 unmatched, not adopted). guts holds moveactors' table
   (targets 15 KB into moveactors): STRICT only together with moveactors.
+
+## Engine round 4 (engfix4, Codex gpt-6.2-sol, 2026-11-26; build/workers/engfix4/NOTES.md, integrated)
+- PROVEN calcwalls and hline STRICT by local declaration order alone (stack homes; confirmed with cg95 traces).
+- PROVEN rotatesprite's December extent is 1,497 bytes: saving the column origins (startu/startv) and a separate
+  short tile height restore it, which makes setverts and setredbluepalette STRICT (their shared-epilogue
+  displacements depended on it). rotatesprite itself stays NEAR (1,225 bytes differ); setvesamode is
+  CODE_BYTES_MATCH (eight unverified _BSS references). All three edits are marked COMPILER_STEERED in ENGINE.C.
+- NEGATIVE scansector: declaration-order and use-count trials leave the 7 register bytes.

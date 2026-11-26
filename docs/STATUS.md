@@ -6,7 +6,7 @@ Run `python tools/gate.py` then `python tools/status.py` for live numbers.
 | Unit | Functions | STRICT | STRICT bytes |
 |---|---:|---:|---:|
 | a_asm | 20 | 20 | 3,520 |
-| engine | 103 | 81 | 38,423 |
+| engine | 103 | 85 | 45,183 |
 | ass_adlibfx | 13 | 12 | 1,473 |
 | ass_al_midi | 26 | 23 | 3,156 |
 | ass_awe32 | 13 | 13 | 2,263 |
@@ -39,7 +39,7 @@ Run `python tools/gate.py` then `python tools/status.py` for live numbers.
 | game_premap | 12 | 4 | 1,533 |
 | game_actors | 18 | 10 | 3,760 |
 
-Totals: 554 STRICT / 666 functions, 123,643 bytes; LameDuke 206 STRICT (78,211 bytes); Apogee Sound System 348 (45,432 bytes); CODE_BYTES_MATCH 14; verified data 10,530 bytes, verified _BSS layout 714,205 bytes.
+Totals: 558 STRICT / 666 functions, 130,403 bytes; LameDuke 210 STRICT (84,971 bytes); Apogee Sound System 348 (45,432 bytes); CODE_BYTES_MATCH 15; verified data 10,530 bytes, verified _BSS layout 714,205 bytes.
 
 Identified, not reconstructed: Watcom 9.5 runtime (docs/RUNTIME_CENSUS.md), Creative AWE32 and Gravis GF1 vendor objects (docs/AUDIOLIB.md).
 

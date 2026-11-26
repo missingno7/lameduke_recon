@@ -99,7 +99,7 @@
      "status": "STRICT"
     },
     "calcwalls": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "drawalls": {
      "status": "STRICT"
@@ -138,7 +138,7 @@
      "status": "STRICT"
     },
     "hline": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "transmaskvline": {
      "status": "STRICT"
@@ -354,13 +354,13 @@
      "status": "NEAR_MATCH"
     },
     "setvesamode": {
-     "status": "NEAR_MATCH"
+     "status": "CODE_BYTES_MATCH"
     },
     "stereoinit": {
      "status": "STRICT"
     },
     "setverts": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "stereoblit": {
      "status": "STRICT"
@@ -369,7 +369,7 @@
      "status": "STRICT"
     },
     "setredbluepalette": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "setbrightness": {
      "status": "STRICT"
