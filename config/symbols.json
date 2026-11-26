@@ -473,6 +473,1862 @@
    "zerohandler": {
     "addr": "1:40fd2",
     "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "ADLIBFX_ErrorString": {
+    "addr": "1:62778",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 adlibfx; 84-byte public extent and fixup sites"
+   },
+   "ADLIBFX_GetTotalVolume": {
+    "addr": "1:629d8",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 adlibfx; separate LE code census; unique whole segment code and fixup sites at 1:62760"
+   },
+   "ADLIBFX_Init": {
+    "addr": "1:62ba4",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 adlibfx; separate LE code census; unique whole segment code and fixup sites at 1:62760"
+   },
+   "ADLIBFX_LockEnd": {
+    "addr": "1:62b98",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 adlibfx; separate LE code census; unique whole segment code and fixup sites at 1:62760"
+   },
+   "ADLIBFX_Play": {
+    "addr": "1:629e0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 adlibfx; 408-byte public extent and fixup sites"
+   },
+   "ADLIBFX_SendOutput": {
+    "addr": "1:627cc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 adlibfx; 76-byte public extent and fixup sites"
+   },
+   "ADLIBFX_Service": {
+    "addr": "1:6288c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 adlibfx; 96-byte public extent and fixup sites"
+   },
+   "ADLIBFX_SetCallBack": {
+    "addr": "1:62b9c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 adlibfx; separate LE code census; unique whole segment code and fixup sites at 1:62760"
+   },
+   "ADLIBFX_SetTotalVolume": {
+    "addr": "1:629ac",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 adlibfx; 44-byte public extent and fixup sites"
+   },
+   "ADLIBFX_SetVolume": {
+    "addr": "1:628ec",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 adlibfx; 192-byte public extent and fixup sites"
+   },
+   "ADLIBFX_Shutdown": {
+    "addr": "1:62cb8",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 adlibfx; separate LE code census; unique whole segment code and fixup sites at 1:62760"
+   },
+   "ADLIBFX_SoundPlaying": {
+    "addr": "1:62b78",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 adlibfx; 32-byte public extent and fixup sites"
+   },
+   "ADLIBFX_Stop": {
+    "addr": "1:62818",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 adlibfx; 116-byte public extent and fixup sites"
+   },
+   "AL_AllNotesOff": {
+    "addr": "1:618bc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 al_midi; 60-byte public extent and fixup sites"
+   },
+   "AL_AllocVoice": {
+    "addr": "1:61094",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 al_midi; 72-byte public extent and fixup sites"
+   },
+   "AL_ControlChange": {
+    "addr": "1:618f8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 al_midi; 212-byte public extent and fixup sites"
+   },
+   "AL_GetVoice": {
+    "addr": "1:610dc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 al_midi; 44-byte public extent and fixup sites"
+   },
+   "AL_NoteOff": {
+    "addr": "1:616f8",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: al_midi/AL_AllNotesOff_ at 1:618e5, al_midi/AL_ControlChange_ at 1:61985"
+   },
+   "AL_ProgramChange": {
+    "addr": "1:619cc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 al_midi; 28-byte public extent and fixup sites"
+   },
+   "AL_ReleaseVoice": {
+    "addr": "1:61688",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 al_midi; 112-byte public extent and fixup sites"
+   },
+   "AL_ReserveVoice": {
+    "addr": "1:615e8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 al_midi; 160-byte public extent and fixup sites"
+   },
+   "AL_ResetVoices": {
+    "addr": "1:61344",
+    "evidence": "audio worker 2026-11-26: called in AL_ControlChange reset-all path"
+   },
+   "AL_SendOutputToPort": {
+    "addr": "1:60ab0",
+    "evidence": "audio worker 2026-11-26: AL_SendOutput calls this after OPL base/port selection"
+   },
+   "AL_SendOutput": {
+    "addr": "1:60ae8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 al_midi; 60-byte public extent and fixup sites"
+   },
+   "AL_SetChannelDetune": {
+    "addr": "1:6132c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 al_midi; 24-byte public extent and fixup sites"
+   },
+   "AL_SetChannelPan": {
+    "addr": "1:61310",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 al_midi; 28-byte public extent and fixup sites"
+   },
+   "AL_SetChannelVolume": {
+    "addr": "1:612d4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 al_midi; 60-byte public extent and fixup sites"
+   },
+   "AL_SetPitchBend": {
+    "addr": "1:619e8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 al_midi; 108-byte public extent and fixup sites"
+   },
+   "AL_SetVoicePitch": {
+    "addr": "1:61108",
+    "evidence": "audio worker 2026-11-26: called in AL_SetPitchBend channel walk"
+   },
+   "AL_SetVoiceTimbre": {
+    "addr": "1:60b24",
+    "evidence": "audio worker 2026-11-26: OPL timbre writes; called after AL_NoteOn allocation"
+   },
+   "AL_SetVoiceVolume": {
+    "addr": "1:60f7c",
+    "evidence": "audio worker 2026-11-26: called in AL_SetChannelVolume channel walk"
+   },
+   "AWE32_ChannelAftertouch": {
+    "addr": "1:61f68",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 awe32; separate LE code census; unique whole segment code and fixup sites at 1:61e80"
+   },
+   "AWE32_ControlChange": {
+    "addr": "1:61f94",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 awe32; 148-byte public extent and fixup sites"
+   },
+   "AWE32_Init": {
+    "addr": "1:62468",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 awe32; separate LE code census; unique whole segment code and fixup sites at 1:61e80"
+   },
+   "AWE32_LockEnd": {
+    "addr": "1:6208c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 awe32; separate LE code census; unique whole segment code and fixup sites at 1:61e80"
+   },
+   "AWE32_NoteOff": {
+    "addr": "1:61e80",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 awe32; 88-byte public extent and fixup sites"
+   },
+   "AWE32_NoteOn": {
+    "addr": "1:61ed8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 awe32; 88-byte public extent and fixup sites"
+   },
+   "AWE32_PitchBend": {
+    "addr": "1:62054",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 awe32; 56-byte public extent and fixup sites"
+   },
+   "AWE32_PolyAftertouch": {
+    "addr": "1:61f30",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 awe32; 56-byte public extent and fixup sites"
+   },
+   "AWE32_ProgramChange": {
+    "addr": "1:62028",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 awe32; separate LE code census; unique whole segment code and fixup sites at 1:61e80"
+   },
+   "AWE32_Shutdown": {
+    "addr": "1:62670",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 awe32; 231-byte public extent and fixup sites"
+   },
+   "BLASTER_BeginBufferedPlayback": {
+    "addr": "1:5fa3c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 156-byte public extent and fixup sites"
+   },
+   "BLASTER_BeginBufferedRecord": {
+    "addr": "1:5f9a0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 156-byte public extent and fixup sites"
+   },
+   "BLASTER_CardHasMixer": {
+    "addr": "1:5fdb0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 108-byte public extent and fixup sites"
+   },
+   "BLASTER_DSP1xx_BeginPlayback": {
+    "addr": "1:5f744",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 64-byte public extent and fixup sites"
+   },
+   "BLASTER_DSP1xx_BeginRecord": {
+    "addr": "1:5f960",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 64-byte public extent and fixup sites"
+   },
+   "BLASTER_DSP2xx_BeginPlayback": {
+    "addr": "1:5f784",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 132-byte public extent and fixup sites"
+   },
+   "BLASTER_DSP2xx_BeginRecord": {
+    "addr": "1:5f8dc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 132-byte public extent and fixup sites"
+   },
+   "BLASTER_DSP4xx_BeginPlayback": {
+    "addr": "1:5f808",
+    "evidence": "audio worker 2026-11-26: called by BLASTER_BeginBufferedPlayback, DSP 4.x path"
+   },
+   "BLASTER_DSP4xx_BeginRecord": {
+    "addr": "1:5f894",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 72-byte public extent and fixup sites"
+   },
+   "BLASTER_DisableInterrupt": {
+    "addr": "1:5f130",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 120-byte public extent and fixup sites"
+   },
+   "BLASTER_EnableInterrupt": {
+    "addr": "1:5f0e0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 80-byte public extent and fixup sites"
+   },
+   "BLASTER_ErrorString": {
+    "addr": "1:5f050",
+    "evidence": "audio worker 2026-11-26: BLASTER diagnostic strings; callers FX_ErrorString and MUSIC_ErrorString"
+   },
+   "BLASTER_GetEnv": {
+    "addr": "1:60014",
+    "evidence": "audio worker 2026-11-26: blastold unique entry prefix (64 invariant bytes) at independently mapped LE entry"
+   },
+   "BLASTER_GetMidiVolume": {
+    "addr": "1:5fc60",
+    "evidence": "audio worker 2026-11-26: blastold unique entry prefix (52 invariant bytes) at independently mapped LE entry"
+   },
+   "BLASTER_Init": {
+    "addr": "1:60770",
+    "evidence": "audio worker 2026-11-26: blastold unique entry prefix (32 invariant bytes) at independently mapped LE entry"
+   },
+   "BLASTER_LockMemory": {
+    "addr": "1:60454",
+    "evidence": "audio worker 2026-11-26: blastold unique entry prefix (36 invariant bytes) at independently mapped LE entry"
+   },
+   "BLASTER_ReadDSP": {
+    "addr": "1:5f300",
+    "evidence": "audio worker 2026-11-26: blastold unique entry prefix (38 invariant bytes) at independently mapped LE entry"
+   },
+   "BLASTER_ReadMixer": {
+    "addr": "1:5faf4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 28-byte public extent and fixup sites"
+   },
+   "BLASTER_ResetDSP": {
+    "addr": "1:5f34c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_Shutdown_ at 1:60a0f, blaster/BLASTER_StopPlayback_ at 1:5f612"
+   },
+   "BLASTER_RestoreMidiVolume": {
+    "addr": "1:5ff9c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 120-byte public extent and fixup sites"
+   },
+   "BLASTER_RestoreVoiceVolume": {
+    "addr": "1:5fea0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 120-byte public extent and fixup sites"
+   },
+   "BLASTER_SaveMidiVolume": {
+    "addr": "1:5ff18",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 132-byte public extent and fixup sites"
+   },
+   "BLASTER_SaveVoiceVolume": {
+    "addr": "1:5fe1c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 132-byte public extent and fixup sites"
+   },
+   "BLASTER_ServiceInterrupt": {
+    "addr": "1:5f1a8",
+    "evidence": "audio worker 2026-11-26: blastold unique entry prefix (43 invariant bytes) at independently mapped LE entry"
+   },
+   "BLASTER_SetMixMode": {
+    "addr": "1:5f568",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 148-byte public extent and fixup sites"
+   },
+   "BLASTER_SetPlaybackRate": {
+    "addr": "1:5f430",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 304-byte public extent and fixup sites"
+   },
+   "BLASTER_SetupDMABuffer": {
+    "addr": "1:5f65c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_BeginBufferedPlayback_ at 1:5fa71, blaster/BLASTER_BeginBufferedRecord_ at 1:5f9d5"
+   },
+   "BLASTER_ShutdownWaveBlaster": {
+    "addr": "1:60744",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 44-byte public extent and fixup sites"
+   },
+   "BLASTER_Shutdown": {
+    "addr": "1:609b4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 241-byte public extent and fixup sites"
+   },
+   "BLASTER_StopPlayback": {
+    "addr": "1:5f5fc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 96-byte public extent and fixup sites"
+   },
+   "BLASTER_UnlockMemory": {
+    "addr": "1:6029c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 440-byte public extent and fixup sites"
+   },
+   "BLASTER_WriteDSP": {
+    "addr": "1:5f3f8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 56-byte public extent and fixup sites"
+   },
+   "BLASTER_WriteMixer": {
+    "addr": "1:5fad8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 28-byte public extent and fixup sites"
+   },
+   "DMA_EndTransfer": {
+    "addr": "1:5ee28",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dma; unique whole segment code and fixup sites at 1:5eb80"
+   },
+   "DMA_ErrorString": {
+    "addr": "1:5ec90",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dma; unique whole segment code and fixup sites at 1:5eb80"
+   },
+   "DMA_GetCurrentPos": {
+    "addr": "1:5ee5c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dma; unique whole segment code and fixup sites at 1:5eb80"
+   },
+   "DMA_GetTransferCount": {
+    "addr": "1:5eeb8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dma; unique whole segment code and fixup sites at 1:5eb80"
+   },
+   "DMA_SetupTransfer": {
+    "addr": "1:5ed20",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dma; unique whole segment code and fixup sites at 1:5eb80"
+   },
+   "DMA_VerifyChannel": {
+    "addr": "1:5ecd8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dma; unique whole segment code and fixup sites at 1:5eb80"
+   },
+   "DPMI_CallRealModeFunction": {
+    "addr": "1:5ea60",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dpmi; unique whole segment code and fixup sites at 1:5e9e0"
+   },
+   "DPMI_GetRealModeVector": {
+    "addr": "1:5e9e0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dpmi; unique whole segment code and fixup sites at 1:5e9e0"
+   },
+   "DPMI_LockMemoryRegion": {
+    "addr": "1:5eac4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dpmi; unique whole segment code and fixup sites at 1:5e9e0"
+   },
+   "DPMI_LockMemory": {
+    "addr": "1:5eac8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dpmi; unique whole segment code and fixup sites at 1:5e9e0"
+   },
+   "DPMI_SetRealModeVector": {
+    "addr": "1:5ea24",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dpmi; unique whole segment code and fixup sites at 1:5e9e0"
+   },
+   "DPMI_UnlockMemoryRegion": {
+    "addr": "1:5eb20",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dpmi; unique whole segment code and fixup sites at 1:5e9e0"
+   },
+   "DPMI_UnlockMemory": {
+    "addr": "1:5eb24",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dpmi; unique whole segment code and fixup sites at 1:5e9e0"
+   },
+   "FX_ErrorString": {
+    "addr": "1:5ddf0",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 276-byte public extent and fixup sites"
+   },
+   "FX_GetVolume": {
+    "addr": "1:5e3c0",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 108-byte public extent and fixup sites"
+   },
+   "FX_Init": {
+    "addr": "1:5e0f0",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 300-byte public extent and fixup sites"
+   },
+   "FX_Pan3D": {
+    "addr": "1:5e788",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 172-byte public extent and fixup sites"
+   },
+   "FX_PlayVOC3D": {
+    "addr": "1:5e660",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 296-byte public extent and fixup sites"
+   },
+   "FX_PlayVOC": {
+    "addr": "1:5e55c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 260-byte public extent and fixup sites"
+   },
+   "FX_SetCallBack": {
+    "addr": "1:5e2b4",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 132-byte public extent and fixup sites"
+   },
+   "FX_SetPan": {
+    "addr": "1:5e42c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 156-byte public extent and fixup sites"
+   },
+   "FX_SetPitch": {
+    "addr": "1:5e4c8",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 148-byte public extent and fixup sites"
+   },
+   "FX_SetVolume": {
+    "addr": "1:5e338",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 136-byte public extent and fixup sites"
+   },
+   "FX_SetupCard": {
+    "addr": "1:5df04",
+    "evidence": "audio worker 2026-11-26: fx_man unique entry prefix (47 invariant bytes) at independently mapped LE entry"
+   },
+   "FX_Shutdown": {
+    "addr": "1:5e21c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 152-byte public extent and fixup sites"
+   },
+   "FX_SoundActive": {
+    "addr": "1:5e834",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 100-byte public extent and fixup sites"
+   },
+   "FX_StopAllSounds": {
+    "addr": "1:5e978",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 91-byte public extent and fixup sites"
+   },
+   "FX_StopSound": {
+    "addr": "1:5e898",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 fx_man; separate LE code census; 224-byte public extent and fixup sites"
+   },
+   "GUSMIDI_ControlChange": {
+    "addr": "1:5da74",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUSMIDI_GetVolume": {
+    "addr": "1:5dac8",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUSMIDI_Init": {
+    "addr": "1:5dad0",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUSMIDI_LoadPatch": {
+    "addr": "1:5d800",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUSMIDI_NoteOff": {
+    "addr": "1:5da64",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUSMIDI_NoteOn": {
+    "addr": "1:5da0c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUSMIDI_PitchBend": {
+    "addr": "1:5da7c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUSMIDI_ProgramChange": {
+    "addr": "1:5d9d0",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUSMIDI_ReleasePatches": {
+    "addr": "1:5da84",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUSMIDI_SetVolume": {
+    "addr": "1:5da9c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUSMIDI_Shutdown": {
+    "addr": "1:5db88",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUSMIDI_UnloadPatch": {
+    "addr": "1:5d77c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUSWAVE_AllocVoice": {
+    "addr": "1:5cfb8",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 248-byte public extent and fixup sites"
+   },
+   "GUSWAVE_CallBack": {
+    "addr": "1:5cc34",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 188-byte public extent and fixup sites"
+   },
+   "GUSWAVE_ErrorString": {
+    "addr": "1:5cbe0",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 84-byte public extent and fixup sites"
+   },
+   "GUSWAVE_GetNextVOCBlock": {
+    "addr": "1:5d0b0",
+    "evidence": "audio worker 2026-11-26: called by GF1 playback callback and VOC entry; decodes VOC blocks"
+   },
+   "GUSWAVE_GetVoice": {
+    "addr": "1:5ccf0",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 52-byte public extent and fixup sites"
+   },
+   "GUSWAVE_GetVolume": {
+    "addr": "1:5cf90",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 guswave; 40-byte public extent and fixup sites"
+   },
+   "GUSWAVE_InitVoices": {
+    "addr": "1:5d3b0",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 172-byte public extent and fixup sites"
+   },
+   "GUSWAVE_Init": {
+    "addr": "1:5d464",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 126-byte public extent and fixup sites"
+   },
+   "GUSWAVE_KillAllVoices": {
+    "addr": "1:5cdac",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 172-byte public extent and fixup sites"
+   },
+   "GUSWAVE_Kill": {
+    "addr": "1:5cd5c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 80-byte public extent and fixup sites"
+   },
+   "GUSWAVE_PlayVOC": {
+    "addr": "1:5d23c",
+    "evidence": "audio worker 2026-11-26: called by FX_PlayVOC and FX_PlayVOC3D; sets source and invokes gf1_play_digital"
+   },
+   "GUSWAVE_SetCallBack": {
+    "addr": "1:5d45c",
+    "evidence": "audio worker 2026-11-26: FX_SetCallBack dispatcher writes sole function pointer at 2:95c0"
+   },
+   "GUSWAVE_SetPan3D": {
+    "addr": "1:5cecc",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 148-byte public extent and fixup sites"
+   },
+   "GUSWAVE_SetPitch": {
+    "addr": "1:5ce58",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 116-byte public extent and fixup sites"
+   },
+   "GUSWAVE_SetVolume": {
+    "addr": "1:5cf60",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 48-byte public extent and fixup sites"
+   },
+   "GUSWAVE_Shutdown": {
+    "addr": "1:5dd38",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gus; separate LE code census; unique whole segment code and fixup sites at 1:5dba2"
+   },
+   "GUSWAVE_VoicePlaying": {
+    "addr": "1:5cd24",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 16-byte public extent and fixup sites"
+   },
+   "GUSWAVE_VoicesPlaying": {
+    "addr": "1:5cd34",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 40-byte public extent and fixup sites"
+   },
+   "GUS_ErrorString": {
+    "addr": "1:5d51c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUS_GetPatchMap": {
+    "addr": "1:5d580",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gusmidi; separate LE code census; unique whole segment code and fixup sites at 1:5d4f0"
+   },
+   "GUS_Init": {
+    "addr": "1:5dc09",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gus; separate LE code census; unique whole segment code and fixup sites at 1:5dba2"
+   },
+   "GUS_Shutdown": {
+    "addr": "1:5dcef",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gus; 73-byte public extent and fixup sites"
+   },
+   "GetUltraCfg": {
+    "addr": "1:540c0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1utils; unique whole segment code and fixup sites at 1:540c0"
+   },
+   "IRQ_RestoreVector": {
+    "addr": "1:5ca74",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 irq; 200-byte public extent and fixup sites"
+   },
+   "IRQ_SetVector": {
+    "addr": "1:5c85c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 irq; 536-byte public extent and fixup sites"
+   },
+   "InitMPU": {
+    "addr": "1:62090",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 awe32; 584-byte public extent and fixup sites"
+   },
+   "LL_AddNode": {
+    "addr": "1:5c6c0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 ll_man; unique whole segment code and fixup sites at 1:5c6c0"
+   },
+   "LL_LockEnd": {
+    "addr": "1:5c744",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 ll_man; unique whole segment code and fixup sites at 1:5c6c0"
+   },
+   "LL_LockMemory": {
+    "addr": "1:5c75c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 ll_man; unique whole segment code and fixup sites at 1:5c6c0"
+   },
+   "LL_RemoveNode": {
+    "addr": "1:5c6e8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 ll_man; unique whole segment code and fixup sites at 1:5c6c0"
+   },
+   "LL_UnlockMemory": {
+    "addr": "1:5c748",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 ll_man; unique whole segment code and fixup sites at 1:5c6c0"
+   },
+   "LoadSBK": {
+    "addr": "1:623dc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 awe32; 140-byte public extent and fixup sites"
+   },
+   "MIDI_ContinueSong": {
+    "addr": "1:5bc90",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 midi; 20-byte public extent and fixup sites"
+   },
+   "MIDI_GetPosition": {
+    "addr": "1:5c010",
+    "evidence": "audio worker 2026-11-26: called in MUSIC_GetPosition, returns current MIDI tick counter"
+   },
+   "MIDI_GetVolume": {
+    "addr": "1:5bc5c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 midi; 44-byte public extent and fixup sites"
+   },
+   "MIDI_PauseSong": {
+    "addr": "1:5bca4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 midi; 28-byte public extent and fixup sites"
+   },
+   "MIDI_PlaySong": {
+    "addr": "1:5bd48",
+    "evidence": "audio worker 2026-11-26: called in MUSIC_PlaySong"
+   },
+   "MIDI_RerouteMidiChannel": {
+    "addr": "1:5ba54",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 midi; 20-byte public extent and fixup sites"
+   },
+   "MIDI_SetLoopFlag": {
+    "addr": "1:5bc88",
+    "evidence": "audio worker 2026-11-26: setter of loop flag, reached from MUSIC_SetLoopFlag"
+   },
+   "MIDI_SetMidiFuncs": {
+    "addr": "1:5bcc8",
+    "evidence": "audio worker 2026-11-26: stores MIDI dispatch table, called by all four MUSIC driver initializers"
+   },
+   "MIDI_SetPosition": {
+    "addr": "1:5c034",
+    "evidence": "audio worker 2026-11-26: called in MUSIC_SetPosition and uses the MIDI tick counter"
+   },
+   "MIDI_SetVolume": {
+    "addr": "1:5bbdc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 midi; 128-byte public extent and fixup sites"
+   },
+   "MIDI_SongPlaying": {
+    "addr": "1:5bcc0",
+    "evidence": "audio worker 2026-11-26: getter of song-active flag reached from MUSIC_SongPlaying"
+   },
+   "MIDI_StopSong": {
+    "addr": "1:5bcd0",
+    "evidence": "audio worker 2026-11-26: called in MUSIC_StopSong"
+   },
+   "MPU_ChannelAftertouch": {
+    "addr": "1:5b3cc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_ControlChange": {
+    "addr": "1:5b3a4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_EnterUART": {
+    "addr": "1:5b468",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_Init": {
+    "addr": "1:5b4ac",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_LockEnd": {
+    "addr": "1:5b4e8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_LockMemory": {
+    "addr": "1:5b51c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_NoteOff": {
+    "addr": "1:5b368",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_NoteOn": {
+    "addr": "1:5b37c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_PitchBend": {
+    "addr": "1:5b3dc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_PolyAftertouch": {
+    "addr": "1:5b390",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_ProgramChange": {
+    "addr": "1:5b3bc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_Reset": {
+    "addr": "1:5b424",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_SendCommand": {
+    "addr": "1:5b3f4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_SendMidi": {
+    "addr": "1:5b330",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MPU_UnlockMemory": {
+    "addr": "1:5b4ec",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 mpu401; unique whole segment code and fixup sites at 1:5b330"
+   },
+   "MUSIC_Continue": {
+    "addr": "1:58e24",
+    "evidence": "audio worker 2026-11-26: tail jump to MIDI_ContinueSong"
+   },
+   "MUSIC_ErrorString": {
+    "addr": "1:58bc8",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 music; separate LE code census; 224-byte public extent and fixup sites"
+   },
+   "MUSIC_FadeActive": {
+    "addr": "1:592e4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 music; 16-byte public extent and fixup sites"
+   },
+   "MUSIC_FadeRoutine": {
+    "addr": "1:59190",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 music; 104-byte public extent and fixup sites"
+   },
+   "MUSIC_GetPosition": {
+    "addr": "1:58ee0",
+    "evidence": "audio worker 2026-11-26: tail jump to MIDI_GetPosition"
+   },
+   "MUSIC_GetVolume": {
+    "addr": "1:58e04",
+    "evidence": "audio worker 2026-11-26: return zero if no card; otherwise tail call to MIDI_GetVolume"
+   },
+   "MUSIC_InitAWE32": {
+    "addr": "1:58ef0",
+    "evidence": "audio worker 2026-11-26: call AWE32_Init followed by populate MIDI dispatch table"
+   },
+   "MUSIC_InitFM": {
+    "addr": "1:58f94",
+    "evidence": "audio worker 2026-11-26: AL_DetectFM and AL_Init, followed by populate MIDI dispatch table"
+   },
+   "MUSIC_InitGUS": {
+    "addr": "1:59110",
+    "evidence": "audio worker 2026-11-26: GUSMIDI_Init followed by seven GUS MIDI dispatch addresses"
+   },
+   "MUSIC_InitMidi": {
+    "addr": "1:59064",
+    "evidence": "audio worker 2026-11-26: BLASTER_SetupWaveBlaster and MPU401_Init"
+   },
+   "MUSIC_Init": {
+    "addr": "1:58ca8",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 music; separate LE code census; 180-byte public extent and fixup sites"
+   },
+   "MUSIC_Pause": {
+    "addr": "1:58e2c",
+    "evidence": "audio worker 2026-11-26: tail jump to MIDI_PauseSong"
+   },
+   "MUSIC_PlaySong": {
+    "addr": "1:58e94",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 music; separate LE code census; 76-byte public extent and fixup sites"
+   },
+   "MUSIC_RerouteMidiChannel": {
+    "addr": "1:59314",
+    "evidence": "audio worker 2026-11-26: final MUSIC entry, tail jump to MIDI_RerouteMidiChannel"
+   },
+   "MUSIC_SetLoopFlag": {
+    "addr": "1:58e14",
+    "evidence": "audio worker 2026-11-26: tail jump to MIDI_SetLoopFlag"
+   },
+   "MUSIC_SetPosition": {
+    "addr": "1:58ee8",
+    "evidence": "audio worker 2026-11-26: tail jump to MIDI_SetPosition"
+   },
+   "MUSIC_SetVolume": {
+    "addr": "1:58de4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 music; 32-byte public extent and fixup sites"
+   },
+   "MUSIC_Shutdown": {
+    "addr": "1:58d5c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 music; separate LE code census; 136-byte public extent and fixup sites"
+   },
+   "MUSIC_SongPlaying": {
+    "addr": "1:58e1c",
+    "evidence": "audio worker 2026-11-26: tail jump to MIDI_SongPlaying"
+   },
+   "MUSIC_StopFade": {
+    "addr": "1:592f4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 music; 32-byte public extent and fixup sites"
+   },
+   "MUSIC_StopSong": {
+    "addr": "1:58e34",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 music; separate LE code census; 96-byte public extent and fixup sites"
+   },
+   "MV_CalcVolume": {
+    "addr": "1:5a906",
+    "evidence": "audio worker 2026-11-26: implicit mixer table builder called by MV_SetVolume and MV_Init"
+   },
+   "MV_ErrorString": {
+    "addr": "1:59349",
+    "evidence": "audio worker 2026-11-26: MULTIVOC strings and FX_ErrorString call at 05deab"
+   },
+   "MV_GetVolume": {
+    "addr": "1:5ab06",
+    "evidence": "audio worker 2026-11-26: FX_GetVolume default driver dispatch; returns MV total volume"
+   },
+   "MV_Init": {
+    "addr": "1:5ab12",
+    "evidence": "audio worker 2026-11-26: initializes mixer buffers, called by FX_Init"
+   },
+   "MV_KillAllVoices": {
+    "addr": "1:59a26",
+    "evidence": "audio worker 2026-11-26: multivoc unique entry prefix (21 invariant bytes) at independently mapped LE entry"
+   },
+   "MV_LockMemory": {
+    "addr": "1:5b0fe",
+    "evidence": "audio worker 2026-11-26: series of DPMI_Lock calls, ends with PITCH_LockMemory"
+   },
+   "MV_Pan3D": {
+    "addr": "1:59ddc",
+    "evidence": "audio worker 2026-11-26: multivoc unique entry prefix (41 invariant bytes) at independently mapped LE entry"
+   },
+   "MV_ServiceRecord": {
+    "addr": "1:59989",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 multivoc; 69-byte public extent and fixup sites"
+   },
+   "MV_SetPan": {
+    "addr": "1:59c90",
+    "evidence": "audio worker 2026-11-26: called by FX_SetPan and MV_Pan3D"
+   },
+   "MV_SetVolume": {
+    "addr": "1:5aad0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 multivoc; 54-byte public extent and fixup sites"
+   },
+   "MV_Shutdown": {
+    "addr": "1:5ae25",
+    "evidence": "audio worker 2026-11-26: stops mixer and frees buffers, called by FX_Shutdown"
+   },
+   "MV_UnlockMemory": {
+    "addr": "1:5af34",
+    "evidence": "audio worker 2026-11-26: series of DPMI_Unlock calls, starts with PITCH_UnlockMemory"
+   },
+   "MV_VoicePlaying": {
+    "addr": "1:599fd",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 multivoc; 41-byte public extent and fixup sites"
+   },
+   "MV_VoicesPlaying": {
+    "addr": "1:59b1a",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 multivoc; 61-byte public extent and fixup sites"
+   },
+   "PAS_BeginBufferedPlayback": {
+    "addr": "1:57c8c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pas16; separate LE code census; 116-byte public extent and fixup sites"
+   },
+   "PAS_BeginBufferedRecord": {
+    "addr": "1:57d00",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pas16; separate LE code census; 112-byte public extent and fixup sites"
+   },
+   "PAS_BeginTransfer": {
+    "addr": "1:57bd0",
+    "evidence": "audio worker 2026-11-26: pas16 unique entry prefix (27 invariant bytes) at independently mapped LE entry"
+   },
+   "PAS_CallMVFunction": {
+    "addr": "1:57d70",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 96-byte public extent and fixup sites"
+   },
+   "PAS_CheckForDriver": {
+    "addr": "1:5742c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pas16; separate LE code census; 128-byte public extent and fixup sites"
+   },
+   "PAS_DisableInterrupt": {
+    "addr": "1:576ac",
+    "evidence": "audio worker 2026-11-26: pas16 unique entry prefix (36 invariant bytes) at independently mapped LE entry"
+   },
+   "PAS_ErrorString": {
+    "addr": "1:573c0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 108-byte public extent and fixup sites"
+   },
+   "PAS_FindCard": {
+    "addr": "1:58000",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 224-byte public extent and fixup sites"
+   },
+   "PAS_GetCardInfo": {
+    "addr": "1:57fa8",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pas16; separate LE code census; 80-byte public extent and fixup sites"
+   },
+   "PAS_GetCardSettings": {
+    "addr": "1:57544",
+    "evidence": "audio worker 2026-11-26: MV_GetDmaIrqInt 0xbc04, MV reply and PAS IRQ table"
+   },
+   "PAS_GetCurrentPos": {
+    "addr": "1:57b1c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 108-byte public extent and fixup sites"
+   },
+   "PAS_GetFMVolume": {
+    "addr": "1:57f34",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 116-byte public extent and fixup sites"
+   },
+   "PAS_GetFilterSetting": {
+    "addr": "1:57b88",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 72-byte public extent and fixup sites"
+   },
+   "PAS_GetFunctionTable": {
+    "addr": "1:574f8",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pas16; separate LE code census; 76-byte public extent and fixup sites"
+   },
+   "PAS_GetPCMVolume": {
+    "addr": "1:57e40",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 136-byte public extent and fixup sites"
+   },
+   "PAS_GetStateTable": {
+    "addr": "1:574ac",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pas16; separate LE code census; 76-byte public extent and fixup sites"
+   },
+   "PAS_Init": {
+    "addr": "1:58428",
+    "evidence": "audio worker 2026-11-26: pas16 unique entry prefix (40 invariant bytes) at independently mapped LE entry"
+   },
+   "PAS_LockEnd": {
+    "addr": "1:58388",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:5896b, pas16/PAS_UnlockMemory_ at 1:587b2"
+   },
+   "PAS_LockMemory": {
+    "addr": "1:58968",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 526-byte public extent and fixup sites"
+   },
+   "PAS_Read": {
+    "addr": "1:57880",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 16-byte public extent and fixup sites"
+   },
+   "PAS_RestoreMusicVolume": {
+    "addr": "1:581d8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 68-byte public extent and fixup sites"
+   },
+   "PAS_RestoreState": {
+    "addr": "1:58270",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 280-byte public extent and fixup sites"
+   },
+   "PAS_SaveMusicVolume": {
+    "addr": "1:580e0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 248-byte public extent and fixup sites"
+   },
+   "PAS_SaveState": {
+    "addr": "1:5821c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 84-byte public extent and fixup sites"
+   },
+   "PAS_ServiceInterrupt": {
+    "addr": "1:57780",
+    "evidence": "audio worker 2026-11-26: pas16 unique entry prefix (43 invariant bytes) at independently mapped LE entry"
+   },
+   "PAS_SetFMVolume": {
+    "addr": "1:57ec8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 108-byte public extent and fixup sites"
+   },
+   "PAS_SetMixMode": {
+    "addr": "1:57a14",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pas16; separate LE code census; 44-byte public extent and fixup sites"
+   },
+   "PAS_SetPCMVolume": {
+    "addr": "1:57dd0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 112-byte public extent and fixup sites"
+   },
+   "PAS_SetPlaybackRate": {
+    "addr": "1:579a4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 104-byte public extent and fixup sites"
+   },
+   "PAS_SetSampleBufferCount": {
+    "addr": "1:57918",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 140-byte public extent and fixup sites"
+   },
+   "PAS_SetSampleRateTimer": {
+    "addr": "1:57890",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 136-byte public extent and fixup sites"
+   },
+   "PAS_SetupDMABuffer": {
+    "addr": "1:57aa8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 116-byte public extent and fixup sites"
+   },
+   "PAS_StopPlayback": {
+    "addr": "1:57a40",
+    "evidence": "audio worker 2026-11-26: pas16 unique entry prefix (28 invariant bytes) at independently mapped LE entry"
+   },
+   "PAS_UnlockMemory": {
+    "addr": "1:587b0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 440-byte public extent and fixup sites"
+   },
+   "PAS_Write": {
+    "addr": "1:57870",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 16-byte public extent and fixup sites"
+   },
+   "PCFX_ErrorString": {
+    "addr": "1:56dd8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pcfx; 84-byte public extent and fixup sites"
+   },
+   "PCFX_GetTotalVolume": {
+    "addr": "1:57030",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pcfx; separate LE code census; unique whole segment code and fixup sites at 1:56dc0"
+   },
+   "PCFX_Init": {
+    "addr": "1:57078",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pcfx; 172-byte public extent and fixup sites"
+   },
+   "PCFX_LockEnd": {
+    "addr": "1:57038",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pcfx; separate LE code census; unique whole segment code and fixup sites at 1:56dc0"
+   },
+   "PCFX_LockMemory": {
+    "addr": "1:5723c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pcfx; 271-byte public extent and fixup sites"
+   },
+   "PCFX_Play": {
+    "addr": "1:56f48",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pcfx; 132-byte public extent and fixup sites"
+   },
+   "PCFX_Service": {
+    "addr": "1:56ea0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pcfx; 168-byte public extent and fixup sites"
+   },
+   "PCFX_SetCallBack": {
+    "addr": "1:57070",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pcfx; separate LE code census; unique whole segment code and fixup sites at 1:56dc0"
+   },
+   "PCFX_SetTotalVolume": {
+    "addr": "1:56ff0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pcfx; 64-byte public extent and fixup sites"
+   },
+   "PCFX_Shutdown": {
+    "addr": "1:57124",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pcfx; 64-byte public extent and fixup sites"
+   },
+   "PCFX_SoundPlaying": {
+    "addr": "1:56fcc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pcfx; 36-byte public extent and fixup sites"
+   },
+   "PCFX_Stop": {
+    "addr": "1:56e2c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pcfx; 116-byte public extent and fixup sites"
+   },
+   "PCFX_UnlockMemory": {
+    "addr": "1:57164",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pcfx; 216-byte public extent and fixup sites"
+   },
+   "PCFX_UseLookup": {
+    "addr": "1:5703c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pcfx; 52-byte public extent and fixup sites"
+   },
+   "PITCH_GetScale": {
+    "addr": "1:56c70",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pitch; separate LE code census; unique whole segment code and fixup sites at 1:56bf0"
+   },
+   "PITCH_Init": {
+    "addr": "1:56bf0",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pitch; separate LE code census; unique whole segment code and fixup sites at 1:56bf0"
+   },
+   "PITCH_LockEnd": {
+    "addr": "1:56d18",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pitch; separate LE code census; unique whole segment code and fixup sites at 1:56bf0"
+   },
+   "PITCH_LockMemory": {
+    "addr": "1:56d4c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pitch; separate LE code census; unique whole segment code and fixup sites at 1:56bf0"
+   },
+   "PITCH_UnlockMemory": {
+    "addr": "1:56d1c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 pitch; separate LE code census; unique whole segment code and fixup sites at 1:56bf0"
+   },
+   "SS_BeginBufferedPlayback": {
+    "addr": "1:56640",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 sndsrc; separate LE code census; unique whole segment code and fixup sites at 1:56490"
+   },
+   "SS_DetectSoundSource": {
+    "addr": "1:567c0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; 212-byte public extent and fixup sites"
+   },
+   "SS_ErrorString": {
+    "addr": "1:564a4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; 80-byte public extent and fixup sites"
+   },
+   "SS_GetCurrentPos": {
+    "addr": "1:56614",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; 40-byte public extent and fixup sites"
+   },
+   "SS_GetPlaybackRate": {
+    "addr": "1:566c4",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 sndsrc; separate LE code census; unique whole segment code and fixup sites at 1:56490"
+   },
+   "SS_Init": {
+    "addr": "1:56894",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 sndsrc; separate LE code census; unique whole segment code and fixup sites at 1:56490"
+   },
+   "SS_LockEnd": {
+    "addr": "1:5663c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 sndsrc; separate LE code census; unique whole segment code and fixup sites at 1:56490"
+   },
+   "SS_LockMemory": {
+    "addr": "1:56aac",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; 322-byte public extent and fixup sites"
+   },
+   "SS_ServiceInterrupt": {
+    "addr": "1:564f4",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 sndsrc; separate LE code census; unique whole segment code and fixup sites at 1:56490"
+   },
+   "SS_SetCallBack": {
+    "addr": "1:56720",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 sndsrc; separate LE code census; unique whole segment code and fixup sites at 1:56490"
+   },
+   "SS_SetMixMode": {
+    "addr": "1:566cc",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 sndsrc; separate LE code census; unique whole segment code and fixup sites at 1:56490"
+   },
+   "SS_SetPort": {
+    "addr": "1:566d0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; 80-byte public extent and fixup sites"
+   },
+   "SS_Shutdown": {
+    "addr": "1:56970",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; 56-byte public extent and fixup sites"
+   },
+   "SS_StopPlayback": {
+    "addr": "1:565c8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; 76-byte public extent and fixup sites"
+   },
+   "SS_TestSoundSource": {
+    "addr": "1:56730",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; 144-byte public extent and fixup sites"
+   },
+   "SS_TestTimer": {
+    "addr": "1:56728",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; 8-byte public extent and fixup sites"
+   },
+   "SS_UnlockMemory": {
+    "addr": "1:569a8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; 260-byte public extent and fixup sites"
+   },
+   "ShutdownMPU": {
+    "addr": "1:622d8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 awe32; 260-byte public extent and fixup sites"
+   },
+   "TS_Dispatch": {
+    "addr": "1:562a8",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_Init_ at 1:57103, sndsrc/SS_TestSoundSource_ at 1:56753"
+   },
+   "TS_FreeTaskList": {
+    "addr": "1:55bf0",
+    "evidence": "audio worker 2026-11-26: USER end and TS_SetClockSpeed start; interrupt-safe task-chain walk"
+   },
+   "TS_ScheduleTask": {
+    "addr": "1:56114",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_Init_ at 1:570f9, sndsrc/SS_TestSoundSource_ at 1:5674c"
+   },
+   "TS_SetClockSpeed": {
+    "addr": "1:55c20",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 task_man; 76-byte public extent and fixup sites"
+   },
+   "TS_SetTaskRate": {
+    "addr": "1:562cc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 task_man; 56-byte public extent and fixup sites"
+   },
+   "TS_SetTimerToMaxTaskRate": {
+    "addr": "1:55c90",
+    "evidence": "audio worker 2026-11-26: called by TS_SetTaskRate; traverses task list and sets timer"
+   },
+   "TS_SetTimer": {
+    "addr": "1:55c6c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 task_man; 36-byte public extent and fixup sites"
+   },
+   "TS_Terminate": {
+    "addr": "1:56244",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: music/MUSIC_FadeRoutine_ at 1:591c1, music/MUSIC_StopFade_ at 1:59305"
+   },
+   "USER_CheckParameter": {
+    "addr": "1:55b30",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 user; separate LE code census; unique whole segment code and fixup sites at 1:55b30"
+   },
+   "USER_GetText": {
+    "addr": "1:55b8c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 user; separate LE code census; unique whole segment code and fixup sites at 1:55b30"
+   },
+   "BLASTER_CardConfig": {
+    "addr": "1:5ef80",
+    "evidence": "audio worker 2026-11-26: blastold unique entry prefix (72 invariant bytes) at independently mapped LE entry"
+   },
+   "BLASTER_Interrupts": {
+    "addr": "1:5ef30",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 64-byte public extent and fixup sites"
+   },
+   "BLASTER_SampleSize": {
+    "addr": "1:5ef70",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 blaster; 16-byte public extent and fixup sites"
+   },
+   "DMA_PortInfo": {
+    "addr": "1:5eb80",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 dma; unique whole segment code and fixup sites at 1:5eb80"
+   },
+   "GUSWAVE_PanTable": {
+    "addr": "1:5cb40",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; 160-byte public extent and fixup sites"
+   },
+   "_MIDI_ReadNumber_": {
+    "addr": "1:5b5d0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 midi; 40-byte public extent and fixup sites"
+   },
+   "_MIDI_SendChannelVolumes_": {
+    "addr": "1:5bb20",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 midi; 36-byte public extent and fixup sites"
+   },
+   "_MIDI_SetChannelVolume_": {
+    "addr": "1:5ba8c",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 midi; separate LE code census; 148-byte public extent and fixup sites"
+   },
+   "PAS_Interrupts": {
+    "addr": "1:57350",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 pas16; 112-byte public extent and fixup sites"
+   },
+   "_MIDI_CommandLengths": {
+    "addr": "1:5b590",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 midi; 64-byte public extent and fixup sites"
+   },
+   "callback_x": {
+    "addr": "1:5c800",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 irq; separate LE code census; unique whole segment code and fixup sites at 1:5c780"
+   },
+   "add_far_handler": {
+    "addr": "1:54a84",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "add_handler": {
+    "addr": "1:54a5c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "calculate_scaled_frequency": {
+    "addr": "1:50308",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "calculate_tremolo": {
+    "addr": "1:50198",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "calculate_vibrato": {
+    "addr": "1:5002c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "change_voice_volume": {
+    "addr": "1:4f728",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "check_irq_status": {
+    "addr": "1:54c74",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "clear_gf1_ints": {
+    "addr": "1:54f50",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init; unique whole segment code and fixup sites at 1:54f50"
+   },
+   "convert_to_16bit": {
+    "addr": "1:53890",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1addr; unique whole segment code and fixup sites at 1:53890"
+   },
+   "dig_change_voice": {
+    "addr": "1:51d9c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "dig_check_db": {
+    "addr": "1:52a74",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "dig_dma_next_buffer": {
+    "addr": "1:5277c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "dig_init": {
+    "addr": "1:51c60",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "dig_terminal_count": {
+    "addr": "1:52b60",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "dig_voice_handler": {
+    "addr": "1:52c4c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "disable_vibrato": {
+    "addr": "1:50020",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "do_note_vibrato": {
+    "addr": "1:4fec4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "dram_xfer": {
+    "addr": "1:53a88",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dma; unique whole segment code and fixup sites at 1:539e0"
+   },
+   "enable_vibrato": {
+    "addr": "1:50004",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_add_dma_handler": {
+    "addr": "1:54aac",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "gf1_add_layer": {
+    "addr": "1:53178",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1pat1; unique whole segment code and fixup sites at 1:53140"
+   },
+   "gf1_add_midi_recv_handler": {
+    "addr": "1:54b98",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "gf1_add_midi_xmit_handler": {
+    "addr": "1:54bb8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "gf1_add_timer_handler": {
+    "addr": "1:54b54",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "gf1_add_visr": {
+    "addr": "1:54bd8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "gf1_add_voice_handler": {
+    "addr": "1:54ae4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "gf1_add_volume_handler": {
+    "addr": "1:54b1c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "gf1_adjust_priority": {
+    "addr": "1:5408c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1voice; unique whole segment code and fixup sites at 1:53eb0"
+   },
+   "gf1_allocate_voice": {
+    "addr": "1:53efc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1voice; unique whole segment code and fixup sites at 1:53eb0"
+   },
+   "gf1_amount_xferred": {
+    "addr": "1:539a0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dma1; unique whole segment code and fixup sites at 1:539a0"
+   },
+   "gf1_asm_init": {
+    "addr": "1:55ac0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1ainit; unique whole segment code and fixup sites at 1:55ac0"
+   },
+   "gf1_calc_fc": {
+    "addr": "1:502c8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_channel_pitch_bend": {
+    "addr": "1:4fbd0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_create_patch": {
+    "addr": "1:53140",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1pat1; unique whole segment code and fixup sites at 1:53140"
+   },
+   "gf1_delay": {
+    "addr": "1:55a61",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init2; unique whole segment code and fixup sites at 1:55a5c"
+   },
+   "gf1_detect_card": {
+    "addr": "1:549a0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1detct; unique whole segment code and fixup sites at 1:549a0"
+   },
+   "gf1_detune_patch": {
+    "addr": "1:53878",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1patch; unique whole segment code and fixup sites at 1:53270"
+   },
+   "gf1_dig_set_dma_rate": {
+    "addr": "1:5276c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "gf1_dig_set_freq": {
+    "addr": "1:5235c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "gf1_dig_set_pan": {
+    "addr": "1:5223c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "gf1_dig_set_vol": {
+    "addr": "1:521dc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "gf1_digital_position": {
+    "addr": "1:51aa0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digpos; unique whole segment code and fixup sites at 1:51aa0"
+   },
+   "gf1_disable_line_in": {
+    "addr": "1:4ec68",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mixer; unique whole segment code and fixup sites at 1:4ec40"
+   },
+   "gf1_disable_mic_in": {
+    "addr": "1:4ecb8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mixer; unique whole segment code and fixup sites at 1:4ec40"
+   },
+   "gf1_disable_output": {
+    "addr": "1:4ed08",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mixer; unique whole segment code and fixup sites at 1:4ec40"
+   },
+   "gf1_disable_timer1": {
+    "addr": "1:4f41c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 timer; unique whole segment code and fixup sites at 1:4f270"
+   },
+   "gf1_disable_timer2": {
+    "addr": "1:4f488",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 timer; unique whole segment code and fixup sites at 1:4f270"
+   },
+   "gf1_dma_init": {
+    "addr": "1:53a2c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dma; unique whole segment code and fixup sites at 1:539e0"
+   },
+   "gf1_dma_next_buffer": {
+    "addr": "1:53c4c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dma; unique whole segment code and fixup sites at 1:539e0"
+   },
+   "gf1_dma_ready": {
+    "addr": "1:53dfc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dma; unique whole segment code and fixup sites at 1:539e0"
+   },
+   "gf1_dram_xfer": {
+    "addr": "1:53b3c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dma; unique whole segment code and fixup sites at 1:539e0"
+   },
+   "gf1_enable_line_in": {
+    "addr": "1:4ec40",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mixer; unique whole segment code and fixup sites at 1:4ec40"
+   },
+   "gf1_enable_mic_in": {
+    "addr": "1:4ec90",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mixer; unique whole segment code and fixup sites at 1:4ec40"
+   },
+   "gf1_enable_output": {
+    "addr": "1:4ece0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mixer; unique whole segment code and fixup sites at 1:4ec40"
+   },
+   "gf1_enable_timer1": {
+    "addr": "1:4f358",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 timer; unique whole segment code and fixup sites at 1:4f270"
+   },
+   "gf1_enable_timer2": {
+    "addr": "1:4f294",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 timer; unique whole segment code and fixup sites at 1:4f270"
+   },
+   "gf1_enter1": {
+    "addr": "1:559ff",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sem; unique whole segment code and fixup sites at 1:559ec"
+   },
+   "gf1_enter": {
+    "addr": "1:55a07",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sem; unique whole segment code and fixup sites at 1:559ec"
+   },
+   "gf1_error_str": {
+    "addr": "1:4f19c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1error; unique whole segment code and fixup sites at 1:4f150"
+   },
+   "gf1_free": {
+    "addr": "1:547b8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mem; unique whole segment code and fixup sites at 1:54560"
+   },
+   "gf1_free_voice": {
+    "addr": "1:54054",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1voice; unique whole segment code and fixup sites at 1:53eb0"
+   },
+   "gf1_get_patch_info": {
+    "addr": "1:53270",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1patch; unique whole segment code and fixup sites at 1:53270"
+   },
+   "gf1_get_waveform_info": {
+    "addr": "1:531c4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1pat1; unique whole segment code and fixup sites at 1:53140"
+   },
+   "gf1_good_dram": {
+    "addr": "1:543a8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dram; unique whole segment code and fixup sites at 1:541c0"
+   },
+   "gf1_init_ports": {
+    "addr": "1:55a75",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init2; unique whole segment code and fixup sites at 1:55a5c"
+   },
+   "gf1_init_semaphores": {
+    "addr": "1:559ec",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sem; unique whole segment code and fixup sites at 1:559ec"
+   },
+   "gf1_initialize": {
+    "addr": "1:55080",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init; unique whole segment code and fixup sites at 1:54f50"
+   },
+   "gf1_irq_service": {
+    "addr": "1:558f0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1wisr; unique whole segment code and fixup sites at 1:558f0"
+   },
+   "gf1_isr_init": {
+    "addr": "1:54a00",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "gf1_leave": {
+    "addr": "1:55a26",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sem; unique whole segment code and fixup sites at 1:559ec"
+   },
+   "gf1_load_os": {
+    "addr": "1:552d8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init; unique whole segment code and fixup sites at 1:54f50"
+   },
+   "gf1_load_patch": {
+    "addr": "1:53358",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1patch; unique whole segment code and fixup sites at 1:53270"
+   },
+   "gf1_malloc": {
+    "addr": "1:54680",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mem; unique whole segment code and fixup sites at 1:54560"
+   },
+   "gf1_mem_avail": {
+    "addr": "1:5489c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mem; unique whole segment code and fixup sites at 1:54560"
+   },
+   "gf1_mem_init": {
+    "addr": "1:545cc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mem; unique whole segment code and fixup sites at 1:54560"
+   },
+   "gf1_mem_largest_avail": {
+    "addr": "1:54910",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mem; unique whole segment code and fixup sites at 1:54560"
+   },
+   "gf1_midi_all_notes_off": {
+    "addr": "1:51a48",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_all_sounds_off": {
+    "addr": "1:519d0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_change_program": {
+    "addr": "1:51908",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_change_volume": {
+    "addr": "1:4fb48",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_channel_sustain": {
+    "addr": "1:512b0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_get_channel_notes": {
+    "addr": "1:4f5e4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note1; unique whole segment code and fixup sites at 1:4f500"
+   },
+   "gf1_midi_get_channel_volume": {
+    "addr": "1:4f58c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note1; unique whole segment code and fixup sites at 1:4f500"
+   },
+   "gf1_midi_get_master_volume": {
+    "addr": "1:4f550",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note1; unique whole segment code and fixup sites at 1:4f500"
+   },
+   "gf1_midi_get_volume": {
+    "addr": "1:4f500",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note1; unique whole segment code and fixup sites at 1:4f500"
+   },
+   "gf1_midi_note_off": {
+    "addr": "1:50dac",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_note_on": {
+    "addr": "1:50724",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_parameter": {
+    "addr": "1:4eec8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1midi; unique whole segment code and fixup sites at 1:4ede0"
+   },
+   "gf1_midi_patch_removed": {
+    "addr": "1:518dc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_pitch_bend": {
+    "addr": "1:4ede0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1midi; unique whole segment code and fixup sites at 1:4ede0"
+   },
+   "gf1_midi_reset": {
+    "addr": "1:4edb4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1uart; unique whole segment code and fixup sites at 1:4ed90"
+   },
+   "gf1_midi_set_balance": {
+    "addr": "1:51924",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_set_vibrato": {
+    "addr": "1:4fd58",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_silence_patch_notes": {
+    "addr": "1:517cc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_status_note": {
+    "addr": "1:50564",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_status_voice": {
+    "addr": "1:504c4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_stop_note": {
+    "addr": "1:506b0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_stop_voice": {
+    "addr": "1:50380",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_synth_volume": {
+    "addr": "1:4fcac",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_midi_wait_voice": {
+    "addr": "1:505b4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_note_init": {
+    "addr": "1:4f660",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "gf1_pause_digital": {
+    "addr": "1:51bf0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digpause; unique whole segment code and fixup sites at 1:51bf0"
+   },
+   "gf1_peek": {
+    "addr": "1:541c0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dram; unique whole segment code and fixup sites at 1:541c0"
+   },
+   "gf1_play_digital": {
+    "addr": "1:52e14",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "gf1_play_next_buffer": {
+    "addr": "1:52da4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "gf1_poke": {
+    "addr": "1:5423c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dram; unique whole segment code and fixup sites at 1:541c0"
+   },
+   "gf1_poke_block": {
+    "addr": "1:542bc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dram; unique whole segment code and fixup sites at 1:541c0"
+   },
+   "gf1_ramp_down": {
+    "addr": "1:5512c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init; unique whole segment code and fixup sites at 1:54f50"
+   },
+   "gf1_read_block": {
+    "addr": "1:54598",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mem; unique whole segment code and fixup sites at 1:54560"
+   },
+   "gf1_reset_irq": {
+    "addr": "1:55030",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init; unique whole segment code and fixup sites at 1:54f50"
+   },
+   "gf1_restart_digital": {
+    "addr": "1:51ef0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "gf1_set_addr_regs": {
+    "addr": "1:53908",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1addr; unique whole segment code and fixup sites at 1:53890"
+   },
+   "gf1_set_channel_in": {
+    "addr": "1:53a04",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dma; unique whole segment code and fixup sites at 1:539e0"
+   },
+   "gf1_set_channel_out": {
+    "addr": "1:539e0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dma; unique whole segment code and fixup sites at 1:539e0"
+   },
+   "gf1_set_interface": {
+    "addr": "1:55428",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init; unique whole segment code and fixup sites at 1:54f50"
+   },
+   "gf1_set_irq": {
+    "addr": "1:55050",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init; unique whole segment code and fixup sites at 1:54f50"
+   },
+   "gf1_set_record_rate": {
+    "addr": "1:4ed30",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1rec; unique whole segment code and fixup sites at 1:4ed30"
+   },
+   "gf1_set_waveform_info": {
+    "addr": "1:53224",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1pat1; unique whole segment code and fixup sites at 1:53140"
+   },
+   "gf1_sound_frequency": {
+    "addr": "1:4e8c8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sound; unique whole segment code and fixup sites at 1:4e5b0"
+   },
+   "gf1_sound_mode": {
+    "addr": "1:4e9e0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sound; unique whole segment code and fixup sites at 1:4e5b0"
+   },
+   "gf1_sound_pan": {
+    "addr": "1:4e880",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sound; unique whole segment code and fixup sites at 1:4e5b0"
+   },
+   "gf1_sound_playing": {
+    "addr": "1:4eae4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sound; unique whole segment code and fixup sites at 1:4e5b0"
+   },
+   "gf1_sound_start": {
+    "addr": "1:4eb54",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sound; unique whole segment code and fixup sites at 1:4e5b0"
+   },
+   "gf1_sound_stop": {
+    "addr": "1:4e950",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sound; unique whole segment code and fixup sites at 1:4e5b0"
+   },
+   "gf1_sound_volume": {
+    "addr": "1:4e838",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sound; unique whole segment code and fixup sites at 1:4e5b0"
+   },
+   "gf1_start_digital": {
+    "addr": "1:52660",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "gf1_stop_digital": {
+    "addr": "1:523a0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "gf1_stop_dma": {
+    "addr": "1:53e14",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dma; unique whole segment code and fixup sites at 1:539e0"
+   },
+   "gf1_timer_init": {
+    "addr": "1:4f270",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 timer; unique whole segment code and fixup sites at 1:4f270"
+   },
+   "gf1_unload_os": {
+    "addr": "1:553c4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init; unique whole segment code and fixup sites at 1:54f50"
+   },
+   "gf1_unload_patch": {
+    "addr": "1:537ec",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1patch; unique whole segment code and fixup sites at 1:53270"
+   },
+   "gf1_update_digital": {
+    "addr": "1:52518",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "gf1_update_waveform": {
+    "addr": "1:52ff0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1wave; unique whole segment code and fixup sites at 1:52ff0"
+   },
+   "gf1_voice_init": {
+    "addr": "1:53eb0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1voice; unique whole segment code and fixup sites at 1:53eb0"
+   },
+   "gf1_wait_dma": {
+    "addr": "1:53d78",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1dma; unique whole segment code and fixup sites at 1:539e0"
+   },
+   "gf1_write_block": {
+    "addr": "1:54560",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1mem; unique whole segment code and fixup sites at 1:54560"
+   },
+   "init_digital": {
+    "addr": "1:52468",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "make_physical_address": {
+    "addr": "1:538ac",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1addr; unique whole segment code and fixup sites at 1:53890"
+   },
+   "midi_irq_service": {
+    "addr": "1:5596c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1wisr; unique whole segment code and fixup sites at 1:558f0"
+   },
+   "note_voice_handler": {
+    "addr": "1:51344",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "note_volume_handler": {
+    "addr": "1:513dc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique whole segment code and fixup sites at 1:4f660"
+   },
+   "os_dma_count": {
+    "addr": "1:4e348",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "os_eoi": {
+    "addr": "1:4e578",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "os_file_close": {
+    "addr": "1:4e3e0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "os_file_open": {
+    "addr": "1:4e418",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "os_file_read": {
+    "addr": "1:4e3b0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "os_file_seek": {
+    "addr": "1:4e3fc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "os_getvect": {
+    "addr": "1:4e450",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "os_init_channel": {
+    "addr": "1:4e170",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "os_pgm_dma": {
+    "addr": "1:4e1fc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "os_set_irq": {
+    "addr": "1:4e45c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "os_setvect": {
+    "addr": "1:4e444",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "os_stop_dma": {
+    "addr": "1:4e320",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "os_unset_irq": {
+    "addr": "1:4e4f4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique whole segment code and fixup sites at 1:4e170"
+   },
+   "preformat": {
+    "addr": "1:526ec",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "process_interrupt": {
+    "addr": "1:54cb0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "process_midi_interrupt": {
+    "addr": "1:54bf8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1isr; unique whole segment code and fixup sites at 1:54a00"
+   },
+   "reset_ultra": {
+    "addr": "1:555bc",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init; unique whole segment code and fixup sites at 1:54f50"
+   },
+   "rmcallback": {
+    "addr": "1:5c7c8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 irq; 56-byte public extent and fixup sites"
+   },
+   "set_addr_regs": {
+    "addr": "1:51d48",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "set_freq": {
+    "addr": "1:52280",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 digital; unique whole segment code and fixup sites at 1:51c60"
+   },
+   "sound_init": {
+    "addr": "1:4e5b0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sound; unique whole segment code and fixup sites at 1:4e5b0"
+   },
+   "uart_init": {
+    "addr": "1:4ed90",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1uart; unique whole segment code and fixup sites at 1:4ed90"
    }
   },
   "data": {
@@ -1083,6 +2939,934 @@
    "ytop": {
     "addr": "2:1bc3dc",
     "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 3 functions (drawsprite at 1:3ea76, maskwallscan at 1:384f0, permanentwritesprite at 1:3fb84)"
+   },
+   "ADLIBFX_Installed": {
+    "addr": "2:0a714",
+    "evidence": "audio worker 2026-11-26: ADLIBFX_Init sets flag after scheduling task; shutdown clears flag before unlocking"
+   },
+   "ADLIBFX_ServiceTask": {
+    "addr": "2:0a70c",
+    "evidence": "audio worker 2026-11-26: ADLIBFX_Init saves TS_ScheduleTask return at 62c92; shutdown passes it to TS_Terminate"
+   },
+   "ConfigFileName": {
+    "addr": "2:095cc",
+    "evidence": "audio worker 2026-11-26: ULTRASND.INI passed directly to GUS_GetPatchMap at 5db5d"
+   },
+   "FX_ErrorCode": {
+    "addr": "2:09644",
+    "evidence": "audio worker 2026-11-26: FX_ErrorString recursion at 5de05; write on failed FX_SetupCard at 5df39"
+   },
+   "FX_SoundDevice": {
+    "addr": "2:09640",
+    "evidence": "audio worker 2026-11-26: FX_SetupCard stores card argument at 5df0c; FX_ErrorString dispatch reads at 5de27"
+   },
+   "GUSMIDI_Volume": {
+    "addr": "2:0962c",
+    "evidence": "audio worker 2026-11-26: MUSIC GUS get-volume slot at 5dac8 reads value written by set-volume slot at 5da9c"
+   },
+   "GUSWAVE_CallBackFunc": {
+    "addr": "2:095c0",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; unique complete _DATA data at 2:095b4"
+   },
+   "GUSWAVE_ErrorCode": {
+    "addr": "2:095c8",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; unique complete _DATA data at 2:095b4"
+   },
+   "GUSWAVE_Installed": {
+    "addr": "2:095bc",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; unique complete _DATA data at 2:095b4"
+   },
+   "GUSWAVE_MaxVoices": {
+    "addr": "2:095b8",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; unique complete _DATA data at 2:095b4"
+   },
+   "GUSWAVE_VoiceHandle": {
+    "addr": "2:095b4",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; unique complete _DATA data at 2:095b4"
+   },
+   "GUSWAVE_Voices": {
+    "addr": "2:1c4200",
+    "evidence": "audio worker 2026-11-26: eight consecutive 84-byte voice records passed to LL_AddToTail by GUSWAVE_InitVoices; shutdown reads memory at member +0xc"
+   },
+   "GUSWAVE_Volume": {
+    "addr": "2:095c4",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 guswave; separate LE code census; unique complete _DATA data at 2:095b4"
+   },
+   "GUS_AuxError": {
+    "addr": "2:09630",
+    "evidence": "audio worker 2026-11-26: passed to gf1_error_str and strerror by GUS_ErrorString, assigned gf1_load_os return on failure"
+   },
+   "GUS_ErrorCode": {
+    "addr": "2:09634",
+    "evidence": "audio worker 2026-11-26: recursive error dispatch at 5d52c and store of error 4 on gf1_load_os failure at 5dcbf"
+   },
+   "GUS_HoldBuffer": {
+    "addr": "2:1c7f00",
+    "evidence": "audio worker 2026-11-26: GUS_Init puts DOS buffer address into adjacent virtual/physical fields; GUSMIDI_LoadPatch supplies structure to gf1_load_patch"
+   },
+   "GUS_Installed": {
+    "addr": "2:0963c",
+    "evidence": "audio worker 2026-11-26: GUS_Init tests and increments OS use count, GUS_Shutdown decrements then unloads on zero"
+   },
+   "GUS_MemConfig": {
+    "addr": "2:1c7ef8",
+    "evidence": "audio worker 2026-11-26: GUSMIDI_Init stores clamped (available GF1 bytes - 1) >> 18; patch map use at 5d9d4"
+   },
+   "GUS_TotalMemory": {
+    "addr": "2:1c7efc",
+    "evidence": "audio worker 2026-11-26: assigned direct gf1_mem_avail result at 5dae7 before deriving memory configuration index"
+   },
+   "Gf1InitEnd": {
+    "addr": "2:0ac0c",
+    "evidence": "audio worker 2026-11-26: GF1 asm initializer's end comparison at 55acb, after eight 6-byte entries"
+   },
+   "Gf1InitStart": {
+    "addr": "2:0abdc",
+    "evidence": "audio worker 2026-11-26: GF1 asm initializer's load at 55ac6 and first initializer's flag word"
+   },
+   "HoldBufferAllocated": {
+    "addr": "2:09638",
+    "evidence": "audio worker 2026-11-26: guard at 5dc58 around one-time 2 KiB DOS memory allocation"
+   },
+   "MUSIC_ErrorCode": {
+    "addr": "2:094ac",
+    "evidence": "audio worker 2026-11-26: MUSIC_ErrorString recursion and error write after LL_LockMemory at 58cbf"
+   },
+   "MUSIC_SoundDevice": {
+    "addr": "2:094a8",
+    "evidence": "audio worker 2026-11-26: MUSIC_Init stores card at 58cca and MUSIC_Shutdown loads it at 58d7e"
+   },
+   "PITCH_Installed": {
+    "addr": "2:0944c",
+    "evidence": "audio worker 2026-11-26: obj2 initialized zero flag tested at 56bf8 and 56c77 and set to 1 after table loop at 56c5b"
+   },
+   "Patch": {
+    "addr": "2:1c62f8",
+    "evidence": "audio worker 2026-11-26: packed patch array after ProgramName; indexed records passed to GF1 patch functions from GUSMIDI_LoadPatch and GUSMIDI_ProgramChange"
+   },
+   "PatchLoaded": {
+    "addr": "2:1c44a8",
+    "evidence": "audio worker 2026-11-26: 256-byte initialized-to-zero array used as loaded guard by GUSMIDI_UnloadPatch and GUSMIDI_ProgramChange"
+   },
+   "PatchMap": {
+    "addr": "2:1c45a8",
+    "evidence": "audio worker 2026-11-26: GUS_GetPatchMap initializes 256 16-byte rows, selected by voice/program and memory configuration at 5d9da"
+   },
+   "PatchWaves": {
+    "addr": "2:1c55a8",
+    "evidence": "audio worker 2026-11-26: table of 256 wave-buffer pointers between PatchMap and ProgramName; allocated in LoadPatch and freed in UnloadPatch"
+   },
+   "PitchTable": {
+    "addr": "2:1c1458",
+    "evidence": "audio worker 2026-11-26: obj2 BSS 1200 bytes, filled by x87 initializer at 56c39 and independently indexed by 12-by-25 pitch lookup at 56cea"
+   },
+   "ProgramName": {
+    "addr": "2:1c59a8",
+    "evidence": "audio worker 2026-11-26: array of 256 9-byte patch-name records populated by sscanf in GUS_GetPatchMap"
+   },
+   "VoiceStatus": {
+    "addr": "2:1c40f8",
+    "evidence": "audio worker 2026-11-26: GF1 callback accesses indexed voice/status pairs; initialization clears 32 consecutive pairs"
+   },
+   "ADLIBFX_Block": {
+    "addr": "2:1c888c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: adlibfx/ADLIBFX_Play_ at 1:62a5c, adlibfx/ADLIBFX_Service_ at 1:628bb"
+   },
+   "ADLIBFX_CallBackFunc": {
+    "addr": "2:0a704",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: adlibfx/ADLIBFX_SetCallBack_ at 1:62b9d, adlibfx/ADLIBFX_Stop_ at 1:62871"
+   },
+   "ADLIBFX_CallBackVal": {
+    "addr": "2:1c889c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: adlibfx/ADLIBFX_Play_ at 1:62a4b, adlibfx/ADLIBFX_Stop_ at 1:62879"
+   },
+   "ADLIBFX_ErrorCode": {
+    "addr": "2:0a718",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: adlibfx/ADLIBFX_ErrorString_ at 1:6277b, adlibfx/ADLIBFX_ErrorString_ at 1:627c4"
+   },
+   "ADLIBFX_LengthLeft": {
+    "addr": "2:1c8898",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: adlibfx/ADLIBFX_Play_ at 1:62a34, adlibfx/ADLIBFX_Service_ at 1:628cf"
+   },
+   "ADLIBFX_Priority": {
+    "addr": "2:1c8890",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: adlibfx/ADLIBFX_Play_ at 1:629e7, adlibfx/ADLIBFX_Play_ at 1:62a3d"
+   },
+   "ADLIBFX_Sound": {
+    "addr": "2:0a6fc",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: adlibfx/ADLIBFX_Play_ at 1:62a2f, adlibfx/ADLIBFX_SetVolume_ at 1:62904"
+   },
+   "ADLIBFX_SoundPtr": {
+    "addr": "2:0a700",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: adlibfx/ADLIBFX_Play_ at 1:62a42, adlibfx/ADLIBFX_Service_ at 1:62890"
+   },
+   "ADLIBFX_SoundVolume": {
+    "addr": "2:1c8894",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: adlibfx/ADLIBFX_Play_ at 1:62a7b, adlibfx/ADLIBFX_SetTotalVolume_ at 1:629c1"
+   },
+   "ADLIBFX_TotalVolume": {
+    "addr": "2:0a708",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: adlibfx/ADLIBFX_GetTotalVolume_ at 1:629d9, adlibfx/ADLIBFX_Play_ at 1:62a75"
+   },
+   "ADLIBFX_VoiceHandle": {
+    "addr": "2:0a710",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: adlibfx/ADLIBFX_Play_ at 1:62a01, adlibfx/ADLIBFX_Play_ at 1:62a0c"
+   },
+   "ADLIB_TimbreBank": {
+    "addr": "2:09f80",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gmtimbre; separate LE code census; unique complete _DATA data at 2:09e80"
+   },
+   "BLASTER_CallBack": {
+    "addr": "2:1c7f48",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_BeginBufferedPlayback_ at 1:5fa88, blaster/BLASTER_BeginBufferedRecord_ at 1:5f9ec"
+   },
+   "BLASTER_Config": {
+    "addr": "2:0964c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_DisableInterrupt_ at 1:5f135, blaster/BLASTER_EnableInterrupt_ at 1:5f0e4"
+   },
+   "BLASTER_DMABuffer": {
+    "addr": "2:1c7f70",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_Shutdown_ at 1:60a49, blaster/BLASTER_StopPlayback_ at 1:5f653"
+   },
+   "BLASTER_HaltTransferCommand": {
+    "addr": "2:0967c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_DSP1xx_BeginPlayback_ at 1:5f773, blaster/BLASTER_DSP1xx_BeginRecord_ at 1:5f98f"
+   },
+   "BLASTER_Installed": {
+    "addr": "2:09668",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_Shutdown_ at 1:60a99, blaster/BLASTER_UnlockMemory_ at 1:602fd"
+   },
+   "BLASTER_IntController1Mask": {
+    "addr": "2:1c7f58",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_DisableInterrupt_ at 1:5f157, blaster/BLASTER_DisableInterrupt_ at 1:5f167"
+   },
+   "BLASTER_IntController2Mask": {
+    "addr": "2:1c7f5c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_DisableInterrupt_ at 1:5f192, blaster/BLASTER_UnlockMemory_ at 1:603de"
+   },
+   "BLASTER_MixMode": {
+    "addr": "2:09670",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_SetMixMode_ at 1:5f5ad, blaster/BLASTER_StopPlayback_ at 1:5f621"
+   },
+   "BLASTER_MixerAddress": {
+    "addr": "2:09680",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_CardHasMixer_ at 1:5fdb8, blaster/BLASTER_CardHasMixer_ at 1:5fdd4"
+   },
+   "BLASTER_MixerType": {
+    "addr": "2:09684",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_CardHasMixer_ at 1:5fdda, blaster/BLASTER_CardHasMixer_ at 1:5fded"
+   },
+   "BLASTER_OldInt": {
+    "addr": "2:1c7f76",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_Shutdown_ at 1:60a2e, blaster/BLASTER_Shutdown_ at 1:60a34"
+   },
+   "BLASTER_OriginalMidiVolumeLeft": {
+    "addr": "2:09688",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_RestoreMidiVolume_ at 1:5ffcd, blaster/BLASTER_RestoreMidiVolume_ at 1:5ffe0"
+   },
+   "BLASTER_OriginalMidiVolumeRight": {
+    "addr": "2:0968c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_RestoreMidiVolume_ at 1:5fffe, blaster/BLASTER_SaveMidiVolume_ at 1:5ff93"
+   },
+   "BLASTER_OriginalVoiceVolumeLeft": {
+    "addr": "2:09690",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_RestoreVoiceVolume_ at 1:5fed1, blaster/BLASTER_RestoreVoiceVolume_ at 1:5fee4"
+   },
+   "BLASTER_OriginalVoiceVolumeRight": {
+    "addr": "2:09694",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_RestoreVoiceVolume_ at 1:5ff02, blaster/BLASTER_SaveVoiceVolume_ at 1:5fe97"
+   },
+   "BLASTER_SamplePacketSize": {
+    "addr": "2:09674",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_DSP2xx_BeginPlayback_ at 1:5f7bd, blaster/BLASTER_DSP2xx_BeginRecord_ at 1:5f915"
+   },
+   "BLASTER_SampleRate": {
+    "addr": "2:09678",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_DSP2xx_BeginPlayback_ at 1:5f7b6, blaster/BLASTER_DSP2xx_BeginRecord_ at 1:5f90e"
+   },
+   "BLASTER_SoundPlaying": {
+    "addr": "2:1c7f44",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_BeginBufferedPlayback_ at 1:5fa4b, blaster/BLASTER_BeginBufferedRecord_ at 1:5f9af"
+   },
+   "BLASTER_SoundRecording": {
+    "addr": "2:1c7f54",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_BeginBufferedPlayback_ at 1:5fa54, blaster/BLASTER_BeginBufferedRecord_ at 1:5f9b8"
+   },
+   "BLASTER_TransferLength": {
+    "addr": "2:0966c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_BeginBufferedPlayback_ at 1:5faa9, blaster/BLASTER_BeginBufferedRecord_ at 1:5fa0d"
+   },
+   "BLASTER_Version": {
+    "addr": "2:1c7f68",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: blaster/BLASTER_BeginBufferedPlayback_ at 1:5faa4, blaster/BLASTER_BeginBufferedRecord_ at 1:5fa08"
+   },
+   "Channel": {
+    "addr": "2:1c8270",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: al_midi/AL_AllNotesOff_ at 1:618d0, al_midi/AL_AllNotesOff_ at 1:618d9"
+   },
+   "DMA_ErrorCode": {
+    "addr": "2:09648",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: dma/DMA_ErrorString_ at 1:5ec93, dma/DMA_ErrorString_ at 1:5ecd1"
+   },
+   "IRQ_CallBackOffset": {
+    "addr": "2:1c40f2",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: irq/IRQ_RestoreVector_ at 1:5cb12, irq/IRQ_SetVector_ at 1:5c959"
+   },
+   "IRQ_CallBackSegment": {
+    "addr": "2:1c40f4",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: irq/IRQ_RestoreVector_ at 1:5cafa, irq/IRQ_SetVector_ at 1:5c947"
+   },
+   "IRQ_Callback": {
+    "addr": "2:095aa",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: irq/IRQ_SetVector_ at 1:5c871, irq/IRQ_SetVector_ at 1:5c877"
+   },
+   "IRQ_ProtectedModeOffset": {
+    "addr": "2:1c40e8",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: irq/IRQ_RestoreVector_ at 1:5cad4, irq/IRQ_SetVector_ at 1:5c8c1"
+   },
+   "IRQ_ProtectedModeSelector": {
+    "addr": "2:1c40ec",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: irq/IRQ_RestoreVector_ at 1:5cabb, irq/IRQ_SetVector_ at 1:5c8ab"
+   },
+   "IRQ_RealModeOffset": {
+    "addr": "2:1c40ee",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: irq/IRQ_RestoreVector_ at 1:5ca9e, irq/IRQ_SetVector_ at 1:5c8f3"
+   },
+   "IRQ_RealModeSegment": {
+    "addr": "2:1c40f0",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: irq/IRQ_RestoreVector_ at 1:5ca8b, irq/IRQ_SetVector_ at 1:5c8e5"
+   },
+   "MPU_BaseAddr": {
+    "addr": "2:09510",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: mpu401/MPU_EnterUART_ at 1:5b477, mpu401/MPU_Init_ at 1:5b4c9"
+   },
+   "MPU_Delay": {
+    "addr": "2:09514",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: mpu401/MPU_Init_ at 1:5b4c3, mpu401/MPU_LockMemory_ at 1:5b546"
+   },
+   "MUSIC_FadeTask": {
+    "addr": "2:094b0",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: music/MUSIC_FadeActive_ at 1:592e6, music/MUSIC_FadeRoutine_ at 1:591c7"
+   },
+   "MV_ErrorCode": {
+    "addr": "2:0950c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: multivoc/MV_VoicePlaying_ at 1:59a10, multivoc/MV_VoicesPlaying_ at 1:59b32"
+   },
+   "MV_Installed": {
+    "addr": "2:094bc",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: multivoc/MV_VoicePlaying_ at 1:59a00, multivoc/MV_VoicesPlaying_ at 1:59b1f"
+   },
+   "NoteFlags": {
+    "addr": "2:1c8784",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: awe32/AWE32_ControlChange_ at 1:61fcc, awe32/AWE32_ControlChange_ at 1:61fef"
+   },
+   "PAS_CallBack": {
+    "addr": "2:1c1b68",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58b2a, pas16/PAS_UnlockMemory_ at 1:5893d"
+   },
+   "PAS_CurrentDMABuffer": {
+    "addr": "2:1c1b34",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_GetCurrentPos_ at 1:57b63, pas16/PAS_LockMemory_ at 1:58ab3"
+   },
+   "PAS_DMABuffer": {
+    "addr": "2:1c1b60",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58a91, pas16/PAS_SetupDMABuffer_ at 1:57afc"
+   },
+   "PAS_DMABufferEnd": {
+    "addr": "2:1c1b5c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58aa2, pas16/PAS_SetupDMABuffer_ at 1:57b12"
+   },
+   "PAS_DMAChannel": {
+    "addr": "2:1c1b28",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_GetCurrentPos_ at 1:57b3f, pas16/PAS_LockMemory_ at 1:58a2b"
+   },
+   "PAS_ErrorCode": {
+    "addr": "2:094a4",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_ErrorString_ at 1:573d1, pas16/PAS_FindCard_ at 1:580d9"
+   },
+   "PAS_Func": {
+    "addr": "2:0948c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_GetFMVolume_ at 1:57f3a, pas16/PAS_GetFMVolume_ at 1:57f5b"
+   },
+   "PAS_Installed": {
+    "addr": "2:09470",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:589c5, pas16/PAS_SaveMusicVolume_ at 1:580e5"
+   },
+   "PAS_IntController1Mask": {
+    "addr": "2:1c1b74",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:589a3, pas16/PAS_UnlockMemory_ at 1:587e4"
+   },
+   "PAS_IntController2Mask": {
+    "addr": "2:1c1b78",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:589b4, pas16/PAS_UnlockMemory_ at 1:587f3"
+   },
+   "PAS_Irq": {
+    "addr": "2:1c1b6c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58a3c, pas16/PAS_UnlockMemory_ at 1:5886b"
+   },
+   "PAS_MixMode": {
+    "addr": "2:09494",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_GetCurrentPos_ at 1:57b69, pas16/PAS_GetCurrentPos_ at 1:57b78"
+   },
+   "PAS_OldInt": {
+    "addr": "2:1c1b80",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58992, pas16/PAS_UnlockMemory_ at 1:587d5"
+   },
+   "PAS_OriginalFMLeftVolume": {
+    "addr": "2:09480",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58a09, pas16/PAS_RestoreMusicVolume_ at 1:581f0"
+   },
+   "PAS_OriginalFMRightVolume": {
+    "addr": "2:09484",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58a1a, pas16/PAS_RestoreMusicVolume_ at 1:58209"
+   },
+   "PAS_OriginalPCMLeftVolume": {
+    "addr": "2:09478",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:589e7, pas16/PAS_UnlockMemory_ at 1:58820"
+   },
+   "PAS_OriginalPCMRightVolume": {
+    "addr": "2:0947c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:589f8, pas16/PAS_UnlockMemory_ at 1:5882f"
+   },
+   "PAS_OriginalState": {
+    "addr": "2:1c1b38",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58a6f, pas16/PAS_RestoreState_ at 1:58296"
+   },
+   "PAS_SampleRate": {
+    "addr": "2:09498",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58af7, pas16/PAS_SetPlaybackRate_ at 1:579fd"
+   },
+   "PAS_SampleSizeConfig": {
+    "addr": "2:1c1b64",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58a80, pas16/PAS_RestoreState_ at 1:5831d"
+   },
+   "PAS_SoundPlaying": {
+    "addr": "2:1c1b70",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_GetCurrentPos_ at 1:57b22, pas16/PAS_LockMemory_ at 1:58b19"
+   },
+   "PAS_State": {
+    "addr": "2:09488",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58a4d, pas16/PAS_RestoreState_ at 1:58287"
+   },
+   "PAS_TimeInterval": {
+    "addr": "2:0949c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58b08, pas16/PAS_SetPlaybackRate_ at 1:57a03"
+   },
+   "PAS_TotalDMABufferSize": {
+    "addr": "2:1c1b30",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58ac4, pas16/PAS_SetupDMABuffer_ at 1:57b08"
+   },
+   "PAS_TransferLength": {
+    "addr": "2:09490",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58ad5, pas16/PAS_SetSampleBufferCount_ at 1:5796b"
+   },
+   "PAS_TranslateCode": {
+    "addr": "2:09474",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_FindCard_ at 1:58028, pas16/PAS_FindCard_ at 1:58059"
+   },
+   "PCFX_CallBackFunc": {
+    "addr": "2:09458",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_Init_ at 1:57109, pcfx/PCFX_LockMemory_ at 1:572cc"
+   },
+   "PCFX_CallBackVal": {
+    "addr": "2:1c1b08",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_LockMemory_ at 1:572bb, pcfx/PCFX_Play_ at 1:56fb6"
+   },
+   "PCFX_ErrorCode": {
+    "addr": "2:0946c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_ErrorString_ at 1:56ddb, pcfx/PCFX_ErrorString_ at 1:56e24"
+   },
+   "PCFX_Installed": {
+    "addr": "2:09468",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_Init_ at 1:57080, pcfx/PCFX_Init_ at 1:570a7"
+   },
+   "PCFX_LastSample": {
+    "addr": "2:1c1b14",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_LockMemory_ at 1:57277, pcfx/PCFX_Service_ at 1:56ee8"
+   },
+   "PCFX_LengthLeft": {
+    "addr": "2:1c1b0c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_LockMemory_ at 1:57255, pcfx/PCFX_Play_ at 1:56f98"
+   },
+   "PCFX_Lookup": {
+    "addr": "2:1c1908",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_LockMemory_ at 1:57288, pcfx/PCFX_Service_ at 1:56ec4"
+   },
+   "PCFX_Priority": {
+    "addr": "2:1c1b10",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_LockMemory_ at 1:572aa, pcfx/PCFX_Play_ at 1:56f50"
+   },
+   "PCFX_ServiceTask": {
+    "addr": "2:09460",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_Init_ at 1:57095, pcfx/PCFX_Init_ at 1:570fe"
+   },
+   "PCFX_Sound": {
+    "addr": "2:09450",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_LockMemory_ at 1:57266, pcfx/PCFX_Play_ at 1:56fbc"
+   },
+   "PCFX_TotalVolume": {
+    "addr": "2:0945c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_GetTotalVolume_ at 1:57031, pcfx/PCFX_LockMemory_ at 1:572dd"
+   },
+   "PCFX_UseLookupFlag": {
+    "addr": "2:09454",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_LockMemory_ at 1:57299, pcfx/PCFX_Play_ at 1:56f9e"
+   },
+   "PCFX_VoiceHandle": {
+    "addr": "2:09464",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pcfx/PCFX_Init_ at 1:5708b, pcfx/PCFX_Init_ at 1:570e3"
+   },
+   "PercussionTable": {
+    "addr": "2:09e80",
+    "evidence": "audio worker 2026-11-26: Watcom 10.0 gmtimbre; separate LE code census; unique complete _DATA data at 2:09e80"
+   },
+   "SS_BufferEnd": {
+    "addr": "2:1c1454",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: sndsrc/SS_LockMemory_ at 1:56b09, sndsrc/SS_UnlockMemory_ at 1:569fa"
+   },
+   "SS_BufferNum": {
+    "addr": "2:09434",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; unique complete _DATA data at 2:09428"
+   },
+   "SS_BufferStart": {
+    "addr": "2:1c144c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: sndsrc/SS_LockMemory_ at 1:56af8, sndsrc/SS_SetPort_ at 1:566fe"
+   },
+   "SS_CallBack": {
+    "addr": "2:1c1440",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: sndsrc/SS_LockMemory_ at 1:56bb3, sndsrc/SS_SetCallBack_ at 1:56721"
+   },
+   "SS_CurrentBuffer": {
+    "addr": "2:1c1450",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: sndsrc/SS_GetCurrentPos_ at 1:56637, sndsrc/SS_LockMemory_ at 1:56b1a"
+   },
+   "SS_CurrentLength": {
+    "addr": "2:09444",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; unique complete _DATA data at 2:09428"
+   },
+   "SS_ErrorCode": {
+    "addr": "2:09448",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; unique complete _DATA data at 2:09428"
+   },
+   "SS_Installed": {
+    "addr": "2:09428",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; unique complete _DATA data at 2:09428"
+   },
+   "SS_NumBuffers": {
+    "addr": "2:09438",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; unique complete _DATA data at 2:09428"
+   },
+   "SS_OffCommand": {
+    "addr": "2:09430",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; unique complete _DATA data at 2:09428"
+   },
+   "SS_Port": {
+    "addr": "2:0942c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; unique complete _DATA data at 2:09428"
+   },
+   "SS_SoundPlaying": {
+    "addr": "2:1c1448",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: sndsrc/SS_GetCurrentPos_ at 1:56617, sndsrc/SS_LockMemory_ at 1:56b91"
+   },
+   "SS_SoundPtr": {
+    "addr": "2:1c1444",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: sndsrc/SS_GetCurrentPos_ at 1:56631, sndsrc/SS_LockMemory_ at 1:56b80"
+   },
+   "SS_Timer": {
+    "addr": "2:1c143c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: sndsrc/SS_LockMemory_ at 1:56ba2, sndsrc/SS_StopPlayback_ at 1:565d4"
+   },
+   "SS_TotalBufferSize": {
+    "addr": "2:0943c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; unique complete _DATA data at 2:09428"
+   },
+   "SS_TransferLength": {
+    "addr": "2:09440",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 sndsrc; unique complete _DATA data at 2:09428"
+   },
+   "TaskServiceRate": {
+    "addr": "2:0941c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: task_man/TS_SetClockSpeed_ at 1:55c37, task_man/TS_SetClockSpeed_ at 1:55c3f"
+   },
+   "Voice": {
+    "addr": "2:1c8108",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: al_midi/AL_AllocVoice_ at 1:610c0, al_midi/AL_ReleaseVoice_ at 1:616e2"
+   },
+   "VoiceReserved": {
+    "addr": "2:09d20",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: al_midi/AL_ReleaseVoice_ at 1:616a8, al_midi/AL_ReleaseVoice_ at 1:616ce"
+   },
+   "Voice_Pool": {
+    "addr": "2:1c8100",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: al_midi/AL_AllocVoice_ at 1:6109a, al_midi/AL_AllocVoice_ at 1:610af"
+   },
+   "_MIDI_ChannelVolume": {
+    "addr": "2:1c405c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: midi/MIDI_SetVolume_ at 1:5bc29, midi/MIDI_SetVolume_ at 1:5bc43"
+   },
+   "_MIDI_Funcs": {
+    "addr": "2:09570",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: midi/MIDI_GetVolume_ at 1:5bc60, midi/MIDI_SetVolume_ at 1:5bbe1"
+   },
+   "_MIDI_RerouteFunctions": {
+    "addr": "2:09518",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: midi/MIDI_RerouteMidiChannel_ at 1:5ba61, midi/MIDI_SetVolume_ at 1:5bc1e"
+   },
+   "_MIDI_SongActive": {
+    "addr": "2:0955c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: midi/MIDI_ContinueSong_ at 1:5bc9b, midi/MIDI_PauseSong_ at 1:5bcb2"
+   },
+   "_MIDI_SongLoaded": {
+    "addr": "2:09560",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: midi/MIDI_ContinueSong_ at 1:5bc92, midi/MIDI_PauseSong_ at 1:5bca7"
+   },
+   "_MIDI_TotalVolume": {
+    "addr": "2:0956c",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: midi/MIDI_GetVolume_ at 1:5bc80, midi/MIDI_SetVolume_ at 1:5bc0d"
+   },
+   "__embed_data": {
+    "addr": "2:049c4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 embed; unique complete _DATA data at 2:049c4"
+   },
+   "__embed_edata": {
+    "addr": "2:08de4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 embed; unique complete _DATA data at 2:049c4"
+   },
+   "adlib_timer_mask": {
+    "addr": "2:1bee80",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: timer/gf1_disable_timer1_ at 1:4f43c, timer/gf1_disable_timer1_ at 1:4f44e"
+   },
+   "awe32SPad1Obj": {
+    "addr": "2:049c8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 embed; unique complete _DATA data at 2:049c4"
+   },
+   "awe32SPad2Obj": {
+    "addr": "2:04bd0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 embed; unique complete _DATA data at 2:049c4"
+   },
+   "awe32SPad3Obj": {
+    "addr": "2:04d3c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 embed; unique complete _DATA data at 2:049c4"
+   },
+   "awe32SPad4Obj": {
+    "addr": "2:052b0",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 embed; unique complete _DATA data at 2:049c4"
+   },
+   "awe32SPad5Obj": {
+    "addr": "2:05418",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 embed; unique complete _DATA data at 2:049c4"
+   },
+   "awe32SPad6Obj": {
+    "addr": "2:059e4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 embed; unique complete _DATA data at 2:049c4"
+   },
+   "awe32SPad7Obj": {
+    "addr": "2:08464",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 embed; unique complete _DATA data at 2:049c4"
+   },
+   "bank": {
+    "addr": "2:1c13e0",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1mem/gf1_malloc_ at 1:546b8, gf1mem/gf1_mem_avail_ at 1:548c4"
+   },
+   "channel_expression": {
+    "addr": "2:09094",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1midi; unique complete _DATA data at 2:08f54"
+   },
+   "channel_pan": {
+    "addr": "2:090d4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1midi; unique complete _DATA data at 2:08f54"
+   },
+   "channel_status": {
+    "addr": "2:1bf430",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1note/calculate_tremolo_ at 1:501be, gf1note/calculate_vibrato_ at 1:50054"
+   },
+   "channel_volume": {
+    "addr": "2:09054",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1midi; unique complete _DATA data at 2:08f54"
+   },
+   "dig_voice_status": {
+    "addr": "2:1bf680",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: digital/dig_change_voice_ at 1:51daf, digital/dig_check_db_ at 1:52a86"
+   },
+   "dma_handler_1": {
+    "addr": "2:093ac",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/gf1_add_dma_handler_ at 1:54ab6, gf1isr/gf1_isr_init_ at 1:54a0e"
+   },
+   "dma_handler_2": {
+    "addr": "2:093b0",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/gf1_add_dma_handler_ at 1:54ac4, gf1isr/gf1_isr_init_ at 1:54a14"
+   },
+   "dma_page": {
+    "addr": "2:08df4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique complete _DATA data at 2:08df4"
+   },
+   "dma_rate": {
+    "addr": "2:1c1223",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: digital/dig_init_ at 1:51c7a, digital/gf1_dig_set_dma_rate_ at 1:52772"
+   },
+   "freq_divisor": {
+    "addr": "2:1bee74",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1sound/gf1_sound_frequency_ at 1:4e8ee, gf1sound/gf1_sound_frequency_ at 1:4e8ff"
+   },
+   "gf1_adlib_control": {
+    "addr": "2:1c1400",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/gf1_isr_init_ at 1:54a4a, gf1isr/process_interrupt_ at 1:54dc8"
+   },
+   "gf1_channel_in": {
+    "addr": "2:1c13ee",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1dma/dram_xfer_ at 1:53b0f, gf1dma/gf1_dma_init_ at 1:53a52"
+   },
+   "gf1_channel_out": {
+    "addr": "2:1c13ed",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1dma/dram_xfer_ at 1:53ad2, gf1dma/gf1_dma_init_ at 1:53a39"
+   },
+   "gf1_data_high": {
+    "addr": "2:09396",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_data_low": {
+    "addr": "2:09394",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_dma_active": {
+    "addr": "2:09370",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1dma/gf1_dma_init_ at 1:53a80, gf1dma/gf1_dma_next_buffer_ at 1:53c57"
+   },
+   "gf1_dma_latch": {
+    "addr": "2:0939a",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_dram_io": {
+    "addr": "2:09398",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_flags": {
+    "addr": "2:1c13e6",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1dma/gf1_dram_xfer_ at 1:53bbd, gf1dma/gf1_dram_xfer_ at 1:53bc7"
+   },
+   "gf1_freq_divisor": {
+    "addr": "2:09348",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 divisor; unique complete _DATA data at 2:09348"
+   },
+   "gf1_irq": {
+    "addr": "2:1c13f0",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1init/gf1_initialize_ at 1:550cd, gf1init/gf1_initialize_ at 1:5510c"
+   },
+   "gf1_irq_latch": {
+    "addr": "2:093d8",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init; unique complete _DATA data at 2:093d4"
+   },
+   "gf1_irqdma_control": {
+    "addr": "2:09388",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_linear_volumes": {
+    "addr": "2:09344",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique complete _DATA data at 2:09314"
+   },
+   "gf1_log_table": {
+    "addr": "2:09314",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1note; unique complete _DATA data at 2:09314"
+   },
+   "gf1_m_volume": {
+    "addr": "2:1bf670",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1note/change_voice_volume_ at 1:4f782, gf1note/change_voice_volume_ at 1:4f7a2"
+   },
+   "gf1_midi_control": {
+    "addr": "2:0938c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_midi_data": {
+    "addr": "2:0938e",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_mix_control": {
+    "addr": "2:09380",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_page_register": {
+    "addr": "2:09390",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_pstatus": {
+    "addr": "2:0937c",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_reg_control": {
+    "addr": "2:0938a",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_register_select": {
+    "addr": "2:09392",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_scale_table": {
+    "addr": "2:09114",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1scale; unique complete _DATA data at 2:09114"
+   },
+   "gf1_semaphore": {
+    "addr": "2:1c13e8",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/process_interrupt_ at 1:54cbd, gf1isr/process_interrupt_ at 1:54cc4"
+   },
+   "gf1_status": {
+    "addr": "2:1c13ea",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1patch/gf1_get_patch_info_ at 1:53287, gf1patch/gf1_load_patch_ at 1:533e0"
+   },
+   "gf1_status_register": {
+    "addr": "2:09382",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_timer_control": {
+    "addr": "2:09384",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_timer_data": {
+    "addr": "2:09386",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 globals; unique complete _DATA data at 2:0937c"
+   },
+   "gf1_voices": {
+    "addr": "2:1c13e4",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: digital/dig_init_ at 1:51c87, digital/dig_init_ at 1:51d0e"
+   },
+   "irqstatus": {
+    "addr": "2:1c1b24",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: pas16/PAS_LockMemory_ at 1:58b4c, pas16/PAS_UnlockMemory_ at 1:5895b"
+   },
+   "lBankSizes": {
+    "addr": "2:09d80",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: awe32/AWE32_Shutdown_ at 1:626ce, awe32/LoadSBK_ at 1:6240e"
+   },
+   "last_dma_voice": {
+    "addr": "2:1c1220",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: digital/dig_dma_next_buffer_ at 1:52823, digital/dig_init_ at 1:51d1e"
+   },
+   "midi_irq": {
+    "addr": "2:1c13ef",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1init/gf1_initialize_ at 1:550ef, gf1init/gf1_initialize_ at 1:55105"
+   },
+   "midi_recv_handler": {
+    "addr": "2:093d0",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/gf1_add_midi_recv_handler_ at 1:54b9f, gf1isr/gf1_isr_init_ at 1:54a44"
+   },
+   "midi_xmit_handler": {
+    "addr": "2:093cc",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/gf1_add_midi_xmit_handler_ at 1:54bbf, gf1isr/gf1_isr_init_ at 1:54a3e"
+   },
+   "mixer_mask": {
+    "addr": "2:1c13ec",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1init/gf1_load_os_ at 1:55328, gf1init/gf1_load_os_ at 1:55331"
+   },
+   "note_status": {
+    "addr": "2:1bf3b0",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1note/gf1_midi_all_notes_off_ at 1:51a5c, gf1note/gf1_midi_all_notes_off_ at 1:51a65"
+   },
+   "os_irq_table": {
+    "addr": "2:08e06",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 os; unique complete _DATA data at 2:08df4"
+   },
+   "os_loaded": {
+    "addr": "2:093d4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1init; unique complete _DATA data at 2:093d4"
+   },
+   "other_voices": {
+    "addr": "2:1bf2b0",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1note/gf1_midi_note_off_ at 1:50e39, gf1note/gf1_midi_note_on_ at 1:50d5c"
+   },
+   "pbs_lsb": {
+    "addr": "2:08f94",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1midi; unique complete _DATA data at 2:08f54"
+   },
+   "pbs_msb": {
+    "addr": "2:08f54",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1midi; unique complete _DATA data at 2:08f54"
+   },
+   "pertab": {
+    "addr": "2:08e88",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1sound; unique complete _DATA data at 2:08e88"
+   },
+   "rmregs": {
+    "addr": "2:09574",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: irq/IRQ_SetVector_ at 1:5c8df, irq/IRQ_SetVector_ at 1:5c910"
+   },
+   "rpn_lsb": {
+    "addr": "2:09014",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1midi; unique complete _DATA data at 2:08f54"
+   },
+   "rpn_msb": {
+    "addr": "2:08fd4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 gf1midi; unique complete _DATA data at 2:08f54"
+   },
+   "sound_voice_status": {
+    "addr": "2:1bee30",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1sound/gf1_sound_frequency_ at 1:4e8db, gf1sound/gf1_sound_mode_ at 1:4e9f6"
+   },
+   "spSound": {
+    "addr": "2:09d54",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: awe32/AWE32_Shutdown_ at 1:626bf, awe32/LoadSBK_ at 1:623e8"
+   },
+   "stereo_dma": {
+    "addr": "2:1c1222",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: digital/dig_dma_next_buffer_ at 1:5283f, digital/dig_dma_next_buffer_ at 1:5284a"
+   },
+   "timer1_handler": {
+    "addr": "2:093c4",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/gf1_add_timer_handler_ at 1:54b5d, gf1isr/gf1_isr_init_ at 1:54a32"
+   },
+   "timer2_handler": {
+    "addr": "2:093c8",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/gf1_add_timer_handler_ at 1:54b79, gf1isr/gf1_isr_init_ at 1:54a38"
+   },
+   "vibrato_voice_count": {
+    "addr": "2:1bf674",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1note/gf1_midi_note_on_ at 1:50c4c, gf1note/gf1_midi_note_on_ at 1:50c54"
+   },
+   "visr": {
+    "addr": "2:093a8",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/gf1_add_visr_ at 1:54bdf, gf1isr/gf1_isr_init_ at 1:54a08"
+   },
+   "voice_array": {
+    "addr": "2:1c1250",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1voice/gf1_adjust_priority_ at 1:540ab, gf1voice/gf1_allocate_voice_ at 1:53f61"
+   },
+   "voice_handler_1": {
+    "addr": "2:093b4",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/gf1_add_voice_handler_ at 1:54aee, gf1isr/gf1_isr_init_ at 1:54a1a"
+   },
+   "voice_handler_2": {
+    "addr": "2:093b8",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/gf1_add_voice_handler_ at 1:54afc, gf1isr/gf1_isr_init_ at 1:54a20"
+   },
+   "voice_mask": {
+    "addr": "2:1c13d0",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1voice/gf1_allocate_voice_ at 1:53f3b, gf1voice/gf1_allocate_voice_ at 1:53f55"
+   },
+   "voice_status": {
+    "addr": "2:1bee90",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1note/calculate_tremolo_ at 1:501aa, gf1note/calculate_vibrato_ at 1:50040"
+   },
+   "vol_table": {
+    "addr": "2:08ed4",
+    "evidence": "audio worker 2026-11-26: ASS 1.04 voltab; unique complete _DATA data at 2:08ed4"
+   },
+   "volume_handler_1": {
+    "addr": "2:093bc",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/gf1_add_volume_handler_ at 1:54b26, gf1isr/gf1_isr_init_ at 1:54a26"
+   },
+   "volume_handler_2": {
+    "addr": "2:093c0",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1isr/gf1_add_volume_handler_ at 1:54b34, gf1isr/gf1_isr_init_ at 1:54a2c"
+   },
+   "vrperiod": {
+    "addr": "2:1bee70",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: gf1sound/set_vol_ at 1:4e745, gf1sound/sound_init_ at 1:4e5f1"
+   },
+   "wMpuBaseAddx": {
+    "addr": "2:1c8884",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: awe32/AWE32_Shutdown_ at 1:626b0, awe32/InitMPU_ at 1:620c8"
+   },
+   "wSBCBaseAddx": {
+    "addr": "2:1c8888",
+    "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: awe32/AWE32_Shutdown_ at 1:62692, awe32/InitMPU_ at 1:622a4"
    }
   }
  }

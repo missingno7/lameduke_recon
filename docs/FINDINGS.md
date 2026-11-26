@@ -88,3 +88,15 @@ Each entry names the command or artefact that supports it.
 - FIXED verifier gap found by the game worker: a candidate shorter than the original function could pass as STRICT.
   match.py now requires the extent end to be a confirmed boundary (bound next public, bound symbol, funcmap start
   or object end); negative control tests/test_match.py::test_truncated_candidate.
+
+## Audio library (audio worker 2026-11-26, integrated; details docs/AUDIOLIB.md)
+- PROVEN audio region 1:49c84-62d8d holds 56 code members in link order: Creative PAWE32 (MetaWare High C, 4),
+  Gravis GF1_OSF SDK (30, incl. 3 assembly), then Apogee C modules USER, TASK_MAN, SNDSRC, PITCH, PCFX, PAS16, MUSIC,
+  MULTIVOC, MPU401, MIDI, LL_MAN, IRQ, GUSWAVE, GUSMIDI, GUS, FX_MAN, DPMI, DMA, BLASTER, AL_MIDI, AWE32, ADLIBFX.
+  38 members are whole-code+sites identical to ASS 1.04's members.
+- STRONG the Apogee modules were compiled by their author with Watcom 10.0 GA (13 complete target code segments
+  reproduce with wc100; wc95b reproduces 0 whole 1.04 segments, wc100a reproduces 1.04 but not the target's USER).
+  So library and game used different compilers: the game/runtime are Watcom 9.5b.
+- PROVEN the target library predates 1.04: earlier MULTIVOC voice layout, GUSWAVE 84-byte voices (VOC only),
+  GUSMIDI reads ULTRASND.INI, 12-card FX enum without SoundScape, no *_VoiceAvailable, PITCH table computed with pow.
+- Creative and Gravis members are binary vendor libraries: identity only (config/library_symbols.json).

@@ -101,6 +101,19 @@
     "-4r"
    ],
    "evidence": "BUIL0422 makefile 'wcc386 engine /4r'; reproduces BUIL0422/ENGINE.OBJ byte-for-byte (calibration only)"
+  },
+  "audiolib": {
+   "install": "wc100",
+   "flags": [
+    "-zq",
+    "-w4",
+    "-d1",
+    "-omaxnet",
+    "-zp4",
+    "-5r",
+    "-DLIBVER_ASSREV=19950518"
+   ],
+   "evidence": "Apogee Sound System built by its author with Watcom 10.0 GA: 13 complete target code segments reproduced; production options from audiolib-reconstructions al_104 AUDIO.MAK; LIBVER_ASSREV selects the GPL source baseline, not a date (audio worker 2026-11-26)"
   }
  }
 }

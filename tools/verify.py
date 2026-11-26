@@ -36,7 +36,8 @@ def build_unit(name, ent):
             raise RuntimeError(f"{name}: assembly failed\n{text}")
         return out
     inc = [ROOT / p for p in ent.get("include", [])] + [src.parent]
-    rc, text = wcc.compile_c(src, out, list(prof["flags"]) + ent.get("extra_flags", []), prof["install"], inc)
+    flags = list(ent.get("flags_override", prof["flags"])) + ent.get("extra_flags", [])
+    rc, text = wcc.compile_c(src, out, flags, prof["install"], inc)
     if rc:
         raise RuntimeError(f"{name}: build failed\n{text}")
     return out
@@ -67,7 +68,13 @@ def main(argv):
             st = r["status"] if r else None
             if RANK[st] < RANK[want["status"]]:
                 regressions.append(f"{name}:{fn} {want['status']} -> {st}")
+        comp = ent.get("component", "lameduke")
+        ct = totals.setdefault("by_component", {}).setdefault(comp, {"functions": 0, "strict": 0, "strict_bytes": 0})
         for fn, r in got.items():
+            ct["functions"] += 1
+            if r["status"] == "STRICT":
+                ct["strict"] += 1
+                ct["strict_bytes"] += r["size"]
             totals["functions"] += 1
             if r["status"] == "STRICT":
                 totals["strict"] += 1

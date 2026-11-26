@@ -43,6 +43,8 @@ def main():
         t = json.load(open(v))["totals"]
         print(f"  reconstructed STRICT C/asm       {t['strict_bytes']:7d} bytes ({100*t['strict_bytes']/total:5.1f}%), "
               f"{t['strict']} functions; CODE_BYTES_MATCH {t['code_bytes_match']}")
+        for comp, c in sorted(t.get("by_component", {}).items()):
+            print(f"    {comp:30s} STRICT {c['strict']:4d}/{c['functions']:4d} functions, {c['strict_bytes']:7d} bytes")
     return 0
 
 

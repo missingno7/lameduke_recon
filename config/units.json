@@ -374,6 +374,1215 @@
      "status": "STRICT"
     }
    }
+  },
+  "ass_adlibfx": {
+   "source": "src/audiolib/adlibfx.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "ADLIBFX_ErrorString": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "ADLIBFX_SendOutput": {
+     "status": "STRICT"
+    },
+    "ADLIBFX_Stop": {
+     "status": "STRICT"
+    },
+    "ADLIBFX_Service": {
+     "status": "STRICT"
+    },
+    "ADLIBFX_SetVolume": {
+     "status": "STRICT"
+    },
+    "ADLIBFX_SetTotalVolume": {
+     "status": "STRICT"
+    },
+    "ADLIBFX_GetTotalVolume": {
+     "status": "STRICT"
+    },
+    "ADLIBFX_Play": {
+     "status": "STRICT"
+    },
+    "ADLIBFX_SoundPlaying": {
+     "status": "STRICT"
+    },
+    "ADLIBFX_LockEnd": {
+     "status": "STRICT"
+    },
+    "ADLIBFX_SetCallBack": {
+     "status": "STRICT"
+    },
+    "ADLIBFX_Init": {
+     "status": "STRICT"
+    },
+    "ADLIBFX_Shutdown": {
+     "status": "STRICT"
+    }
+   }
+  },
+  "ass_al_midi": {
+   "source": "src/audiolib/al_midi.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "AL_SendOutputToPort": {
+     "status": "NEAR_MATCH"
+    },
+    "AL_SendOutput": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "AL_SetVoiceTimbre": {
+     "status": "NEAR_MATCH"
+    },
+    "AL_SetVoiceVolume": {
+     "status": "NEAR_MATCH"
+    },
+    "AL_AllocVoice": {
+     "status": "STRICT"
+    },
+    "AL_GetVoice": {
+     "status": "STRICT"
+    },
+    "AL_SetVoicePitch": {
+     "status": "NEAR_MATCH"
+    },
+    "AL_SetChannelVolume": {
+     "status": "STRICT"
+    },
+    "AL_SetChannelPan": {
+     "status": "STRICT"
+    },
+    "AL_SetChannelDetune": {
+     "status": "STRICT"
+    },
+    "AL_ResetVoices": {
+     "status": "NEAR_MATCH"
+    },
+    "AL_ReserveVoice": {
+     "status": "STRICT"
+    },
+    "AL_ReleaseVoice": {
+     "status": "STRICT"
+    },
+    "AL_NoteOff": {
+     "status": "NEAR_MATCH"
+    },
+    "AL_AllNotesOff": {
+     "status": "STRICT"
+    },
+    "AL_ControlChange": {
+     "status": "STRICT"
+    },
+    "AL_ProgramChange": {
+     "status": "STRICT"
+    },
+    "AL_SetPitchBend": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   },
+   "extra_flags": [
+    "-zu"
+   ]
+  },
+  "ass_awe32": {
+   "source": "src/audiolib/awe32.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "AWE32_NoteOff": {
+     "status": "STRICT"
+    },
+    "AWE32_NoteOn": {
+     "status": "STRICT"
+    },
+    "AWE32_PolyAftertouch": {
+     "status": "STRICT"
+    },
+    "AWE32_ChannelAftertouch": {
+     "status": "STRICT"
+    },
+    "AWE32_ControlChange": {
+     "status": "STRICT"
+    },
+    "AWE32_ProgramChange": {
+     "status": "STRICT"
+    },
+    "AWE32_PitchBend": {
+     "status": "STRICT"
+    },
+    "AWE32_LockEnd": {
+     "status": "STRICT"
+    },
+    "InitMPU": {
+     "status": "STRICT"
+    },
+    "ShutdownMPU": {
+     "status": "STRICT"
+    },
+    "LoadSBK": {
+     "status": "STRICT"
+    },
+    "AWE32_Init": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "AWE32_Shutdown": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_blastold": {
+   "source": "src/audiolib/blastold.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "BLASTER_Interrupts": {
+     "status": "STRICT"
+    },
+    "BLASTER_SampleSize": {
+     "status": "STRICT"
+    },
+    "BLASTER_CardConfig": {
+     "status": "NEAR_MATCH"
+    },
+    "BLASTER_ErrorString": {
+     "status": "NEAR_MATCH"
+    },
+    "BLASTER_EnableInterrupt": {
+     "status": "STRICT"
+    },
+    "BLASTER_DisableInterrupt": {
+     "status": "STRICT"
+    },
+    "BLASTER_ServiceInterrupt": {
+     "status": "NEAR_MATCH"
+    },
+    "BLASTER_ReadDSP": {
+     "status": "NEAR_MATCH"
+    },
+    "BLASTER_ResetDSP": {
+     "status": "NEAR_MATCH"
+    },
+    "BLASTER_WriteDSP": {
+     "status": "STRICT"
+    },
+    "BLASTER_SetPlaybackRate": {
+     "status": "STRICT"
+    },
+    "BLASTER_SetMixMode": {
+     "status": "STRICT"
+    },
+    "BLASTER_StopPlayback": {
+     "status": "STRICT"
+    },
+    "BLASTER_SetupDMABuffer": {
+     "status": "NEAR_MATCH"
+    },
+    "BLASTER_DSP1xx_BeginPlayback": {
+     "status": "STRICT"
+    },
+    "BLASTER_DSP2xx_BeginPlayback": {
+     "status": "STRICT"
+    },
+    "BLASTER_DSP4xx_BeginPlayback": {
+     "status": "NEAR_MATCH"
+    },
+    "BLASTER_BeginBufferedPlayback": {
+     "status": "STRICT"
+    },
+    "BLASTER_DSP4xx_BeginRecord": {
+     "status": "STRICT"
+    },
+    "BLASTER_DSP2xx_BeginRecord": {
+     "status": "STRICT"
+    },
+    "BLASTER_DSP1xx_BeginRecord": {
+     "status": "STRICT"
+    },
+    "BLASTER_BeginBufferedRecord": {
+     "status": "STRICT"
+    },
+    "BLASTER_WriteMixer": {
+     "status": "STRICT"
+    },
+    "BLASTER_ReadMixer": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "BLASTER_GetMidiVolume": {
+     "status": "NEAR_MATCH"
+    },
+    "BLASTER_CardHasMixer": {
+     "status": "STRICT"
+    },
+    "BLASTER_SaveVoiceVolume": {
+     "status": "STRICT"
+    },
+    "BLASTER_RestoreVoiceVolume": {
+     "status": "STRICT"
+    },
+    "BLASTER_SaveMidiVolume": {
+     "status": "STRICT"
+    },
+    "BLASTER_RestoreMidiVolume": {
+     "status": "STRICT"
+    },
+    "BLASTER_GetEnv": {
+     "status": "NEAR_MATCH"
+    },
+    "BLASTER_UnlockMemory": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "BLASTER_LockMemory": {
+     "status": "NEAR_MATCH"
+    },
+    "BLASTER_ShutdownWaveBlaster": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "BLASTER_Init": {
+     "status": "NEAR_MATCH"
+    },
+    "BLASTER_Shutdown": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_dma": {
+   "source": "src/audiolib/dma.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "DMA_PortInfo": {
+     "status": "STRICT"
+    },
+    "DMA_ErrorString": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "DMA_VerifyChannel": {
+     "status": "STRICT"
+    },
+    "DMA_SetupTransfer": {
+     "status": "STRICT"
+    },
+    "DMA_EndTransfer": {
+     "status": "STRICT"
+    },
+    "DMA_GetCurrentPos": {
+     "status": "STRICT"
+    },
+    "DMA_GetTransferCount": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_dpmi": {
+   "source": "src/audiolib/dpmi.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "DPMI_GetRealModeVector": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "DPMI_SetRealModeVector": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "DPMI_CallRealModeFunction": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "DPMI_LockMemoryRegion": {
+     "status": "STRICT"
+    },
+    "DPMI_LockMemory": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "DPMI_UnlockMemoryRegion": {
+     "status": "STRICT"
+    },
+    "DPMI_UnlockMemory": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_fx_man": {
+   "source": "src/audiolib/fx_man.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "FX_ErrorString": {
+     "status": "NEAR_MATCH"
+    },
+    "FX_SetupCard": {
+     "status": "NEAR_MATCH"
+    },
+    "FX_Init": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "FX_Shutdown": {
+     "status": "STRICT"
+    },
+    "FX_SetCallBack": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "FX_SetVolume": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "FX_GetVolume": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "FX_SetPan": {
+     "status": "STRICT"
+    },
+    "FX_SetPitch": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "FX_PlayVOC": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "FX_PlayVOC3D": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "FX_Pan3D": {
+     "status": "STRICT"
+    },
+    "FX_SoundActive": {
+     "status": "STRICT"
+    },
+    "FX_StopSound": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "FX_StopAllSounds": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_gmtimbre": {
+   "source": "src/audiolib/gmtmbold.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {}
+  },
+  "ass_gus": {
+   "source": "src/audiolib/gus.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "GUS_Init": {
+     "status": "STRICT"
+    },
+    "GUS_Shutdown": {
+     "status": "STRICT"
+    },
+    "GUSWAVE_Shutdown": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   },
+   "flags_override": [
+    "-zq",
+    "-w4",
+    "-d2",
+    "-DLIBVER_ASSREV=19950518"
+   ]
+  },
+  "ass_gusmidi": {
+   "source": "src/audiolib/gusmidi.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "GUS_ErrorString": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "GUS_GetPatchMap": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "GUSMIDI_UnloadPatch": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "GUSMIDI_LoadPatch": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "GUSMIDI_ProgramChange": {
+     "status": "STRICT"
+    },
+    "GUSMIDI_NoteOn": {
+     "status": "STRICT"
+    },
+    "GUSMIDI_NoteOff": {
+     "status": "STRICT"
+    },
+    "GUSMIDI_ControlChange": {
+     "status": "STRICT"
+    },
+    "GUSMIDI_PitchBend": {
+     "status": "STRICT"
+    },
+    "GUSMIDI_ReleasePatches": {
+     "status": "STRICT"
+    },
+    "GUSMIDI_SetVolume": {
+     "status": "STRICT"
+    },
+    "GUSMIDI_GetVolume": {
+     "status": "STRICT"
+    },
+    "GUSMIDI_Init": {
+     "status": "STRICT"
+    },
+    "GUSMIDI_Shutdown": {
+     "status": "STRICT"
+    }
+   },
+   "flags_override": [
+    "-zq",
+    "-w4",
+    "-d1",
+    "-omaxnet",
+    "-5r",
+    "-zp1",
+    "-DLIBVER_ASSREV=19950518"
+   ]
+  },
+  "ass_guswave": {
+   "source": "src/audiolib/guswave.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "GUSWAVE_PanTable": {
+     "status": "STRICT"
+    },
+    "GUSWAVE_ErrorString": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "GUSWAVE_CallBack": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "GUSWAVE_GetVoice": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "GUSWAVE_VoicePlaying": {
+     "status": "STRICT"
+    },
+    "GUSWAVE_VoicesPlaying": {
+     "status": "STRICT"
+    },
+    "GUSWAVE_Kill": {
+     "status": "STRICT"
+    },
+    "GUSWAVE_KillAllVoices": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "GUSWAVE_SetPitch": {
+     "status": "STRICT"
+    },
+    "GUSWAVE_SetPan3D": {
+     "status": "STRICT"
+    },
+    "GUSWAVE_SetVolume": {
+     "status": "STRICT"
+    },
+    "GUSWAVE_GetVolume": {
+     "status": "STRICT"
+    },
+    "GUSWAVE_AllocVoice": {
+     "status": "NEAR_MATCH"
+    },
+    "GUSWAVE_GetNextVOCBlock": {
+     "status": "NEAR_MATCH"
+    },
+    "GUSWAVE_PlayVOC": {
+     "status": "NEAR_MATCH"
+    },
+    "GUSWAVE_InitVoices": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "GUSWAVE_SetCallBack": {
+     "status": "STRICT"
+    },
+    "GUSWAVE_Init": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_irq": {
+   "source": "src/audiolib/irq.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "rmcallback": {
+     "status": "STRICT"
+    },
+    "callback_x": {
+     "status": "STRICT"
+    },
+    "IRQ_SetVector": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "IRQ_RestoreVector": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_ll_man": {
+   "source": "src/audiolib/ll_man.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "LL_AddNode": {
+     "status": "STRICT"
+    },
+    "LL_RemoveNode": {
+     "status": "STRICT"
+    },
+    "LL_LockEnd": {
+     "status": "STRICT"
+    },
+    "LL_UnlockMemory": {
+     "status": "STRICT"
+    },
+    "LL_LockMemory": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_midi": {
+   "source": "src/audiolib/midi.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "_MIDI_CommandLengths": {
+     "status": "STRICT"
+    },
+    "_MIDI_ReadNumber_": {
+     "status": "STRICT"
+    },
+    "MIDI_RerouteMidiChannel": {
+     "status": "STRICT"
+    },
+    "_MIDI_SetChannelVolume_": {
+     "status": "STRICT"
+    },
+    "_MIDI_SendChannelVolumes_": {
+     "status": "STRICT"
+    },
+    "MIDI_SetVolume": {
+     "status": "STRICT"
+    },
+    "MIDI_GetVolume": {
+     "status": "STRICT"
+    },
+    "MIDI_SetLoopFlag": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "MIDI_ContinueSong": {
+     "status": "STRICT"
+    },
+    "MIDI_PauseSong": {
+     "status": "NEAR_MATCH"
+    },
+    "MIDI_SongPlaying": {
+     "status": "STRICT"
+    },
+    "MIDI_SetMidiFuncs": {
+     "status": "NEAR_MATCH"
+    },
+    "MIDI_StopSong": {
+     "status": "NEAR_MATCH"
+    },
+    "MIDI_PlaySong": {
+     "status": "NEAR_MATCH"
+    },
+    "MIDI_GetPosition": {
+     "status": "NEAR_MATCH"
+    },
+    "MIDI_SetPosition": {
+     "status": "NEAR_MATCH"
+    }
+   },
+   "extra_flags": [
+    "-zu"
+   ]
+  },
+  "ass_mpu401": {
+   "source": "src/audiolib/mpu401.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "MPU_SendMidi": {
+     "status": "STRICT"
+    },
+    "MPU_NoteOff": {
+     "status": "STRICT"
+    },
+    "MPU_NoteOn": {
+     "status": "STRICT"
+    },
+    "MPU_PolyAftertouch": {
+     "status": "STRICT"
+    },
+    "MPU_ControlChange": {
+     "status": "STRICT"
+    },
+    "MPU_ProgramChange": {
+     "status": "STRICT"
+    },
+    "MPU_ChannelAftertouch": {
+     "status": "STRICT"
+    },
+    "MPU_PitchBend": {
+     "status": "STRICT"
+    },
+    "MPU_SendCommand": {
+     "status": "STRICT"
+    },
+    "MPU_Reset": {
+     "status": "STRICT"
+    },
+    "MPU_EnterUART": {
+     "status": "STRICT"
+    },
+    "MPU_Init": {
+     "status": "STRICT"
+    },
+    "MPU_LockEnd": {
+     "status": "STRICT"
+    },
+    "MPU_UnlockMemory": {
+     "status": "STRICT"
+    },
+    "MPU_LockMemory": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_multivoc": {
+   "source": "src/audiolib/multivoc.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "MV_ErrorString": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_ServiceRecord": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "MV_VoicePlaying": {
+     "status": "STRICT"
+    },
+    "MV_KillAllVoices": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_VoicesPlaying": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "MV_SetPan": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_Pan3D": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_CalcVolume": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_SetVolume": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "MV_GetVolume": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "MV_Init": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_Shutdown": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_UnlockMemory": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_LockMemory": {
+     "status": "NEAR_MATCH"
+    }
+   },
+   "flags_override": [
+    "-zq",
+    "-w4",
+    "-d1",
+    "-omaxne",
+    "-zp4",
+    "-5r",
+    "-zu",
+    "-DLIBVER_ASSREV=19950518"
+   ]
+  },
+  "ass_music": {
+   "source": "src/audiolib/music.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "MUSIC_ErrorString": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "MUSIC_Init": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "MUSIC_Shutdown": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "MUSIC_SetVolume": {
+     "status": "STRICT"
+    },
+    "MUSIC_GetVolume": {
+     "status": "STRICT"
+    },
+    "MUSIC_SetLoopFlag": {
+     "status": "STRICT"
+    },
+    "MUSIC_SongPlaying": {
+     "status": "STRICT"
+    },
+    "MUSIC_Continue": {
+     "status": "STRICT"
+    },
+    "MUSIC_Pause": {
+     "status": "STRICT"
+    },
+    "MUSIC_StopSong": {
+     "status": "STRICT"
+    },
+    "MUSIC_PlaySong": {
+     "status": "STRICT"
+    },
+    "MUSIC_GetPosition": {
+     "status": "STRICT"
+    },
+    "MUSIC_SetPosition": {
+     "status": "STRICT"
+    },
+    "MUSIC_InitAWE32": {
+     "status": "NEAR_MATCH"
+    },
+    "MUSIC_InitFM": {
+     "status": "NEAR_MATCH"
+    },
+    "MUSIC_InitMidi": {
+     "status": "NEAR_MATCH"
+    },
+    "MUSIC_InitGUS": {
+     "status": "NEAR_MATCH"
+    },
+    "MUSIC_FadeRoutine": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "MUSIC_FadeActive": {
+     "status": "STRICT"
+    },
+    "MUSIC_StopFade": {
+     "status": "STRICT"
+    },
+    "MUSIC_RerouteMidiChannel": {
+     "status": "STRICT"
+    }
+   }
+  },
+  "ass_pas16": {
+   "source": "src/audiolib/pas16.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "PAS_Interrupts": {
+     "status": "STRICT"
+    },
+    "PAS_ErrorString": {
+     "status": "NEAR_MATCH"
+    },
+    "PAS_CheckForDriver": {
+     "status": "STRICT"
+    },
+    "PAS_GetStateTable": {
+     "status": "STRICT"
+    },
+    "PAS_GetFunctionTable": {
+     "status": "STRICT"
+    },
+    "PAS_GetCardSettings": {
+     "status": "NEAR_MATCH"
+    },
+    "PAS_DisableInterrupt": {
+     "status": "NEAR_MATCH"
+    },
+    "PAS_ServiceInterrupt": {
+     "status": "NEAR_MATCH"
+    },
+    "PAS_Write": {
+     "status": "STRICT"
+    },
+    "PAS_Read": {
+     "status": "STRICT"
+    },
+    "PAS_SetSampleRateTimer": {
+     "status": "STRICT"
+    },
+    "PAS_SetSampleBufferCount": {
+     "status": "STRICT"
+    },
+    "PAS_SetPlaybackRate": {
+     "status": "STRICT"
+    },
+    "PAS_SetMixMode": {
+     "status": "STRICT"
+    },
+    "PAS_StopPlayback": {
+     "status": "NEAR_MATCH"
+    },
+    "PAS_SetupDMABuffer": {
+     "status": "STRICT"
+    },
+    "PAS_GetCurrentPos": {
+     "status": "STRICT"
+    },
+    "PAS_GetFilterSetting": {
+     "status": "STRICT"
+    },
+    "PAS_BeginTransfer": {
+     "status": "NEAR_MATCH"
+    },
+    "PAS_BeginBufferedPlayback": {
+     "status": "STRICT"
+    },
+    "PAS_BeginBufferedRecord": {
+     "status": "STRICT"
+    },
+    "PAS_CallMVFunction": {
+     "status": "STRICT"
+    },
+    "PAS_SetPCMVolume": {
+     "status": "STRICT"
+    },
+    "PAS_GetPCMVolume": {
+     "status": "STRICT"
+    },
+    "PAS_SetFMVolume": {
+     "status": "STRICT"
+    },
+    "PAS_GetFMVolume": {
+     "status": "STRICT"
+    },
+    "PAS_GetCardInfo": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "PAS_FindCard": {
+     "status": "STRICT"
+    },
+    "PAS_SaveMusicVolume": {
+     "status": "STRICT"
+    },
+    "PAS_RestoreMusicVolume": {
+     "status": "STRICT"
+    },
+    "PAS_SaveState": {
+     "status": "STRICT"
+    },
+    "PAS_RestoreState": {
+     "status": "STRICT"
+    },
+    "PAS_LockEnd": {
+     "status": "STRICT"
+    },
+    "PAS_Init": {
+     "status": "NEAR_MATCH"
+    },
+    "PAS_UnlockMemory": {
+     "status": "STRICT"
+    },
+    "PAS_LockMemory": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_pcfx": {
+   "source": "src/audiolib/pcfx.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "PCFX_ErrorString": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "PCFX_Stop": {
+     "status": "STRICT"
+    },
+    "PCFX_Service": {
+     "status": "STRICT"
+    },
+    "PCFX_Play": {
+     "status": "STRICT"
+    },
+    "PCFX_SoundPlaying": {
+     "status": "STRICT"
+    },
+    "PCFX_SetTotalVolume": {
+     "status": "STRICT"
+    },
+    "PCFX_GetTotalVolume": {
+     "status": "STRICT"
+    },
+    "PCFX_LockEnd": {
+     "status": "STRICT"
+    },
+    "PCFX_UseLookup": {
+     "status": "STRICT"
+    },
+    "PCFX_SetCallBack": {
+     "status": "STRICT"
+    },
+    "PCFX_Init": {
+     "status": "STRICT"
+    },
+    "PCFX_Shutdown": {
+     "status": "STRICT"
+    },
+    "PCFX_UnlockMemory": {
+     "status": "STRICT"
+    },
+    "PCFX_LockMemory": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_pitch": {
+   "source": "src/audiolib/pitch.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "PITCH_Init": {
+     "status": "STRICT"
+    },
+    "PITCH_GetScale": {
+     "status": "STRICT"
+    },
+    "PITCH_LockEnd": {
+     "status": "STRICT"
+    },
+    "PITCH_UnlockMemory": {
+     "status": "STRICT"
+    },
+    "PITCH_LockMemory": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_sndsrc": {
+   "source": "src/audiolib/sndsrc.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "SS_ErrorString": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "SS_ServiceInterrupt": {
+     "status": "STRICT"
+    },
+    "SS_StopPlayback": {
+     "status": "STRICT"
+    },
+    "SS_GetCurrentPos": {
+     "status": "STRICT"
+    },
+    "SS_LockEnd": {
+     "status": "STRICT"
+    },
+    "SS_BeginBufferedPlayback": {
+     "status": "STRICT"
+    },
+    "SS_GetPlaybackRate": {
+     "status": "STRICT"
+    },
+    "SS_SetMixMode": {
+     "status": "STRICT"
+    },
+    "SS_SetPort": {
+     "status": "STRICT"
+    },
+    "SS_SetCallBack": {
+     "status": "STRICT"
+    },
+    "SS_TestTimer": {
+     "status": "STRICT"
+    },
+    "SS_TestSoundSource": {
+     "status": "STRICT"
+    },
+    "SS_DetectSoundSource": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "SS_Init": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "SS_Shutdown": {
+     "status": "STRICT"
+    },
+    "SS_UnlockMemory": {
+     "status": "STRICT"
+    },
+    "SS_LockMemory": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "ass_task_man": {
+   "source": "src/audiolib/task_man.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "TS_FreeTaskList": {
+     "status": "NEAR_MATCH"
+    },
+    "TS_SetClockSpeed": {
+     "status": "STRICT"
+    },
+    "TS_SetTimer": {
+     "status": "STRICT"
+    },
+    "TS_SetTimerToMaxTaskRate": {
+     "status": "NEAR_MATCH"
+    },
+    "TS_ScheduleTask": {
+     "status": "NEAR_MATCH"
+    },
+    "TS_Terminate": {
+     "status": "NEAR_MATCH"
+    },
+    "TS_Dispatch": {
+     "status": "NEAR_MATCH"
+    },
+    "TS_SetTaskRate": {
+     "status": "STRICT"
+    }
+   }
+  },
+  "ass_user": {
+   "source": "src/audiolib/user.c",
+   "profile": "audiolib",
+   "include": [
+    "src/audiolib"
+   ],
+   "kind": "c",
+   "component": "apogee_sound_system",
+   "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
+   "functions": {
+    "USER_CheckParameter": {
+     "status": "STRICT"
+    },
+    "USER_GetText": {
+     "status": "CODE_BYTES_MATCH"
+    }
+   }
   }
  }
 }
