@@ -2046,6 +2046,71 @@
      "status": "STRICT"
     }
    }
+  },
+  "game_sector": {
+   "source": "src/game/sector.c",
+   "profile": "game",
+   "include": [
+    "src/game"
+   ],
+   "kind": "c",
+   "provenance": "BINARY_DERIVED with raynorpat/lameduke and Duke3D 1.5 SECTOR.C semantics; sector worker 2026-11-26",
+   "functions": {
+    "checkcursectnums": {
+     "status": "STRICT"
+    },
+    "findplayer": {
+     "status": "STRICT"
+    },
+    "doanimations": {
+     "status": "STRICT"
+    },
+    "getanimationgoal": {
+     "status": "STRICT"
+    },
+    "setanimation": {
+     "status": "STRICT"
+    },
+    "animatecamsprite": {
+     "status": "STRICT"
+    },
+    "animatewalls": {
+     "status": "STRICT"
+    },
+    "activatewarpelevators": {
+     "status": "NEAR_MATCH"
+    },
+    "operatesectors": {
+     "status": "NEAR_MATCH"
+    },
+    "operateactivators": {
+     "status": "NEAR_MATCH"
+    },
+    "operatemasterswitches": {
+     "status": "STRICT"
+    },
+    "operateforcefields": {
+     "status": "NEAR_MATCH"
+    },
+    "playerkeys": {
+     "status": "NEAR_MATCH"
+    },
+    "checkhitswitch": {
+     "status": "NEAR_MATCH"
+    },
+    "checkhitwall": {
+     "status": "NEAR_MATCH"
+    },
+    "checkhitceiling": {
+     "status": "NEAR_MATCH"
+    },
+    "checksectors": {
+     "status": "NEAR_MATCH"
+    },
+    "allignwarpelevators": {
+     "status": "STRICT"
+    }
+   }
   }
  }
 }

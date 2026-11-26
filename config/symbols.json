@@ -2965,6 +2965,106 @@
    "enterlevel": {
     "addr": "1:149b0",
     "evidence": "menues worker 2026-11-26: Builds map names, runs bound loadboard, and calls prelevel."
+   },
+   "checkcursectnums": {
+    "addr": "1:14fb0",
+    "evidence": "sector worker 2026-11-26: GAME ends at the return at 14fac followed by three zeros. Called during sector operation and actor triggers. The connection-list walk compares player current sector and returns a matching index, paralleling Duke 1.5 SECTOR.C."
+   },
+   "findplayer": {
+    "addr": "1:15000",
+    "evidence": "sector worker 2026-11-26: Actor call sites pass a sprite number and distance pointer. The connection-list loop computes Manhattan distance from the sprite coordinates and returns a short player index."
+   },
+   "doanimations": {
+    "addr": "1:150a0",
+    "evidence": "sector worker 2026-11-26: Simulation callers pass tick count; descending traversal dereferences the animation pointer table, advances toward each goal and removes completed entries."
+   },
+   "getanimationgoal": {
+    "addr": "1:15340",
+    "evidence": "sector worker 2026-11-26: SECTOR motion queries pass floor, ceiling and coordinate pointers; pointer-list search returns the index or -1, corroborated by Duke 1.5 SECTOR.C."
+   },
+   "setanimation": {
+    "addr": "1:15380",
+    "evidence": "sector worker 2026-11-26: Operation callers pass sector, destination, goal and velocity. The routine searches existing destination pointers and enforces a 511 active-slot limit."
+   },
+   "animatecamsprite": {
+    "addr": "1:15410",
+    "evidence": "sector worker 2026-11-26: Inline copy in displayrooms traverses the same viewscreen, checks the same 11-frame count and calls the same tile renderer."
+   },
+   "animatewalls": {
+    "addr": "1:15550",
+    "evidence": "sector worker 2026-11-26: Display code consumes the animation state initialized by prelevel at 12210. The loop animates the same tile groups as the prototype's behavioral reference."
+   },
+   "activatewarpelevators": {
+    "addr": "1:15810",
+    "evidence": "sector worker 2026-11-26: SECTOR callers pass an effector sprite and direction. This searches status 3 lotag 17 elevators sharing the supplied hitag, matching the later elevator routine's role. Inline copies occur in operatesectors."
+   },
+   "operatesectors": {
+    "addr": "1:159e0",
+    "evidence": "sector worker 2026-11-26: Called by activators, operates a sector using its low lotag, an animation pointer list and adjacent-sector height lookup."
+   },
+   "operateactivators": {
+    "addr": "1:18210",
+    "evidence": "sector worker 2026-11-26: Traverses status 8 sprites matching the specified lotag and operates sectors or toggles the lock bit. Copies of the traversal appear in switch and player-use paths."
+   },
+   "operatemasterswitches": {
+    "addr": "1:19540",
+    "evidence": "sector worker 2026-11-26: Checks tile 51 MASTERSWITCH as defined in DEFS.CON and arms its yvel. The same walk occurs in wall switch handling at 1b4b0."
+   },
+   "operateforcefields": {
+    "addr": "1:19590",
+    "evidence": "sector worker 2026-11-26: Animwall tags and field texture IDs select toggling between cstat 0 and 85 and related palettes. The same loop is inlined in 1b4b0."
+   },
+   "checkhitswitch": {
+    "addr": "1:1b4b0",
+    "evidence": "sector worker 2026-11-26: Handles shot-activated wall targets, toggles linked switch textures and dispatches activators, as corroborated by the shooting caller and prototype reference."
+   },
+   "checkhitwall": {
+    "addr": "1:1bb10",
+    "evidence": "sector worker 2026-11-26: The projectile caller passes a wall, impact x/y/z and weapon tile; dispatch handles glass and light tile effects."
+   },
+   "checkhitceiling": {
+    "addr": "1:1c180",
+    "evidence": "sector worker 2026-11-26: The shooting caller passes a sector after a ceiling impact; recognized ceiling tiles switch to broken variants and shades propagate to linked sectors."
+   },
+   "allignwarpelevators": {
+    "addr": "1:1f190",
+    "evidence": "sector worker 2026-11-26: Level setup caller and the later SECTOR.C align paired lotag 17 effectors with equal hitags by copying sector heights."
+   },
+   "render_camera_tile": {
+    "addr": "1:11380",
+    "evidence": "sector worker 2026-11-26: Renderer redirects framebuffer for a tile and calls drawrooms and drawmasks using camera coordinates. Calls in both the standalone updater and the GAME rendering path."
+   },
+   "render_mirror": {
+    "addr": "1:11a10",
+    "evidence": "sector worker 2026-11-26: Renderer collects triggering wall positions, calls engine mirror preparation, then draws and reverses a reflected view. Display paths call for the mirror tile."
+   },
+   "update_ripple_tile": {
+    "addr": "1:2e200",
+    "evidence": "sector worker 2026-11-26: Renderer modifies a 128-pixel grid using the separately initialized radial tables, with a pointer from waloff."
+   },
+   "FTA": {
+    "addr": "1:02630",
+    "evidence": "sector worker 2026-11-26: Schedules a quote by its first argument and computes display duration from the 32-byte quote table. The routine selects screenpeek internally. Its callers include the secret-sector and shot-switch paths."
+   },
+   "playerkeys": {
+    "addr": "1:19720",
+    "evidence": "sector worker 2026-11-26: Per-player input dispatch tests the independent player_bits array and handles view resize, pause, inventory toggles and menu selection. The input mode calls and data-field behavior distinguish this from checksectors."
+   },
+   "displayrooms": {
+    "addr": "1:04050",
+    "evidence": "sector worker 2026-11-26: The GAME frame invokes this entry, which calls the bound engine room renderer, projects sprites and draws the player overlay."
+   },
+   "sector_text_end": {
+    "addr": "1:1f27e",
+    "evidence": "sector worker 2026-11-26: Terminal return at 1f27d is followed by two zeros and PLAYER's private frame table at 1f280."
+   },
+   "operatesectors_table": {
+    "addr": "1:1598c",
+    "evidence": "sector worker 2026-11-26: Start of 21 consecutive LE code relocations selected by the dispatcher at 15a3f, after the return at 1598b."
+   },
+   "checksectors": {
+    "addr": "1:1c5e0",
+    "evidence": "sector worker 2026-11-26: GAME simulation calls this player-sector interaction loop, which tests sector tags, uses neartag and triggers doors and special sectors."
    }
   },
   "data": {
@@ -5607,6 +5707,62 @@
    "menu_scores": {
     "addr": "2:a5410",
     "evidence": "menues worker 2026-11-26: The High Scores choice selects page 60. That page copies this zero-line descriptor with title tile 1138 at 1:2ddd9."
+   },
+   "animatecnt": {
+    "addr": "2:a5250",
+    "evidence": "sector worker 2026-11-26: prelevel clears this dword independently. Animation updates and pointer lookup use it as the active slot count."
+   },
+   "animatesect": {
+    "addr": "2:a1430",
+    "evidence": "sector worker 2026-11-26: setanimation and inlined copies store the caller's sector into a two-byte entry. doanimations compares those entries with the player sector and indexes the sector array."
+   },
+   "animateptr": {
+    "addr": "2:a1830",
+    "evidence": "sector worker 2026-11-26: setanimation stores destination addresses and doanimations dereferences them. The standalone lookup uses this same table."
+   },
+   "animategoal": {
+    "addr": "2:a2030",
+    "evidence": "sector worker 2026-11-26: setanimation and inlined copies store goal heights or coordinates. doanimations stops moving entries upon reaching these dword values."
+   },
+   "animatevel": {
+    "addr": "2:0eec8",
+    "evidence": "sector worker 2026-11-26: setanimation stores its fourth argument here. doanimations multiplies these dword entries by elapsed ticks."
+   },
+   "animwall": {
+    "addr": "2:a4c30",
+    "evidence": "sector worker 2026-11-26: prelevel at 12210 writes six-byte entries consisting of a short wall index and dword tag; wall animation and switch handling consume these entries."
+   },
+   "numanimwalls": {
+    "addr": "2:a53a8",
+    "evidence": "sector worker 2026-11-26: prelevel resets this word and increments it as it appends walls. Shared by animatewalls and switch handling."
+   },
+   "viewscreen": {
+    "addr": "2:a538a",
+    "evidence": "sector worker 2026-11-26: Initialization resets it to -1. Actor movesprite code sets the word for the monitor tile; both the standalone camera update and the inline display path test it."
+   },
+   "neartagsprite": {
+    "addr": "2:a53a2",
+    "evidence": "sector worker 2026-11-26: Dedicated short output supplied as the eighth argument to engine neartag, whose historical Build signature and writes identify the sprite output."
+   },
+   "neartagsector": {
+    "addr": "2:a53a4",
+    "evidence": "sector worker 2026-11-26: Engine neartag sixth argument. checksectors reads the returned short as a sector index for the near-sector operator."
+   },
+   "neartagwall": {
+    "addr": "2:a53a6",
+    "evidence": "sector worker 2026-11-26: Engine neartag seventh position when counting through the sector output, before the sprite output. checksectors reads the result as a wall index for monitor and switch dispatch."
+   },
+   "neartaghitdist": {
+    "addr": "2:a52f4",
+    "evidence": "sector worker 2026-11-26: Dword output supplied to the engine neartag distance argument. Identified by the independent engine callee's argument order and distance store."
+   },
+   "menupage": {
+    "addr": "2:a52f0",
+    "evidence": "sector worker 2026-11-26: Menu dispatcher at 2ccf0 selects its screen from the dword written here by the player-input menu shortcuts."
+   },
+   "gamepaused": {
+    "addr": "2:a57b3",
+    "evidence": "sector worker 2026-11-26: Player input toggles this word on the pause bit. GAME tick paths at 08ea0 and 00d10 test it and bypass simulation; stage preparation clears it."
    }
   }
  }
