@@ -377,7 +377,11 @@ def settings(source, unit, profile, includes=(), extra=()):
 def projection(data):
     module, = omf.parse_object(data)
     segments = {i: s for i, s in enumerate(module.segments) if s and s.cls.upper() == "CODE"}
-    return ([(i, bytes(s.data), bytes(s.covered)) for i, s in segments.items()],
+    # Compare function code only: the CODE prefix before the first public (private initialisers and alignment
+    # padding) can carry host-dependent compiler residue (ACTORS _TEXT+7, PLAYER _TEXT+0x1f differ between hosts
+    # while every function is identical), which is irrelevant to the allocator trace (gamefix2 2026-11-26).
+    first = {i: min((o for _n, si, o, _l in module.publics if si == i), default=0) for i in segments}
+    return ([(i, bytes(s.data[first[i]:]), bytes(s.covered[first[i]:])) for i, s in segments.items()],
             [p for p in module.publics if p[1] in segments],
             [(f, module.target_name(f)) for f in module.fixups if f.seg in segments])
 
