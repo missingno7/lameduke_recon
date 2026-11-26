@@ -13,7 +13,7 @@ struct spritetype {
 };
 
 struct sectortype {
-    unsigned short wallptr, wallnum;
+    short wallptr, wallnum;
     short ceilingpicnum, floorpicnum, ceilingheinum, floorheinum;
     long ceilingz, floorz;
     signed char ceilingshade, floorshade;

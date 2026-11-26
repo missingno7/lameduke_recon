@@ -209,7 +209,7 @@ extern struct game_sound_voice sound_voices[39];
 
 /* Inline Build helpers from the historical PRAGMAS.H. */
 extern long ksgn(long value);
-#pragma aux ksgn = "add ebx,ebx" "sbb eax,eax" "cmp eax,ebx" "adc al,0" \
+#pragma aux ksgn = "add ebx,0x80000000" "sbb eax,eax" "add ebx,0x7fffffff" "adc eax,0" \
     parm nomemory [ebx] modify exact [eax ebx];
 extern long klabs(long value);
 #pragma aux klabs = "test eax,eax" "jns skipnegate" "neg eax" "skipnegate:" \
@@ -2636,27 +2636,30 @@ void displayrooms(short p)
 /* The view drawing of displayrooms, written out where a loop redraws the view. */
 #define DRAW_VIEW(P)                                                                         \
 {                                                                                            \
-    if (ps[P].display_mode == 2)                                                             \
-        draw2dscreen(ps[P].posx, ps[P].posy, ps[P].ang + ps[P].lookang, ps[P].mapzoom, 0);   \
+    short p = (P);                                                                           \
+                                                                                             \
+    if (ps[p].display_mode == 2)                                                             \
+        draw2dscreen(ps[p].posx, ps[p].posy, ps[p].ang + ps[p].lookang, ps[p].mapzoom, 0);   \
     else {                                                                                   \
-        if ((player_bits[P] & 0x80000) || (player_bits[P] & 0x100000) ||                     \
-            (player_bits[P] & 0x400000))                                                     \
+        if ((player_bits[p] & 0x80000) || (player_bits[p] & 0x100000) ||                     \
+            (player_bits[p] & 0x400000))                                                     \
             permanentwritesprite(0, 0, 1170, 0, 0, 0, 319, 199);                             \
         animatewalls();                                                                      \
-        animatecamsprite(P);                                                                 \
+        animatecamsprite(p);                                                                 \
         if (userdefs.camera >= 0) {                                                          \
-            if (sprite[userdefs.camera].yvel < 0)                                            \
-                sprite[userdefs.camera].yvel = 0;                                            \
-            else if (sprite[userdefs.camera].yvel > 199)                                     \
-                sprite[userdefs.camera].yvel = 199;                                          \
-            drawrooms(sprite[userdefs.camera].x, sprite[userdefs.camera].y,                  \
-                      sprite[userdefs.camera].z, sprite[userdefs.camera].ang,                \
-                      sprite[userdefs.camera].yvel, sprite[userdefs.camera].sectnum);        \
-            animatesprites(sprite[userdefs.camera].ang);                                     \
+            short s = userdefs.camera;                                                       \
+                                                                                             \
+            if (sprite[s].yvel < 0)                                                          \
+                sprite[s].yvel = 0;                                                          \
+            else if (sprite[s].yvel > 199)                                                   \
+                sprite[s].yvel = 199;                                                        \
+            drawrooms(sprite[s].x, sprite[s].y, sprite[s].z, sprite[s].ang,                  \
+                      sprite[s].yvel, sprite[s].sectnum);                                    \
+            animatesprites(sprite[s].ang);                                                   \
         } else {                                                                             \
-            drawrooms(ps[P].posx, ps[P].posy, ps[P].posz, ps[P].ang + ps[P].lookang,         \
-                      ps[P].horiz, ps[P].cursectnum);                                        \
-            animatesprites(ps[P].ang + ps[P].lookang);                                       \
+            drawrooms(ps[p].posx, ps[p].posy, ps[p].posz, ps[p].ang + ps[p].lookang,         \
+                      ps[p].horiz, ps[p].cursectnum);                                        \
+            animatesprites(ps[p].ang + ps[p].lookang);                                       \
         }                                                                                    \
         drawmasks();                                                                         \
         if ((gotpic[0x47] & 16) > 0 && waloff[572] != -1)                                    \
@@ -2671,8 +2674,8 @@ void displayrooms(short p)
     unsigned char shade_ = (SHADE);                                                         \
     short left, tile, descender;                                                            \
                                                                                             \
+    left = x;                                                                               \
     if (ps[screenpeek].display_mode != 2) {                                                 \
-        left = x;                                                                           \
         while (*text) {                                                                     \
             descender = 2;                                                                  \
             if (*text == '\n') {                                                            \
@@ -2999,7 +3002,13 @@ void main(int argc, char **argv)
     puts(main_init_engine);
     initmenus();
     initengine();
-    inittimer();
+    outp(0x43, 0x36);
+    outp(0x40, 0xd6);
+    outp(0x40, 0x26);
+    oldtimerhandler = _dos_getvect(8);
+    _disable();
+    _dos_setvect(8, timerhandler);
+    _enable();
     puts(main_multiplayer);
     initmultiplayers(option[4], option[5]);
     puts(main_loading_art);
@@ -3538,7 +3547,7 @@ void record(short player)
                     sprite[j].picnum != 215 && sprite[j].picnum != 283) {                   \
                     k = headspritestat[9];                                                  \
                     while (k >= 0) {                                                        \
-                        if (k != i && sprite[i].hitag == sprite[k].hitag) {                 \
+                        if (i != k && sprite[i].hitag == sprite[k].hitag) {                 \
                             sprite[j].x = sprite[k].x;                                      \
                             sprite[j].y = sprite[k].y;                                      \
                             sprite[j].z = sprite[k].z;                                      \
@@ -3555,7 +3564,7 @@ void record(short player)
                                                                                             \
         p = connecthead;                                                                    \
         while (p >= 0) {                                                                    \
-            if (sect == ps[p].cursectnum) {                                                 \
+            if (ps[p].cursectnum == sect) {                                                 \
                 lotag = sector[sect].lotag & 0x7fff;                                        \
                 if (lotag == 0) {                                                           \
                     if (klabs(sprite[i].z - ps[p].posz) > 4096 &&                           \
@@ -3568,10 +3577,7 @@ void record(short player)
                     if (sector[sect].floorz - 0x500 > ps[p].posz)                           \
                         goto nextplayer;                                                    \
                 }                                                                           \
-                if (hittype[i][0]) {                                                        \
-                    hittype[i][0]--;                                                        \
-                    goto nextplayer;                                                        \
-                }                                                                           \
+                if (hittype[i][0] == 0) {                                                   \
                 m = headspritestat[9];                                                      \
                 while (m >= 0) {                                                            \
                     if (m != i && sprite[i].hitag == sprite[m].hitag) {                     \
@@ -3618,6 +3624,8 @@ void record(short player)
                     }                                                                       \
                     m = nextspritestat[m];                                                  \
                 }                                                                           \
+                } else                                                                      \
+                    hittype[i][0]--;                                                        \
             }                                                                               \
     nextplayer:                                                                             \
             p = connectpoint2[p];                                                           \
@@ -3629,8 +3637,8 @@ void record(short player)
 
 void domovethings(void)
 {
-    short i, j, m, p, sect;
-    long k;
+    short i, j, m, sect;
+    long k, p;
     long lotag, otherlotag;
 
     randomstash = krand();
@@ -3638,8 +3646,15 @@ void domovethings(void)
     lockclock += script_tics;
     doanimations(script_tics);
     if (userdefs.paused == 0) {
-        if (demomode == 1)
-            record(0);
+        if (demomode == 1) {
+demo_svel[reccnt] = player_svel[0];
+            demo_vel[reccnt] = player_vel[0];
+            demo_avel[reccnt] = player_avel[0];
+            demo_bits[reccnt] = player_bits[0];
+            demo_tics[reccnt] = script_tics;
+            if (++reccnt > 16383)
+                reccnt = 16383;
+        }
         moveeffects();
         MOVE_STATUS9();
     }
@@ -3851,8 +3866,8 @@ void spawn_random_effects(short i, short count)
 
 void move_status9(void)
 {
-    short i, j, m, p, sect;
-    long k;
+    short i, j, m, sect;
+    long k, p;
     long lotag, otherlotag;
 
     MOVE_STATUS9();
@@ -3987,142 +4002,147 @@ void write_demo(void)
     }
 }
 
-/* The dispatch follows LameDuke's status-3 actor and sector conventions.
- * Raynorpat's GPLv2 reconstruction supplied the semantic starting point. */
+/* The dispatch follows LameDuke's status-3 actor and sector conventions, written
+ * in the Duke 1.3d moveeffectors style (shared q/l/m/x scratch, st, long j).
+ * FTA is expanded in place where the compiler inlined it. */
 void moveeffectors(void)
 {
-    long scratch, speed;
-    short i, nexti;
+    long q, l, m, x, st, j, d, *t;
+    short i, k, nexti, p, sect;
 
-    for (i = headspritestat[3]; i >= 0; i = nexti) {
-        long *t = hittype[i], k, d;
-        short sect = sprite[i].sectnum, j, p;
-        long lotag = sprite[i].lotag;
-
+    i = headspritestat[3];
+    while (i >= 0) {
         nexti = nextspritestat[i];
-        switch (lotag) {
-        case 0: {
-            long dir = 0;
+        sect = sprite[i].sectnum;
+        t = &hittype[i][0];
+        st = sprite[i].lotag;
 
+        switch (st) {
+        case 0:
             for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
-                if (sprite[i].hitag == sprite[j].hitag && (sprite[j].lotag == 1 || sprite[j].lotag == 5))
+                if (sprite[i].hitag == sprite[j].hitag && (sprite[j].lotag == 1 || sprite[j].lotag == 5)) {
+                    q = sector[sect].extra >> 3;
+                    if (sprite[j].ang > 1024)
+                        l = -1;
+                    else
+                        l = 1;
                     break;
+                }
             if (j >= 0) {
-                speed = sector[sect].extra >> 3;
-                scratch = dir = sprite[j].ang <= 1024 ? 1 : -1;
                 if (t[3] == 0)
                     t[3] = klabs(sprite[i].x - sprite[j].x) + klabs(sprite[i].y - sprite[j].y);
-                sprite[i].xvel = (short)t[3];
+                sprite[i].xvel = t[3];
                 sprite[i].x = sprite[j].x;
                 sprite[i].y = sprite[j].y;
-                sprite[i].ang += speed * dir;
-                t[2] += speed * dir;
+                sprite[i].ang += l * q;
+                t[2] += l * q;
             }
             movesector(i);
             break;
-        }
         case 2:
             if (t[4] > 0 && t[0] == 0) {
-                if (sprite[i].hitag <= t[4]) {
+                if (sprite[i].hitag > t[4])
+                    t[4]++;
+                else {
                     t[0] = 1;
                     sprite[i].xvel = 16;
-                } else
-                    t[4]++;
-            }
-            if (t[0] <= 0)
-                break;
-            if (++t[0] > 24) {
-                t[0] = -1;
-                t[4] = -1;
-                break;
-            }
-            sprite[i].xvel++;
-            for (p = connecthead; p >= 0; p = connectpoint2[p])
-                if (ps[p].cursectnum == sect && ps[p].on_ground) {
-                    ps[p].posx += (sprite[i].xvel * sintable[(sprite[i].ang + 512) & 2047]) >> 14;
-                    ps[p].posy += (sprite[i].xvel * sintable[sprite[i].ang & 2047]) >> 14;
                 }
-            for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
-                if (sprite[j].picnum != 175) {
-                    sprite[j].x += (sprite[i].xvel * sintable[(sprite[i].ang + 512) & 2047]) >> 14;
-                    sprite[j].y += (sintable[sprite[i].ang & 2047] * sprite[i].xvel) >> 14;
-                    setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+            }
+            if (t[0] > 0) {
+                t[0]++;
+                if (t[0] > 24) {
+                    t[0] = -1;
+                    t[4] = -1;
+                    break;
                 }
-            movesector(i);
+                sprite[i].xvel++;
+                for (p = connecthead; p >= 0; p = connectpoint2[p])
+                    if (ps[p].cursectnum == sect && ps[p].on_ground) {
+                        ps[p].posx += (sintable[(sprite[i].ang + 512) & 2047] * sprite[i].xvel) >> 14;
+                        ps[p].posy += (sintable[sprite[i].ang & 2047] * sprite[i].xvel) >> 14;
+                    }
+                for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
+                    if (sprite[j].picnum != 175) {
+                        sprite[j].x += (sintable[(sprite[i].ang + 512) & 2047] * sprite[i].xvel) >> 14;
+                        sprite[j].y += (sprite[i].xvel * sintable[sprite[i].ang & 2047]) >> 14;
+                        setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+                    }
+                movesector(i);
+            }
             break;
         case 3:
             if (t[4] == 0)
                 break;
-            k = (randomstash / (sprite[i].hitag + 1)) & 1;
-            if (k) {
-                sector[sect].ceilingpal = (unsigned short)sprite[i].owner >> 8;
-                sector[sect].floorpal = (unsigned char)sprite[i].owner;
-            } else
-                sector[sect].ceilingpal = sector[sect].floorpal = 0;
-            t[0] = k ? sprite[i].shade : t[3];
-            sector[sect].ceilingshade = sector[sect].floorshade = (signed char)t[0];
-            for (k = sector[sect].wallptr; k < sector[sect].wallptr + sector[sect].wallnum; k++)
-                if (!(wall[k].hitag & 1))
-                    wall[k].shade = (signed char)t[0];
+            if ((randomstash / (sprite[i].hitag + 1)) & 1) {
+                sector[sect].ceilingpal = sprite[i].owner >> 8;
+                sector[sect].floorpal = sprite[i].owner;
+                t[0] = sprite[i].shade;
+            } else {
+                sector[sect].ceilingpal = 0;
+                sector[sect].floorpal = 0;
+                t[0] = t[3];
+            }
+            sector[sect].floorshade = sector[sect].ceilingshade = t[0];
+            k = sector[sect].wallptr + sector[sect].wallnum;
+            for (x = sector[sect].wallptr; x < k; x++)
+                if (!(wall[x].hitag & 1))
+                    wall[x].shade = t[0];
             break;
         case 4:
-            k = (randomstash / (sprite[i].hitag + 1)) & 1;
-            if (k) {
+            if ((randomstash / (sprite[i].hitag + 1)) & 1) {
                 t[1] = sprite[i].shade;
                 t[0] = sprite[i].shade;
+                sector[sect].ceilingpal = sprite[i].owner >> 8;
+                sector[sect].floorpal = sprite[i].owner;
             } else {
                 t[1] = t[2];
                 t[0] = t[3];
+                sector[sect].ceilingpal = 0;
+                sector[sect].floorpal = 0;
             }
-            if (k) {
-                sector[sect].ceilingpal = (unsigned short)sprite[i].owner >> 8;
-                sector[sect].floorpal = (unsigned char)sprite[i].owner;
-            } else
-                sector[sect].ceilingpal = sector[sect].floorpal = 0;
-            sector[sect].floorshade = sector[sect].ceilingshade = (signed char)t[1];
-            for (k = sector[sect].wallptr; k < sector[sect].wallptr + sector[sect].wallnum; k++)
-                if (!(wall[k].hitag & 1))
-                    wall[k].shade = (signed char)t[0];
+            sector[sect].ceilingshade = sector[sect].floorshade = t[1];
+            k = sector[sect].wallptr + sector[sect].wallnum;
+            for (x = sector[sect].wallptr; x < k; x++)
+                if (!(wall[x].hitag & 1))
+                    wall[x].shade = t[0];
             break;
-        case 5: {
-            /* The boss ship: hunts locators (stat 7, lotag t4) nearest the player. */
-            long dist;
-
-            p = findplayer(i, &dist);
+        case 5:
+            p = findplayer(i, &x);
             if (sprite[i].owner == -1) {
                 t[4] = 0;
-                scratch = 0x7FFFFFFF;
-                for (;;) {
-                    sprite[i].owner = findlocator((short)t[4], -1);
+                l = 0x7fffffff;
+                while (1) {
+                    sprite[i].owner = findlocator(t[4], -1);
                     if (sprite[i].owner == -1)
                         break;
-                    d = klabs(sprite[ps[p].i].x - sprite[sprite[i].owner].x) + klabs(sprite[ps[p].i].y - sprite[sprite[i].owner].y);
-                    if (d < scratch) {
-                        speed = sprite[i].owner;
-                        scratch = d;
+                    if (klabs(sprite[ps[p].i].x - sprite[sprite[i].owner].x) + klabs(sprite[ps[p].i].y - sprite[sprite[i].owner].y) < l) {
+                        q = sprite[i].owner;
+                        l = klabs(sprite[ps[p].i].x - sprite[q].x) + klabs(sprite[ps[p].i].y - sprite[q].y);
                     }
                     t[4]++;
                 }
-                sprite[i].owner = (short)speed;
-                sprite[i].zvel = (short)(16 * ksgn(sprite[speed].z - sprite[i].z));
+                sprite[i].owner = q;
+                sprite[i].zvel = ksgn(sprite[q].z - sprite[i].z) << 4;
             }
             if (klabs(sprite[sprite[i].owner].x - sprite[i].x) + klabs(sprite[sprite[i].owner].y - sprite[i].y) < 1024) {
-                short saved_angle = sprite[i].ang;
+                short ta;
 
+                ta = sprite[i].ang;
                 sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-                sprite[i].ang = saved_angle;
+                sprite[i].ang = ta;
                 sprite[i].owner = -1;
                 break;
             }
             sprite[i].xvel = 256;
-            speed = getincangle_shift(sprite[i].ang, getangle(sprite[sprite[i].owner].x - sprite[i].x, sprite[sprite[i].owner].y - sprite[i].y), 3);
-            sprite[i].ang += speed;
-            if ((krand() >> 8) < 223) {
+            x = getangle(sprite[sprite[i].owner].x - sprite[i].x, sprite[sprite[i].owner].y - sprite[i].y);
+            q = getincangle_shift(sprite[i].ang, x, 3);
+            sprite[i].ang += q;
+            if ((krand() >> 8) >= 223) {
+                t[2] += q;
+                sector[sect].ceilingshade = 127;
+            } else {
                 t[2] += getincangle_shift(t[2] + 512, getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 2);
                 sector[sect].ceilingshade = 0;
-            } else {
-                t[2] += speed;
-                sector[sect].ceilingshade = 127;
             }
             if (ifhitbyweapon(i) >= 0) {
                 t[3]++;
@@ -4138,11 +4158,8 @@ void moveeffectors(void)
             sector[t[0]].ceilingz += sprite[i].zvel;
             movesector(i);
             break;
-        }
         case 6:
-            if (t[4] <= 0)
-                sprite[i].xvel = 256;
-            else {
+            if (t[4] > 0) {
                 t[4]--;
                 if (t[4] >= 224)
                     sprite[i].xvel -= 8;
@@ -4154,116 +4171,113 @@ void moveeffectors(void)
                     t[4] = 0;
                     sprite[i].xvel = 256;
                 }
-            }
+            } else
+                sprite[i].xvel = 256;
+            x = 0;
             for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
                 if (sprite[j].lotag == 14 && sprite[j].hitag == sprite[i].hitag && hittype[j][0] == t[0]) {
                     sprite[j].xvel = sprite[i].xvel;
+                    x++;
                     hittype[j][4] = t[4];
                 }
-            /* fall through */
         case 14:
-        {
-            long dang;
-
             if (sprite[i].owner == -1)
-                sprite[i].owner = findlocator((short)t[3], (short)t[0]);
+                sprite[i].owner = findlocator(t[3], t[0]);
             d = klabs(sprite[sprite[i].owner].x - sprite[i].x) + klabs(sprite[sprite[i].owner].y - sprite[i].y);
             if (d < 1024) {
-                if (lotag == 6 && (sprite[sprite[i].owner].hitag & 1))
+                if (st == 6 && (sprite[sprite[i].owner].hitag & 1))
                     t[4] = 256;
                 t[3]++;
-                sprite[i].owner = findlocator((short)t[3], (short)t[0]);
+                sprite[i].owner = findlocator(t[3], t[0]);
                 if (sprite[i].owner == -1) {
                     t[3] = 0;
-                    sprite[i].owner = findlocator(0, (short)t[0]);
+                    sprite[i].owner = findlocator(0, t[0]);
                 }
             }
-            if (sprite[i].xvel == 0)
-                break;
-            dang = getincangle_shift(sprite[i].ang, getangle(sprite[sprite[i].owner].x - sprite[i].x, sprite[sprite[i].owner].y - sprite[i].y), 3);
-            t[2] += dang;
-            sprite[i].ang += dang;
-            if (sprite[i].xvel == 256 && sound_voices[32].active == 0) {
-                d = 1;
-                if (!(sector[sect].floorstat & 1) && !(sector[sect].ceilingstat & 1))
-                    spritesound(32, i);
+            if (sprite[i].xvel) {
+                x = getangle(sprite[sprite[i].owner].x - sprite[i].x, sprite[sprite[i].owner].y - sprite[i].y);
+                q = getincangle_shift(sprite[i].ang, x, 3);
+                t[2] += q;
+                sprite[i].ang += q;
+                if (sprite[i].xvel == 256 && sound_voices[32].active == 0) {
+                    d = 1;
+                    if (!(sector[sect].floorstat & 1) && !(sector[sect].ceilingstat & 1))
+                        spritesound(32, i);
+                }
+                if (sprite[i].xvel <= 64 && !(sector[sect].floorstat & 1) && !(sector[sect].ceilingstat & 1))
+                    stopsound(32);
+                for (p = connecthead; p >= 0; p = connectpoint2[p])
+                    if (sector[ps[p].cursectnum].hitag == sector[sect].hitag && sector[ps[p].cursectnum].hitag != -1) {
+                        rotatepoint(sprite[i].x, sprite[i].y, ps[p].posx, ps[p].posy, q, &ps[p].posx, &ps[p].posy);
+                        if (d)
+                            ps[p].posz -= 1024;
+                        ps[p].posx += (sintable[(sprite[i].ang + 512) & 2047] * sprite[i].xvel) >> 14;
+                        ps[p].posy += (sintable[sprite[i].ang & 2047] * sprite[i].xvel) >> 14;
+                        ps[p].ang += q;
+                        setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + 9216);
+                    }
+                for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
+                    if (sprite[j].picnum != 175 && sprite[j].picnum != 34 && sprite[j].picnum != 283
+                        && sector[sect].hitag != 65535) {
+                        rotatepoint(sprite[i].x, sprite[i].y, sprite[j].x, sprite[j].y, q, &sprite[j].x, &sprite[j].y);
+                        sprite[j].x += (sintable[(sprite[i].ang + 512) & 2047] * sprite[i].xvel) >> 14;
+                        sprite[j].y += (sintable[sprite[i].ang & 2047] * sprite[i].xvel) >> 14;
+                        sprite[j].ang += q;
+                        setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+                    }
+                movesector(i);
             }
-            if (sprite[i].xvel <= 64 && !(sector[sect].floorstat & 1) && !(sector[sect].ceilingstat & 1))
-                stopsound(32);
-            for (p = connecthead; p >= 0; p = connectpoint2[p]) {
-                struct player_view *pl = &ps[p];
-
-                if (sector[pl->cursectnum].hitag != sector[sect].hitag || sector[pl->cursectnum].hitag == -1)
-                    continue;
-                rotatepoint(sprite[i].x, sprite[i].y, pl->posx, pl->posy, (short)dang, &pl->posx, &pl->posy);
-                if (d)
-                    pl->posz -= 1024;
-                pl->posx += (sprite[i].xvel * sintable[(sprite[i].ang + 512) & 2047]) >> 14;
-                pl->posy += (sprite[i].xvel * sintable[sprite[i].ang & 2047]) >> 14;
-                pl->ang += dang;
-                setsprite(pl->i, pl->posx, pl->posy, pl->posz + 9216);
-            }
-            for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j]) {
-                short pic = sprite[j].picnum;
-
-                if (pic == 175 || pic == 34 || pic == 283)
-                    continue;
-                rotatepoint(sprite[i].x, sprite[i].y, sprite[j].x, sprite[j].y, (short)dang, &sprite[j].x, &sprite[j].y);
-                sprite[j].x += (sprite[i].xvel * sintable[(sprite[i].ang + 512) & 2047]) >> 14;
-                sprite[j].y += (sprite[i].xvel * sintable[sprite[i].ang & 2047]) >> 14;
-                sprite[j].ang += dang;
-                setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
-            }
-            movesector(i);
-        }
             break;
         case 8:
-        case 9: {
-            long dir;
-
+        case 9:
             if (getanimationgoal(&sector[sect].ceilingz) < 0)
                 break;
-            dir = (sector[sect].lotag & 0x8000) ? -t[3] : t[3];
-            if (lotag == 9)
-                dir = -dir;
+            if (sector[sect].lotag & 0x8000)
+                x = -t[3];
+            else
+                x = t[3];
+            if (st == 9)
+                x = -x;
             for (j = headspritestat[3]; j >= 0; j = nextspritestat[j]) {
-                short s2 = sprite[j].sectnum;
-                long minshade = sprite[j].shade, *u = hittype[j];
-
-                if (sprite[j].lotag != lotag || sprite[j].hitag != sprite[i].hitag)
-                    continue;
-                for (scratch = sector[s2].wallptr; scratch < sector[s2].wallptr + sector[s2].wallnum; scratch++) {
-                    if (wall[scratch].hitag & 1)
-                        continue;
-                    wall[scratch].shade += dir;
-                    if (wall[scratch].shade < minshade)
-                        wall[scratch].shade = (signed char)minshade;
-                    else if (wall[scratch].shade > u[2])
-                        wall[scratch].shade = (signed char)u[2];
+                k = sprite[j].sectnum;
+                m = sprite[j].shade;
+                if (sprite[j].lotag == st && sprite[j].hitag == sprite[i].hitag) {
+                    p = sector[k].wallptr + sector[k].wallnum;
+                    for (l = sector[k].wallptr; l < p; l++)
+                        if (!(wall[l].hitag & 1)) {
+                            wall[l].shade += x;
+                            if (wall[l].shade < m)
+                                wall[l].shade = m;
+                            else if (wall[l].shade > hittype[j][2])
+                                wall[l].shade = hittype[j][2];
+                        }
+                    sector[k].floorshade += x;
+                    sector[k].ceilingshade += x;
+                    if (sector[k].floorshade < m)
+                        sector[k].floorshade = m;
+                    else if (sector[k].floorshade > hittype[j][0])
+                        sector[k].floorshade = hittype[j][0];
+                    if (sector[k].ceilingshade < m)
+                        sector[k].ceilingshade = m;
+                    else if (sector[k].ceilingshade > hittype[j][1])
+                        sector[k].ceilingshade = hittype[j][0];
                 }
-                sector[s2].floorshade += dir;
-                sector[s2].ceilingshade += dir;
-                if (sector[s2].floorshade < minshade)
-                    sector[s2].floorshade = (signed char)minshade;
-                else if (sector[s2].floorshade > u[0])
-                    sector[s2].floorshade = (signed char)u[0];
-                if (sector[s2].ceilingshade < minshade)
-                    sector[s2].ceilingshade = (signed char)minshade;
-                else if (sector[s2].ceilingshade > u[1])
-                    sector[s2].ceilingshade = (signed char)u[0]; /* exe: clamps to t0, not t1 */
             }
             break;
-        }
         case 10:
-            if ((sector[sect].lotag & 0x7FFF) == 23) {
-                if ((sector[sect].lotag & 0x8000) && sprite[i].hitag < ++t[0]) {
-                    operatesectors(sect, i);
-                    t[0] = 0;
+            if ((sector[sect].lotag & 0x7fff) == 23) {
+                if (sector[sect].lotag & 0x8000) {
+                    if (sprite[i].hitag < ++t[0]) {
+                        operatesectors(sect, i);
+                        t[0] = 0;
+                    }
                 }
             } else if (sector[sect].floorz > sector[sect].ceilingz) {
-                if (t[1] == 0 && sprite[i].hitag < ++t[0]) {
-                    operatesectors(sect, i);
-                    t[1] = 1;
+                if (t[1] == 0) {
+                    if (sprite[i].hitag < ++t[0]) {
+                        operatesectors(sect, i);
+                        t[1] = 1;
+                    }
                 }
             } else {
                 t[0] = 0;
@@ -4271,51 +4285,57 @@ void moveeffectors(void)
             }
             break;
         case 11:
-            /* A swinging door: t3 is its direction, t4 how far it has turned. */
-            if (t[4] != 0) {
-                short step = (short)(t[3] * (sprite[i].yvel >> 3));
-                long w, end = sector[sect].wallptr + sector[sect].wallnum;
+            if (t[4]) {
+                short step;
 
+                step = (sprite[i].yvel >> 3) * t[3];
                 t[2] += step;
                 t[4] += step;
                 movesector(i);
-                for (w = sector[sect].wallptr; w < end; w++)
+                for (j = sector[sect].wallptr; j < (short)(sector[sect].wallptr + sector[sect].wallnum); j++)
                     for (p = connecthead; p >= 0; p = connectpoint2[p])
-                        if (clipinsidebox(ps[p].posx, ps[p].posy, (short)w, 128) == 1) {
-                            t[2] -= step;
+                        if (clipinsidebox(ps[p].posx, ps[p].posy, j, 128) == 1) {
                             t[4] -= step;
+                            t[2] -= step;
                             movesector(i);
                         }
                 if (t[4] <= -511 || t[4] >= 512) {
                     t[4] = 0;
-                    t[2] &= ~0xFF;
+                    t[2] &= 0xffffff00;
                     movesector(i);
                 }
             }
             break;
         case 12:
             if (t[0] == 1) {
-                for (k = sector[sect].wallptr; k < sector[sect].wallptr + sector[sect].wallnum; k++)
-                    wall[k].shade = (signed char)t[1];
-                sector[sect].floorshade = (signed char)t[1];
-                sector[sect].ceilingshade = (signed char)t[2];
-            } else if (t[0] != 2)
-                break;
-            else if (sector[sect].floorshade > sprite[i].shade) {
-                sector[sect].floorshade -= 2;
-                sector[sect].ceilingshade -= 2;
-                for (k = sector[sect].wallptr; k < sector[sect].wallptr + sector[sect].wallnum; k++)
-                    wall[k].shade -= 2;
-                break;
+                k = sector[sect].wallptr + sector[sect].wallnum;
+                for (j = sector[sect].wallptr; j < k; j++)
+                    wall[j].shade = t[1];
+                sector[sect].floorshade = t[1];
+                sector[sect].ceilingshade = t[2];
+                t[0] = 0;
+            } else if (t[0] == 2) {
+                if (sector[sect].floorshade > sprite[i].shade) {
+                    sector[sect].floorshade -= 2;
+                    sector[sect].ceilingshade -= 2;
+                    for (j = sector[sect].wallptr; j < (short)(sector[sect].wallptr + sector[sect].wallnum); j++)
+                        wall[j].shade -= 2;
+                } else
+                    t[0] = 0;
             }
-            t[0] = 0;
             break;
         case 13:
-            /* A blast ceiling: dropped force fields of its hitag set it off; at
-               t2 4 it explodes. */
-            if (t[2] != 0) {
+            if (t[2] == 0) {
+                for (j = headspritestat[6]; j >= 0; j = nextspritestat[j])
+                    if (sprite[j].picnum == 57 && sprite[j].shade == -32 && sprite[j].hitag == sprite[i].hitag) {
+                        for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
+                            if (sprite[j].lotag == 13 && sprite[j].hitag == sprite[i].hitag)
+                                hittype[j][2] = 1;
+                        break;
+                    }
+            } else {
                 if (sprite[i].ang == 512) {
-                    if (sprite[i].owner != 0)
+                    if (sprite[i].owner)
                         sector[sect].ceilingz += (t[0] - sector[sect].ceilingz) >> 1;
                     else
                         sector[sect].floorz += (t[1] - sector[sect].floorz) >> 1;
@@ -4324,11 +4344,12 @@ void moveeffectors(void)
                     sector[sect].floorz += (t[1] - sector[sect].floorz) >> 1;
                 }
                 if (t[3] == 1) {
-                    t[3] = 2;
+                    t[3]++;
                     sector[sect].ceilingstat ^= 1;
                     if (sprite[i].ang == 512) {
-                        for (k = sector[sect].wallptr; k < sector[sect].wallptr + sector[sect].wallnum; k++)
-                            wall[k].shade = sprite[i].shade;
+                        k = sector[sect].wallptr + sector[sect].wallnum;
+                        for (j = sector[sect].wallptr; j < k; j++)
+                            wall[j].shade = sprite[i].shade;
                         sector[sect].floorshade = sprite[i].shade;
                         if (ps[0].parallax_sector >= 0) {
                             sector[sect].ceilingpicnum = sector[ps[0].parallax_sector].ceilingpicnum;
@@ -4336,76 +4357,75 @@ void moveeffectors(void)
                         }
                     }
                 }
-                if (++t[2] > 7) {
+                t[2]++;
+                if (t[2] > 7) {
                     if (t[3] != 2)
                         sector[sect].ceilingshade = 127;
                     if (sprite[i].ang != 512)
                         sector[sect].floorshade = 127;
-                    goto delete_effector;
+                    deletesprite(i);
+                    goto BOLT;
                 }
-            } else {
-                for (j = headspritestat[6]; j >= 0; j = nextspritestat[j])
-                    if (sprite[j].picnum == 57 && sprite[j].shade == -32 && sprite[j].hitag == sprite[i].hitag)
-                        break;
-                if (j >= 0)
-                    for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
-                        if (sprite[j].lotag == 13 && sprite[j].hitag == sprite[i].hitag)
-                            hittype[j][2] = 1;
             }
             if (t[2] == 4 && sprite[i].ang != 512) {
-                nuke(sprite[i].x, sprite[i].y, sector[sect].floorz - 12288 - ((krand() & 0x20) << 6), i);
-                for (k = 0; k < 30; k += 3) {
-                    long x = sprite[i].x, y = sprite[i].y;
-                    long z = sector[sect].floorz - (krand() & 0x1000);
+                x = sector[sect].floorz - 12288 - ((krand() & 32) << 6);
+                nuke(sprite[i].x, sprite[i].y, x, i);
+                for (x = 0; x < 30; x += 3) {
+                    long sx = sprite[i].x, sy = sprite[i].y;
+                    long sz = sector[sect].floorz - (krand() & 0x1000);
                     short pic = krand() % 11 + 235, a = krand() & 2047;
-                    short xv = (krand() & 0x80) + 64, zv = -(krand() & 511) - 512;
-                    short debris = insertsprite(sect, 5);
+                    short xv = (krand() & 0x80) + 64;
+                    long zv = -(krand() & 511) - 512;
                     long *actor;
 
-                    sprite[debris].x = x;
-                    sprite[debris].y = y;
-                    sprite[debris].z = z;
-                    sprite[debris].picnum = pic;
-                    sprite[debris].xrepeat = 24;
-                    sprite[debris].yrepeat = 24;
-                    sprite[debris].ang = a;
-                    sprite[debris].xvel = xv;
-                    sprite[debris].zvel = zv;
-                    sprite[debris].owner = i;
-                    sprite[debris].yvel = 0;
-                    sprite[debris].cstat = 0;
-                    hittype[debris][3] = 0;
-                    sprite[debris].shade = -8;
-                    hittype[debris][2] = 0;
+                    k = insertsprite(sect, 5);
+                    sprite[k].x = sx;
+                    sprite[k].y = sy;
+                    sprite[k].z = sz;
+                    sprite[k].picnum = pic;
+                    sprite[k].xrepeat = 24;
+                    sprite[k].yrepeat = 24;
+                    sprite[k].ang = a;
+                    sprite[k].xvel = xv;
+                    sprite[k].zvel = zv;
+                    sprite[k].owner = i;
+                    sprite[k].yvel = 0;
+                    sprite[k].cstat = 0;
+                    hittype[k][3] = 0;
+                    sprite[k].shade = -8;
+                    hittype[k][2] = 0;
                     actor = actorscrptr[pic];
-                    hittype[debris][0] = 0;
+                    hittype[k][0] = 0;
                     if (actor != NULL) {
-                        sprite[debris].extra = (short)actor[0];
-                        hittype[debris][4] = actor[1];
-                        hittype[debris][1] = actor[2];
+                        sprite[k].extra = actor[0];
+                        hittype[k][4] = actor[1];
+                        hittype[k][1] = actor[2];
                         if (pic != 57)
-                            sprite[debris].hitag = (short)actor[3];
+                            sprite[k].hitag = actor[3];
                     } else {
-                        hittype[debris][4] = 0;
-                        hittype[debris][1] = 0;
+                        hittype[k][4] = 0;
+                        hittype[k][1] = 0;
                     }
                 }
             }
             break;
         case 15:
-            if (t[4] == 0)
-                break;
-            sprite[i].xvel = 16;
-            if (t[4] == 1) {
-                if ((sprite[i].yvel >> 3) < t[3]) {
-                    t[4] = 0;
-                    break;
+            if (t[4]) {
+                sprite[i].xvel = 16;
+                if (t[4] == 1) {
+                    if ((sprite[i].yvel >> 3) < t[3]) {
+                        t[4] = 0;
+                        break;
+                    }
+                    t[3]++;
                 }
-                t[3]++;
+                if (t[4] == 2) {
+                    t[3]--;
+                    if (t[3] < 1)
+                        t[4] = 0;
+                }
+                movesector(i);
             }
-            if (t[4] == 2 && --t[3] < 1)
-                t[4] = 0;
-            movesector(i);
             break;
         case 16:
             t[2] += 32;
@@ -4413,7 +4433,8 @@ void moveeffectors(void)
                 sprite[i].shade = 0;
             else if (sector[sect].ceilingz < t[3]) {
                 if (nextspritesect[headspritesect[sect]] == -1) {
-                    goto delete_effector;
+                    deletesprite(i);
+                    goto BOLT;
                 }
                 sprite[i].shade = 1;
             }
@@ -4424,364 +4445,357 @@ void moveeffectors(void)
             movesector(i);
             break;
         case 17:
-            /* A lift: t0 is its direction; riders move to the next floor's lift. */
-            speed = 4 * sprite[i].yvel * t[0];
-            sector[sect].ceilingz += speed;
-            sector[sect].floorz += speed;
+            q = t[0] * (sprite[i].yvel << 2);
+            sector[sect].ceilingz += q;
+            sector[sect].floorz += q;
             for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
                 if (sprite[j].statnum < 3)
-                    sprite[j].z += speed;
+                    sprite[j].z += q;
             if (t[0] == 0)
                 break;
-            if (klabs(sector[sect].floorz - t[2]) <= sprite[i].yvel) {
-                activatewarpelevators(i, 0);
-                break;
-            }
-            if (t[0] == -1) {
-                sprite[i].ang += 128;
-                if (sector[sect].floorz > t[3])
+            if (t[0]) {
+                if (klabs(sector[sect].floorz - t[2]) <= sprite[i].yvel) {
+                    activatewarpelevators(i, 0);
                     break;
-            } else {
-                sprite[i].ang -= 128;
-                if (sector[sect].ceilingz < t[4])
+                }
+                if (t[0] == -1) {
+                    sprite[i].ang += 128;
+                    if (sector[sect].floorz > t[3])
+                        break;
+                } else {
+                    sprite[i].ang -= 128;
+                    if (sector[sect].ceilingz < t[4])
+                        break;
+                }
+                if (t[1] == 0)
                     break;
+                t[1] = 0;
+                for (p = connecthead; p >= 0; p = connectpoint2[p])
+                    if (ps[p].cursectnum == sect)
+                        for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
+                            if (sprite[j].lotag == 17 && sector[sect].hitag - t[0] == sector[sprite[j].sectnum].hitag
+                                && sprite[j].hitag == sprite[i].hitag) {
+                                ps[p].posx += sprite[j].x - sprite[i].x;
+                                ps[p].cursectnum = sprite[j].sectnum;
+                                ps[p].posy += sprite[j].y - sprite[i].y;
+                                setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + 9216);
+                            }
             }
-            if (t[1] == 0)
-                break;
-            t[1] = 0;
-            for (p = connecthead; p >= 0; p = connectpoint2[p]) {
-                if (ps[p].cursectnum != sect)
-                    continue;
-                for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
-                    if (sprite[j].lotag == 17 && sector[sect].hitag - t[0] == sector[sprite[j].sectnum].hitag
-                        && sprite[j].hitag == sprite[i].hitag) {
-                        ps[p].posx += sprite[j].x - sprite[i].x;
-                        ps[p].cursectnum = sprite[j].sectnum;
-                        ps[p].posy += sprite[j].y - sprite[i].y;
-                        setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + 9216);
+            break;
+        case 18:
+            if (t[0]) {
+                unsigned char statlist[3] = { 1, 4, 5 };
+
+                m = sprite[i].yvel << 4;
+                for (x = 0; x < 3; x++)
+                    for (j = headspritestat[statlist[x]]; j >= 0; j = nextspritestat[j]) {
+                        l = klabs(sprite[i].x - sprite[j].x) + klabs(sprite[i].y - sprite[j].y);
+                        if (l < m) {
+                            sprite[j].x += ksgn(sprite[i].x - sprite[j].x) << 7;
+                            sprite[j].y += ksgn(sprite[i].y - sprite[j].y) << 7;
+                            sprite[j].z += ksgn(sprite[i].z - sprite[j].z) << 12;
+                            sprite[j].xvel = 0;
+                            sprite[j].ang = getangle(sprite[i].x - sprite[j].x, sprite[i].y - sprite[j].y);
+                        }
                     }
-            }
-            break;
-        case 18: {
-            /* A pull toward the effector; the player loop's empty body leaves p -1,
-               so the pull lands on the record before ps. */
-            unsigned char stats[3] = { 1, 4, 5 };
-            long r = 16 * sprite[i].yvel;
-            struct player_view *pl;
-            short player;
-
-            if (t[0] == 0)
-                break;
-            for (k = 0; k < 3; k++)
-                for (j = headspritestat[stats[k]]; j >= 0; j = nextspritestat[j]) {
-                    scratch = klabs(sprite[i].x - sprite[j].x) + klabs(sprite[i].y - sprite[j].y);
-                    if (scratch >= r)
-                        continue;
-                    sprite[j].x += ksgn(sprite[i].x - sprite[j].x) << 7;
-                    sprite[j].y += ksgn(sprite[i].y - sprite[j].y) << 7;
-                    sprite[j].z += ksgn(sprite[i].z - sprite[j].z) << 12;
-                    sprite[j].xvel = 0;
-                    sprite[j].ang = (short)getangle(sprite[i].x - sprite[j].x, sprite[i].y - sprite[j].y);
+                /* The original skips the body of the connection walk and uses
+                 * the terminating index for this access. */
+                for (p = connecthead; p >= 0; p = connectpoint2[p])
+                    ;
+                if (klabs(sprite[ps[p].i].x - sprite[i].x) + klabs(sprite[ps[p].i].y - sprite[i].y) < m) {
+                    ps[p].posx += ksgn(sprite[i].x - ps[p].posx) << 8;
+                    ps[p].posy += ksgn(sprite[i].y - ps[p].posy) << 8;
+                    clipmove(&ps[p].posx, &ps[p].posy, &ps[p].posz, &ps[p].cursectnum, 0, 0, 192, 1024, 1024, 0);
                 }
-            /* The original skips the body of the connection walk and uses
-             * the terminating index for this access. */
-            for (player = connecthead; player >= 0; player = connectpoint2[player])
-                ;
-            pl = &ps[player];
-            if (klabs(sprite[pl->i].x - sprite[i].x) + klabs(sprite[pl->i].y - sprite[i].y) < r) {
-                pl->posx += ksgn(sprite[i].x - pl->posx) << 8;
-                pl->posy += ksgn(sprite[i].y - pl->posy) << 8;
-                clipmove(&pl->posx, &pl->posy, &pl->posz, &pl->cursectnum, 0, 0, 192, 1024, 1024, 0);
             }
             break;
-        }
         case 19:
-            if (t[0] == 0) {
-                if (effectinsect(i) >= 0) {
-                    FTA_INLINE(8)
-                    for (scratch = headspritestat[3]; scratch >= 0; scratch = nextspritestat[scratch])
-                        if ((sprite[scratch].lotag & 0x7FFF) == 19 && sprite[scratch].hitag == sprite[i].hitag
-                            && hittype[scratch][0] == 0)
-                            hittype[scratch][0] = 1;
+            if (t[0]) {
+                if (sector[sect].ceilingz >= sector[sect].floorz) {
+                    sector[sect].ceilingz = sector[sect].floorz;
+                    deletesprite(i);
+                    goto BOLT;
                 }
-            } else if (sector[sect].ceilingz < sector[sect].floorz)
                 sector[sect].ceilingz += sprite[i].yvel;
-            else {
-                sector[sect].ceilingz = sector[sect].floorz;
-                goto delete_effector;
+            } else if (effectinsect(i) >= 0) {
+                {
+                    short q = 8;
+
+                    if (userdefs.quotes == 1 && ps[screenpeek].quote_time[q] == 0) {
+                        ps[screenpeek].quote_time[q] = strlen(quote_text[q]) << 2;
+                        ps[screenpeek].quote_index = q;
+                    }
+                }
+                for (l = headspritestat[3]; l >= 0; l = nextspritestat[l])
+                    if ((sprite[l].lotag & 0x7fff) == 19 && sprite[l].hitag == sprite[i].hitag && hittype[l][0] == 0)
+                        hittype[l][0] = 1;
             }
             break;
-        case 20: {
-            /* A sliding sector: t1 and t2 are its two moving wall points. */
-            long dx, dy;
-
+        case 20:
             if (t[0] == 0)
                 break;
-            sprite[i].xvel = t[0] == 1 ? 128 : -128;
-            dx = (sprite[i].xvel * sintable[(sprite[i].ang + 512) & 2047]) >> 14;
-            dy = (sprite[i].xvel * sintable[sprite[i].ang & 2047]) >> 14;
-            t[3] += sprite[i].xvel;
-            sprite[i].x += dx;
-            sprite[i].y += dy;
-            if (t[3] <= 0 || (t[3] >> 6) == (sprite[i].yvel >> 6)) {
-                sprite[i].x -= dx;
-                sprite[i].y -= dy;
-                setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
-                t[0] = 0;
-                break;
+            if (t[0] == 1)
+                sprite[i].xvel = 128;
+            else
+                sprite[i].xvel = -128;
+            if (sprite[i].xvel) {
+                long dx, dy;
+
+                dx = (sintable[(sprite[i].ang + 512) & 2047] * sprite[i].xvel) >> 14;
+                dy = (sintable[sprite[i].ang & 2047] * sprite[i].xvel) >> 14;
+                t[3] += sprite[i].xvel;
+                sprite[i].x += dx;
+                sprite[i].y += dy;
+                if (t[3] <= 0 || (t[3] >> 6) == (sprite[i].yvel >> 6)) {
+                    sprite[i].x -= dx;
+                    sprite[i].y -= dy;
+                    setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
+                    t[0] = 0;
+                    break;
+                }
+                for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
+                    if (sprite[j].statnum != 3) {
+                        sprite[j].x += dx;
+                        sprite[j].y += dy;
+                    }
+                dragpoint(t[1], wall[t[1]].x + dx, wall[t[1]].y + dy);
+                dragpoint(t[2], wall[t[2]].x + dx, wall[t[2]].y + dy);
+                for (p = connecthead; p >= 0; p = connectpoint2[p])
+                    if (ps[p].cursectnum == sect && ps[p].on_ground) {
+                        ps[p].posx += dx;
+                        ps[p].posy += dy;
+                    }
+                sector[sect].floorxpanning -= dx >> 3;
+                sector[sect].floorypanning -= dy >> 3;
+                sector[sect].ceilingxpanning -= dx >> 3;
+                sector[sect].ceilingypanning -= dy >> 3;
             }
-            for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
-                if (sprite[j].statnum != 3) {
-                    sprite[j].x += dx;
-                    sprite[j].y += dy;
-                }
-            dragpoint((short)t[1], wall[t[1]].x + dx, wall[t[1]].y + dy);
-            dragpoint((short)t[2], wall[t[2]].x + dx, wall[t[2]].y + dy);
-            for (p = connecthead; p >= 0; p = connectpoint2[p])
-                if (ps[p].cursectnum == sect && ps[p].on_ground) {
-                    ps[p].posx += dx;
-                    ps[p].posy += dy;
-                }
-            sector[sect].floorxpanning -= dx >> 3;
-            sector[sect].floorypanning -= dy >> 3;
-            sector[sect].ceilingxpanning -= dx >> 3;
-            sector[sect].ceilingypanning -= dy >> 3;
             break;
-        }
-        case 21: {
-            long *z;
-
+        case 21:
             if (t[0] == 0)
                 break;
-            z = sprite[i].ang == 1536 ? &sector[sect].ceilingz : &sector[sect].floorz;
-            scratch = (long)z;
+            if (sprite[i].ang == 1536)
+                l = (long)&sector[sect].ceilingz;
+            else
+                l = (long)&sector[sect].floorz;
             if (t[0] == 1) {
-                sprite[i].xvel = (short)(16 * sprite[i].yvel * ksgn(sprite[i].z - *z));
+                sprite[i].xvel = ksgn(sprite[i].z - *(long *)l) * (sprite[i].yvel << 4);
                 t[0]++;
             }
-            if (sector[sect].extra != 0) {
+            if (sector[sect].extra == 0) {
+                *(long *)l += sprite[i].xvel;
+                if (klabs(*(long *)l - sprite[i].z) < 1024) {
+                    *(long *)l = sprite[i].z;
+                    deletesprite(i);
+                    goto BOLT;
+                }
+            } else
                 sector[sect].extra--;
-                break;
-            }
-            *z += sprite[i].xvel;
-            if (klabs(*z - sprite[i].z) < 1024) {
-                *z = sprite[i].z;
-                goto delete_effector;
-            }
             break;
-        }
         case 22:
-            if (t[1] == 0)
-                break;
-            if (getanimationgoal(&sector[t[0]].ceilingz) >= 0)
-                sector[sect].ceilingz += script_tics * sprite[i].yvel;
-            else
-                t[1] = 0;
+            if (t[1]) {
+                if (getanimationgoal(&sector[t[0]].ceilingz) >= 0)
+                    sector[sect].ceilingz += sprite[i].yvel * script_tics;
+                else
+                    t[1] = 0;
+            }
             break;
         case 23:
-            /* A flooding sector: once an effect lands in it, the sectors listed
-               at msx[t1..] rise to the highest floor among them. */
             if (sprite[i].shade == 0) {
                 if (effectinsect(i) >= 0)
                     sprite[i].shade = 1;
-                break;
-            }
-            if (sprite[i].shade != 1)
-                break;
-            /* The initial sector comes from the shared scratch slot. */
-            for (k = sector[scratch].wallptr; k < sector[scratch].wallptr + sector[scratch].wallnum; k++)
-                if (sector[wall[k].nextsector].hitag == sector[scratch].hitag)
-                    wall[k].picnum = 49;
-            d = (long)0x80000000;
-            for (k = 0; k < t[0]; k++) {
-                scratch = msx[k + t[1]];
-                if (d < sector[scratch].floorz && (sector[scratch].lotag & 1)) {
-                    d = sector[scratch].floorz;
-                    t[2] = scratch;
+            } else if (sprite[i].shade == 1) {
+                /* The initial sector comes from the shared l slot. */
+                for (j = sector[l].wallptr; j < (short)(sector[l].wallptr + sector[l].wallnum); j++)
+                    if (sector[wall[j].nextsector].hitag == sector[l].hitag)
+                        wall[j].picnum = 49;
+                q = 0x80000000;
+                for (x = 0; x < t[0]; x++) {
+                    l = msx[t[1] + x];
+                    if (q < sector[l].floorz && (sector[l].lotag & 1)) {
+                        q = sector[l].floorz;
+                        t[2] = l;
+                    }
+                }
+                for (x = 0; x < t[0]; x++) {
+                    l = msx[t[1] + x];
+                    if (sector[l].floorpicnum != 49)
+                        sector[l].floorpicnum = 49;
+                    if ((sector[l].lotag & 0x7fff) == 2)
+                        sector[l].ceilingz = sector[t[2]].floorz;
+                    else {
+                        sector[l].lotag |= 1;
+                        if (sector[l].floorz >= sector[t[2]].floorz)
+                            sector[t[2]].floorz = sector[l].floorz -= sprite[i].yvel;
+                        if (sector[l].floorz < sector[l].ceilingz)
+                            sector[l].floorz = sector[l].ceilingz;
+                    }
+                }
+                if (sector[sect].floorz < sprite[i].z) {
+                    deletesprite(i);
+                    goto BOLT;
                 }
             }
-            for (k = 0; k < t[0]; k++) {
-                scratch = msx[k + t[1]];
-                if (sector[scratch].floorpicnum != 49)
-                    sector[scratch].floorpicnum = 49;
-                if ((sector[scratch].lotag & 0x7FFF) == 2)
-                    sector[scratch].ceilingz = sector[t[2]].floorz;
-                else {
-                    sector[scratch].lotag |= 1;
-                    if (sector[scratch].floorz >= sector[t[2]].floorz)
-                        sector[scratch].floorz = sector[t[2]].floorz = sector[scratch].floorz - sprite[i].yvel;
-                    if (sector[scratch].floorz < sector[scratch].ceilingz)
-                        sector[scratch].floorz = sector[scratch].ceilingz;
-                }
-            }
-            if (sector[sect].floorz < sprite[i].z)
-                goto delete_effector;
-        case 24: {
-            /* A conveyor. */
-            long dx = (sintable[(sprite[i].ang + 512) & 2047] * sprite[i].yvel) >> 18;
-            long dy = (sintable[sprite[i].ang & 2047] * sprite[i].yvel) >> 18;
-
-            scratch = dy;
-            for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j]) {
-                short st = sprite[j].statnum;
-
-                if (st == 9 || st == 0 || st == 3 || st == 10 || (sprite[j].picnum >= 1175 && sprite[j].picnum <= 1178))
-                    continue;
-                sprite[j].x += dx;
-                sprite[j].y += dy;
-                setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
-                if (sect != sprite[j].sectnum) {
-                    sprite[j].x += 4 * dx;
-                    sprite[j].y += 4 * dy;
-                }
-            }
+            break;
+        case 24:
+            x = (sprite[i].yvel * sintable[(sprite[i].ang + 512) & 2047]) >> 18;
+            l = (sprite[i].yvel * sintable[sprite[i].ang & 2047]) >> 18;
+            for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
+                if (sprite[j].statnum != 9 && sprite[j].statnum != 0 && sprite[j].statnum != 3 && sprite[j].statnum != 10)
+                    if (sprite[j].picnum < 1175 || sprite[j].picnum > 1178) {
+                        sprite[j].x += x;
+                        sprite[j].y += l;
+                        setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+                        if (sprite[j].sectnum != sect) {
+                            sprite[j].x += x << 2;
+                            sprite[j].y += l << 2;
+                        }
+                    }
             for (p = connecthead; p >= 0; p = connectpoint2[p])
                 if (ps[p].cursectnum == sect && ps[p].on_ground) {
-                    ps[p].posx += dx;
-                    ps[p].posy += dy;
+                    ps[p].posx += x;
+                    ps[p].posy += l;
                     clipmove(&ps[p].posx, &ps[p].posy, &ps[p].posz, &ps[p].cursectnum, 0, 0, 192, 1024, 1024, 0);
                     setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz);
                 }
-            sector[sect].floorxpanning += dy >> 2;
-            sector[sect].floorypanning += dx >> 2;
+            sector[sect].floorxpanning += l >> 2;
+            sector[sect].floorypanning += x >> 2;
             break;
-        }
         case 25:
-            if (sprite[i].ang != 0)
+            if (sprite[i].ang)
                 t[2] += 64;
-            if (effectinsect(i) >= 0 && ++t[3] == 4) {
-                goto delete_effector;
+            if (effectinsect(i) >= 0) {
+                t[3]++;
+                if (t[3] == 4) {
+                    deletesprite(i);
+                    goto BOLT;
+                }
             }
             if (sector[sect].floorz <= sector[sect].ceilingz)
                 sprite[i].shade = 0;
             else if (sector[sect].ceilingz <= t[4])
                 sprite[i].shade = 1;
             if (sprite[i].shade) {
-                sector[sect].ceilingz += 16 * sprite[i].yvel;
+                sector[sect].ceilingz += sprite[i].yvel << 4;
                 if (sector[sect].ceilingz > sector[sect].floorz)
                     sector[sect].ceilingz = sector[sect].floorz;
             } else {
-                sector[sect].ceilingz -= 16 * sprite[i].yvel;
+                sector[sect].ceilingz -= sprite[i].yvel << 4;
                 if (sector[sect].ceilingz < t[4])
                     sector[sect].ceilingz = t[4];
             }
             movesector(i);
             break;
-        case 26: {
-            /* A shaking or rolling sector that returns home (t3,t4) every 8 tics. */
-            long dx = (32 * sintable[(sprite[i].ang + 512) & 2047]) >> 14, dy = (32 * sintable[sprite[i].ang & 2047]) >> 14;
-
-            scratch = dx;
+        case 26:
             sprite[i].xvel = 32;
+            l = (sintable[(sprite[i].ang + 512) & 2047] * sprite[i].xvel) >> 14;
+            x = (sprite[i].xvel * sintable[sprite[i].ang & 2047]) >> 14;
             sprite[i].shade++;
-            if (sprite[i].shade <= 7)
-                sector[sect].floorz += sprite[i].zvel;
-            else {
+            if (sprite[i].shade > 7) {
                 sprite[i].x = t[3];
                 sprite[i].y = t[4];
-                sector[sect].floorz -= sprite[i].shade * sprite[i].zvel - sprite[i].zvel;
+                sector[sect].floorz -= (sprite[i].zvel * sprite[i].shade) - sprite[i].zvel;
                 sprite[i].shade = 0;
-            }
+            } else
+                sector[sect].floorz += sprite[i].zvel;
             for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
                 if (sprite[j].statnum != 3 && sprite[j].statnum != 10) {
-                    sprite[j].x += dx;
-                    sprite[j].y += dy;
+                    sprite[j].x += l;
+                    sprite[j].y += x;
                     setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z + sprite[i].zvel);
                 }
             for (p = connecthead; p >= 0; p = connectpoint2[p])
                 if (ps[p].cursectnum == sect && ps[p].on_ground) {
-                    ps[p].posx += dx;
-                    ps[p].posy += dy;
+                    ps[p].posx += l;
+                    ps[p].posy += x;
                     ps[p].posz += sprite[i].zvel;
                     setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + 9216);
                 }
-            for (k = sector[sect].wallptr; k < sector[sect].wallptr + sector[sect].wallnum; k++)
-                if (wall[k].lotag == 0)
-                    wall[k].xpanning += 4;
+            k = sector[sect].wallptr + sector[sect].wallnum;
+            for (j = sector[sect].wallptr; j < k; j++)
+                if (wall[j].lotag == 0)
+                    wall[j].xpanning += 4;
             movesector(i);
             break;
-        }
-        case 27: {
-            /* A demo camera: while a demo plays it takes the view when it can see
-               the player from beyond its hitag. */
-            long dist;
-
-            p = findplayer(i, &dist);
-            if (ps[p].health <= 0)
-                break;
-            if (t[0] < 0) {
-                t[0]++;
-                camerasprite = i;
-                break;
-            }
-            if (demomode != 2 || ps[p].newowner != -1)
-                break;
-            if (cansee(sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum)) {
-                if ((unsigned)sprite[i].hitag <= (unsigned)dist) {
-                    if (t[0] == 999) {
-                        t[0] = i == camerasprite ? 0 : -20;
+        case 27:
+            p = findplayer(i, &x);
+            if (ps[p].health > 0) {
+                if (t[0] < 0) {
+                    t[0]++;
+                    camerasprite = i;
+                } else if (demomode == 2 && ps[p].newowner == -1) {
+                    if (cansee(sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum)) {
+                        if (x < (unsigned)sprite[i].hitag) {
+                            t[0] = 999;
+                            camerasprite = i;
+                            sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
+                            sprite[i].yvel = 100 + ((sprite[i].z - ps[p].posz) / 257);
+                        } else if (t[0] == 999) {
+                            if (camerasprite == i)
+                                t[0] = 0;
+                            else
+                                t[0] = -20;
+                            camerasprite = i;
+                        }
+                    } else if (t[0] == 999) {
+                        if (camerasprite == i)
+                            t[0] = 0;
+                        else
+                            t[0] = -20;
                         camerasprite = i;
                     }
-                } else {
-                    t[0] = 999;
-                    camerasprite = i;
-                    sprite[i].ang = (short)getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-                    sprite[i].yvel = (short)((sprite[i].z - ps[p].posz) / 257 + 100);
                 }
-            } else if (t[0] == 999) {
-                t[0] = i == camerasprite ? 0 : -20;
-                camerasprite = i;
             }
             break;
-        }
-        case 128: {
-            /* Breaking glass on wall t2: shards, then the wall clears after t1 tics. */
-            short w = (short)t[2], nw;
-
-            wall[w].cstat &= 0xDF;
-            wall[w].cstat |= 0x10;
-            nw = wall[w].nextwall;
-            wall[nw].cstat &= 0xDF;
-            wall[nw].cstat |= 0x10;
-            wall[w].overpicnum++;
-            wall[wall[w].nextwall].overpicnum++;
+        case 128:
+            if (wall[t[2]].cstat | 32) {
+                wall[t[2]].cstat &= (255 - 32);
+                wall[t[2]].cstat |= 16;
+                wall[wall[t[2]].nextwall].cstat &= (255 - 32);
+                wall[wall[t[2]].nextwall].cstat |= 16;
+            }
+            wall[t[2]].overpicnum++;
+            wall[wall[t[2]].nextwall].overpicnum++;
             if (t[0] == 0)
                 for (k = 0; k < 15; k++) {
-                    long z = sprite[i].z - (krand() & 0xFFF);
-                    short zv, a;
-
-                    if (z < sector[sprite[i].sectnum].ceilingz)
-                        z = sprite[i].z;
-                    zv = (short)(1024 - (krand() & 2047));
-                    a = (short)(sprite[i].ang - 256 + (krand() & 511));
-                    EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, z, 0, (short)((k & 3) + 970), -32, 18, 18, a, 64, zv, sprite[i].owner, 5);
+                    x = sprite[i].z - (krand() & 4095);
+                    if (x < sector[sprite[i].sectnum].ceilingz)
+                        x = sprite[i].z;
+                    EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, x, 0, 970 + (k & 3), -32, 18, 18,
+                        sprite[i].ang - 256 + (krand() & 511), 64, 1024 - (krand() & 2047), sprite[i].owner, 5);
                 }
-            if (t[0] < t[1]) {
+            if (t[0] < t[1])
                 t[0]++;
-                break;
+            else {
+                wall[t[2]].cstat &= (128 + 32 + 8 + 4 + 2);
+                wall[wall[t[2]].nextwall].cstat &= (128 + 32 + 8 + 4 + 2);
+                deletesprite(i);
+                goto BOLT;
             }
-            wall[w].cstat &= 0xAE;
-            wall[wall[w].nextwall].cstat &= 0xAE;
-            goto delete_effector;
-        }
+            break;
+        case 1: /* rotation pivots and transporters have no per-tic work here; */
+        case 7: /* the labels still shape the dispatch tree (split at 15) */
+            break;
         case 129: {
             unsigned char frames[12] = { 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0 };
 
-            wall[t[2]].overpicnum = (short)(frames[t[0]] + 790);
-            wall[wall[t[2]].nextwall].overpicnum = (short)(frames[t[0] + 2] + 790);
-            if (++t[0] > 9)
-                goto delete_effector;
+            wall[t[2]].overpicnum = frames[t[0]] + 790;
+            wall[wall[t[2]].nextwall].overpicnum = frames[t[0] + 2] + 790;
+            t[0]++;
+            if (t[0] > 9) {
+                deletesprite(i);
+                goto BOLT;
+            }
+            break;
         }
         }
-        continue;
-
-    delete_effector:
-        deletesprite(i);
+    BOLT:
+        i = nexti;
     }
 }
 
 /* A negative source selects an existing map sprite by index in pn. */
-short spawn(long j, short pn)
+void spawn(long j, short pn)
 {
     short i, sect, k, wall_end;
     long *actor;
@@ -4811,27 +4825,154 @@ short spawn(long j, short pn)
     }
     sect = sprite[i].sectnum;
     switch (sprite[i].picnum) {
+    case 1408:
+        sprite[i].owner = -1;
+        changespritestat(i, 1);
+        break;
+    case 1165:
+        if (j >= 0) {
+            short a;
+
+            if (sprite[j].picnum == 283) {
+                short p = sprite[j].yvel;
+
+                a = (short)(ps[p].ang - (krand() & 0x3F));
+                hittype[i][0] = krand() & 1;
+                sprite[i].x = sprite[j].x + (sintable[(a + 512) & 2047] >> 6);
+                sprite[i].y = (sintable[a & 2047] >> 6) + sprite[j].y;
+                sprite[i].z = sprite[j].z - 32 * ps[p].horiz + 4608;
+                sprite[i].zvel = (short)-(krand() & 0xFF);
+            } else {
+                a = sprite[i].ang;
+                sprite[i].x = sprite[j].x + (sintable[(a + 512) & 2047] >> 6);
+                sprite[i].y = (sintable[a & 2047] >> 6) + sprite[j].y;
+                sprite[i].z = sprite[j].z - 9216;
+            }
+            sprite[i].shade = -8;
+            sprite[i].ang = (short)(a - 512);
+            sprite[i].zvel = -192;
+            sprite[i].xvel = 48;
+            sprite[i].xrepeat = sprite[i].yrepeat = 5;
+            changespritestat(i, 5);
+        }
+        break;
+    case 1406:
+        if (j >= 0) {
+            sprite[i].xrepeat = sprite[i].yrepeat = 16;
+            sprite[i].shade = -15;
+            sprite[i].cstat |= rand() & 0xE;
+            sprite[i].ang = sprite[j].ang;
+            sprite[i].xvel = sprite[j].xvel;
+            sprite[i].zvel = sprite[j].zvel;
+            sprite[i].owner = j;
+            sprite[i].z -= 0x2000;
+            changespritestat(i, 4);
+        }
+        break;
     case 5:
         sprite[i].xrepeat = sprite[i].yrepeat = 0;
         changespritestat(i, 11);
         break;
-    case 23: case 31:
-        sprite[i].xrepeat = sprite[i].yrepeat = 0;
-        if (sprite[i].picnum == 23)
-            sector[sect].lotag ^= 0x4000;
-        changespritestat(i, 8);
+    case 1404:
+        if (j >= 0) {
+            sprite[i].owner = j;
+            sprite[i].xrepeat = (unsigned char)(tilesizx[sprite[j].picnum] / 3);
+            sprite[i].yrepeat = (unsigned char)(tilesizy[sprite[j].picnum] / 3);
+            sprite[i].shade = -127;
+        }
+        changespritestat(i, 5);
         break;
-    case 34:
-        changespritestat(i, 7);
-        sprite[i].xrepeat = sprite[i].yrepeat = 0;
+    case 1359:
+        sprite[i].xrepeat = sprite[i].yrepeat = 32;
+        sprite[i].cstat |= 0x22;
+        sprite[i].ang = (short)(krand() & 2047);
+        sprite[i].shade = 0;
+        sprite[i].z = sector[sect].floorz;
+        changespritestat(i, 5);
         break;
-    case 30: case 313: case 314: case 1123:
-        sprite[i].cstat |= 1;
+    case 1360:
+        if (j >= 0 && sprite[j].statnum == 10)
+            sprite[i].z += 4096;
         /* fall through */
-    case 1122:
-        sprite[i].shade = -12;
+    case 686: case 1370:
+        if (sprite[i].picnum == 1360)
+            sprite[i].xrepeat = sprite[i].yrepeat = 8;
+        else
+            sprite[i].xrepeat = sprite[i].yrepeat = 28;
+        sprite[i].cstat = (unsigned char)(krand() & 0xC);
+        sprite[i].shade = -127;
+        sprite[i].ang = sprite[j].ang;
+        changespritestat(i, 5);
+        break;
+    case 283:
+        sprite[i].xrepeat = sprite[i].yrepeat = 0;
+        sprite[i].shade = -32;
+        changespritestat(i, 10);
+        break;
+    case 215:
+        sprite[i].xrepeat = sprite[i].yrepeat = 10;
+        sprite[i].shade = -16;
+        changespritestat(i, 5);
+        break;
+    case 1280:
+        sprite[i].xrepeat = sprite[i].yrepeat = 64;
+        sprite[i].shade = -127;
+        sprite[i].cstat |= 1;
+        changespritestat(i, 2);
+        break;
+    case 1175: {
         show2dsprite[i >> 3] |= 1 << (i & 7);
-        changespritestat(i, 1);
+        sprite[i].cstat |= 0x40;
+        sprite[i].picnum += 2;
+        sprite[i].z = sector[sect].ceilingz + 12288;
+        hittype[i][4] = mspos;
+        msx[mspos] = sprite[i].x;
+        msy[mspos] = sprite[i].y;
+        msx[mspos + 2] = sprite[i].z;
+        for (k = headspritestat[0]; k >= 0; k = nextspritestat[k]) {
+            if (sprite[k].picnum == 1174 && sprite[k].hitag == sprite[i].hitag) {
+                hittype[i][1] = sprite[k].sectnum;
+                sprite[k].xrepeat = 48;
+                sprite[k].yrepeat = 128;
+                msx[mspos + 1] = sprite[k].x;
+                msy[mspos + 1] = sprite[k].y;
+                sprite[k].x = sprite[i].x;
+                sprite[k].y = sprite[i].y;
+                sprite[k].z = sprite[i].z;
+                sprite[k].shade = sprite[i].shade;
+                msy[mspos + 2] = k;
+                setsprite(k, sprite[k].x, sprite[k].y, sprite[k].z);
+                break;
+            }
+        }
+        sprite[i].owner = -1;
+        mspos += 3;
+        changespritestat(i, 6);
+        break;
+    }
+    case 1190:
+        sprite[i].xrepeat = sprite[i].yrepeat = 20;
+        sprite[i].shade = -16;
+        changespritestat(i, 5);
+        break;
+    case 960:
+        sprite[i].xrepeat = 16;
+        sprite[i].yrepeat = 0;
+        hittype[i][1] = krand() & 0x1F;
+        sprite[i].z = sector[sect].ceilingz + 2048;
+        changespritestat(i, 2);
+        break;
+    case 962:
+        sprite[i].z = sector[sect].ceilingz + 6144;
+        hittype[i][0] = 3;
+        /* fall through */
+    case 961:
+        show2dsprite[i >> 3] |= 1 << (i & 7);
+        sprite[i].shade = -16;
+        sprite[i].xrepeat = 32;
+        sprite[i].yrepeat = 16;
+        sprite[i].cstat |= 1;
+        changespritestat(i, 2);
         break;
     case 305:
         hittype[i][0] = sprite[i].xrepeat;
@@ -4842,12 +4983,36 @@ short spawn(long j, short pn)
         sprite[i].yvel = 0;
         changespritestat(i, 1);
         break;
-    case 265: case 266: case 267: case 268: case 269:
-        sprite[i].picnum = 265;
+    case 408: case 490: case 579: case 1536: case 1680: case 1820:
+        ps[0].max_squashed++;
+        ps[0].max_actors_killed++;
         /* fall through */
-    case 327:
+    case 631:
+        sprite[i].shade = -24;
+        sprite[i].yrepeat = 43;
         show2dsprite[i >> 3] |= 1 << (i & 7);
-        sprite[i].shade = -16;
+        sprite[i].xrepeat = 52;
+        if (sprite[i].picnum == 408)
+            sprite[i].xrepeat -= 9;
+        changespritestat(i, 2);
+        sprite[i].cstat |= 1;
+        break;
+    case 34:
+        changespritestat(i, 7);
+        sprite[i].xrepeat = sprite[i].yrepeat = 0;
+        break;
+    case 23: case 31:
+        sprite[i].xrepeat = sprite[i].yrepeat = 0;
+        if (sprite[i].picnum == 23)
+            sector[sect].lotag ^= 0x4000;
+        changespritestat(i, 8);
+        break;
+    case 30: case 313: case 314: case 1123:
+        sprite[i].cstat |= 1;
+        /* fall through */
+    case 1122:
+        sprite[i].shade = -12;
+        show2dsprite[i >> 3] |= 1 << (i & 7);
         changespritestat(i, 1);
         break;
     case 38: case 60: case 70: case 80: case 159: case 263: case 315: case 316: case 381: case 620:
@@ -4858,14 +5023,42 @@ short spawn(long j, short pn)
         sprite[i].cstat |= 1;
         changespritestat(i, 2);
         break;
-    case 57:
-        sprite[i].owner = i;
-        sprite[i].shade = -16;
-        if (sprite[i].xrepeat <= 8)
-            sprite[i].xrepeat = sprite[i].yrepeat = 0;
+    case 931:
         show2dsprite[i >> 3] |= 1 << (i & 7);
+        sprite[i].xrepeat = sprite[i].yrepeat = 32;
+        hittype[i][3] = sector[sect].ceilingz;
+        sprite[i].z = hittype[i][3] + 10752;
+        sprite[i].cstat |= 9;
+        ps[0].max_actors_killed++;
+        changespritestat(i, 2);
+        break;
+    case 930:
+        show2dsprite[i >> 3] |= 1 << (i & 7);
+        sprite[i].xrepeat = sprite[i].yrepeat = 32;
+        hittype[i][3] = sector[sect].floorz;
+        sprite[i].z = hittype[i][3] + 3072;
         sprite[i].cstat |= 1;
-        changespritestat(i, 6);
+        ps[0].max_actors_killed++;
+        changespritestat(i, 2);
+        break;
+    case 940:
+        show2dsprite[i >> 3] |= 1 << (i & 7);
+        sprite[i].owner = i;
+        sprite[i].xrepeat = sprite[i].yrepeat = 24;
+        sprite[i].cstat |= 1;
+        ps[0].max_actors_killed++;
+        changespritestat(i, 4);
+        break;
+    case 323:
+        sprite[i].z = sector[sect].floorz - (sprite[i].yrepeat << 7);
+        break;
+    case 265: case 266: case 267: case 268: case 269:
+        sprite[i].picnum = 265;
+        /* fall through */
+    case 327:
+        show2dsprite[i >> 3] |= 1 << (i & 7);
+        sprite[i].shade = -16;
+        changespritestat(i, 1);
         break;
     case 175: {
         sprite[i].yvel = sector[sect].extra;
@@ -5053,32 +5246,14 @@ short spawn(long j, short pn)
         changespritestat(i, sprite[i].lotag == 7 ? 9 : 3);
         break;
     }
-    case 215:
-        sprite[i].xrepeat = sprite[i].yrepeat = 10;
+    case 57:
+        sprite[i].owner = i;
         sprite[i].shade = -16;
-        changespritestat(i, 5);
-        break;
-    case 283:
-        sprite[i].xrepeat = sprite[i].yrepeat = 0;
-        sprite[i].shade = -32;
-        changespritestat(i, 10);
-        break;
-    case 323:
-        sprite[i].z = sector[sect].floorz - (sprite[i].yrepeat << 7);
-        break;
-    case 408: case 490: case 579: case 1536: case 1680: case 1820:
-        ps[0].max_squashed++;
-        ps[0].max_actors_killed++;
-        /* fall through */
-    case 631:
-        sprite[i].shade = -24;
-        sprite[i].yrepeat = 43;
+        if (sprite[i].xrepeat <= 8)
+            sprite[i].xrepeat = sprite[i].yrepeat = 0;
         show2dsprite[i >> 3] |= 1 << (i & 7);
-        sprite[i].xrepeat = 52;
-        if (sprite[i].picnum == 408)
-            sprite[i].xrepeat -= 9;
-        changespritestat(i, 2);
         sprite[i].cstat |= 1;
+        changespritestat(i, 6);
         break;
     case 606: case 627: case 905: case 1200:
         sprite[i].owner = i;
@@ -5088,164 +5263,7 @@ short spawn(long j, short pn)
         sprite[i].cstat |= 1;
         changespritestat(i, 6);
         break;
-    case 686: case 1360: case 1370:
-        if (sprite[i].picnum == 1360 && j >= 0 && sprite[j].statnum == 10)
-            sprite[i].z += 4096;
-        sprite[i].xrepeat = sprite[i].yrepeat = sprite[i].picnum == 1360 ? 8 : 28;
-        sprite[i].cstat = (unsigned char)(krand() & 0xC);
-        sprite[i].shade = -127;
-        sprite[i].ang = sprite[j].ang;
-        changespritestat(i, 5);
-        break;
-    case 930:
-        show2dsprite[i >> 3] |= 1 << (i & 7);
-        sprite[i].xrepeat = sprite[i].yrepeat = 32;
-        hittype[i][3] = sector[sect].floorz;
-        sprite[i].z = hittype[i][3] + 3072;
-        sprite[i].cstat |= 1;
-        ps[0].max_actors_killed++;
-        changespritestat(i, 2);
-        break;
-    case 931:
-        show2dsprite[i >> 3] |= 1 << (i & 7);
-        sprite[i].xrepeat = sprite[i].yrepeat = 32;
-        hittype[i][3] = sector[sect].ceilingz;
-        sprite[i].z = hittype[i][3] + 10752;
-        sprite[i].cstat |= 9;
-        ps[0].max_actors_killed++;
-        changespritestat(i, 2);
-        break;
-    case 940:
-        show2dsprite[i >> 3] |= 1 << (i & 7);
-        sprite[i].owner = i;
-        sprite[i].xrepeat = sprite[i].yrepeat = 24;
-        sprite[i].cstat |= 1;
-        ps[0].max_actors_killed++;
-        changespritestat(i, 4);
-        break;
-    case 960:
-        sprite[i].xrepeat = 16;
-        sprite[i].yrepeat = 0;
-        hittype[i][1] = krand() & 0x1F;
-        sprite[i].z = sector[sect].ceilingz + 2048;
-        changespritestat(i, 2);
-        break;
-    case 962:
-        sprite[i].z = sector[sect].ceilingz + 6144;
-        hittype[i][0] = 3;
-        /* fall through */
-    case 961:
-        show2dsprite[i >> 3] |= 1 << (i & 7);
-        sprite[i].shade = -16;
-        sprite[i].xrepeat = 32;
-        sprite[i].yrepeat = 16;
-        sprite[i].cstat |= 1;
-        changespritestat(i, 2);
-        break;
-    case 1165:
-        if (j >= 0) {
-            short a;
-
-            if (sprite[j].picnum == 283) {
-                short p = sprite[j].yvel;
-
-                a = (short)(ps[p].ang - (krand() & 0x3F));
-                hittype[i][0] = krand() & 1;
-                sprite[i].x = sprite[j].x + (sintable[(a + 512) & 2047] >> 6);
-                sprite[i].y = (sintable[a & 2047] >> 6) + sprite[j].y;
-                sprite[i].z = sprite[j].z - 32 * ps[p].horiz + 4608;
-                sprite[i].zvel = (short)-(krand() & 0xFF);
-            } else {
-                a = sprite[i].ang;
-                sprite[i].x = sprite[j].x + (sintable[(a + 512) & 2047] >> 6);
-                sprite[i].y = (sintable[a & 2047] >> 6) + sprite[j].y;
-                sprite[i].z = sprite[j].z - 9216;
-            }
-            sprite[i].shade = -8;
-            sprite[i].ang = (short)(a - 512);
-            sprite[i].zvel = -192;
-            sprite[i].xvel = 48;
-            sprite[i].xrepeat = sprite[i].yrepeat = 5;
-            changespritestat(i, 5);
-        }
-        break;
-    case 1175: {
-        show2dsprite[i >> 3] |= 1 << (i & 7);
-        sprite[i].cstat |= 0x40;
-        sprite[i].picnum += 2;
-        sprite[i].z = sector[sect].ceilingz + 12288;
-        hittype[i][4] = mspos;
-        msx[mspos] = sprite[i].x;
-        msy[mspos] = sprite[i].y;
-        msx[mspos + 2] = sprite[i].z;
-        for (k = headspritestat[0]; k >= 0; k = nextspritestat[k]) {
-            if (sprite[k].picnum == 1174 && sprite[k].hitag == sprite[i].hitag) {
-                hittype[i][1] = sprite[k].sectnum;
-                sprite[k].xrepeat = 48;
-                sprite[k].yrepeat = 128;
-                msx[mspos + 1] = sprite[k].x;
-                msy[mspos + 1] = sprite[k].y;
-                sprite[k].x = sprite[i].x;
-                sprite[k].y = sprite[i].y;
-                sprite[k].z = sprite[i].z;
-                sprite[k].shade = sprite[i].shade;
-                msy[mspos + 2] = k;
-                setsprite(k, sprite[k].x, sprite[k].y, sprite[k].z);
-                break;
-            }
-        }
-        sprite[i].owner = -1;
-        mspos += 3;
-        changespritestat(i, 6);
-        break;
     }
-    case 1190:
-        sprite[i].xrepeat = sprite[i].yrepeat = 20;
-        sprite[i].shade = -16;
-        changespritestat(i, 5);
-        break;
-    case 1280:
-        sprite[i].xrepeat = sprite[i].yrepeat = 64;
-        sprite[i].shade = -127;
-        sprite[i].cstat |= 1;
-        changespritestat(i, 2);
-        break;
-    case 1359:
-        sprite[i].xrepeat = sprite[i].yrepeat = 32;
-        sprite[i].cstat |= 0x22;
-        sprite[i].ang = (short)(krand() & 2047);
-        sprite[i].shade = 0;
-        sprite[i].z = sector[sect].floorz;
-        changespritestat(i, 5);
-        break;
-    case 1404:
-        if (j >= 0) {
-            sprite[i].owner = j;
-            sprite[i].xrepeat = (unsigned char)(tilesizx[sprite[j].picnum] / 3);
-            sprite[i].yrepeat = (unsigned char)(tilesizy[sprite[j].picnum] / 3);
-            sprite[i].shade = -127;
-        }
-        changespritestat(i, 5);
-        break;
-    case 1406:
-        if (j >= 0) {
-            sprite[i].xrepeat = sprite[i].yrepeat = 16;
-            sprite[i].shade = -15;
-            sprite[i].cstat |= rand() & 0xE;
-            sprite[i].ang = sprite[j].ang;
-            sprite[i].xvel = sprite[j].xvel;
-            sprite[i].zvel = sprite[j].zvel;
-            sprite[i].owner = j;
-            sprite[i].z -= 0x2000;
-            changespritestat(i, 4);
-        }
-        break;
-    case 1408:
-        sprite[i].owner = -1;
-        changespritestat(i, 1);
-        break;
-    }
-    return i;
 }
 
 /* The window is rendered into the framebuffer, copied to the tile, then
@@ -5514,27 +5532,156 @@ void prelevel(void)
         }
         sect = sprite[i].sectnum;
         switch (sprite[i].picnum) {
+        case 1408:
+            sprite[i].owner = -1;
+            stat = 1;
+            break;
+        case 1165:
+            if (j >= 0) {
+                short a;
+
+                if (sprite[j].picnum == 283) {
+                    short p = sprite[j].yvel;
+
+                    a = (short)(ps[p].ang - (krand() & 0x3F));
+                    hittype[i][0] = krand() & 1;
+                    sprite[i].x = sprite[j].x + (sintable[(a + 512) & 2047] >> 6);
+                    sprite[i].y = (sintable[a & 2047] >> 6) + sprite[j].y;
+                    sprite[i].z = sprite[j].z - 32 * ps[p].horiz + 4608;
+                    sprite[i].zvel = (short)-(krand() & 0xFF);
+                } else {
+                    a = sprite[i].ang;
+                    sprite[i].x = sprite[j].x + (sintable[(a + 512) & 2047] >> 6);
+                    sprite[i].y = (sintable[a & 2047] >> 6) + sprite[j].y;
+                    sprite[i].z = sprite[j].z - 9216;
+                }
+                sprite[i].shade = -8;
+                sprite[i].ang = (short)(a - 512);
+                sprite[i].zvel = -192;
+                sprite[i].xvel = 48;
+                sprite[i].xrepeat = sprite[i].yrepeat = 5;
+                stat = 5;
+            }
+            break;
+        case 1406:
+            if (j >= 0) {
+                sprite[i].xrepeat = sprite[i].yrepeat = 16;
+                sprite[i].shade = -15;
+                sprite[i].cstat |= rand() & 0xE;
+                sprite[i].ang = sprite[j].ang;
+                sprite[i].xvel = sprite[j].xvel;
+                sprite[i].zvel = sprite[j].zvel;
+                sprite[i].owner = j;
+                sprite[i].z -= 0x2000;
+                stat = 4;
+            }
+            break;
         case 5:
             sprite[i].xrepeat = sprite[i].yrepeat = 0;
             stat = 11;
             break;
-        case 23: case 31:
-            sprite[i].xrepeat = sprite[i].yrepeat = 0;
-            if (sprite[i].picnum == 23)
-                sector[sect].lotag ^= 0x4000;
-            stat = 8;
+        case 1404:
+            if (j >= 0) {
+                sprite[i].owner = j;
+                sprite[i].xrepeat = (unsigned char)(tilesizx[sprite[j].picnum] / 3);
+                sprite[i].yrepeat = (unsigned char)(tilesizy[sprite[j].picnum] / 3);
+                sprite[i].shade = -127;
+            }
+            stat = 5;
             break;
-        case 34:
-            changespritestat(i, 7);
-            sprite[i].xrepeat = sprite[i].yrepeat = 0;
+        case 1359:
+            sprite[i].xrepeat = sprite[i].yrepeat = 32;
+            sprite[i].cstat |= 0x22;
+            sprite[i].ang = (short)(krand() & 2047);
+            sprite[i].shade = 0;
+            sprite[i].z = sector[sect].floorz;
+            stat = 5;
             break;
-        case 30: case 313: case 314: case 1123:
-            sprite[i].cstat |= 1;
+        case 1360:
+            if (j >= 0 && sprite[j].statnum == 10)
+                sprite[i].z += 4096;
             /* fall through */
-        case 1122:
-            sprite[i].shade = -12;
+        case 686: case 1370:
+            if (sprite[i].picnum == 1360)
+                sprite[i].xrepeat = sprite[i].yrepeat = 8;
+            else
+                sprite[i].xrepeat = sprite[i].yrepeat = 28;
+            sprite[i].cstat = (unsigned char)(krand() & 0xC);
+            sprite[i].shade = -127;
+            sprite[i].ang = sprite[j].ang;
+            stat = 5;
+            break;
+        case 283:
+            sprite[i].xrepeat = sprite[i].yrepeat = 0;
+            sprite[i].shade = -32;
+            stat = 10;
+            break;
+        case 215:
+            sprite[i].xrepeat = sprite[i].yrepeat = 10;
+            sprite[i].shade = -16;
+            stat = 5;
+            break;
+        case 1280:
+            sprite[i].xrepeat = sprite[i].yrepeat = 64;
+            sprite[i].shade = -127;
+            sprite[i].cstat |= 1;
+            stat = 2;
+            break;
+        case 1175: {
+            short k;
+
             show2dsprite[i >> 3] |= 1 << (i & 7);
-            stat = 1;
+            sprite[i].cstat |= 0x40;
+            sprite[i].picnum += 2;
+            sprite[i].z = sector[sect].ceilingz + 12288;
+            hittype[i][4] = mspos;
+            msx[mspos] = sprite[i].x;
+            msy[mspos] = sprite[i].y;
+            msx[mspos + 2] = sprite[i].z;
+            for (k = headspritestat[0]; k >= 0; k = nextspritestat[k]) {
+                if (sprite[k].picnum == 1174 && sprite[k].hitag == sprite[i].hitag) {
+                    hittype[i][1] = sprite[k].sectnum;
+                    sprite[k].xrepeat = 48;
+                    sprite[k].yrepeat = 128;
+                    msx[mspos + 1] = sprite[k].x;
+                    msy[mspos + 1] = sprite[k].y;
+                    sprite[k].x = sprite[i].x;
+                    sprite[k].y = sprite[i].y;
+                    sprite[k].z = sprite[i].z;
+                    sprite[k].shade = sprite[i].shade;
+                    msy[mspos + 2] = k;
+                    setsprite(k, sprite[k].x, sprite[k].y, sprite[k].z);
+                    break;
+                }
+            }
+            sprite[i].owner = -1;
+            mspos += 3;
+            stat = 6;
+            break;
+        }
+        case 1190:
+            sprite[i].xrepeat = sprite[i].yrepeat = 20;
+            sprite[i].shade = -16;
+            stat = 5;
+            break;
+        case 960:
+            sprite[i].xrepeat = 16;
+            sprite[i].yrepeat = 0;
+            hittype[i][1] = krand() & 0x1F;
+            sprite[i].z = sector[sect].ceilingz + 2048;
+            stat = 2;
+            break;
+        case 962:
+            sprite[i].z = sector[sect].ceilingz + 6144;
+            hittype[i][0] = 3;
+            /* fall through */
+        case 961:
+            show2dsprite[i >> 3] |= 1 << (i & 7);
+            sprite[i].shade = -16;
+            sprite[i].xrepeat = 32;
+            sprite[i].yrepeat = 16;
+            sprite[i].cstat |= 1;
+            stat = 2;
             break;
         case 305:
             hittype[i][0] = sprite[i].xrepeat;
@@ -5545,12 +5692,36 @@ void prelevel(void)
             sprite[i].yvel = 0;
             stat = 1;
             break;
-        case 265: case 266: case 267: case 268: case 269:
-            sprite[i].picnum = 265;
+        case 408: case 490: case 579: case 1536: case 1680: case 1820:
+            ps[0].max_squashed++;
+            ps[0].max_actors_killed++;
             /* fall through */
-        case 327:
+        case 631:
+            sprite[i].shade = -24;
+            sprite[i].yrepeat = 43;
             show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].shade = -16;
+            sprite[i].xrepeat = 52;
+            if (sprite[i].picnum == 408)
+                sprite[i].xrepeat -= 9;
+            changespritestat(i, 2);
+            sprite[i].cstat |= 1;
+            break;
+        case 34:
+            changespritestat(i, 7);
+            sprite[i].xrepeat = sprite[i].yrepeat = 0;
+            break;
+        case 23: case 31:
+            sprite[i].xrepeat = sprite[i].yrepeat = 0;
+            if (sprite[i].picnum == 23)
+                sector[sect].lotag ^= 0x4000;
+            stat = 8;
+            break;
+        case 30: case 313: case 314: case 1123:
+            sprite[i].cstat |= 1;
+            /* fall through */
+        case 1122:
+            sprite[i].shade = -12;
+            show2dsprite[i >> 3] |= 1 << (i & 7);
             stat = 1;
             break;
         case 38: case 60: case 70: case 80: case 159: case 263: case 315: case 316: case 381: case 620:
@@ -5561,14 +5732,42 @@ void prelevel(void)
             sprite[i].cstat |= 1;
             stat = 2;
             break;
-        case 57:
-            sprite[i].owner = i;
-            sprite[i].shade = -16;
-            if (sprite[i].xrepeat <= 8)
-                sprite[i].xrepeat = sprite[i].yrepeat = 0;
+        case 931:
             show2dsprite[i >> 3] |= 1 << (i & 7);
+            sprite[i].xrepeat = sprite[i].yrepeat = 32;
+            hittype[i][3] = sector[sect].ceilingz;
+            sprite[i].z = hittype[i][3] + 10752;
+            sprite[i].cstat |= 9;
+            ps[0].max_actors_killed++;
+            stat = 2;
+            break;
+        case 930:
+            show2dsprite[i >> 3] |= 1 << (i & 7);
+            sprite[i].xrepeat = sprite[i].yrepeat = 32;
+            hittype[i][3] = sector[sect].floorz;
+            sprite[i].z = hittype[i][3] + 3072;
             sprite[i].cstat |= 1;
-            stat = 6;
+            ps[0].max_actors_killed++;
+            stat = 2;
+            break;
+        case 940:
+            show2dsprite[i >> 3] |= 1 << (i & 7);
+            sprite[i].owner = i;
+            sprite[i].xrepeat = sprite[i].yrepeat = 24;
+            sprite[i].cstat |= 1;
+            ps[0].max_actors_killed++;
+            stat = 4;
+            break;
+        case 323:
+            sprite[i].z = sector[sect].floorz - (sprite[i].yrepeat << 7);
+            break;
+        case 265: case 266: case 267: case 268: case 269:
+            sprite[i].picnum = 265;
+            /* fall through */
+        case 327:
+            show2dsprite[i >> 3] |= 1 << (i & 7);
+            sprite[i].shade = -16;
+            stat = 1;
             break;
         case 175: {
             short k, wall_end;
@@ -5758,32 +5957,14 @@ void prelevel(void)
             stat = sprite[i].lotag == 7 ? 9 : 3;
             break;
         }
-        case 215:
-            sprite[i].xrepeat = sprite[i].yrepeat = 10;
+        case 57:
+            sprite[i].owner = i;
             sprite[i].shade = -16;
-            stat = 5;
-            break;
-        case 283:
-            sprite[i].xrepeat = sprite[i].yrepeat = 0;
-            sprite[i].shade = -32;
-            stat = 10;
-            break;
-        case 323:
-            sprite[i].z = sector[sect].floorz - (sprite[i].yrepeat << 7);
-            break;
-        case 408: case 490: case 579: case 1536: case 1680: case 1820:
-            ps[0].max_squashed++;
-            ps[0].max_actors_killed++;
-            /* fall through */
-        case 631:
-            sprite[i].shade = -24;
-            sprite[i].yrepeat = 43;
+            if (sprite[i].xrepeat <= 8)
+                sprite[i].xrepeat = sprite[i].yrepeat = 0;
             show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].xrepeat = 52;
-            if (sprite[i].picnum == 408)
-                sprite[i].xrepeat -= 9;
-            changespritestat(i, 2);
             sprite[i].cstat |= 1;
+            stat = 6;
             break;
         case 606: case 627: case 905: case 1200:
             sprite[i].owner = i;
@@ -5792,164 +5973,6 @@ void prelevel(void)
             sprite[i].yrepeat = sprite[i].xrepeat = 38;
             sprite[i].cstat |= 1;
             stat = 6;
-            break;
-        case 686: case 1360: case 1370:
-            if (sprite[i].picnum == 1360 && j >= 0 && sprite[j].statnum == 10)
-                sprite[i].z += 4096;
-            sprite[i].xrepeat = sprite[i].yrepeat = sprite[i].picnum == 1360 ? 8 : 28;
-            sprite[i].cstat = (unsigned char)(krand() & 0xC);
-            sprite[i].shade = -127;
-            sprite[i].ang = sprite[j].ang;
-            stat = 5;
-            break;
-        case 930:
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].xrepeat = sprite[i].yrepeat = 32;
-            hittype[i][3] = sector[sect].floorz;
-            sprite[i].z = hittype[i][3] + 3072;
-            sprite[i].cstat |= 1;
-            ps[0].max_actors_killed++;
-            stat = 2;
-            break;
-        case 931:
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].xrepeat = sprite[i].yrepeat = 32;
-            hittype[i][3] = sector[sect].ceilingz;
-            sprite[i].z = hittype[i][3] + 10752;
-            sprite[i].cstat |= 9;
-            ps[0].max_actors_killed++;
-            stat = 2;
-            break;
-        case 940:
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].owner = i;
-            sprite[i].xrepeat = sprite[i].yrepeat = 24;
-            sprite[i].cstat |= 1;
-            ps[0].max_actors_killed++;
-            stat = 4;
-            break;
-        case 960:
-            sprite[i].xrepeat = 16;
-            sprite[i].yrepeat = 0;
-            hittype[i][1] = krand() & 0x1F;
-            sprite[i].z = sector[sect].ceilingz + 2048;
-            stat = 2;
-            break;
-        case 962:
-            sprite[i].z = sector[sect].ceilingz + 6144;
-            hittype[i][0] = 3;
-            /* fall through */
-        case 961:
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].shade = -16;
-            sprite[i].xrepeat = 32;
-            sprite[i].yrepeat = 16;
-            sprite[i].cstat |= 1;
-            stat = 2;
-            break;
-        case 1165:
-            if (j >= 0) {
-                short a;
-
-                if (sprite[j].picnum == 283) {
-                    short p = sprite[j].yvel;
-
-                    a = (short)(ps[p].ang - (krand() & 0x3F));
-                    hittype[i][0] = krand() & 1;
-                    sprite[i].x = sprite[j].x + (sintable[(a + 512) & 2047] >> 6);
-                    sprite[i].y = (sintable[a & 2047] >> 6) + sprite[j].y;
-                    sprite[i].z = sprite[j].z - 32 * ps[p].horiz + 4608;
-                    sprite[i].zvel = (short)-(krand() & 0xFF);
-                } else {
-                    a = sprite[i].ang;
-                    sprite[i].x = sprite[j].x + (sintable[(a + 512) & 2047] >> 6);
-                    sprite[i].y = (sintable[a & 2047] >> 6) + sprite[j].y;
-                    sprite[i].z = sprite[j].z - 9216;
-                }
-                sprite[i].shade = -8;
-                sprite[i].ang = (short)(a - 512);
-                sprite[i].zvel = -192;
-                sprite[i].xvel = 48;
-                sprite[i].xrepeat = sprite[i].yrepeat = 5;
-                stat = 5;
-            }
-            break;
-        case 1175: {
-            short k;
-
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].cstat |= 0x40;
-            sprite[i].picnum += 2;
-            sprite[i].z = sector[sect].ceilingz + 12288;
-            hittype[i][4] = mspos;
-            msx[mspos] = sprite[i].x;
-            msy[mspos] = sprite[i].y;
-            msx[mspos + 2] = sprite[i].z;
-            for (k = headspritestat[0]; k >= 0; k = nextspritestat[k]) {
-                if (sprite[k].picnum == 1174 && sprite[k].hitag == sprite[i].hitag) {
-                    hittype[i][1] = sprite[k].sectnum;
-                    sprite[k].xrepeat = 48;
-                    sprite[k].yrepeat = 128;
-                    msx[mspos + 1] = sprite[k].x;
-                    msy[mspos + 1] = sprite[k].y;
-                    sprite[k].x = sprite[i].x;
-                    sprite[k].y = sprite[i].y;
-                    sprite[k].z = sprite[i].z;
-                    sprite[k].shade = sprite[i].shade;
-                    msy[mspos + 2] = k;
-                    setsprite(k, sprite[k].x, sprite[k].y, sprite[k].z);
-                    break;
-                }
-            }
-            sprite[i].owner = -1;
-            mspos += 3;
-            stat = 6;
-            break;
-        }
-        case 1190:
-            sprite[i].xrepeat = sprite[i].yrepeat = 20;
-            sprite[i].shade = -16;
-            stat = 5;
-            break;
-        case 1280:
-            sprite[i].xrepeat = sprite[i].yrepeat = 64;
-            sprite[i].shade = -127;
-            sprite[i].cstat |= 1;
-            stat = 2;
-            break;
-        case 1359:
-            sprite[i].xrepeat = sprite[i].yrepeat = 32;
-            sprite[i].cstat |= 0x22;
-            sprite[i].ang = (short)(krand() & 2047);
-            sprite[i].shade = 0;
-            sprite[i].z = sector[sect].floorz;
-            stat = 5;
-            break;
-        case 1404:
-            if (j >= 0) {
-                sprite[i].owner = j;
-                sprite[i].xrepeat = (unsigned char)(tilesizx[sprite[j].picnum] / 3);
-                sprite[i].yrepeat = (unsigned char)(tilesizy[sprite[j].picnum] / 3);
-                sprite[i].shade = -127;
-            }
-            stat = 5;
-            break;
-        case 1406:
-            if (j >= 0) {
-                sprite[i].xrepeat = sprite[i].yrepeat = 16;
-                sprite[i].shade = -15;
-                sprite[i].cstat |= rand() & 0xE;
-                sprite[i].ang = sprite[j].ang;
-                sprite[i].xvel = sprite[j].xvel;
-                sprite[i].zvel = sprite[j].zvel;
-                sprite[i].owner = j;
-                sprite[i].z -= 0x2000;
-                stat = 4;
-            }
-            break;
-        case 1408:
-            sprite[i].owner = -1;
-            stat = 1;
             break;
         }
         if (stat != -1)

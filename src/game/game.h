@@ -52,7 +52,7 @@ void loadplayer(char slot);
 void read_demo(unsigned char slot);
 void write_demo(void);
 void moveeffectors(void);
-short spawn(long source, short tile_or_index);
+void spawn(long source, short tile_or_index);
 void render_camera_tile(long x, long y, long z, short ang, short sect, short tile);
 void render_sprite_camera(short sprite_index);
 void render_mirror(short wall_index);

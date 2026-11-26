@@ -203,3 +203,11 @@ Each entry names the command or artefact that supports it.
   operatesectors) keep their parameters in fresh temporaries (no constant folding): written-out macro/copy bodies
   with argument variables, consistent with the GAME findings.
 - STRONG SECTOR's sprite-list loops are top-tested while loops.
+
+## GAME inlining structure (gamefix4, 2026-11-26)
+- STRONG the original GAME was built with user-function inlining whose results do not inline again: inittimer,
+  uninittimer and FTA are never called in the oracle; record and move_status9 are expanded only in domovethings,
+  displayrooms only where drawn from a loop. NEGATIVE: no single global -oe=N reproduces the selection with our
+  source (gameexit/write_userdefs become inlinable at 26 before FTA at 32), so written-out copies remain the model.
+- PROVEN moveeffectors' compare tree needs the empty labels `case 1: case 7:` (split at 15, oracle body order);
+  spawn returns void; sector wallptr/wallnum are signed short in GAME's view.
