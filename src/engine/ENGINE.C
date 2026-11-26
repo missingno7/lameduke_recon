@@ -5924,7 +5924,7 @@ raytrace (long x, long y, long xvect, long yvect, long *intx, long *inty)
 	x3 = x; y3 = y;
 	x4 = x3+(xvect>>14); y4 = y3+(yvect>>14);
 	*intx = x4; *inty = y4;
-	hitwall = -1;
+	z = 0; hitwall = -1;
 
 	for (z=0;z<clipnum;z++)
 	{
@@ -6429,7 +6429,100 @@ draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
 
 
 
-extern int printext16(long, long, short, short, char *, char);
+printext16(long xpos, long ypos, short col, short backcol, char name[82], char fontsize)
+{
+	long p, z, zz, charxsiz, daxpos;
+	short mask;
+	unsigned char ch, dat;
+	char *fontptr;
+
+	daxpos = xpos;
+
+	koutp(0x3ce,0x5); koutp(0x3cf,(kinp(0x3cf)&(255-3))+2);
+	koutp(0x3ce,0x8);
+
+	if (fontsize == 1)
+	{
+		fontptr = smalltextfont;
+		charxsiz = 4;
+	}
+	else
+	{
+		fontptr = textfont;
+		charxsiz = 8;
+	}
+
+	z = 0;
+	while (name[z] != 0)
+	{
+		ch = name[z];
+		z++;
+
+		mask = (1<<(8-(daxpos&7)))-1;
+		p = daxpos>>3;
+		p += mul80(ypos);
+		p += 0xa0000;
+
+		if ((daxpos&7) == 0)
+		{
+			for(zz=0;zz<8;zz++)
+			{
+				if (backcol >= 0)
+				{
+					koutp(0x3cf,0xff);
+					if (charxsiz == 4) koutp(0x3cf,0x7c);
+					readpixel(p), drawpixel(p,(long)backcol);
+				}
+				koutp(0x3cf,fontptr[(((long)ch)<<3)+zz]&255);
+				if (charxsiz == 4) koutp(0x3cf,(0x7c&fontptr[(((long)ch)<<3)+zz])&255);
+				readpixel(p), drawpixel(p,col);
+				p += 80;
+			}
+		}
+		else
+		{
+			for(zz=0;zz<8;zz++)
+			{
+				if (backcol >= 0)
+				{
+					if (charxsiz == 8)
+					{
+						koutp(0x3cf,mask);
+						readpixel(p), drawpixel(p,backcol);
+						koutp(0x3cf,0xff-mask);
+						readpixel(p+1), drawpixel(p+1,backcol);
+					}
+					else
+					{
+						koutp(0x3cf,0x7c>>(daxpos&7));
+						readpixel(p), drawpixel(p,backcol);
+						koutp(0x3cf,0x7c<<(8-(daxpos&7)));
+						readpixel(p+1), drawpixel(p+1,backcol);
+					}
+				}
+				dat = fontptr[(((long)ch)<<3)+zz];
+				if (charxsiz == 8)
+				{
+					koutp(0x3cf,mask&(dat>>(daxpos&7)));
+					readpixel(p), drawpixel(p,col);
+					koutp(0x3cf,(dat<<(8-(daxpos&7)))&(255-mask));
+					readpixel(p+1), drawpixel(p+1,col);
+				}
+				else
+				{
+					koutp(0x3cf,(0x7c&dat)>>(daxpos&7));
+					readpixel(p), drawpixel(p,col);
+					koutp(0x3cf,(0x7c&dat)<<(8-(daxpos&7)));
+					readpixel(p+1), drawpixel(p+1,col);
+				}
+				p += 80;    //Do not make ylookup[1]!
+			}
+		}
+
+		daxpos += charxsiz;
+	}
+	koutp(0x3ce,0x5); koutp(0x3cf,(kinp(0x3cf)&(255-3))+0);
+}
 
 printmessage16(char name[82])
 {

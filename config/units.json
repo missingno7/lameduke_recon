@@ -335,7 +335,7 @@
      "status": "NEAR_MATCH"
     },
     "makeradarang": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "setview": {
      "status": "NEAR_MATCH"
@@ -383,7 +383,10 @@
      "status": "STRICT"
     },
     "printext256": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
+    },
+    "printext16": {
+     "status": "STRICT"
     }
    }
   },
@@ -1926,8 +1929,8 @@
     "src/multi"
    ],
    "kind": "c",
-   "provenance": "LATER/EARLIER_SOURCE_BACKPORTED: network code of BUIL0422 ENGINE.C (Apr-94) + Aug-94 ENGINE.OBJ shapes + 1995 MULTI.OBJ; multi worker 2026-11-26",
-   "quality": "TU_STRUCTURE_PROVISIONAL: storage factored into multi_data.c (original MULTI.OBJ owned it); real-mode serial template src/multi/realmode.asm is audited separately (not in the gate)",
+   "provenance": "LATER/EARLIER_SOURCE_BACKPORTED: network code of BUIL0422 ENGINE.C (Apr-94) + Aug-94 ENGINE.OBJ shapes + 1995 MULTI.OBJ; multi worker 2026-11-26; rmbuffer = ORIGINAL_DATA (historically a C byte array generated from realcom.asm)",
+   "quality": "Storage still split into multi_data.c (TU_STRUCTURE_PROVISIONAL). The real-mode serial/IPX template is Ken's static initialised rmbuffer[] in MULTI's _DATA, as in Ken's surviving SRC/MULTI.C and three 1995 MULTI.OBJs; its bytes come from src/multi/realcom.asm (assembled with MASM 5.10 + WLINK 9.5 to a COM image, kenlink worker 2026-11-26)",
    "functions": {
     "initmultiplayers": {
      "status": "STRICT"

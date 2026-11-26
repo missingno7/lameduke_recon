@@ -3,8 +3,6 @@
  */
 #include "multi.h"
 
-short myconnectindex = 0;
-
 unsigned char prevpacket[576];
 unsigned char netoutcnt[MAXPLAYERS];
 unsigned char netincnt[MAXPLAYERS];
