@@ -1,0 +1,8 @@
+# Original binaries and game data: never committed
+/assets/
+# External reference clones, downloads, extracted archives (inventoried in config/references.json)
+/external/
+# Build outputs, scratch
+/build/
+__pycache__/
+*.pyc

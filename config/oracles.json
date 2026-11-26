@@ -1,0 +1,23 @@
+{
+ "note": "Immutable oracle inputs. Files live under assets/ (git-ignored). Every tool loads them through tools/common.py:oracle(), which refuses a hash mismatch.",
+ "oracles": {
+  "d3d": {
+   "path": "assets/D3D.EXE",
+   "size": 685121,
+   "sha256": "698979d97f0f2a16ffdea20ff0059fe49ef9720a7c8933a61601356ca0462701",
+   "description": "LameDuke (Duke Nukem 3D prototype, EXE dated 1994-12-30 per release README), MZ stub + LE, DOS/4GW. Released by 3D Realms 1997-01-29 as LAMEDUKE.ZIP."
+  },
+  "dos4gw": {
+   "path": "assets/DOS4GW.EXE",
+   "size": 254556,
+   "sha256": "580f164bd05b438262267a7e03984529b56e3096ee158d5d2b0e6f159520d4c3",
+   "description": "DOS/4GW 1.95 shipped with LameDuke; byte-identical to C:/tools/watcom-10.0/BIN/dos4gw.exe"
+  },
+  "setup": {
+   "path": "assets/SETUP.EXE",
+   "size": 32032,
+   "sha256": "aa7bb09f56e5814d50f404349e99a777eb84a042fbaa722eb64f77567fcb90ac",
+   "description": "LameDuke SETUP.EXE (secondary target, not yet analysed)"
+  }
+ }
+}
