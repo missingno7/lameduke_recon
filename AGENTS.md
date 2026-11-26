@@ -38,6 +38,13 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
   `UNMATCHED`, `UNKNOWN`. Provenance (HISTORICAL_SOURCE, LATER_SOURCE_BACKPORTED, BINARY_DERIVED, LIBRARY_MEMBER,
   ORIGINAL_ASM) and source quality (NATURAL / COMPILER_STEERED / SYNTHETIC) are tracked separately.
 
+## Semantic references for game/engine code
+- external/lameduke-raynorpat: a behavioural C rebuild of LameDuke (GPLv2/BUILDLIC). Its comments cite IDA linear
+  addresses: obj1 offset = address - 0x10000 (e.g. `/* 0x249B0 */` = 1:149b0); IDA globals: obj2 offset = address
+  - 0x80000 (`dword_B56D8` = 2:356d8). build/map/raynorpat_functions.json lists obj1 addresses with its function names.
+  Use it to understand semantics and choose names; it is not matching evidence and its code is not original source.
+- external/duke3d-1.3d/dukenukem3d: Duke3D 1.5 source (1996; much later). Ken's 1994 GAME.C in buildold_12_30_94.
+
 ## Tools (python from repo root; stdlib + capstone)
 - `tools/le.py [EXE]` — LE container census; accounts for every file byte.
 - `tools/funcmap.py` — recursive-descent function-start census of obj1 -> `build/map/funcmap.json`.

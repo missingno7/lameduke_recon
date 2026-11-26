@@ -96,6 +96,13 @@
    "path": "external/rayman_recon",
    "license": "GPLv2",
    "relevance": "Watcom matching infrastructure; tools/omf.py, match.py, libscan.py, wcc.py adapted here."
+  },
+  "lameduke-raynorpat": {
+   "url": "https://github.com/raynorpat/lameduke",
+   "commit": "02bbc641be99444be7d8c0ad9379d302c06c55a4",
+   "path": "external/lameduke-raynorpat",
+   "license": "GPLv2 (game) + Ken Silverman BUILDLIC (engine)",
+   "relevance": "Behavioural (non-matching) C rebuild of LameDuke itself from IDA, Nov 2026, SDL2 port. Function comments cite IDA linear addresses (obj1 offset + 0x10000; 204/212 coincide with tools/funcmap.py starts); globals keep IDA names (dword_B56D8 = obj2:0x356d8). Use as semantic seed and naming aid for game/engine functions; never as matching evidence. build/map/raynorpat_functions.json maps obj1 addresses to its function names."
   }
  },
  "leads": {
