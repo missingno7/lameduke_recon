@@ -3241,6 +3241,42 @@
    "newscore": {
     "addr": "1:14e80",
     "evidence": "game2 worker 2026-11-26: Main calls this entry after the result screen and passes the selected row to name entry. The callee compares the current dword score with the independently bound score array, then shifts both persisted score arrays down."
+   },
+   "moveeffectors": {
+    "addr": "1:0ba30",
+    "evidence": "gameC worker 2026-11-26: Called by domovethings. Walks status 3 and dispatches on the sector effector lotag, with the four locator lookups and moving-sector calls corroborating identification."
+   },
+   "render_sprite_camera": {
+    "addr": "1:116b0",
+    "evidence": "gameC worker 2026-11-26: Own save frame at 116b0 after rendertile's return and alignment. Reads sprite coordinates, sector, tile and angle, followed by two 96x96 copies as in render_camera_tile and render_mirror."
+   },
+   "reset_player_motion": {
+    "addr": "1:11f30",
+    "evidence": "gameC worker 2026-11-26: Dedicated prologue after resetplayer's return and fill. Direct callers pass a player index. Position reset and actor-script health initialization recur at resetplayer."
+   },
+   "prelevel": {
+    "addr": "1:12210",
+    "evidence": "gameC worker 2026-11-26: Direct call from enterlevel at 14ac4 after board load. Loop initializes 4096 possible map sprites, followed by the animated-wall table consumed by the SECTOR routines."
+   },
+   "animatesprites": {
+    "addr": "1:03a20",
+    "evidence": "gameC worker 2026-11-26: Direct call between drawrooms and drawmasks in each of the three 96x96 camera renderers. Indexes the engine temporary sprite list and reads actor script action state."
+   },
+   "dobonus": {
+    "addr": "1:09650",
+    "evidence": "gameC worker 2026-11-26: The enterlevel call on mode bit 4 and the references to GAME bonus tables surveyed in docs/units/game.md identify the results screen."
+   },
+   "displaystatus": {
+    "addr": "1:07890",
+    "evidence": "gameC worker 2026-11-26: Called by enterlevel with myconnectindex and by the view path. Uses player ammo/health/score fields and HUD blits. See docs/units/game.md."
+   },
+   "moveloop": {
+    "addr": "1:01120",
+    "evidence": "gameC worker 2026-11-26: Entered by the level-entry call at 14ba8 and listed in docs/units/game.md; consumes synchronized input and connection list."
+   },
+   "cacheit": {
+    "addr": "1:02fb0",
+    "evidence": "gameC worker 2026-11-26: Called after precache in enterlevel; loops over required tiles and loads them, as surveyed in docs/units/game.md."
    }
   },
   "data": {
@@ -6135,6 +6171,30 @@
    "menu_previous_buttons": {
     "addr": "2:a5396",
     "evidence": "game2 worker 2026-11-26: The cursor updater saves the previous value of independently bound menu_drag here before asking the mouse driver for fresh buttons. On release, the saved word becomes menu_mouse. Located between independently named menu_mouse and menu_drag."
+   },
+   "mspos": {
+    "addr": "2:0ac60",
+    "evidence": "gameC worker 2026-11-26: Cleared by prelevel at 12338; indexed into the separately bound msx/msy arrays by the crane and moving wall sections of both prelevel and spawn."
+   },
+   "quote_text": {
+    "addr": "2:02598",
+    "evidence": "gameC worker 2026-11-26: FTA at 02674 and displayquotes independently reference the start of the 13 by 32-byte quote table; layout and inbound references are surveyed in docs/units/game.md."
+   },
+   "pending_avel": {
+    "addr": "2:a53aa",
+    "evidence": "gameC worker 2026-11-26: The packet paths at 1:01cfe and 1:0712d use this byte array with the corresponding bound player_avel array. Level entry clears both arrays per player at 1:14b7c."
+   },
+   "pending_vel": {
+    "addr": "2:a53cc",
+    "evidence": "gameC worker 2026-11-26: The packet paths at 1:01cc5 and 1:070f4 use this byte array with the corresponding bound player_vel array. Level entry clears both arrays per player at 1:14b74."
+   },
+   "pending_svel": {
+    "addr": "2:a53ee",
+    "evidence": "gameC worker 2026-11-26: The packet paths at 1:01c8c and 1:070bb use this byte array with the corresponding bound player_svel array. Level entry clears both arrays per player at 1:14b62."
+   },
+   "pending_bits": {
+    "addr": "2:a525c",
+    "evidence": "gameC worker 2026-11-26: The packet paths at 1:01d3e and 1:0716d use this dword array with the corresponding bound player_bits array. Level entry clears both arrays per player at 1:14b8b."
    }
   }
  }

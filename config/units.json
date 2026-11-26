@@ -2230,6 +2230,36 @@
     },
     "newscore": {
      "status": "STRICT"
+    },
+    "moveeffectors": {
+     "status": "NEAR_MATCH"
+    },
+    "spawn": {
+     "status": "NEAR_MATCH"
+    },
+    "render_camera_tile": {
+     "status": "NEAR_MATCH"
+    },
+    "render_sprite_camera": {
+     "status": "NEAR_MATCH"
+    },
+    "render_mirror": {
+     "status": "NEAR_MATCH"
+    },
+    "resetplayer": {
+     "status": "NEAR_MATCH"
+    },
+    "reset_player_motion": {
+     "status": "NEAR_MATCH"
+    },
+    "prelevel": {
+     "status": "NEAR_MATCH"
+    },
+    "newgame": {
+     "status": "NEAR_MATCH"
+    },
+    "enterlevel": {
+     "status": "NEAR_MATCH"
     }
    }
   },

@@ -28,4 +28,15 @@ unsigned char check_file_id(void);
 short newscore(void);
 unsigned char getscorename(short row);
 
+void moveeffectors(void);
+short spawn(long source, short tile_or_index);
+void render_camera_tile(long x, long y, long z, short ang, short sect, short tile);
+void render_sprite_camera(short sprite_index);
+void render_mirror(short wall_index);
+void resetplayer(short player);
+void reset_player_motion(short player);
+void prelevel(void);
+void newgame(unsigned char episode, unsigned char level, unsigned char skill);
+void enterlevel(unsigned char mode);
+
 #endif
