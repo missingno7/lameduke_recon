@@ -134,3 +134,12 @@ Each entry names the command or artefact that supports it.
 - PROVEN SOUNDS' explicit NUL extensions are still required under every tested environment (removing them changes
   CONST at +27f.. under the reproducing stage): they model real source content of unknown spelling (OPEN).
 - Watcom 9.5b BINNT hangs on stage path components of ~69 characters (keep stage paths short).
+
+## DOS-hosted 9.5b compiler under MS-DOS Player (2026-11-26) — NEGATIVE
+- Watcom 9.5b's DOS-hosted compiler is C:/tools/watcom-9.5b/BIN/WCC386.EXE, bound to the Phar Lap 386|DOS-Extender
+  (strings "Phar Lap Software 1986-92"; BIN/WCC386P.EXE is only a launcher for wcc386.exe; 9.5b has no BINB wcc386).
+- Under C:/tools/nmlgcdos/msdos.exe it exits silently with status 1 and no output for every tried option set:
+  default, -x (EMS/VCPI/XMS), -d, -x -d, -x -v6.22 (BUIL0422 ENGINE.C, -4r). HX HDPMI32 as a DPMI host under
+  MS-DOS Player fails with "HDPMI32: insufficient memory" (-x). Prior evaluation (C:/tools/dos-backends/REPORT.md)
+  also found MS-DOS Player has no DPMI host. MS-DOS Player stays the backend for 16-bit real-mode tools (MASM 5.10);
+  the extended compiler needs DOSBox-X (worker doshost).
