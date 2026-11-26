@@ -552,8 +552,9 @@ def main(argv):
         obj = opts["--obj"]
         only = argv
     else:
-        src = Path(argv[0])
-        only = argv[1:]
+        src_i = next(i for i, a in enumerate(argv) if not a.startswith("-"))
+        src = Path(argv[src_i])
+        only = argv[:src_i] + argv[src_i + 1:]
         include = [a[3:] for a in only if a.startswith("-i=")]
         flags = [a for a in only if a.startswith("-") and not a.startswith("-i=")]
         only = [a for a in only if not a.startswith("-")]

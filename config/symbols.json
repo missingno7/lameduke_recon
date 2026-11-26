@@ -81,6 +81,398 @@
    "vlineasm4": {
     "addr": "1:6bcb5",
     "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3814f"
+   },
+   "addboxlinum": {
+    "addr": "1:36bec",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "addclipline": {
+    "addr": "1:4338e",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "allocache": {
+    "addr": "1:3a868",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "allocatepermanenttile": {
+    "addr": "1:3aa03",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "animateoffs": {
+    "addr": "1:409e2",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "bunchfront": {
+    "addr": "1:34848",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "calcksqrt": {
+    "addr": "1:3bba8",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "calcwalls": {
+    "addr": "1:3493d",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "cansee": {
+    "addr": "1:41016",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "ceilscan": {
+    "addr": "1:36fec",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "ceilspritehline": {
+    "addr": "1:3f2a9",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "ceilspritescan": {
+    "addr": "1:3f117",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "changespritesect": {
+    "addr": "1:40e57",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "changespritestat": {
+    "addr": "1:40ea0",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "clear2dscreen": {
+    "addr": "1:44130",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "clipinsidebox": {
+    "addr": "1:3af61",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "clipinsideboxline": {
+    "addr": "1:3b137",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "clipmove": {
+    "addr": "1:4225c",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "copytilepiece": {
+    "addr": "1:3bbe6",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "deletesprite": {
+    "addr": "1:40c8f",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "deletespritesect": {
+    "addr": "1:40ca3",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "deletespritestat": {
+    "addr": "1:40d7e",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "dragpoint": {
+    "addr": "1:42122",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "draw2dgrid": {
+    "addr": "1:4417f",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "draw2dscreen": {
+    "addr": "1:4445e",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "drawalls": {
+    "addr": "1:35d09",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "drawline16": {
+    "addr": "1:4393d",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "drawmasks": {
+    "addr": "1:3bfdb",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "drawmaskwall": {
+    "addr": "1:3c322",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "drawrooms": {
+    "addr": "1:33f18",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "drawsprite": {
+    "addr": "1:3ca84",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "florscan": {
+    "addr": "1:374a5",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "getangle": {
+    "addr": "1:3ba86",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "getcliplines": {
+    "addr": "1:42589",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "getmousevalues": {
+    "addr": "1:43914",
+    "evidence": "engine worker 2026-11-26: BUIL0801 ENGINE.OBJ exact byte and fixup-site hit, corroborated by target calls or adjacent function boundaries"
+   },
+   "getpixel16": {
+    "addr": "1:3b2ae",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "getzrange": {
+    "addr": "1:45667",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "grouvline": {
+    "addr": "1:3ffee",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "hitscan": {
+    "addr": "1:411c4",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "hline": {
+    "addr": "1:39a7f",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "initcache": {
+    "addr": "1:3a819",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "initengine": {
+    "addr": "1:3a0c0",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "initspritelists": {
+    "addr": "1:40a72",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "insertsprite": {
+    "addr": "1:40b40",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "insertspritesect": {
+    "addr": "1:40b55",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "insertspritestat": {
+    "addr": "1:40bf3",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "inside": {
+    "addr": "1:3b977",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "keepaway": {
+    "addr": "1:433cf",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "keyhandler": {
+    "addr": "1:33e5c",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "krand": {
+    "addr": "1:45647",
+    "evidence": "engine worker 2026-11-26: BUIL0801 ENGINE.OBJ exact byte and fixup-site hit, corroborated by target calls or adjacent function boundaries"
+   },
+   "ksqrt": {
+    "addr": "1:3bb6c",
+    "evidence": "engine worker 2026-11-26: BUIL0801 ENGINE.OBJ exact byte and fixup-site hit, corroborated by target calls or adjacent function boundaries"
+   },
+   "lastwall": {
+    "addr": "1:4221e",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "lintersect": {
+    "addr": "1:41f01",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "loadboard": {
+    "addr": "1:39127",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "loadpalette": {
+    "addr": "1:39647",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "loadpics": {
+    "addr": "1:3abcb",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "loadtables": {
+    "addr": "1:39518",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "loadtile": {
+    "addr": "1:3aac9",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "makepalookup": {
+    "addr": "1:47239",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "makeradarang": {
+    "addr": "1:461e1",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "maskwallscan": {
+    "addr": "1:38494",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "movesprite": {
+    "addr": "1:408c9",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "neartag": {
+    "addr": "1:41895",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "nextpage": {
+    "addr": "1:3a534",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "nextsectorneighborz": {
+    "addr": "1:40ee9",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "overwritesprite": {
+    "addr": "1:3f679",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "permanentwritesprite": {
+    "addr": "1:3faa0",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "precache": {
+    "addr": "1:46414",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "printext": {
+    "addr": "1:3bd2b",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "printscreeninterrupt": {
+    "addr": "1:4393a",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "qsetmode640480": {
+    "addr": "1:43f42",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "raytrace": {
+    "addr": "1:43532",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "resettiming": {
+    "addr": "1:3af4a",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "rotatepoint": {
+    "addr": "1:43861",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "rotatesprite": {
+    "addr": "1:46c60",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "saveboard": {
+    "addr": "1:39337",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "scansector": {
+    "addr": "1:342b8",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "screencapture": {
+    "addr": "1:3b390",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "setbrightness": {
+    "addr": "1:47a5a",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "setgamemode": {
+    "addr": "1:39845",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "setredbluepalette": {
+    "addr": "1:479aa",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "setsprite": {
+    "addr": "1:40867",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "setverts": {
+    "addr": "1:47699",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "setvesamode": {
+    "addr": "1:47490",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "setview": {
+    "addr": "1:462c6",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "showengineinfo": {
+    "addr": "1:3aed0",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "spritewallfront": {
+    "addr": "1:347d6",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "stereoblit": {
+    "addr": "1:478c0",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "stereoinit": {
+    "addr": "1:475b4",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "stereoredblueblit": {
+    "addr": "1:47971",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "transmaskvline": {
+    "addr": "1:39e44",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "transmaskwallscan": {
+    "addr": "1:38ff9",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
+   },
+   "uninitengine": {
+    "addr": "1:3a459",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "updatesector": {
+    "addr": "1:43797",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "wallfront": {
+    "addr": "1:345ac",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "wallmost": {
+    "addr": "1:464ce",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "wallscan": {
+    "addr": "1:3796f",
+    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+   },
+   "zerohandler": {
+    "addr": "1:40fd2",
+    "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
    }
   },
   "data": {
@@ -99,6 +491,598 @@
    "asm4": {
     "addr": "2:1bc3bc",
     "evidence": "Independent engine store operand at 1:471d3 before the sprite-column call, historical BUIL0719/BUIL1211 ENGINE.OBJ four-slot order and historical A.OBJ consumers"
+   },
+   "artfil": {
+    "addr": "2:1bc31c",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 2 functions (loadtile at 1:3ab0d, uninitengine at 1:3a4a8)"
+   },
+   "artfilename": {
+    "addr": "2:1bc324",
+    "evidence": "engine worker 2026-11-26: 9 agreeing oracle reference sites across 2 functions (loadpics at 1:3abf2, loadtile at 1:3ab2e)"
+   },
+   "artfilnum": {
+    "addr": "2:1bc338",
+    "evidence": "engine worker 2026-11-26: Three agreeing fixups at 1:3aec5 (loadpics invalidates the current ART file), 1:3aafa (loadtile tests the file number), and 1:3ab5b (loadtile updates it)"
+   },
+   "britable": {
+    "addr": "2:100a90",
+    "evidence": "engine worker 2026-11-26: 2 agreeing oracle reference sites across 2 functions (loadtables at 1:395b6, setbrightness at 1:47aa3)"
+   },
+   "bunchfirst": {
+    "addr": "2:e4590",
+    "evidence": "engine worker 2026-11-26: Six bunchfront references agree with the first-wall index load in calcwalls at 1:3494f and drawalls at 1:35d16"
+   },
+   "bunchlast": {
+    "addr": "2:de590",
+    "evidence": "engine worker 2026-11-26: Two bunchfront references agree with scansector writing the terminal wall index and drawrooms copying the last index of the final bunch"
+   },
+   "cachelist": {
+    "addr": "2:119b90",
+    "evidence": "engine worker 2026-11-26: Four agreeing allocache relocation sites on the circular tile-index list, independently identified by August and March cache logic"
+   },
+   "cachelistend": {
+    "addr": "2:1bce0c",
+    "evidence": "engine worker 2026-11-26: 6 agreeing oracle reference sites across 2 functions (allocache at 1:3a896, initcache at 1:3a859)"
+   },
+   "cachelistoffs": {
+    "addr": "2:10ce90",
+    "evidence": "engine worker 2026-11-26: Four agreeing allocache relocation sites on the circular offset list, with one negative addend for the postincrement loop address"
+   },
+   "cachelistplc": {
+    "addr": "2:1bce08",
+    "evidence": "engine worker 2026-11-26: 10 agreeing oracle reference sites across 2 functions (allocache at 1:3a8a1, initcache at 1:3a853)"
+   },
+   "cacheplc": {
+    "addr": "2:1bce04",
+    "evidence": "engine worker 2026-11-26: 8 agreeing oracle reference sites across 2 functions (allocache at 1:3a874, initcache at 1:3a85f)"
+   },
+   "cachesize": {
+    "addr": "2:2c04",
+    "evidence": "engine worker 2026-11-26: 13 agreeing oracle reference sites across 6 functions (allocache at 1:3a881, allocatepermanenttile at 1:3aa2e, initcache at 1:3a825, loadpalette at 1:396df, loadpics at 1:3ae20, makepalookup at 1:472a7)"
+   },
+   "clipnum": {
+    "addr": "2:1bde5c",
+    "evidence": "engine worker 2026-11-26: Addclipline reads/increments the clip-line count, also reset at getcliplines entry and read by raytrace"
+   },
+   "clipobjectval": {
+    "addr": "2:b2600",
+    "evidence": "engine worker 2026-11-26: Addclipline stores the hit object at 1:433bf, clipmove reads it at 1:424bc"
+   },
+   "clipsectorlist": {
+    "addr": "2:b4a00",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 3 functions (clipmove at 1:42509, hitscan at 1:41605, neartag at 1:41c6f)"
+   },
+   "clipx1": {
+    "addr": "2:b2a00",
+    "evidence": "engine worker 2026-11-26: Addclipline X1 write at 1:4339e, agrees with clipmove, keepaway, and raytrace reads at 1:4357a"
+   },
+   "clipx2": {
+    "addr": "2:b3200",
+    "evidence": "engine worker 2026-11-26: Addclipline X2 write at 1:433ac, agrees with clipmove, keepaway, and raytrace reads at 1:43598"
+   },
+   "clipy1": {
+    "addr": "2:b3a00",
+    "evidence": "engine worker 2026-11-26: Addclipline Y1 write at 1:433a5, agrees with clipmove, keepaway, and raytrace reads at 1:43585"
+   },
+   "clipy2": {
+    "addr": "2:b4200",
+    "evidence": "engine worker 2026-11-26: Addclipline Y2 write at 1:433b7, agrees with clipmove, keepaway, and raytrace reads at 1:4359f"
+   },
+   "cosglobalang": {
+    "addr": "2:1bc3a0",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 3 functions (addboxlinum at 1:36d82, drawrooms at 1:33f6a, drawsprite at 1:3df72)"
+   },
+   "curbrightness": {
+    "addr": "2:2c12",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 2 functions (setbrightness at 1:47a63, setgamemode at 1:39a66)"
+   },
+   "curpag": {
+    "addr": "2:2c0c",
+    "evidence": "engine worker 2026-11-26: VESA page comparison/store pair in nextpage, 0-initialized byte follows vesapageshift in the historical declaration and oracle data"
+   },
+   "defaultkey": {
+    "addr": "2:2cda",
+    "evidence": "engine worker 2026-11-26: 17-byte scan-code initializer in oracle _DATA and 17-element fallback copy at 1:3962d, corroborated by the map-v5 keys width"
+   },
+   "defaultoption": {
+    "addr": "2:2cd4",
+    "evidence": "engine worker 2026-11-26: Six-byte zero initializer in the oracle _DATA and fallback loop at 1:39619, corroborated by March defaultoption definition"
+   },
+   "dmost": {
+    "addr": "2:bb190",
+    "evidence": "engine worker 2026-11-26: 19 agreeing oracle reference sites across 11 functions (calcwalls at 1:3596f, ceilscan at 1:3739c, ceilspritescan at 1:3f161, drawmaskwall at 1:3c996, drawrooms at 1:34107, drawsprite at 1:3de12, florscan at 1:3786c, grouvline at 1:4001f)"
+   },
+   "dplc": {
+    "addr": "2:b7f90",
+    "evidence": "engine worker 2026-11-26: Three florscan column references with four-byte stride, five agreeing references from calcwalls including 1:34d4f, and drawalls at 1:35f14"
+   },
+   "dwall": {
+    "addr": "2:b9d90",
+    "evidence": "engine worker 2026-11-26: 16 agreeing oracle reference sites across 4 functions (calcwalls at 1:358ef, drawmaskwall at 1:3ca02, drawsprite at 1:3cff1, transmaskvline at 1:39e81)"
+   },
+   "editstatus": {
+    "addr": "2:2ceb",
+    "evidence": "engine worker 2026-11-26: 2 agreeing oracle reference sites across 2 functions (draw2dscreen at 1:4447b, initengine at 1:3a1c6)"
+   },
+   "extended": {
+    "addr": "2:1bde97",
+    "evidence": "engine worker 2026-11-26: 5 agreeing IRQ9 handler fixups for the extended-key prefix state, independently named by the BUIL0801 OMF relocations"
+   },
+   "extra": {
+    "addr": "2:13cf10",
+    "evidence": "engine worker 2026-11-26: 2 agreeing oracle reference sites across 2 functions (loadboard at 1:392f0, saveboard at 1:394e7)"
+   },
+   "frameplace": {
+    "addr": "2:1bc350",
+    "evidence": "engine worker 2026-11-26: 21 agreeing oracle reference sites across 10 functions (ceilspritehline at 1:3f616, drawrooms at 1:340d5, initengine at 1:3a311, maskwallscan at 1:38a32, nextpage at 1:3a608, printext at 1:3bdef, screencapture at 1:3b5be, setgamemode at 1:398ba)"
+   },
+   "globalang": {
+    "addr": "2:1bde6e",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 2 functions (calcwalls at 1:35991, drawrooms at 1:33f40)"
+   },
+   "globalbufplc": {
+    "addr": "2:1bc388",
+    "evidence": "engine worker 2026-11-26: 11 agreeing oracle reference sites across 4 functions (ceilscan at 1:37114, ceilspritehline at 1:3f499, drawsprite at 1:3efeb, florscan at 1:375cf)"
+   },
+   "globalhoriz": {
+    "addr": "2:1bc3c8",
+    "evidence": "engine worker 2026-11-26: 9 agreeing oracle reference sites across 5 functions (calcwalls at 1:34ea7, drawrooms at 1:33f32, drawsprite at 1:3ce9c, maskwallscan at 1:38899, transmaskvline at 1:39f38)"
+   },
+   "globalorientation": {
+    "addr": "2:1bc36c",
+    "evidence": "engine worker 2026-11-26: 15 agreeing oracle reference sites across 8 functions (ceilscan at 1:3713b, ceilspritehline at 1:3f46f, drawmaskwall at 1:3c6fe, drawsprite at 1:3ef8c, florscan at 1:375f6, maskwallscan at 1:38535, transmaskwallscan at 1:39028, wallscan at 1:37a20)"
+   },
+   "globalpal": {
+    "addr": "2:1bc3c4",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 3 functions (loadpalette at 1:3977d, maskwallscan at 1:387cf, transmaskvline at 1:39f1b)"
+   },
+   "globalpalwritten": {
+    "addr": "2:1bc398",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 3 functions (ceilscan at 1:37013, florscan at 1:374cc, loadpalette at 1:39782)"
+   },
+   "globalpicnum": {
+    "addr": "2:1bde6c",
+    "evidence": "engine worker 2026-11-26: 65 agreeing oracle reference sites across 10 functions (calcwalls at 1:35772, ceilscan at 1:37080, drawalls at 1:35e28, drawmaskwall at 1:3c6f7, drawsprite at 1:3da04, florscan at 1:37539, maskwallscan at 1:384a4, transmaskvline at 1:39f67)"
+   },
+   "globalposx": {
+    "addr": "2:1bc3a4",
+    "evidence": "engine worker 2026-11-26: 9 agreeing oracle reference sites across 4 functions (ceilscan at 1:371d6, drawrooms at 1:33f20, florscan at 1:37691, grouvline at 1:40326)"
+   },
+   "globalposy": {
+    "addr": "2:1bc3a8",
+    "evidence": "engine worker 2026-11-26: 8 agreeing oracle reference sites across 3 functions (ceilscan at 1:371f8, drawrooms at 1:33f26, florscan at 1:376b3)"
+   },
+   "globalposz": {
+    "addr": "2:1bc3ac",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 5 functions (ceilscan at 1:3705d, drawmaskwall at 1:3c819, drawrooms at 1:33f2c, drawsprite at 1:3da7b, florscan at 1:37516)"
+   },
+   "globalshade": {
+    "addr": "2:1bc35c",
+    "evidence": "engine worker 2026-11-26: 7 agreeing oracle reference sites across 6 functions (ceilscan at 1:3712d, drawmaskwall at 1:3c777, florscan at 1:375e8, maskwallscan at 1:387b1, transmaskvline at 1:39ef8, wallscan at 1:3839b)"
+   },
+   "globalshiftval": {
+    "addr": "2:1bde6a",
+    "evidence": "engine worker 2026-11-26: 18 agreeing oracle reference sites across 6 functions (calcwalls at 1:3578b, drawalls at 1:35e3a, drawmaskwall at 1:3c7c7, drawsprite at 1:3da16, maskwallscan at 1:38a7f, transmaskvline at 1:3a054)"
+   },
+   "globalx1": {
+    "addr": "2:1bc370",
+    "evidence": "engine worker 2026-11-26: 8 agreeing oracle reference sites across 4 functions (ceilscan at 1:3718f, ceilspritehline at 1:3f329, drawsprite at 1:3e263, florscan at 1:3764a)"
+   },
+   "globalx2": {
+    "addr": "2:1bc374",
+    "evidence": "engine worker 2026-11-26: 9 agreeing oracle reference sites across 3 functions (ceilscan at 1:371c8, drawsprite at 1:3e278, florscan at 1:37683)"
+   },
+   "globalxpanning": {
+    "addr": "2:1bc364",
+    "evidence": "engine worker 2026-11-26: 6 agreeing oracle reference sites across 5 functions (ceilscan at 1:3714c, drawmaskwall at 1:3c74a, florscan at 1:37607, maskwallscan at 1:3880c, transmaskvline at 1:39f5b)"
+   },
+   "globalxshift": {
+    "addr": "2:1bde9b",
+    "evidence": "engine worker 2026-11-26: 6 agreeing oracle reference sites across 2 functions (ceilscan at 1:372b8, florscan at 1:37773)"
+   },
+   "globaly1": {
+    "addr": "2:1bc380",
+    "evidence": "engine worker 2026-11-26: 8 agreeing oracle reference sites across 4 functions (ceilscan at 1:3719b, ceilspritehline at 1:3f353, drawsprite at 1:3e2ef, florscan at 1:37656)"
+   },
+   "globaly2": {
+    "addr": "2:1bc384",
+    "evidence": "engine worker 2026-11-26: 9 agreeing oracle reference sites across 3 functions (ceilscan at 1:371db, ceilspritehline at 1:3f34a, florscan at 1:37696)"
+   },
+   "globalypanning": {
+    "addr": "2:1bc360",
+    "evidence": "engine worker 2026-11-26: 4 agreeing oracle reference sites across 4 functions (ceilscan at 1:3715d, drawalls at 1:36aa8, drawmaskwall at 1:3c736, florscan at 1:37618)"
+   },
+   "globalyscale": {
+    "addr": "2:1bc390",
+    "evidence": "engine worker 2026-11-26: 12 agreeing oracle reference sites across 7 functions (drawalls at 1:362a1, drawmaskwall at 1:3c7f5, drawsprite at 1:3da76, maskwallscan at 1:38544, transmaskvline at 1:39f2e, transmaskwallscan at 1:39038, wallscan at 1:383bf)"
+   },
+   "globalyshift": {
+    "addr": "2:1bde9a",
+    "evidence": "engine worker 2026-11-26: 6 agreeing oracle reference sites across 2 functions (ceilscan at 1:372c8, florscan at 1:37783)"
+   },
+   "globalzd": {
+    "addr": "2:1bc38c",
+    "evidence": "engine worker 2026-11-26: 17 agreeing oracle reference sites across 9 functions (calcwalls at 1:35826, ceilscan at 1:3706b, drawalls at 1:362ae, drawmaskwall at 1:3c82c, florscan at 1:37524, maskwallscan at 1:3854a, transmaskvline at 1:39f49, transmaskwallscan at 1:3903e)"
+   },
+   "globalzx": {
+    "addr": "2:1bc394",
+    "evidence": "engine worker 2026-11-26: 8 agreeing oracle reference sites across 2 functions (ceilscan at 1:37246, florscan at 1:37701)"
+   },
+   "gotpic": {
+    "addr": "2:12eb90",
+    "evidence": "engine worker 2026-11-26: 14 agreeing oracle reference sites across 12 functions (ceilscan at 1:370fc, drawsprite at 1:3ce2d, florscan at 1:375b7, grouvline at 1:405cb, loadpics at 1:3ae0d, maskwallscan at 1:38530, overwritesprite at 1:3f6fe, permanentwritesprite at 1:3fb24)"
+   },
+   "gotsector": {
+    "addr": "2:136f90",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 3 functions (addboxlinum at 1:36c79, drawrooms at 1:340e1, scansector at 1:34330)"
+   },
+   "headspritesect": {
+    "addr": "2:1bce3c",
+    "evidence": "engine worker 2026-11-26: 12 agreeing oracle reference sites across 3 functions (deletespritesect at 1:40cd0, initspritelists at 1:40a83, insertspritesect at 1:40b65)"
+   },
+   "headspritestat": {
+    "addr": "2:1bd63e",
+    "evidence": "engine worker 2026-11-26: 14 agreeing oracle reference sites across 4 functions (deletespritestat at 1:40dab, initspritelists at 1:40ae5, insertspritestat at 1:40c03, saveboard at 1:39456)"
+   },
+   "keys": {
+    "addr": "2:1bde84",
+    "evidence": "engine worker 2026-11-26: Two loadtables references read or default-fill 17 bytes, independently used by game startup at 1:1c7 and 6 core-game sites"
+   },
+   "keystatus": {
+    "addr": "2:13ca10",
+    "evidence": "engine worker 2026-11-26: 20 agreeing oracle reference sites across 6 functions (ceilscan at 1:372fe, drawrooms at 1:33fc1, florscan at 1:377b9, keyhandler at 1:33ec9, nextpage at 1:3a6d0, wallscan at 1:37a4b)"
+   },
+   "lastx": {
+    "addr": "2:b4e08",
+    "evidence": "engine worker 2026-11-26: 21 agreeing oracle reference sites across 3 functions (ceilscan at 1:373d4, ceilspritescan at 1:3f1c4, florscan at 1:37898)"
+   },
+   "linehighlight": {
+    "addr": "2:1bde64",
+    "evidence": "engine worker 2026-11-26: 2 agreeing oracle reference sites across 2 functions (draw2dscreen at 1:445d7, initengine at 1:3a206)"
+   },
+   "lwall": {
+    "addr": "2:1bc3fc",
+    "evidence": "engine worker 2026-11-26: 12 agreeing oracle reference sites across 5 functions (calcwalls at 1:34c00, drawalls at 1:362b3, drawmaskwall at 1:3c541, drawsprite at 1:3d809, transmaskvline at 1:39f55)"
+   },
+   "mapversion": {
+    "addr": "2:1bce00",
+    "evidence": "engine worker 2026-11-26: 4 agreeing oracle reference sites across 2 functions (loadboard at 1:3915e, saveboard at 1:39367)"
+   },
+   "maskwallcnt": {
+    "addr": "2:1bde72",
+    "evidence": "engine worker 2026-11-26: 6 agreeing oracle reference sites across 2 functions (drawmasks at 1:3c0ea, drawrooms at 1:34159)"
+   },
+   "nextspritesect": {
+    "addr": "2:126b90",
+    "evidence": "engine worker 2026-11-26: 9 agreeing oracle reference sites across 3 functions (deletespritesect at 1:40cda, initspritelists at 1:40ab3, insertspritesect at 1:40b86)"
+   },
+   "nextspritestat": {
+    "addr": "2:12ed90",
+    "evidence": "engine worker 2026-11-26: 11 agreeing oracle reference sites across 4 functions (deletespritestat at 1:40db5, initspritelists at 1:40b15, insertspritestat at 1:40c24, saveboard at 1:39466)"
+   },
+   "numextras": {
+    "addr": "2:1bde7a",
+    "evidence": "engine worker 2026-11-26: 4 agreeing oracle reference sites across 2 functions (loadboard at 1:392d3, saveboard at 1:394c7)"
+   },
+   "numframes": {
+    "addr": "2:1bce24",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 3 functions (nextpage at 1:3a80d, resettiming at 1:3af4f, showengineinfo at 1:3aede)"
+   },
+   "numpalookups": {
+    "addr": "2:1bde78",
+    "evidence": "engine worker 2026-11-26: 18 agreeing oracle reference sites across 7 functions (loadpalette at 1:3968a, makepalookup at 1:47283, maskwallscan at 1:387c2, overwritesprite at 1:3f6ad, permanentwritesprite at 1:3fad4, transmaskvline at 1:39f0e, wallscan at 1:37cb1)"
+   },
+   "numscans": {
+    "addr": "2:1bde4e",
+    "evidence": "engine worker 2026-11-26: 11 agreeing oracle reference sites across 3 functions (addboxlinum at 1:36df6, drawrooms at 1:3414b, scansector at 1:3439d)"
+   },
+   "numsectors": {
+    "addr": "2:1bde82",
+    "evidence": "engine worker 2026-11-26: 7 agreeing oracle reference sites across 5 functions (drawrooms at 1:340dc, inside at 1:3b98a, loadboard at 1:391fa, precache at 1:46460, saveboard at 1:393c3)"
+   },
+   "numwalls": {
+    "addr": "2:1bde80",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 3 functions (loadboard at 1:3923e, precache at 1:46493, saveboard at 1:39405)"
+   },
+   "oldkeyhandler": {
+    "addr": "2:1bce36",
+    "evidence": "engine worker 2026-11-26: Two component fixups in each of initengine and uninitengine, store/load paired far pointer at 1:3a274/3a27b and 1:3a466/3a46c"
+   },
+   "oldreadch": {
+    "addr": "2:1bde95",
+    "evidence": "engine worker 2026-11-26: 2 agreeing IRQ9 handler fixups for the previous scan code, independently named by the BUIL0801 OMF relocations"
+   },
+   "ooption0": {
+    "addr": "2:1bc368",
+    "evidence": "engine worker 2026-11-26: 7 agreeing oracle reference sites across 4 functions (drawrooms at 1:34063, initengine at 1:3a3cf, nextpage at 1:3a576, setgamemode at 1:3985c)"
+   },
+   "option": {
+    "addr": "2:1bde40",
+    "evidence": "engine worker 2026-11-26: 57 agreeing oracle reference sites across 16 functions (ceilscan at 1:37022, florscan at 1:374db, initengine at 1:3a0cd, loadpalette at 1:39778, loadtables at 1:395ec, maskwallscan at 1:38582, nextpage at 1:3a5b6, overwritesprite at 1:3f9e9)"
+   },
+   "p2": {
+    "addr": "2:e6590",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 2 functions (bunchfront at 1:348c5, scansector at 1:343ab)"
+   },
+   "page": {
+    "addr": "2:1bc37c",
+    "evidence": "engine worker 2026-11-26: 33 agreeing oracle reference sites across 8 functions (initengine at 1:3a359, maskwallscan at 1:38c1d, nextpage at 1:3a5dc, overwritesprite at 1:3fa02, permanentwritesprite at 1:3fe0a, printext at 1:3bf7c, screencapture at 1:3b5ad, stereoblit at 1:478ed)"
+   },
+   "pageoffset": {
+    "addr": "2:1bc358",
+    "evidence": "engine worker 2026-11-26: 10 agreeing oracle reference sites across 6 functions (clear2dscreen at 1:44135, draw2dgrid at 1:4421f, draw2dscreen at 1:44874, getpixel16 at 1:3b2c6, nextpage at 1:3a7a8, qsetmode640480 at 1:44116)"
+   },
+   "palette": {
+    "addr": "2:b5790",
+    "evidence": "engine worker 2026-11-26: 9 agreeing oracle reference sites across 4 functions (loadpalette at 1:39723, makepalookup at 1:473cb, setbrightness at 1:47a9b, setredbluepalette at 1:479fc)"
+   },
+   "paletteloaded": {
+    "addr": "2:1bde98",
+    "evidence": "engine worker 2026-11-26: 4 agreeing oracle reference sites across 3 functions (initengine at 1:3a150, loadpalette at 1:3964e, makepalookup at 1:4724b)"
+   },
+   "palookup": {
+    "addr": "2:13cb10",
+    "evidence": "engine worker 2026-11-26: 17 agreeing oracle reference sites across 8 functions (ceilscan at 1:37034, florscan at 1:374ed, loadpalette at 1:39743, makepalookup at 1:47279, maskwallscan at 1:387d9, setredbluepalette at 1:47a19, transmaskvline at 1:39f25, uninitengine at 1:3a4f4)"
+   },
+   "parallaxtype": {
+    "addr": "2:1bde9d",
+    "evidence": "engine worker 2026-11-26: 2 agreeing oracle reference sites across 2 functions (calcwalls at 1:358a6, initengine at 1:3a138)"
+   },
+   "pic": {
+    "addr": "2:2c00",
+    "evidence": "engine worker 2026-11-26: 8 agreeing oracle reference sites across 7 functions (allocache at 1:3a9f2, allocatepermanenttile at 1:3aa3d, initcache at 1:3a82f, loadpalette at 1:396f5, loadpics at 1:3ae2f, makepalookup at 1:472b1, uninitengine at 1:3a4cb)"
+   },
+   "picanm": {
+    "addr": "2:122b90",
+    "evidence": "engine worker 2026-11-26: 11 agreeing oracle reference sites across 8 functions (allocatepermanenttile at 1:3aa6d, animateoffs at 1:409ef, ceilscan at 1:3709f, drawalls at 1:36205, drawmaskwall at 1:3c744, drawsprite at 1:3ca97, florscan at 1:37577, loadpics at 1:3ac18)"
+   },
+   "picsiz": {
+    "addr": "2:107e90",
+    "evidence": "engine worker 2026-11-26: 29 agreeing oracle reference sites across 10 functions (allocatepermanenttile at 1:3aa8f, calcwalls at 1:35781, ceilscan at 1:372a0, drawalls at 1:35e30, drawmaskwall at 1:3c786, drawsprite at 1:3da0c, florscan at 1:3775b, loadpics at 1:3ae70)"
+   },
+   "prevspritesect": {
+    "addr": "2:128b90",
+    "evidence": "engine worker 2026-11-26: 10 agreeing oracle reference sites across 3 functions (deletespritesect at 1:40ced, initspritelists at 1:40aa8, insertspritesect at 1:40b9a)"
+   },
+   "prevspritestat": {
+    "addr": "2:130d90",
+    "evidence": "engine worker 2026-11-26: 10 agreeing oracle reference sites across 3 functions (deletespritestat at 1:40dc8, initspritelists at 1:40b0a, insertspritestat at 1:40c38)"
+   },
+   "pskybits": {
+    "addr": "2:1bde7e",
+    "evidence": "engine worker 2026-11-26: 2 agreeing oracle reference sites across 2 functions (calcwalls at 1:35815, initengine at 1:3a110)"
+   },
+   "qsetmode": {
+    "addr": "2:2c1b",
+    "evidence": "engine worker 2026-11-26: 16 agreeing oracle reference sites across 7 functions (clear2dscreen at 1:4413b, draw2dscreen at 1:4446a, getpixel16 at 1:3b2be, nextpage at 1:3a53e, qsetmode640480 at 1:43fff, screencapture at 1:3b470, setgamemode at 1:3984c)"
+   },
+   "radarang": {
+    "addr": "2:100590",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 2 functions (getangle at 1:3bb22, loadtables at 1:39583)"
+   },
+   "radarang2": {
+    "addr": "2:118e90",
+    "evidence": "engine worker 2026-11-26: Three makeradarang references storing and mirroring angular offsets, also indexed by the parallax floor and ceiling paths"
+   },
+   "randomseed": {
+    "addr": "2:1bce1c",
+    "evidence": "engine worker 2026-11-26: Four agreeing fixups: krand load/store at 1:4564a and 1:45661, game seed stores at 1:120bf and 1:12341"
+   },
+   "readch": {
+    "addr": "2:1bde96",
+    "evidence": "engine worker 2026-11-26: 7 agreeing IRQ9 handler fixups for the port 60h read buffer, independently named by the BUIL0801 OMF relocations"
+   },
+   "ry1": {
+    "addr": "2:f2590",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 2 functions (addboxlinum at 1:36fa9, drawmaskwall at 1:3c402)"
+   },
+   "screen": {
+    "addr": "2:2c16",
+    "evidence": "engine worker 2026-11-26: 7 agreeing oracle reference sites across 4 functions (drawrooms at 1:34073, initengine at 1:3a30c, nextpage at 1:3a57f, uninitengine at 1:3a4dc)"
+   },
+   "searchit": {
+    "addr": "2:1bde46",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 3 functions (calcwalls at 1:34da9, drawsprite at 1:3ddde, initengine at 1:3a11f)"
+   },
+   "searchx": {
+    "addr": "2:1bc310",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 3 functions (calcwalls at 1:34db5, drawsprite at 1:3ddea, initengine at 1:3a132)"
+   },
+   "searchy": {
+    "addr": "2:1bc314",
+    "evidence": "engine worker 2026-11-26: 6 agreeing oracle reference sites across 4 functions (calcwalls at 1:34ead, drawmaskwall at 1:3c9e4, drawsprite at 1:3d1aa, initengine at 1:3a118)"
+   },
+   "sector": {
+    "addr": "2:16cf10",
+    "evidence": "engine worker 2026-11-26: 42 agreeing oracle reference sites across 12 functions (cansee at 1:41142, ceilscan at 1:3700d, florscan at 1:374c6, grouvline at 1:405b8, hitscan at 1:41263, inside at 1:3b9ac, loadboard at 1:39217, movesprite at 1:409af)"
+   },
+   "show2dsprite": {
+    "addr": "2:134d90",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 3 functions (draw2dscreen at 1:44c03, initengine at 1:3a1a6, loadboard at 1:39191)"
+   },
+   "show2dwall": {
+    "addr": "2:138010",
+    "evidence": "engine worker 2026-11-26: 7 agreeing oracle reference sites across 4 functions (draw2dscreen at 1:444d4, drawrooms at 1:34267, initengine at 1:3a1b4, loadboard at 1:391a4)"
+   },
+   "singlobalang": {
+    "addr": "2:1bc39c",
+    "evidence": "engine worker 2026-11-26: 4 agreeing oracle reference sites across 2 functions (addboxlinum at 1:36d7c, drawrooms at 1:33f89)"
+   },
+   "sintable": {
+    "addr": "2:13ba10",
+    "evidence": "engine worker 2026-11-26: 11 agreeing oracle reference sites across 5 functions (draw2dscreen at 1:4501f, drawrooms at 1:33f65, loadtables at 1:39563, neartag at 1:41905, rotatepoint at 1:43883)"
+   },
+   "smalltextfont": {
+    "addr": "2:119390",
+    "evidence": "engine worker 2026-11-26: 1024-byte small font read at 1:395a5, selected by draw2dscreen at 1:4511f and another use in that routine"
+   },
+   "smostwallcnt": {
+    "addr": "2:1bde74",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 2 functions (drawalls at 1:36399, drawrooms at 1:34162)"
+   },
+   "sprite": {
+    "addr": "2:146f10",
+    "evidence": "engine worker 2026-11-26: 34 agreeing oracle reference sites across 14 functions (changespritesect at 1:40e78, changespritestat at 1:40ec1, deletespritesect at 1:40cb3, deletespritestat at 1:40d8e, draw2dscreen at 1:44c24, hitscan at 1:41661, initspritelists at 1:40abb, insertspritesect at 1:40be8)"
+   },
+   "spritesortcnt": {
+    "addr": "2:1bce18",
+    "evidence": "engine worker 2026-11-26: 9 agreeing oracle reference sites across 2 functions (drawmasks at 1:3bfe6, drawrooms at 1:34167)"
+   },
+   "sqrtable": {
+    "addr": "2:100e90",
+    "evidence": "engine worker 2026-11-26: 9 agreeing oracle reference sites across 5 functions (ceilscan at 1:37221, florscan at 1:376dc, getcliplines at 1:425f3, ksqrt at 1:3bb82, loadtables at 1:39538)"
+   },
+   "startdmost": {
+    "addr": "2:13a610",
+    "evidence": "engine worker 2026-11-26: 4 agreeing oracle reference sites across 4 functions (drawrooms at 1:34102, drawsprite at 1:3cfeb, nextpage at 1:3a70f, setview at 1:46368)"
+   },
+   "startumost": {
+    "addr": "2:13b010",
+    "evidence": "engine worker 2026-11-26: 4 agreeing oracle reference sites across 4 functions (drawrooms at 1:340ee, drawsprite at 1:3cfd0, nextpage at 1:3a715, setview at 1:46361)"
+   },
+   "stereofps": {
+    "addr": "2:2c0e",
+    "evidence": "engine worker 2026-11-26: 4 agreeing oracle reference sites across 3 functions (drawrooms at 1:33fb2, nextpage at 1:3a56c, qsetmode640480 at 1:4400f)"
+   },
+   "stereopage": {
+    "addr": "2:1bc378",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 3 functions (drawrooms at 1:3401a, nextpage at 1:3a584, setgamemode at 1:39889)"
+   },
+   "stereopixelwidth": {
+    "addr": "2:1bc348",
+    "evidence": "engine worker 2026-11-26: 6 agreeing oracle reference sites across 3 functions (drawrooms at 1:33fdd, stereoblit at 1:478c8, stereoredblueblit at 1:4797b)"
+   },
+   "swall": {
+    "addr": "2:b9390",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 5 functions (drawalls at 1:362ce, drawmaskwall at 1:3ca54, drawrooms at 1:34114, drawsprite at 1:3de70, transmaskvline at 1:39e68)"
+   },
+   "tablesloaded": {
+    "addr": "2:2c1a",
+    "evidence": "engine worker 2026-11-26: Two guard/initialized stores in loadtables, initially zero in initialized oracle data and historically named in BUIL0801"
+   },
+   "tantable": {
+    "addr": "2:102e90",
+    "evidence": "engine worker 2026-11-26: Second 4096-byte TABLES.DAT read at 1:39572, the named tangent table read in both April and March historical sources"
+   },
+   "textfont": {
+    "addr": "2:119790",
+    "evidence": "engine worker 2026-11-26: 1024-byte large font read at 1:39594, selected by draw2dscreen at 1:45133 and another use in that routine"
+   },
+   "thewall": {
+    "addr": "2:fe590",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 3 functions (addboxlinum at 1:36fc2, drawmasks at 1:3c113, drawsprite at 1:3dc12)"
+   },
+   "tilefilenum": {
+    "addr": "2:11db90",
+    "evidence": "engine worker 2026-11-26: 2 agreeing oracle reference sites across 2 functions (loadpics at 1:3adb1, loadtile at 1:3aaf4)"
+   },
+   "tilefileoffs": {
+    "addr": "2:110e90",
+    "evidence": "engine worker 2026-11-26: 2 agreeing oracle reference sites across 2 functions (loadpics at 1:3adab, loadtile at 1:3aba4)"
+   },
+   "tilesizx": {
+    "addr": "2:12ab90",
+    "evidence": "engine worker 2026-11-26: 22 agreeing oracle reference sites across 12 functions (allocatepermanenttile at 1:3aa4a, ceilscan at 1:370bf, copytilepiece at 1:3bbf3, drawsprite at 1:3cab9, florscan at 1:3755b, loadpics at 1:3ac09, maskwallscan at 1:384ad, overwritesprite at 1:3f68b)"
+   },
+   "tilesizy": {
+    "addr": "2:12cb90",
+    "evidence": "engine worker 2026-11-26: 25 agreeing oracle reference sites across 16 functions (allocatepermanenttile at 1:3aa52, calcwalls at 1:3579b, ceilscan at 1:370cd, copytilepiece at 1:3bbfb, drawalls at 1:35e4a, drawsprite at 1:3cac7, florscan at 1:37569, hitscan at 1:41704)"
+   },
+   "totalclock": {
+    "addr": "2:1bce28",
+    "evidence": "engine worker 2026-11-26: 4 agreeing oracle reference sites across 3 functions (drawrooms at 1:33f4b, resettiming at 1:3af55, showengineinfo at 1:3aed5)"
+   },
+   "totalclocklock": {
+    "addr": "2:1bc320",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 3 functions (animateoffs at 1:409f8, drawrooms at 1:33f50, resettiming at 1:3af5b)"
+   },
+   "transluc": {
+    "addr": "2:2c1f",
+    "evidence": "engine worker 2026-11-26: 6 agreeing oracle reference sites across 2 functions (loadpalette at 1:396c6, uninitengine at 1:3a4ba)"
+   },
+   "translucloaded": {
+    "addr": "2:2c23",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 2 functions (loadpalette at 1:396ab, transmaskvline at 1:3a036)"
+   },
+   "umost": {
+    "addr": "2:bbb90",
+    "evidence": "engine worker 2026-11-26: 23 agreeing oracle reference sites across 10 functions (ceilscan at 1:37378, ceilspritescan at 1:3f123, drawmaskwall at 1:3c962, drawrooms at 1:340f5, drawsprite at 1:3de0a, florscan at 1:3783a, grouvline at 1:40018, maskwallscan at 1:3869a)"
+   },
+   "uplc": {
+    "addr": "2:b8990",
+    "evidence": "engine worker 2026-11-26: Ceilscan column load at 1:37396, five agreeing references from calcwalls including 1:34ddd, and drawalls at 1:35f0d"
+   },
+   "uwall": {
+    "addr": "2:ba790",
+    "evidence": "engine worker 2026-11-26: 16 agreeing oracle reference sites across 4 functions (calcwalls at 1:358e1, drawmaskwall at 1:3c9fa, drawsprite at 1:3cfd6, transmaskvline at 1:39e76)"
+   },
+   "vesapageshift": {
+    "addr": "2:1bde99",
+    "evidence": "engine worker 2026-11-26: 4 agreeing oracle reference sites across 2 functions (nextpage at 1:3a745, setvesamode at 1:4757a)"
+   },
+   "viewoffset": {
+    "addr": "2:1bc3e8",
+    "evidence": "engine worker 2026-11-26: 18 agreeing oracle reference sites across 5 functions (ceilspritehline at 1:3f61e, maskwallscan at 1:3858f, transmaskvline at 1:3a011, transmaskwallscan at 1:39061, wallscan at 1:382c9)"
+   },
+   "visibility": {
+    "addr": "2:1bde9e",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 4 functions (grouvline at 1:404b8, maskwallscan at 1:387a8, transmaskvline at 1:39ef2, wallscan at 1:38395)"
+   },
+   "wall": {
+    "addr": "2:176310",
+    "evidence": "engine worker 2026-11-26: 59 agreeing oracle reference sites across 14 functions (ceilscan at 1:37189, clipinsidebox at 1:3af85, dragpoint at 1:42140, draw2dscreen at 1:445ed, drawmaskwall at 1:3c3fb, drawsprite at 1:3dc26, florscan at 1:37644, inside at 1:3b9df)"
+   },
+   "waloff": {
+    "addr": "2:11eb90",
+    "evidence": "engine worker 2026-11-26: 40 agreeing oracle reference sites across 17 functions (allocache at 1:3a8c3, allocatepermanenttile at 1:3aa64, ceilscan at 1:370db, copytilepiece at 1:3bc54, drawsprite at 1:3efb5, florscan at 1:37596, grouvline at 1:40575, initcache at 1:3a83a)"
+   },
+   "walsiz": {
+    "addr": "2:103e90",
+    "evidence": "engine worker 2026-11-26: 10 agreeing oracle reference sites across 4 functions (allocache at 1:3a87b, allocatepermanenttile at 1:3aa59, loadpics at 1:3abe1, loadtile at 1:3aada)"
+   },
+   "windowy1": {
+    "addr": "2:1bc3f4",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 2 functions (overwritesprite at 1:3f7f4, setview at 1:46301)"
+   },
+   "windowy2": {
+    "addr": "2:1bc3f8",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 2 functions (overwritesprite at 1:3f7fa, setview at 1:462dc)"
+   },
+   "xb1": {
+    "addr": "2:108e90",
+    "evidence": "engine worker 2026-11-26: 24 agreeing oracle reference sites across 8 functions (addboxlinum at 1:36f8c, bunchfront at 1:34874, calcwalls at 1:34dbb, drawalls at 1:362e4, drawmasks at 1:3c18d, drawmaskwall at 1:3c431, drawsprite at 1:3d585, wallmost at 1:46b44)"
+   },
+   "xb2": {
+    "addr": "2:d8590",
+    "evidence": "engine worker 2026-11-26: 20 agreeing oracle reference sites across 7 functions (addboxlinum at 1:36edf, bunchfront at 1:34868, calcwalls at 1:34dc7, drawalls at 1:362d7, drawmasks at 1:3c195, drawmaskwall at 1:3ca5a, drawsprite at 1:3d6e5)"
+   },
+   "xdimen": {
+    "addr": "2:1bc3d4",
+    "evidence": "engine worker 2026-11-26: 25 agreeing oracle reference sites across 11 functions (addboxlinum at 1:36eef, calcwalls at 1:34a42, drawmaskwall at 1:3c412, drawrooms at 1:33f76, drawsprite at 1:3cbb8, initengine at 1:3a0fe, maskwallscan at 1:38571, overwritesprite at 1:3f788)"
+   },
+   "xdimenscale": {
+    "addr": "2:1bc3f0",
+    "evidence": "engine worker 2026-11-26: 12 agreeing oracle reference sites across 5 functions (calcwalls at 1:34a53, drawrooms at 1:33f9c, drawsprite at 1:3cbcf, grouvline at 1:40061, setview at 1:4631d)"
+   },
+   "xdimscale": {
+    "addr": "2:1bc3ec",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 3 functions (grouvline at 1:40437, overwritesprite at 1:3f903, setview at 1:46333)"
+   },
+   "yb1": {
+    "addr": "2:114e90",
+    "evidence": "engine worker 2026-11-26: 6 agreeing oracle reference sites across 3 functions (addboxlinum at 1:36e89, calcwalls at 1:349e9, drawsprite at 1:3d080)"
+   },
+   "ybot": {
+    "addr": "2:1bc3cc",
+    "evidence": "engine worker 2026-11-26: 4 agreeing oracle reference sites across 3 functions (drawsprite at 1:3ea92, maskwallscan at 1:384cd, permanentwritesprite at 1:3fb96)"
+   },
+   "ydim16": {
+    "addr": "2:1bc354",
+    "evidence": "engine worker 2026-11-26: 3 agreeing oracle reference sites across 2 functions (draw2dgrid at 1:441d3, qsetmode640480 at 1:4411c)"
+   },
+   "ytop": {
+    "addr": "2:1bc3dc",
+    "evidence": "engine worker 2026-11-26: 5 agreeing oracle reference sites across 3 functions (drawsprite at 1:3ea76, maskwallscan at 1:384f0, permanentwritesprite at 1:3fb84)"
    }
   }
  }

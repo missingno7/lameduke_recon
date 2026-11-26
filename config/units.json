@@ -69,6 +69,311 @@
      "status": "STRICT"
     }
    }
+  },
+  "engine": {
+   "source": "src/engine/ENGINE.C",
+   "profile": "engine",
+   "include": [
+    "src/engine"
+   ],
+   "kind": "c",
+   "provenance": "LATER_SOURCE_BACKPORTED: 1995-03-28 ENGINE.C (+June-95 tail) backported to 1994-12-30 using Oct-94 BUILD.H, BUILD.TXT changelog, Apr-94 source and Aug-94 OMF; engine worker 2026-11-26",
+   "functions": {
+    "keyhandler": {
+     "status": "STRICT"
+    },
+    "drawrooms": {
+     "status": "NEAR_MATCH"
+    },
+    "scansector": {
+     "status": "NEAR_MATCH"
+    },
+    "wallfront": {
+     "status": "NEAR_MATCH"
+    },
+    "spritewallfront": {
+     "status": "NEAR_MATCH"
+    },
+    "bunchfront": {
+     "status": "STRICT"
+    },
+    "calcwalls": {
+     "status": "NEAR_MATCH"
+    },
+    "drawalls": {
+     "status": "NEAR_MATCH"
+    },
+    "addboxlinum": {
+     "status": "NEAR_MATCH"
+    },
+    "ceilscan": {
+     "status": "STRICT"
+    },
+    "florscan": {
+     "status": "STRICT"
+    },
+    "wallscan": {
+     "status": "NEAR_MATCH"
+    },
+    "maskwallscan": {
+     "status": "NEAR_MATCH"
+    },
+    "transmaskwallscan": {
+     "status": "STRICT"
+    },
+    "loadboard": {
+     "status": "NEAR_MATCH"
+    },
+    "saveboard": {
+     "status": "NEAR_MATCH"
+    },
+    "loadtables": {
+     "status": "STRICT"
+    },
+    "loadpalette": {
+     "status": "NEAR_MATCH"
+    },
+    "setgamemode": {
+     "status": "STRICT"
+    },
+    "hline": {
+     "status": "NEAR_MATCH"
+    },
+    "transmaskvline": {
+     "status": "NEAR_MATCH"
+    },
+    "initengine": {
+     "status": "NEAR_MATCH"
+    },
+    "uninitengine": {
+     "status": "NEAR_MATCH"
+    },
+    "nextpage": {
+     "status": "NEAR_MATCH"
+    },
+    "initcache": {
+     "status": "NEAR_MATCH"
+    },
+    "allocache": {
+     "status": "NEAR_MATCH"
+    },
+    "allocatepermanenttile": {
+     "status": "STRICT"
+    },
+    "loadtile": {
+     "status": "STRICT"
+    },
+    "loadpics": {
+     "status": "NEAR_MATCH"
+    },
+    "showengineinfo": {
+     "status": "STRICT"
+    },
+    "resettiming": {
+     "status": "STRICT"
+    },
+    "clipinsidebox": {
+     "status": "STRICT"
+    },
+    "clipinsideboxline": {
+     "status": "STRICT"
+    },
+    "getpixel16": {
+     "status": "NEAR_MATCH"
+    },
+    "screencapture": {
+     "status": "NEAR_MATCH"
+    },
+    "inside": {
+     "status": "STRICT"
+    },
+    "getangle": {
+     "status": "STRICT"
+    },
+    "ksqrt": {
+     "status": "STRICT"
+    },
+    "calcksqrt": {
+     "status": "STRICT"
+    },
+    "copytilepiece": {
+     "status": "STRICT"
+    },
+    "printext": {
+     "status": "STRICT"
+    },
+    "drawmasks": {
+     "status": "NEAR_MATCH"
+    },
+    "drawmaskwall": {
+     "status": "NEAR_MATCH"
+    },
+    "drawsprite": {
+     "status": "NEAR_MATCH"
+    },
+    "ceilspritescan": {
+     "status": "NEAR_MATCH"
+    },
+    "ceilspritehline": {
+     "status": "NEAR_MATCH"
+    },
+    "overwritesprite": {
+     "status": "NEAR_MATCH"
+    },
+    "permanentwritesprite": {
+     "status": "NEAR_MATCH"
+    },
+    "grouvline": {
+     "status": "NEAR_MATCH"
+    },
+    "setsprite": {
+     "status": "STRICT"
+    },
+    "movesprite": {
+     "status": "STRICT"
+    },
+    "animateoffs": {
+     "status": "STRICT"
+    },
+    "initspritelists": {
+     "status": "NEAR_MATCH"
+    },
+    "insertsprite": {
+     "status": "STRICT"
+    },
+    "insertspritesect": {
+     "status": "NEAR_MATCH"
+    },
+    "insertspritestat": {
+     "status": "NEAR_MATCH"
+    },
+    "deletesprite": {
+     "status": "STRICT"
+    },
+    "deletespritesect": {
+     "status": "NEAR_MATCH"
+    },
+    "deletespritestat": {
+     "status": "NEAR_MATCH"
+    },
+    "changespritesect": {
+     "status": "STRICT"
+    },
+    "changespritestat": {
+     "status": "STRICT"
+    },
+    "nextsectorneighborz": {
+     "status": "NEAR_MATCH"
+    },
+    "zerohandler": {
+     "status": "STRICT"
+    },
+    "cansee": {
+     "status": "NEAR_MATCH"
+    },
+    "hitscan": {
+     "status": "NEAR_MATCH"
+    },
+    "neartag": {
+     "status": "NEAR_MATCH"
+    },
+    "lintersect": {
+     "status": "NEAR_MATCH"
+    },
+    "dragpoint": {
+     "status": "STRICT"
+    },
+    "lastwall": {
+     "status": "STRICT"
+    },
+    "clipmove": {
+     "status": "NEAR_MATCH"
+    },
+    "getcliplines": {
+     "status": "NEAR_MATCH"
+    },
+    "addclipline": {
+     "status": "STRICT"
+    },
+    "keepaway": {
+     "status": "NEAR_MATCH"
+    },
+    "raytrace": {
+     "status": "NEAR_MATCH"
+    },
+    "updatesector": {
+     "status": "NEAR_MATCH"
+    },
+    "rotatepoint": {
+     "status": "NEAR_MATCH"
+    },
+    "getmousevalues": {
+     "status": "STRICT"
+    },
+    "printscreeninterrupt": {
+     "status": "STRICT"
+    },
+    "drawline16": {
+     "status": "NEAR_MATCH"
+    },
+    "qsetmode640480": {
+     "status": "NEAR_MATCH"
+    },
+    "clear2dscreen": {
+     "status": "STRICT"
+    },
+    "draw2dgrid": {
+     "status": "NEAR_MATCH"
+    },
+    "draw2dscreen": {
+     "status": "NEAR_MATCH"
+    },
+    "krand": {
+     "status": "STRICT"
+    },
+    "getzrange": {
+     "status": "NEAR_MATCH"
+    },
+    "makeradarang": {
+     "status": "NEAR_MATCH"
+    },
+    "setview": {
+     "status": "NEAR_MATCH"
+    },
+    "precache": {
+     "status": "STRICT"
+    },
+    "wallmost": {
+     "status": "NEAR_MATCH"
+    },
+    "rotatesprite": {
+     "status": "NEAR_MATCH"
+    },
+    "makepalookup": {
+     "status": "NEAR_MATCH"
+    },
+    "setvesamode": {
+     "status": "NEAR_MATCH"
+    },
+    "stereoinit": {
+     "status": "STRICT"
+    },
+    "setverts": {
+     "status": "NEAR_MATCH"
+    },
+    "stereoblit": {
+     "status": "STRICT"
+    },
+    "stereoredblueblit": {
+     "status": "STRICT"
+    },
+    "setredbluepalette": {
+     "status": "NEAR_MATCH"
+    },
+    "setbrightness": {
+     "status": "STRICT"
+    }
+   }
   }
  }
 }

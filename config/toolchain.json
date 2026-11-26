@@ -75,9 +75,11 @@
   "engine": {
    "install": "wc95b",
    "flags": [
-    "-4r"
+    "-4r",
+    "-s",
+    "-or"
    ],
-   "evidence": "Ken's makefiles ('wcc386 engine /4r'); wc95b -4r reproduces BUIL0422/ENGINE.OBJ byte-for-byte (docs/TOOLCHAIN.md)"
+   "evidence": "Ken's 1995 makefiles 'wcc386 engine /4r /s /or'; Dec-94 engine candidate: 39 STRICT functions, identical with source pragma off(check_stack) instead of /s (engine worker 2026-11-26)"
   },
   "game": {
    "install": "wc95b",
@@ -92,6 +94,13 @@
    "install": "masm510",
    "flags": [],
    "evidence": "Ken's makefile 'masm a.asm;'; MASM 5.10 reproduces BUIL0422/A.OBJ byte-for-byte (runtime worker 2026-11-26)"
+  },
+  "engine_apr94": {
+   "install": "wc95b",
+   "flags": [
+    "-4r"
+   ],
+   "evidence": "BUIL0422 makefile 'wcc386 engine /4r'; reproduces BUIL0422/ENGINE.OBJ byte-for-byte (calibration only)"
   }
  }
 }
