@@ -48,7 +48,8 @@ Identified, not reconstructed: Watcom 9.5b runtime (docs/RUNTIME_CENSUS.md), Cre
 | Range | Contents | Source |
 |---|---|---|
 | 00000-00010 | cstart BEGTEXT | library |
-| 00010-14fad | GAME (61 functions, one object) | src/game/game.c |
+| 00010-11380 | GAME | src/game/game.c |
+| 11380-14fad | PREMAP (name hypothesis) | src/game/premap.c |
 | 14fb0-1f280 | SECTOR | src/game/sector.c |
 | 1f280-25160 | PLAYER | src/game/player.c |
 | 25160-2ba30 | ACTORS | src/game/actors.c |

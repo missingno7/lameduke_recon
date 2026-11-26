@@ -1,7 +1,7 @@
 # Watcom 9.5 GA, DOSBox-X. Names resolve on guest D:.
 system dos4g
 name game.exe
-option map,statics,nodefaultlibs,dosseg
+option map,statics,nodefaultlibs,dosseg,stack=4k
 segment class CODE loadoncall, class DATA loadoncall, class BEGDATA loadoncall, class BSS loadoncall, class STACK loadoncall
 # Both names are independently bound to 1:2e200 in config/symbols.json.
 alias update_ripple_tile_=animate_water_ripples_
@@ -10,9 +10,11 @@ alias atol_=atoi_
 
 # Registered game, Build and multiplayer units.
 file obj\game.obj
+file obj\premap.obj
 file obj\sector.obj
 file obj\player.obj
 file obj\actors.obj
+file obj\global.obj
 file obj\sounds.obj
 file obj\menues.obj
 file obj\gamedef.obj

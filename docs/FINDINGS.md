@@ -256,3 +256,13 @@ Each entry names the command or artefact that supports it.
   agreement 15% -> 99.4%, but GAME loses 10 STRICT (pool differs by 110 bytes). Not adopted. HYPOTHESIS (preferred):
   the duplicates are natural because GAME's range holds two objects (second from ~1:0f160 with its own pool
   2:00648-006a8); literals are merged only within one object.
+
+## GAME is two objects (gamesplit worker 2026-11-26)
+- STRONG the GAME range holds two objects: GAME 1:00010-11380 and a second object 1:11380-14fad (xyzmirror ...
+  prelevel, enterlevel, check_file_id; Duke 1.5 PREMAP.C order; src/game/premap.c, name HYPOTHESIS). Evidence: disjoint
+  CONST pool users (2:00004-00648 vs 2:00648-006a8), mspos _BSS at 2:0ac60, paragraph-aligned object starts. Boundary
+  0f160 is equally consistent with the verifier; 11380 chosen (Duke order, jump-table alignment odds).
+- PROVEN with the split and plain string literals (no pragma), both CONST pools VERIFIED (GAME's 1,604-byte pool newly
+  verified); the natural link has 2 undefined symbols (SoundToggle, camerasprite) and file-backed obj2 agreement
+  99.67%, 2:00000-01490 byte-identical. OPEN: why 9.5 keeps two identical banner/unknown_parameter literals apart in one
+  unit but merges bonus_percent/bonus_points.

@@ -9,7 +9,7 @@ extern animwalltype animwall[MAXANIMWALLS];
 extern short numanimwalls;
 /* Interim host. The only _BSS of the object that starts after GAME's (2:0ac60); its users are spawn,
    resetplayer and prelevel. See OWNERSHIP.md for the second GAME-range object. */
-long mspos;
+/* mspos: PREMAP _BSS (gamesplit) */
 extern short neartagsprite, neartagsector, neartagwall;
 extern long neartaghitdist;
 

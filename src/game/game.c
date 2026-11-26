@@ -15,9 +15,6 @@ extern unsigned outp(unsigned port, unsigned value);
 extern void resetparallax(void);
 extern void makepalookup(long palnum, char *remap, signed char red,
                         signed char green, signed char blue);
-extern void bootleg_cache_pop(void);
-extern void overwritesprite(long x, long y, long tile, long shade,
-                            long orientation, long palette);
 extern void getmousevalues(short *dx, short *dy, short *buttons);
 extern int MUSIC_Shutdown(void);
 extern int FX_Shutdown(void);
@@ -36,102 +33,17 @@ extern unsigned char scan_ascii_shift[128];
 
 void (__interrupt __far *oldtimerhandler)(void);
 extern short hudpulse;
-extern short sintable[2048];
 extern unsigned char keys[17];
 extern volatile unsigned char keystatus[256];
-extern long turn_velocity, strafe_velocity, forward_velocity;
-extern char tempbuf[];
-extern long frameplace;
-extern short screenpeek;
-extern short myconnectindex;
-extern short tilesizx[4096];
 extern unsigned char input_text[], input_text_length;
 extern short moustat, menu_mouse, menu_previous_buttons, menu_drag, menu_x, menu_y;
 
-extern long reccnt;
-extern signed char player_avel[], player_vel[], player_svel[];
-extern long player_bits[];
-extern unsigned char script_tics;
 extern signed char demo_avel[16384], demo_vel[16384], demo_svel[16384];
 extern long demo_bits[16384];
 extern unsigned char demo_tics[16384];
 
-extern char file_id_record[];
-/* These two literals belong to an earlier part of the shared GAME pool. */
-extern const char lookup_filename[];
-extern char lookup_missing[];
-/* The exit banner opens the shared GAME pool (2:00004); provisional like the two above. */
-extern char exit_banner[];
-
-#pragma pack(1)
-struct user_settings {
-    unsigned char visibility, quotes, brightness, sound, music;
-    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
-    unsigned char reserved[4];
-};
-#pragma pack()
-
-typedef char user_settings_size_check[sizeof(struct user_settings) == 21 ? 1 : -1];
-
-extern struct user_settings userdefs;
-extern char score_names[12][33];
-extern long high_scores[12], demomode;
-extern const char userdefs_filename[];
-
-/* The packed, 176-byte player record. Field names follow src/game/player.h; GAME's own
-   names replace PLAYER's placeholders where GAME shows the meaning (mapzoom, quote_time and
-   quote_index, parallax_sector, music, palette and the end-of-level tallies). */
-#pragma pack(1)
-struct player_view {
-    short i;
-    long display_mode, mapzoom;
-    long posx, posy, posz, horiz;
-    long previous_x, previous_y, previous_z, poszv;
-    long oposx, oposy, oposz;
-    unsigned long score;
-    long bobcounter;
-    short ang, oang, previous_ang, cursectnum, ocursectnum, lookang;
-    short screen_size, ammo, batteryammo, remote_ammo, rocket_ammo, health;
-    short newowner, flash_sprite, jumping_counter, airleft, last_weapon;
-    short quote_time[13];
-    short quote_index, kickback_pic, curr_weapon, state80, state82, parallax_sector;
-    char *music;
-    unsigned char gm, weapon_clock, skill, level, volume;
-    unsigned char on_ground, remote_active, knee_sequence, state92;
-    unsigned char scuba_on, jetpack_on, state95, armor;
-    unsigned char inventory[5], state9c[5];
-    unsigned char weapon_pos, statea2, raise_frame, knee_flash, footstep;
-    unsigned char statea6, palette, hard_landing, max_secret_rooms, secret_rooms;
-    unsigned char muzzle_flash, max_squashed, actors_squashed, max_actors_killed, actors_killed;
-};
-#pragma pack()
-
-typedef char player_size_check[sizeof(struct player_view) == 176 ? 1 : -1];
-
-extern struct player_view ps[17];
-extern char demo_filename[], demo_missing[];
-
-extern long hittype[4096][5], msx[1024], msy[1024], mspos;
-extern long *actorscrptr[4096];
-extern short connecthead, connectpoint2[], randomstash;
-extern short camerasprite, viewscreen, gamepaused, numplayers, numsectors, numwalls;
-extern unsigned char show2dsprite[512], show2dwall[1024];
-extern unsigned char parallaxtype, visibility, option[];
-extern long waloff[4096], totalclock, lockclock, randomseed;
-extern long animatecnt;
-extern short numanimwalls, tilesizy[4096];
-extern char music_files[4][10][13];
-
-extern long krand(void);
-extern long ksqrt(long square);
-extern long getangle(long x, long y);
 extern long getincangle_shift(short angle, short target, short shift);
-extern long setsprite(short i, long x, long y, long z);
-extern int deletesprite(short i);
-extern int changespritestat(short i, short stat);
 extern short insertsprite(long sect, long stat);
-extern void updatesector(long x, long y, short *sect);
-extern short nextsectorneighborz(short sect, long z, short plane, short direction);
 extern short findplayer(short i, long *distance);
 extern long ifhitbyweapon(short i);
 extern long getanimationgoal(long *goal);
@@ -151,26 +63,6 @@ extern void clipmove(long *x, long *y, long *z, short *sect,
     long vx, long vy, long radius, long ceil_dist, long floor_dist, long cliptype);
 extern void dragpoint(short w, long x, long y);
 
-extern void setview(long left, long top, long right, long bottom);
-extern void drawrooms(long x, long y, long z, long ang, long horizon, long sect);
-extern void drawmasks(void);
-extern void rotatesprite(long x, long y, long zoom, short ang, short tile);
-extern void vscrn(short p);
-extern void setgamemode(void);
-extern void checkhitswitch(short w);
-extern void loadtile(long tile);
-extern void nextpage(void);
-extern void FX_StopAllSounds(void);
-extern int loadboard(char *name, long *x, long *y, long *z, short *ang, short *sect);
-extern void precache(void);
-extern void allignwarpelevators(void);
-extern void playmusic(char *name);
-extern void call_level_load_hook(char *name);
-#pragma aux call_level_load_hook "level_load_hook_"
-extern short disable_armor;
-extern unsigned char level_tick_state;
-extern signed char pending_svel[17], pending_vel[17], pending_avel[17];
-extern long pending_bits[17];
 struct game_sound_voice {
     long x, y, z;
     short sprite;
@@ -178,17 +70,6 @@ struct game_sound_voice {
     unsigned char active;
 };
 extern struct game_sound_voice sound_voices[39];
-
-/* Inline Build helpers from the historical PRAGMAS.H. */
-extern long ksgn(long value);
-#pragma aux ksgn = "add ebx,0x80000000" "sbb eax,eax" "add ebx,0x7fffffff" "adc eax,0" \
-    parm nomemory [ebx] modify exact [eax ebx];
-extern long klabs(long value);
-#pragma aux klabs = "test eax,eax" "jns skipnegate" "neg eax" "skipnegate:" \
-    parm nomemory [eax];
-extern void copybuf(void *source, void *dest, long count);
-/* Ken's 1994 copybuf (BUIL0422) has no modify clause: the callers reload their loop state. */
-#pragma aux copybuf = "rep movsd" parm [esi] [edi] [ecx];
 
 #define FTA_INLINE(quote)                                                \
     if (userdefs.quotes == 1 && ps[screenpeek].quote_time[quote] == 0) { \
@@ -202,7 +83,6 @@ extern short thesprite[], spritepicnum[];
 extern char spritepal[];
 extern long spritesortcnt;
 extern unsigned char gotpic[];
-extern short facing_sprite;
 extern char playerreadyflag[16];
 extern void draw2dscreen(long x, long y, long ang, long zoom, long grid);
 extern void permanentwritesprite(long x, long y, long tile, long shade,
@@ -225,25 +105,10 @@ extern void wakeactors(void);
 extern void moveactors(void);
 extern void movemusic(void);
 
-struct animwall_entry {
-    short wallnum;
-    long tag;
-};
-extern struct animwall_entry animwall[256];
-
 /* Declarations used by the functions in 1:04cd0-0ba30. */
 char level_warp;
 extern char output_path[];
-extern char savegame_filename[], saveboard_filename[], saveboard_missing[];
-extern char help_banner[], help_usage[], help_help[], help_level[], help_volume[];
-extern char help_skill[], help_quotes[], help_debug[], help_record[], help_output[];
-extern char help_encode[], unknown_parameter[], unknown_parameter2[];
-extern char demorec_on[], output_rerouted[], encode_mapname[], encode_message[];
 extern int saveboard(char *filename, long *x, long *y, long *z, short *ang, short *sectnum);
-extern char main_banner[], main_loading_stats[], main_init_cache[], main_checking[];
-extern char main_no_good[], main_init_engine[], main_multiplayer[], main_loading_art[];
-extern char main_tiles_file[], main_init_remaps[], main_init_fx[], main_reading_sounds[];
-extern char main_init_music[], main_locating[], main_master[], main_slave[], main_game_over[];
 extern void init_bootleg_cache(void), loadefs(void), initmenus(void), initengine(void);
 extern void initmultiplayers(unsigned char option, unsigned char rate);
 extern void loadpics(char *filename), init_water_ripples(void), loadsounds(void);
@@ -263,29 +128,13 @@ short bonus_marks[3][16] = {
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
-extern char bonus_press_space[], bonus_title[], bonus_secrets[], bonus_percent[];
-extern char bonus_points[], bonus_squashed[], bonus_killed[];
 extern long current_menu;
 extern void displayweapon(short p), menus(void), pan3dsound(void);
 extern void sendlogon(void);
-extern char warp_title[], warp_episode[], warp_level[];
 extern void screencapture(void);
 extern void setbrightness(unsigned char brightness);
 extern void MUSIC_Pause(void), MUSIC_Continue(void);
 extern void qsetmode640480(void);
-extern char score_rank_title[], score_quote_title[], score_score_title[];
-
-
-/* dataown: one object, one name. GLOBAL defines the timer ramps as avel/vel/svel and the 21-byte settings
-   block as userdefs; the separate spellings used here are its fields. */
-extern long avel, vel, svel;
-#define turn_velocity avel
-#define strafe_velocity vel
-#define forward_velocity svel
-#define disable_armor userdefs.debug
-#define gamepaused userdefs.paused
-#define camerasprite userdefs.camera
-#define facing_sprite userdefs.camera
 
 /* The status bar drawing, written out through the helper calls. */
 #define STATUS_BAR(P)                                                     \
@@ -900,7 +749,7 @@ void gameexit(char *message)
     }
     uninittimer();
     setvmode(3);
-    puts(exit_banner);
+    puts("ﬁﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ›ﬁ DUKE DUKEM 3D Beta version 1.3.95 -- DO NOT DISTRIBUTE!!! That would be bad. ›ﬁ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹›");
     puts(message);
     exit(0);
 }
@@ -1449,8 +1298,6 @@ long next_text_shade(void)
 /* The same routine where the original calls it instead of expanding it in place. */
 extern long score_text_shade(void);
 #pragma aux score_text_shade "next_text_shade_"
-extern unsigned char enter_score_name(short row);
-#pragma aux enter_score_name "getscorename_"
 /* main tests the file check as a full int result. */
 extern long file_id_check(void);
 #pragma aux file_id_check "check_file_id_"
@@ -2059,11 +1906,11 @@ void loadlookup(void)
     int file;
 
     resetparallax();
-    file = open(lookup_filename, O_RDWR | O_BINARY, S_IREAD);
+    file = open("lookup.dat", O_RDWR | O_BINARY, S_IREAD);
     if (file != -1)
         read(file, &count, 1);
     else
-        gameexit(lookup_missing);
+        gameexit("Palette remaps not found.");
 
     for (i = 0; i < count; i++) {
         read(file, &palette, 1);
@@ -2791,9 +2638,9 @@ void nonsharedkeys(void)
             }
             ps[0].level &= 15;
             ps[0].volume &= 3;
-            BIG_TEXT(112, 50, warp_title, 0);
-            BIG_TEXT(100, 69, warp_episode, 0);
-            BIG_TEXT(100, 88, warp_level, 0);
+            BIG_TEXT(112, 50, "Warp Mode", 0);
+            BIG_TEXT(100, 69, "Episode", 0);
+            BIG_TEXT(100, 88, "Level", 0);
             ltoa(ps[0].volume + 1, tempbuf, 10);
             gametext(210, 67, (unsigned char *)tempbuf, 0);
             ltoa(ps[0].level + 1, tempbuf, 10);
@@ -2808,17 +2655,17 @@ void nonsharedkeys(void)
 
 void show_help(char **argv)
 {
-    puts(help_banner);
-    printf(help_usage, argv[0]);
-    puts(help_help);
-    puts(help_level);
-    puts(help_volume);
-    puts(help_skill);
-    puts(help_quotes);
-    puts(help_debug);
-    puts(help_record);
-    puts(help_output);
-    puts(help_encode);
+    puts("\n *  Here's a little command line help...");
+    printf("    %s [flags...]\n", argv[0]);
+    puts("\t/?        This help message.\n");
+    puts("\t/l#       Go to level #.");
+    puts("\t/v#       Go to volume #.");
+    puts("\t/s#       Skill # (0-3)");
+    puts("\t/q        Turn on help quotes.");
+    puts("\t/d        Activate DEBUG MODEs.");
+    puts("\t/r        Record a demo.");
+    puts("\t/oDIR     Reroute game output to DIR.");
+    puts("\t/e        Encode maps...");
 }
 
 void checkcommandline(int argc, char **argv)
@@ -2830,14 +2677,13 @@ void checkcommandline(int argc, char **argv)
     level_warp = 0;
     i = 1;
     if (argc > 1) {
-    mapname = encode_mapname;
     while (i < argc) {
         c = argv[i];
         if (*c == '/') {
             c++;
             switch (*c) {
             default:
-                printf(unknown_parameter, argv[i]);
+                printf("Unknown command line paramater '%s'\n", argv[i]);
             case '?':
                 show_help(argv);
                 exit(0);
@@ -2848,7 +2694,7 @@ void checkcommandline(int argc, char **argv)
             case 'r':
             case 'R':
                 demomode = 1;
-                puts(demorec_on);
+                puts("Demorec mode on...");
                 break;
             case 'o':
             case 'O':
@@ -2860,7 +2706,7 @@ void checkcommandline(int argc, char **argv)
                     c++;
                 }
                 output_path[j] = 0;
-                printf(output_rerouted, output_path);
+                printf("I/O path rerouted to %s.\n", output_path);
                 break;
             case 's':
             case 'S':
@@ -2884,16 +2730,17 @@ void checkcommandline(int argc, char **argv)
                 break;
             case 'e':
             case 'E':
+                mapname = "L?.MAP";
                 for (j = 0; j < 3; j++)
                     for (i = 0; i < 9; i++) {
                         mapname[0] = 'L' + j;
                         mapname[1] = '1' + i;
-                        printf(encode_message, mapname);
+                        printf("Encoding %s\n", mapname);
                     }
                 break;
             }
         } else {
-            printf(unknown_parameter2, c);
+            printf("Unknown command line paramater '%s'\n", c);
             show_help(argv);
             exit(0);
         }
@@ -3004,20 +2851,20 @@ void main(int argc, char **argv)
     short x, y;
 
     setvmode(3);
-    puts(main_banner);
-    puts(main_loading_stats);
+    puts("ﬁﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ›ﬁ DUKE DUKEM 3D Beta version 1.3.95 -- DO NOT DISTRIBUTE!!! That would be bad. ›ﬁ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹›");
+    puts("Loading user stats...");
     read_userdefs();
-    puts(main_init_cache);
+    puts("Init BootLeg CacheMaster...");
     init_bootleg_cache();
-    puts(main_checking);
+    puts("Checking program integrety...");
     if (file_id_check()) {
-        puts(main_no_good);
+        puts("No good.");
         unlink(argv[0]);
         return;
     }
     checkcommandline(argc, argv);
     loadefs();
-    puts(main_init_engine);
+    puts("Init engine...");
     initmenus();
     initengine();
     outp(0x43, 0x36);
@@ -3027,19 +2874,19 @@ void main(int argc, char **argv)
     _disable();
     _dos_setvect(8, timerhandler);
     _enable();
-    puts(main_multiplayer);
+    puts("Checking for multiplayer...");
     initmultiplayers(option[4], option[5]);
-    puts(main_loading_art);
-    loadpics(main_tiles_file);
-    puts(main_init_remaps);
+    puts("Loading art...");
+    loadpics("tiles000.art");
+    puts("Init colorize/remaps...");
     init_water_ripples();
     loadlookup();
     if (option[1]) {
-        puts(main_init_fx);
+        puts("Init sound FX...");
         status = FX_SetupCard(sound_device_map[option[1]], &fx_device);
         if (status)
             gameexit(FX_ErrorString(status));
-        puts(main_reading_sounds);
+        puts("Reading sounds...");
         loadsounds();
         status = FX_Init(sound_device_map[option[1]], 4, 2, 16, 11000);
         if (status)
@@ -3048,14 +2895,14 @@ void main(int argc, char **argv)
         FX_SetVolume(userdefs.sound_volume);
     }
     if (option[2]) {
-        puts(main_init_music);
+        puts("Init music...");
         status = MUSIC_Init(sound_device_map[option[1]], 0);
         if (status)
             gameexit(MUSIC_ErrorString(status));
         MUSIC_SetVolume(userdefs.music_volume);
     }
     if (option[4]) {
-        puts(main_locating);
+        puts("Locating other players...");
         if (option[4] >= 1 && option[4] <= 4)
             p = 2;
         else
@@ -3196,9 +3043,9 @@ play:
              ((ps[myconnectindex].gm & 1) && numplayers >= 2))) {
             if (totalclock < 360 && numplayers > 1 && userdefs.debug) {
                 if (myconnectindex == connecthead) {
-                    BIG_TEXT(120, 48, main_master, 0);
+                    BIG_TEXT(120, 48, "Master", 0);
                 } else {
-                    BIG_TEXT(130, 48, main_slave, 0);
+                    BIG_TEXT(130, 48, "Slave", 0);
                 }
             }
             if (ps[screenpeek].newowner >= 0) {
@@ -3346,7 +3193,7 @@ play:
     if (userdefs.debug == 0 && (ps[myconnectindex].gm & 2) == 0) {
         p = newscore();
         if (p >= 0) {
-            while (enter_score_name(p) == 0) {
+            while (getscorename(p) == 0) {
                 nextpage();
                 DRAW_VIEW(screenpeek);
                 displayhighscores();
@@ -3361,7 +3208,7 @@ play:
     }
     write_demo();
     write_userdefs();
-    gameexit(main_game_over);
+    gameexit("Game Over, or is it?");
 }
 
 void displaystatus(short snum)
@@ -3717,48 +3564,48 @@ void dobonus(void)
             overwritesprite(0, 0, 1135, 0, 0, 0);
             break;
         }
-        BIG_TEXT(36, 160, bonus_press_space, shade);
+        BIG_TEXT(36, 160, "Press SPACE to continue", shade);
         for (i = 0; i < ps[0].level; i++)
             overwritesprite(bonus_marks[ps[0].volume][i * 2], bonus_marks[ps[0].volume][i * 2 + 1],
                             1133, shade, 0, 0);
         overwritesprite(bonus_marks[ps[0].volume][i * 2], bonus_marks[ps[0].volume][i * 2 + 1],
                         1134, shade, 0, 0);
         if (ps[myconnectindex].gm == 8) {
-            BIG_TEXT(32, 10, bonus_title, 0);
+            BIG_TEXT(32, 10, "BONUS", 0);
             if (start + 240 < totalclock) {
                 if (ps[0].max_secret_rooms)
                     pct = (ps[0].secret_rooms * 100) / ps[0].max_secret_rooms;
-                SMALL_TEXT(60, 50, bonus_secrets, shade);
+                SMALL_TEXT(60, 50, "Secret rooms Found", shade);
                 ltoa((short)pct, tempbuf, 10);
                 minitext(60, 60, (unsigned char *)tempbuf, shade);
-                SMALL_TEXT(72, 60, bonus_percent, shade);
+                SMALL_TEXT(72, 60, "%, =", shade);
                 ltoa((short)pct * 10000, tempbuf, 10);
                 minitext(100, 60, (unsigned char *)tempbuf, shade);
-                SMALL_TEXT(140, 60, bonus_points, 0);
+                SMALL_TEXT(140, 60, "points.", 0);
                 ps[screenpeek].score += (short)pct * 10000;
             }
             if (start + 480 < totalclock) {
                 if (ps[0].max_squashed)
                     pct = (ps[0].actors_squashed * 100) / ps[0].max_squashed;
-                SMALL_TEXT(60, 80, bonus_squashed, shade);
+                SMALL_TEXT(60, 80, "Bad guys squashed", shade);
                 ltoa((short)pct, tempbuf, 10);
                 minitext(60, 90, (unsigned char *)tempbuf, shade);
-                SMALL_TEXT(72, 90, bonus_percent, shade);
+                SMALL_TEXT(72, 90, "%, =", shade);
                 ltoa((short)pct * 1000, tempbuf, 10);
                 minitext(100, 90, (unsigned char *)tempbuf, shade);
-                SMALL_TEXT(140, 90, bonus_points, shade);
+                SMALL_TEXT(140, 90, "points.", shade);
                 ps[screenpeek].score += (short)pct * 1000;
             }
             if (start + 720 < totalclock) {
                 if (ps[0].max_actors_killed)
                     pct = (ps[0].actors_killed * 100) / ps[0].max_actors_killed;
-                SMALL_TEXT(60, 110, bonus_killed, shade);
+                SMALL_TEXT(60, 110, "Bad guys killed", shade);
                 ltoa((short)pct, tempbuf, 10);
                 minitext(60, 120, (unsigned char *)tempbuf, shade);
-                SMALL_TEXT(72, 120, bonus_percent, shade);
+                SMALL_TEXT(72, 120, "%, =", shade);
                 ltoa((short)pct * 1000, tempbuf, 10);
                 minitext(100, 120, (unsigned char *)tempbuf, shade);
-                SMALL_TEXT(140, 120, bonus_points, shade);
+                SMALL_TEXT(140, 120, "points.", shade);
                 ps[screenpeek].score += (short)pct * 1000;
             }
         }
@@ -3825,9 +3672,9 @@ void displayhighscores(void)
     short i;
     short shade = (unsigned char)next_text_shade();
 
-    SMALL_TEXT(30, 36, score_rank_title, 0);
-    SMALL_TEXT(50, 36, score_quote_title, 0);
-    SMALL_TEXT(270, 36, score_score_title, 0);
+    SMALL_TEXT(30, 36, "#", 0);
+    SMALL_TEXT(50, 36, "Hero's Quote", 0);
+    SMALL_TEXT(270, 36, "Score", 0);
     for (i = 0; i < 12; i++) {
         if (i)
             shade = 0;
@@ -3905,7 +3752,7 @@ void read_userdefs(void)
     int file;
 
     demomode = 0;
-    file = open(userdefs_filename, O_RDWR | O_BINARY, S_IREAD);
+    file = open("userdefs.tmp", O_RDWR | O_BINARY, S_IREAD);
     if (file == -1) {
         userdefs.mouse_sensitivity = 128;
         userdefs.visibility = 13;
@@ -3927,7 +3774,7 @@ void write_userdefs(void)
     int file;
 
     /* Both text and binary flag bits are present in the original call. */
-    file = open(userdefs_filename, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT | O_BINARY, 0xb0);
+    file = open("userdefs.tmp", O_WRONLY | O_CREAT | O_TRUNC | O_TEXT | O_BINARY, 0xb0);
     write(file, &userdefs, sizeof(userdefs));
     write(file, score_names, sizeof(score_names));
     write(file, high_scores, sizeof(high_scores));
@@ -3937,7 +3784,7 @@ void write_userdefs(void)
 void saveplayer(char slot)
 {
     int file;
-    char *gamename = savegame_filename, *boardname = saveboard_filename;
+    char *gamename = "SAVE___0.SAV", *boardname = "SAVE_000.SAV";
 
     slot += '1';
     boardname[5] = '1' + ps[0].volume;
@@ -3958,7 +3805,7 @@ void saveplayer(char slot)
 void loadplayer(char slot)
 {
     int file;
-    char *gamename = savegame_filename, *boardname = saveboard_filename;
+    char *gamename = "SAVE___0.SAV", *boardname = "SAVE_000.SAV";
 
     slot += '1';
     boardname[5] = '1' + ps[0].volume;
@@ -3976,16 +3823,17 @@ void loadplayer(char slot)
     }
     if (loadboard(boardname, &ps[0].posx, &ps[0].posy, &ps[0].posz,
                   &ps[0].ang, &ps[0].cursectnum) == -1)
-        gameexit(saveboard_missing);
+        gameexit("Board not found.");
     ps[myconnectindex].gm = 4;
 }
 
 void read_demo(unsigned char slot)
 {
     int file;
+    char *filename = "mydemo__.dmo";
 
-    demo_filename[7] = '0' + slot;
-    file = open(demo_filename, O_RDWR | O_BINARY, S_IREAD);
+    filename[7] = '0' + slot;
+    file = open(filename, O_RDWR | O_BINARY, S_IREAD);
     if (file != -1) {
         read(file, &ps[0].volume, sizeof(ps[0].volume));
         read(file, &ps[0].level, sizeof(ps[0].level));
@@ -3999,14 +3847,14 @@ void read_demo(unsigned char slot)
         read(file, demo_bits, reccnt * sizeof(demo_bits[0]));
         close(file);
     } else {
-        gameexit(demo_missing);
+        gameexit("Demo not found.");
     }
 }
 
 void write_demo(void)
 {
     int file;
-    char *filename = demo_filename;
+    char *filename = "mydemo__.dmo";
 
     if (demomode != 1)
         return;
@@ -5291,935 +5139,4 @@ void spawn(long j, short pn)
         changespritestat(i, 6);
         break;
     }
-}
-
-/* The window is rendered into the framebuffer, copied to the tile, then
- * drawn back at 1:1 before a second copy establishes the tile's orientation. */
-/* Offsets advance by eight rows per iteration in each buffer. */
-#define COPY_CAMERA_WINDOW(tile, row, dest)                                                  \
-    for (; row < 320 * 95; row += 320 * 8, dest += 96 * 8) {                                 \
-        copybuf((void *)(frameplace + row), (void *)(waloff[tile] + dest), 24);              \
-        copybuf((void *)(frameplace + row + 320), (void *)(waloff[tile] + dest + 96), 24);   \
-        copybuf((void *)(frameplace + row + 640), (void *)(waloff[tile] + dest + 192), 24);  \
-        copybuf((void *)(frameplace + row + 960), (void *)(waloff[tile] + dest + 288), 24);  \
-        copybuf((void *)(frameplace + row + 1280), (void *)(waloff[tile] + dest + 384), 24); \
-        copybuf((void *)(frameplace + row + 1600), (void *)(waloff[tile] + dest + 480), 24); \
-        copybuf((void *)(frameplace + row + 1920), (void *)(waloff[tile] + dest + 576), 24); \
-        copybuf((void *)(frameplace + row + 2240), (void *)(waloff[tile] + dest + 672), 24); \
-    }
-
-void render_camera_tile(long x, long y, long z, short ang, short sect, short tile)
-{
-    short row, dest, row2, dest2;
-
-    setview(0, 0, 95, 95);
-    drawrooms(x, y, z, ang, 100, sect);
-    animatesprites(ang);
-    drawmasks();
-    row = dest = 0;
-    COPY_CAMERA_WINDOW(tile, row, dest)
-    row2 = dest2 = 0;
-    rotatesprite(47L << 16, 47L << 16, 1L << 16, 0, tile);
-    COPY_CAMERA_WINDOW(tile, row2, dest2)
-    vscrn(screenpeek);
-}
-
-void render_sprite_camera(short i)
-{
-    short row, dest, row2, dest2, ang, sect, tile;
-    long x, y, z;
-
-    x = sprite[i].x;
-    y = sprite[i].y;
-    sect = sprite[i].sectnum;
-    z = sprite[i].z;
-    tile = sprite[i].picnum;
-    ang = sprite[i].ang;
-    setview(0, 0, 95, 95);
-    drawrooms(x, y, z, ang, 100, sect);
-    animatesprites(ang);
-    drawmasks();
-    row = dest = 0;
-    COPY_CAMERA_WINDOW(tile, row, dest)
-    rotatesprite(47L << 16, 47L << 16, 1L << 16, 0, tile);
-    row2 = dest2 = 0;
-    COPY_CAMERA_WINDOW(tile, row2, dest2)
-    vscrn(screenpeek);
-}
-
-void render_mirror(short w)
-{
-    long x, y, z, x1, y1, x2, y2, player_x;
-    short row, dest, row2, dest2, ang, sect, tile;
-
-    x1 = wall[w].x;
-    y1 = wall[w].y;
-    x2 = wall[wall[w].point2].x;
-    y2 = wall[wall[w].point2].y;
-    player_x = ps[screenpeek].posx;
-    x = (x1 + x2) / 2;
-    y = (y1 + y2) / 2;
-    z = ps[screenpeek].posz;
-    ang = getangle(player_x - x, ps[screenpeek].posy - y);
-    tile = 570;
-    sect = wall[w].nextsector;
-    setview(0, 0, 95, 95);
-    drawrooms(x, y, z, ang, 100, sect);
-    animatesprites(ang);
-    drawmasks();
-    row = dest = 0;
-    COPY_CAMERA_WINDOW(tile, row, dest)
-    rotatesprite(47L << 16, 47L << 16, 1L << 16, 0, tile);
-    row2 = dest2 = 0;
-    COPY_CAMERA_WINDOW(tile, row2, dest2)
-    vscrn(screenpeek);
-}
-
-#undef COPY_CAMERA_WINDOW
-
-void resetplayer(short p)
-{
-    short look;
-
-    ps[p].horiz = 100;
-    ps[p].bobcounter = 0;
-    ps[p].posx = ps[p].oposx;
-    ps[p].posy = ps[p].oposy;
-    ps[p].posz = ps[p].oposz;
-    ps[p].ang = ps[p].oang;
-    ps[p].cursectnum = ps[p].ocursectnum;
-    ps[p].knee_flash = 0;
-    ps[p].on_ground = 0;
-    look = 256 - (krand() & 512);
-    ps[p].poszv = ps[p].jumping_counter = 0;
-    ps[p].weapon_clock = 0;
-    ps[p].lookang = look;
-    ps[p].state80 = -1;
-    ps[p].flash_sprite = -1;
-    ps[p].hard_landing = 0;
-    ps[p].newowner = -1;
-    if (actorscrptr[283] != NULL)
-        ps[p].health = (short)*actorscrptr[283];
-    else
-        ps[p].health = 100;
-    ps[p].state82 = -1;
-    ps[p].remote_active = 0;
-    ps[p].kickback_pic = 5;
-    ps[p].weapon_pos = 6;
-    ps[p].raise_frame = 1;
-    ps[p].mapzoom = 768;
-}
-
-void reset_player_motion(short p)
-{
-    short look;
-
-    ps[p].statea2 = 0;
-    ps[p].secret_rooms = 0;
-    ps[p].max_secret_rooms = 0;
-    ps[p].actors_squashed = 0;
-    ps[p].max_squashed = 0;
-    ps[p].actors_killed = 0;
-    ps[p].max_actors_killed = 0;
-    ps[p].footstep = 0;
-    if (ps[p].display_mode == 2)
-        setgamemode();
-    camerasprite = -1;
-    ps[p].display_mode = 3;
-    mspos = 0;
-    ps[p].parallax_sector = -1;
-    ps[p].horiz = 100;
-    viewscreen = -1;
-    ps[p].oposx = ps[p].posx;
-    ps[p].on_ground = 0;
-    ps[p].oposy = ps[p].posy;
-    ps[p].oposz = ps[p].posz;
-    forward_velocity = 0;
-    ps[p].oang = ps[p].ang;
-    strafe_velocity = 0;
-    ps[p].ocursectnum = ps[p].cursectnum;
-    screenpeek = myconnectindex;
-    ps[p].knee_flash = 0;
-    visibility = userdefs.visibility;
-    parallaxtype = 0;
-    ps[p].posx = ps[p].oposx;
-    turn_velocity = 0;
-    animatecnt = 0;
-    ps[p].posy = ps[p].oposy;
-    gamepaused = 0;
-    ps[p].posz = ps[p].oposz;
-    numanimwalls = 0;
-    ps[p].ang = ps[p].oang;
-    randomseed = 17;
-    ps[p].cursectnum = ps[p].ocursectnum;
-    ps[p].bobcounter = 0;
-    look = 256 - (krand() & 512);
-    ps[p].newowner = -1;
-    ps[p].jumping_counter = 0;
-    ps[p].state80 = -1;
-    ps[p].flash_sprite = -1;
-    ps[p].lookang = look;
-    ps[p].hard_landing = 0;
-    ps[p].weapon_clock = 0;
-    ps[p].poszv = 0;
-    if (actorscrptr[283] != NULL)
-        ps[p].health = (short)*actorscrptr[283];
-    else
-        ps[p].health = 100;
-    ps[p].state82 = -1;
-    ps[p].remote_active = 0;
-    ps[p].kickback_pic = 5;
-    ps[p].weapon_pos = 6;
-    ps[p].raise_frame = 1;
-    ps[p].mapzoom = 768;
-}
-
-void prelevel(void)
-{
-    short p = 0, i, k, sect, nexti, map_sprite;
-    long j;
-    long *actor;
-
-    ps[0].statea2 = 0;
-    ps[0].secret_rooms = 0;
-    ps[0].max_secret_rooms = 0;
-    ps[0].actors_squashed = 0;
-    ps[0].max_squashed = 0;
-    ps[0].actors_killed = 0;
-    ps[0].footstep = 0;
-    ps[0].max_actors_killed = 0;
-    if (ps[p].display_mode == 2)
-        setgamemode();
-    ps[p].display_mode = 3;
-    ps[p].oposx = ps[p].posx;
-    forward_velocity = 0;
-    strafe_velocity = 0;
-    ps[p].oposy = ps[p].posy;
-    turn_velocity = 0;
-    camerasprite = -1;
-    ps[p].oposz = ps[p].posz;
-    viewscreen = -1;
-    ps[p].oang = ps[p].ang;
-    gamepaused = 0;
-    ps[p].ocursectnum = ps[p].cursectnum;
-    numanimwalls = 0;
-    ps[p].parallax_sector = -1;
-    screenpeek = myconnectindex;
-    parallaxtype = 0;
-    visibility = userdefs.visibility;
-    animatecnt = 0;
-    mspos = 0;
-    randomseed = 17;
-    resetplayer(p);
-
-    for (i = 0; i < 13; i++)
-        ps[0].quote_time[i] = 0;
-    for (i = 0; i < 512; i++)
-        show2dwall[i] = 255;
-    for (i = 0; i < 512; i++)
-        show2dsprite[i] = 255 * disable_armor;
-
-    for (i = 0; i < numsectors; i++) {
-        sector[i].extra = 256;
-        if (ps[0].parallax_sector == -1 && (sector[i].ceilingstat & 1))
-            ps[0].parallax_sector = i;
-        if ((sector[i].lotag & 32767) == 32767)
-            ps[0].max_secret_rooms++;
-        else if (sector[i].lotag == 2)
-            sector[i].ceilingpal = sector[i].floorpal = 1;
-    }
-    for (i = headspritestat[0]; i >= 0; i = nexti) {
-        nexti = nextspritestat[i];
-        if (sprite[i].picnum == 310) {
-            sector[sprite[i].sectnum].extra = sprite[i].lotag;
-            deletesprite(i);
-        }
-    }
-
-    /* Initialize the map sprites in index order. */
-    for (map_sprite = 0; map_sprite < 4096; map_sprite++) {
-        short i = map_sprite;
-
-        if (sprite[i].statnum >= 1024)
-            continue;
-        j = -1;
-        k = sprite[i].picnum;
-        hittype[i][3] = 0;
-        hittype[i][2] = 0;
-        hittype[i][0] = 0;
-        if (k >= 265 && k <= 269)
-            k = 265;
-        actor = actorscrptr[k];
-        if (actor == NULL) {
-            hittype[i][4] = 0;
-            hittype[i][1] = 0;
-        } else {
-            sprite[i].extra = (short)actor[0];
-            hittype[i][4] = actor[1];
-            hittype[i][1] = actor[2];
-            if (k != 57)
-                sprite[i].hitag = (short)actor[3];
-        }
-        sect = sprite[i].sectnum;
-        switch (sprite[i].picnum) {
-        case 1408:
-            sprite[i].owner = -1;
-            changespritestat(i, 1);
-            break;
-        case 1165:
-            if (j >= 0) {
-                short a;
-
-                if (sprite[j].picnum == 283) {
-                    short p = sprite[j].yvel;
-
-                    a = (short)(ps[p].ang - (krand() & 0x3F));
-                    hittype[i][0] = krand() & 1;
-                    sprite[i].x = sprite[j].x + (sintable[(a + 512) & 2047] >> 6);
-                    sprite[i].y = (sintable[a & 2047] >> 6) + sprite[j].y;
-                    sprite[i].z = sprite[j].z - 32 * ps[p].horiz + 4608;
-                    sprite[i].zvel = (short)-(krand() & 0xFF);
-                } else {
-                    a = sprite[i].ang;
-                    sprite[i].x = sprite[j].x + (sintable[(a + 512) & 2047] >> 6);
-                    sprite[i].y = (sintable[a & 2047] >> 6) + sprite[j].y;
-                    sprite[i].z = sprite[j].z - 9216;
-                }
-                sprite[i].shade = -8;
-                sprite[i].ang = (short)(a - 512);
-                sprite[i].zvel = -192;
-                sprite[i].xvel = 48;
-                sprite[i].xrepeat = sprite[i].yrepeat = 5;
-                changespritestat(i, 5);
-            }
-            break;
-        case 1406:
-            if (j >= 0) {
-                sprite[i].xrepeat = sprite[i].yrepeat = 16;
-                sprite[i].shade = -15;
-                sprite[i].cstat |= rand() & 0xE;
-                sprite[i].ang = sprite[j].ang;
-                sprite[i].xvel = sprite[j].xvel;
-                sprite[i].zvel = sprite[j].zvel;
-                sprite[i].owner = j;
-                sprite[i].z -= 0x2000;
-                changespritestat(i, 4);
-            }
-            break;
-        case 5:
-            sprite[i].xrepeat = sprite[i].yrepeat = 0;
-            changespritestat(i, 11);
-            break;
-        case 1404:
-            if (j >= 0) {
-                sprite[i].owner = j;
-                sprite[i].xrepeat = (unsigned char)(tilesizx[sprite[j].picnum] / 3);
-                sprite[i].yrepeat = (unsigned char)(tilesizy[sprite[j].picnum] / 3);
-                sprite[i].shade = -127;
-            }
-            changespritestat(i, 5);
-            break;
-        case 1359:
-            sprite[i].xrepeat = sprite[i].yrepeat = 32;
-            sprite[i].cstat |= 0x22;
-            sprite[i].ang = (short)(krand() & 2047);
-            sprite[i].shade = 0;
-            sprite[i].z = sector[sect].floorz;
-            changespritestat(i, 5);
-            break;
-        case 1360:
-            if (j >= 0 && sprite[j].statnum == 10)
-                sprite[i].z += 4096;
-            /* fall through */
-        case 686: case 1370:
-            if (sprite[i].picnum == 1360)
-                sprite[i].xrepeat = sprite[i].yrepeat = 8;
-            else
-                sprite[i].xrepeat = sprite[i].yrepeat = 28;
-            sprite[i].cstat = (unsigned char)(krand() & 0xC);
-            sprite[i].shade = -127;
-            sprite[i].ang = sprite[j].ang;
-            changespritestat(i, 5);
-            break;
-        case 283:
-            sprite[i].xrepeat = sprite[i].yrepeat = 0;
-            sprite[i].shade = -32;
-            changespritestat(i, 10);
-            break;
-        case 215:
-            sprite[i].xrepeat = sprite[i].yrepeat = 10;
-            sprite[i].shade = -16;
-            changespritestat(i, 5);
-            break;
-        case 1280:
-            sprite[i].xrepeat = sprite[i].yrepeat = 64;
-            sprite[i].shade = -127;
-            sprite[i].cstat |= 1;
-            changespritestat(i, 2);
-            break;
-        case 1175: {
-            short k;
-
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].cstat |= 0x40;
-            sprite[i].picnum += 2;
-            sprite[i].z = sector[sect].ceilingz + 12288;
-            hittype[i][4] = mspos;
-            msx[mspos] = sprite[i].x;
-            msy[mspos] = sprite[i].y;
-            msx[mspos + 2] = sprite[i].z;
-            for (k = headspritestat[0]; k >= 0; k = nextspritestat[k]) {
-                if (sprite[k].picnum == 1174 && sprite[k].hitag == sprite[i].hitag) {
-                    hittype[i][1] = sprite[k].sectnum;
-                    sprite[k].xrepeat = 48;
-                    sprite[k].yrepeat = 128;
-                    msx[mspos + 1] = sprite[k].x;
-                    msy[mspos + 1] = sprite[k].y;
-                    sprite[k].x = sprite[i].x;
-                    sprite[k].y = sprite[i].y;
-                    sprite[k].z = sprite[i].z;
-                    sprite[k].shade = sprite[i].shade;
-                    msy[mspos + 2] = k;
-                    setsprite(k, sprite[k].x, sprite[k].y, sprite[k].z);
-                    break;
-                }
-            }
-            sprite[i].owner = -1;
-            mspos += 3;
-            changespritestat(i, 6);
-            break;
-        }
-        case 1190:
-            sprite[i].xrepeat = sprite[i].yrepeat = 20;
-            sprite[i].shade = -16;
-            changespritestat(i, 5);
-            break;
-        case 960:
-            sprite[i].xrepeat = 16;
-            sprite[i].yrepeat = 0;
-            hittype[i][1] = krand() & 0x1F;
-            sprite[i].z = sector[sect].ceilingz + 2048;
-            changespritestat(i, 2);
-            break;
-        case 962:
-            sprite[i].z = sector[sect].ceilingz + 6144;
-            hittype[i][0] = 3;
-            /* fall through */
-        case 961:
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].shade = -16;
-            sprite[i].xrepeat = 32;
-            sprite[i].yrepeat = 16;
-            sprite[i].cstat |= 1;
-            changespritestat(i, 2);
-            break;
-        case 305:
-            hittype[i][0] = sprite[i].xrepeat;
-            hittype[i][1] = sprite[i].yrepeat;
-            /* fall through */
-        case 32: case 51: case 216:
-            sprite[i].xrepeat = sprite[i].yrepeat = 0;
-            sprite[i].yvel = 0;
-            changespritestat(i, 1);
-            break;
-        case 408: case 490: case 579: case 1536: case 1680: case 1820:
-            ps[0].max_squashed++;
-            ps[0].max_actors_killed++;
-            /* fall through */
-        case 631:
-            sprite[i].shade = -24;
-            sprite[i].yrepeat = 43;
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].xrepeat = 52;
-            if (sprite[i].picnum == 408)
-                sprite[i].xrepeat -= 9;
-            changespritestat(i, 2);
-            sprite[i].cstat |= 1;
-            break;
-        case 34:
-            changespritestat(i, 7);
-            sprite[i].xrepeat = sprite[i].yrepeat = 0;
-            break;
-        case 23: case 31:
-            sprite[i].xrepeat = sprite[i].yrepeat = 0;
-            if (sprite[i].picnum == 23)
-                sector[sect].lotag ^= 0x4000;
-            changespritestat(i, 8);
-            break;
-        case 30: case 313: case 314: case 1123:
-            sprite[i].cstat |= 1;
-            /* fall through */
-        case 1122:
-            sprite[i].shade = -12;
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            changespritestat(i, 1);
-            break;
-        case 38: case 60: case 70: case 80: case 159: case 263: case 315: case 316: case 381: case 620:
-        case 677: case 720: case 721: case 722: case 723: case 724: case 726: case 727: case 728:
-        case 1119: case 1120: case 1121: case 1125:
-            sprite[i].shade = -17;
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].cstat |= 1;
-            changespritestat(i, 2);
-            break;
-        case 931:
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].xrepeat = sprite[i].yrepeat = 32;
-            hittype[i][3] = sector[sect].ceilingz;
-            sprite[i].z = hittype[i][3] + 10752;
-            sprite[i].cstat |= 9;
-            ps[0].max_actors_killed++;
-            changespritestat(i, 2);
-            break;
-        case 930:
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].xrepeat = sprite[i].yrepeat = 32;
-            hittype[i][3] = sector[sect].floorz;
-            sprite[i].z = hittype[i][3] + 3072;
-            sprite[i].cstat |= 1;
-            ps[0].max_actors_killed++;
-            changespritestat(i, 2);
-            break;
-        case 940:
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].owner = i;
-            sprite[i].xrepeat = sprite[i].yrepeat = 24;
-            sprite[i].cstat |= 1;
-            ps[0].max_actors_killed++;
-            changespritestat(i, 4);
-            break;
-        case 323:
-            sprite[i].z = sector[sect].floorz - (sprite[i].yrepeat << 7);
-            break;
-        case 265: case 266: case 267: case 268: case 269:
-            sprite[i].picnum = 265;
-            /* fall through */
-        case 327:
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].shade = -16;
-            changespritestat(i, 1);
-            break;
-        case 175: {
-            short k, wall_end;
-
-            sprite[i].yvel = sector[sect].extra;
-            sprite[i].xrepeat = 0;
-            sprite[i].yrepeat = 0;
-            switch (sprite[i].lotag) {
-            case 27:
-                if (demomode == 1) {
-                    sprite[i].xrepeat = 64;
-                    sprite[i].yrepeat = 64;
-                }
-                break;
-            case 12:
-                hittype[i][1] = sector[sect].floorshade;
-                hittype[i][2] = sector[sect].ceilingshade;
-                break;
-            case 13:
-                hittype[i][0] = sector[sect].ceilingz;
-                hittype[i][1] = sector[sect].floorz;
-                sprite[i].owner = klabs(hittype[i][0] - sprite[i].z) < klabs(hittype[i][1] - sprite[i].z);
-                if (sprite[i].ang == 512) {
-                    if (sprite[i].owner)
-                        sector[sect].ceilingz = sprite[i].z;
-                    else
-                        sector[sect].floorz = sprite[i].z;
-                } else {
-                    sector[sect].floorz = sprite[i].z;
-                    sector[sect].ceilingz = sprite[i].z;
-                }
-                if (!(sector[sect].ceilingstat & 1))
-                    break;
-                sector[sect].ceilingstat ^= 1;
-                hittype[i][3] = 1;
-                if (sprite[i].owner == 0 && sprite[i].ang == 512) {
-                    sector[sect].ceilingstat ^= 1;
-                    hittype[i][3] = 0;
-                }
-                sector[sect].ceilingshade = sector[sect].floorshade;
-                if (sprite[i].ang == 512) {
-                    wall_end = sector[sect].wallptr + sector[sect].wallnum;
-                    for (k = sector[sect].wallptr; k < wall_end; k++) {
-                        short ns = wall[k].nextsector;
-
-                        if (ns >= 0 && !(sector[ns].ceilingstat & 1)) {
-                            sector[sect].ceilingpicnum = sector[ns].ceilingpicnum;
-                            sector[sect].ceilingshade = sector[ns].ceilingshade;
-                            break;
-                        }
-                    }
-                }
-                break;
-            case 17:
-                hittype[i][2] = sector[sect].floorz;
-                hittype[i][3] = sector[nextsectorneighborz(sect, sector[sect].floorz, -1, -1)].ceilingz;
-                hittype[i][4] = sector[nextsectorneighborz(sect, sector[sect].ceilingz, 1, 1)].floorz;
-                break;
-            case 24:
-                sprite[i].yvel *= 2;
-                sector[sect].floorstat |= 0x40;
-                break;
-            case 23:
-                sprite[i].xrepeat = 64;
-                sprite[i].yrepeat = 64;
-                sprite[i].shade = 0;
-                hittype[i][1] = mspos;
-                for (k = 0; k < numsectors; k++) {
-                    if (sector[k].hitag == sprite[i].hitag) {
-                        msx[mspos++] = k;
-                        hittype[i][0]++;
-                    }
-                }
-                break;
-            case 20: {
-                long best = 0x7FFFFFFF, w0 = -1;
-
-                wall_end = sector[sect].wallptr + sector[sect].wallnum;
-                for (k = sector[sect].wallptr; k < wall_end; k++) {
-                    long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
-
-                    if (d < best) {
-                        best = d;
-                        w0 = k;
-                    }
-                }
-                hittype[i][1] = w0;
-                best = 0x7FFFFFFF;
-                wall_end = sector[sect].wallptr + sector[sect].wallnum;
-                for (k = sector[sect].wallptr; k < wall_end; k++) {
-                    long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
-
-                    if (d < best && k != hittype[i][1]) {
-                        best = d;
-                        w0 = k;
-                    }
-                }
-                hittype[i][2] = w0;
-                break;
-            }
-            case 3:
-                hittype[i][3] = sector[sect].floorshade;
-                sector[sect].floorshade = sprite[i].shade;
-                sector[sect].ceilingshade = sprite[i].shade;
-                sprite[i].owner = (short)(sector[sect].ceilingpal << 8);
-                sprite[i].owner |= sector[sect].floorpal;
-                wall_end = sector[sect].wallptr + sector[sect].wallnum;
-                for (k = sector[sect].wallptr; k < wall_end; k++)
-                    if (!(wall[k].hitag & 1))
-                        wall[k].shade = sprite[i].shade;
-                break;
-            case 4:
-                hittype[i][2] = sector[sect].floorshade;
-                sprite[i].owner = (short)(sector[sect].ceilingpal << 8);
-                sprite[i].owner |= sector[sect].floorpal;
-                wall_end = sector[sect].wallptr + sector[sect].wallnum;
-                for (k = sector[sect].wallptr; k < wall_end; k++)
-                    if (wall[k].shade > hittype[i][3])
-                        hittype[i][3] = wall[k].shade;
-                break;
-            case 9:
-                if ((sector[sect].lotag & 0x7FFF) && klabs(sector[sect].ceilingz - sprite[i].z) > 1024)
-                    sector[sect].lotag |= 32768U;
-                /* fall through */
-            case 8:
-                hittype[i][0] = sector[sect].floorshade;
-                hittype[i][1] = sector[sect].ceilingshade;
-                wall_end = sector[sect].wallptr + sector[sect].wallnum;
-                for (k = sector[sect].wallptr; k < wall_end; k++)
-                    if (wall[k].shade > hittype[i][2])
-                        hittype[i][2] = wall[k].shade;
-                hittype[i][3] = (sprite[i].yvel >> 8) + 2;
-                if (hittype[i][3] < 8)
-                    hittype[i][3] = 1;
-                hittype[i][3] = 8; /* the exe overwrites the value it just computed */
-                break;
-            case 11:
-                hittype[i][3] = sprite[i].ang <= 1024 ? -2 : 2;
-                /* fall through */
-            case 0: case 2: case 5: case 6: case 14: case 15: case 16: case 25: case 26: {
-                short s;
-
-                hittype[i][1] = mspos;
-                wall_end = sector[sect].wallptr + sector[sect].wallnum;
-                for (k = sector[sect].wallptr; k < wall_end; k++) {
-                    msx[mspos] = wall[k].x - sprite[i].x;
-                    msy[mspos] = wall[k].y - sprite[i].y;
-                    mspos++;
-                }
-                if (sprite[i].lotag == 6 || sprite[i].lotag == 14 || sprite[i].lotag == 5) {
-                    if (sector[sprite[i].sectnum].hitag != -1) {
-                        sector[sect].floorstat |= 0x40;
-                        sector[sect].ceilingstat |= 0x40;
-                    }
-                    /* The exe passes the wall loop's end index as the first sector hint. */
-                    s = k;
-                    for (k = 0; k < 10; k++) {
-                        updatesector(k * (sintable[(sprite[i].ang + 512) & 2047] >> 5) + sprite[i].x,
-                            sprite[i].y + k * (sintable[sprite[i].ang & 2047] >> 5), &s);
-                        if (sector[s].hitag == 0)
-                            break;
-                        if (sector[s].hitag != -1) {
-                            sector[s].ceilingstat |= 0x40;
-                            sector[s].floorstat |= 0x40;
-                        }
-                    }
-                    sprite[i].owner = -1;
-                    hittype[i][0] = s;
-                    hittype[i][3] = sprite[i].hitag;
-                }
-                if (sprite[i].lotag == 16)
-                    hittype[i][3] = sector[sect].ceilingz;
-                if (sprite[i].lotag == 25) {
-                    hittype[i][4] = sector[sect].ceilingz;
-                    sector[sect].ceilingz = sprite[i].z;
-                }
-                if (sprite[i].lotag == 26) {
-                    hittype[i][3] = sprite[i].x;
-                    hittype[i][4] = sprite[i].y;
-                    sprite[i].zvel = sprite[i].shade == sector[sect].floorshade ? -256 : 256;
-                    sector[sect].floorstat |= 0x40;
-                    sprite[i].shade = 0;
-                }
-                break;
-            }
-            }
-            changespritestat(i, sprite[i].lotag == 7 ? 9 : 3);
-            break;
-        }
-        case 57:
-            sprite[i].owner = i;
-            sprite[i].shade = -16;
-            if (sprite[i].xrepeat <= 8)
-                sprite[i].xrepeat = sprite[i].yrepeat = 0;
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].cstat |= 1;
-            changespritestat(i, 6);
-            break;
-        case 606: case 627: case 905: case 1200:
-            sprite[i].owner = i;
-            sprite[i].shade = -16;
-            show2dsprite[i >> 3] |= 1 << (i & 7);
-            sprite[i].yrepeat = sprite[i].xrepeat = 38;
-            sprite[i].cstat |= 1;
-            changespritestat(i, 6);
-            break;
-        }
-    }
-
-    for (i = 0; i < numwalls; i++) {
-        if (numanimwalls >= 256)
-            gameexit("Maxed out on anim walls\n");
-        if (wall[i].overpicnum >= 1184 && wall[i].overpicnum <= 1186) {
-            if (wall[i].overpicnum == 1184 && waloff[1184] == -1)
-                for (k = 0; k < 3; k++)
-                    loadtile(1184 + k);
-            if (wall[i].shade < 32)
-                wall[i].cstat |= 1;
-            else
-                wall[i].cstat = 0;
-            wall[i].shade = 0;
-            if (wall[i].lotag != 0)
-                wall[wall[i].nextwall].lotag = wall[i].lotag;
-            animwall[numanimwalls++].wallnum = i;
-            continue;
-        }
-        switch (wall[i].picnum) {
-        case 819: case 823: case 860: case 864:
-            if (waloff[wall[i].picnum] == -1)
-                for (k = 0; k < 4; k++)
-                    loadtile(wall[i].picnum + k);
-            /* fall through */
-        case 570:
-            animwall[numanimwalls++].wallnum = i;
-            break;
-        case 761:
-            if (waloff[761] == -1)
-                for (k = 761; k < 765; k++)
-                    loadtile(k);
-            /* fall through */
-        case 764: case 765: case 766: case 767:
-            animwall[numanimwalls].wallnum = i;
-            animwall[numanimwalls].tag = wall[i].picnum;
-            numanimwalls++;
-            break;
-        case 406:
-            wall[i].picnum = 405;
-            checkhitswitch(wall[i].lotag);
-            animwall[numanimwalls].tag = 0;
-            animwall[numanimwalls++].wallnum = i;
-            break;
-        case 395: case 396: case 405:
-            animwall[numanimwalls].tag = 0;
-            animwall[numanimwalls].wallnum = i;
-            numanimwalls++;
-            break;
-        }
-    }
-}
-
-void newgame(unsigned char episode, unsigned char level, unsigned char skill)
-{
-    ps[0].level = level;
-    ps[0].volume = episode;
-    ps[0].skill = skill;
-    ps[0].scuba_on = 0;
-    ps[0].inventory[0] = 0;
-    ps[0].jetpack_on = 0;
-    ps[0].inventory[1] = 0;
-    ps[0].state95 = 0;
-    ps[0].inventory[2] = 0;
-    ps[0].armor = 0;
-    ps[0].inventory[3] = 0;
-    ps[0].state92 = 0;
-    ps[0].state9c[0] = 0;
-    ps[0].state9c[2] = 0;
-    ps[0].state9c[3] = 0;
-    ps[0].state9c[4] = 0;
-    ps[0].screen_size = -4;
-    ps[0].state9c[1] = 1;
-    ps[0].score = 0;
-    if (disable_armor) {
-        ps[0].rocket_ammo = 99;
-        ps[0].remote_ammo = 696;
-        ps[0].ammo = 144;
-        ps[0].batteryammo = 120;
-    } else {
-        ps[0].rocket_ammo = 5;
-        ps[0].remote_ammo = 2;
-        ps[0].ammo = 24;
-        ps[0].batteryammo = 9;
-    }
-    ps[0].last_weapon = -1;
-    ps[0].curr_weapon = 191;
-    reccnt = 0;
-}
-
-void enterlevel(unsigned char mode)
-{
-    char *map_name = "L1.MAP";
-    short i, p, load_result;
-    unsigned char palette;
-
-    if (disable_armor == 0 && (mode & 4)) {
-        dobonus();
-    } else {
-        overwritesprite(0, 0, 482, 0, 0, 0);
-        minitext(170, 50, (unsigned char *)"Entering...", 0);
-        minitext(174, 62, (unsigned char *)"Episode", 0);
-        minitext(174, 74, (unsigned char *)"Level", 0);
-        numtext(232, 62, ps[0].volume + 1, 0);
-        numtext(232, 74, ps[0].level + 1, 0);
-        nextpage();
-    }
-    map_name[0] = 'L' + ps[0].volume;
-    map_name[1] = '1' + ps[0].level;
-    FX_StopAllSounds();
-    call_level_load_hook(map_name);
-    load_result = loadboard(map_name, &ps[0].posx, &ps[0].posy, &ps[0].posz,
-                            &ps[0].ang, &ps[0].cursectnum);
-    call_level_load_hook(map_name);
-    if (load_result == -1)
-        gameexit("Board not found.");
-    prelevel();
-    EGS(ps[0].cursectnum, ps[0].posx, ps[0].posy, ps[0].posz, 0, 283, 0, 0, 0,
-        ps[0].ang, 0, 0, 0, 10);
-    precache();
-    cacheit();
-    allignwarpelevators();
-    for (i = 0; i < 17; i++) {
-        memcpy(&ps[i], &ps[0], sizeof(ps[0]));
-        player_svel[i] = pending_svel[i] = 0;
-        player_vel[i] = pending_vel[i] = 0;
-        player_avel[i] = pending_avel[i] = 0;
-        player_bits[i] = pending_bits[i] = 0;
-    }
-    moveloop();
-    if (option[0] == 7)
-        setview(0, 0, 639, 479);
-    else
-        vscrn(0);
-
-    palette = 0;
-    i = headspritestat[10];
-    for (p = connecthead; p >= 0; p = connectpoint2[p]) {
-        show2dsprite[i >> 3] |= 1 << (i & 7);
-        sprite[i].cstat = 1;
-        sprite[i].shade = -16;
-        sprite[i].owner = i;
-        sprite[i].yvel = p;
-        ps[p].palette = palette;
-        if (palette != 0)
-            palette++;
-        else
-            palette = 3;
-        sprite[i].xrepeat = sprite[i].yrepeat = 42;
-        ps[p].i = i;
-        if (numplayers > 1) {
-            ps[p].oposx = ps[p].posx = sprite[i].x;
-            ps[p].oposy = ps[p].posy = sprite[i].y;
-            ps[p].oposz = ps[p].posz = sprite[i].z;
-            ps[p].oang = ps[p].ang = sprite[i].ang;
-            ps[p].ocursectnum = ps[p].cursectnum = sprite[i].sectnum;
-        }
-        updatesector(sprite[i].x, sprite[i].y, &ps[p].cursectnum);
-        i = nextspritestat[i];
-    }
-    ps[myconnectindex].music = music_files[ps[myconnectindex].volume][0] + 13 * ps[myconnectindex].level;
-    playmusic(ps[myconnectindex].music);
-    displaystatus(myconnectindex);
-    lockclock = totalclock = 0;
-    level_tick_state = script_tics = 0;
-    ps[myconnectindex].gm = mode;
-}
-
-unsigned char check_file_id(void)
-{
-    int file;
-    long expected, actual;
-
-    file = open("FILE_ID.DIZ", O_RDWR | O_BINARY, S_IREAD);
-    if (file == -1)
-        return 1;
-
-    read(file, tempbuf, 450);
-    actual = 0;
-    for (expected = 0; expected < 400; expected++, actual++) {
-        if (file_id_record[expected] == '*') {
-            expected++;
-            actual += 2;
-        }
-        if (tempbuf[actual] != file_id_record[expected]) {
-            close(file);
-            return 1;
-        }
-    }
-    close(file);
-    bootleg_cache_pop();
-    return 0;
-}
-
-
-short newscore(void)
-{
-    short i, j;
-
-    score_text_shade();
-    for (i = 0; i < 12; i++) {
-        if (ps[myconnectindex].score > (unsigned long)high_scores[i]) {
-            for (j = 10; j > i; j--) {
-                high_scores[j + 1] = high_scores[j];
-                memcpy(score_names[j + 1], score_names[j], 31);
-            }
-            score_names[i][0] = 0;
-            high_scores[i] = ps[myconnectindex].score;
-            return i;
-        }
-    }
-    return -1;
-}
-
-unsigned char getscorename(short row)
-{
-    return strget(50, row * 11 + 50, next_text_shade(), 31) != 0;
 }

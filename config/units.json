@@ -2221,9 +2221,7 @@
      "status": "STRICT"
     }
    },
-   "segments": {
-    "_BSS": "VERIFIED"
-   }
+   "segments": {}
   },
   "game_player": {
    "source": "src/game/player.c",
@@ -2270,7 +2268,7 @@
     "src/game"
    ],
    "kind": "c",
-   "provenance": "BINARY_DERIVED with raynorpat/lameduke and Duke3D 1.5 semantics; game2 worker 2026-11-26 (partial: 15 of 61 functions written)",
+   "provenance": "BINARY_DERIVED with raynorpat/lameduke and Duke3D 1.5 semantics; game2 worker 2026-11-26 (partial: 15 of 61 functions written); split at 1:11380 (gamesplit 2026-11-26): this object is 1:00010-11380",
    "functions": {
     "inittimer": {
      "status": "STRICT"
@@ -2311,12 +2309,6 @@
     "write_demo": {
      "status": "NEAR_MATCH"
     },
-    "check_file_id": {
-     "status": "STRICT"
-    },
-    "getscorename": {
-     "status": "STRICT"
-    },
     "gametext": {
      "status": "NEAR_MATCH"
     },
@@ -2344,38 +2336,11 @@
     "update_menu_cursor": {
      "status": "NEAR_MATCH"
     },
-    "newscore": {
-     "status": "STRICT"
-    },
     "moveeffectors": {
      "status": "NEAR_MATCH"
     },
     "spawn": {
      "status": "NEAR_MATCH"
-    },
-    "render_camera_tile": {
-     "status": "NEAR_MATCH"
-    },
-    "render_sprite_camera": {
-     "status": "NEAR_MATCH"
-    },
-    "render_mirror": {
-     "status": "NEAR_MATCH"
-    },
-    "resetplayer": {
-     "status": "NEAR_MATCH"
-    },
-    "reset_player_motion": {
-     "status": "NEAR_MATCH"
-    },
-    "prelevel": {
-     "status": "NEAR_MATCH"
-    },
-    "newgame": {
-     "status": "NEAR_MATCH"
-    },
-    "enterlevel": {
-     "status": "STRICT"
     },
     "timerhandler": {
      "status": "STRICT"
@@ -2460,6 +2425,54 @@
    "segments": {
     "CONST": "VERIFIED",
     "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
+   }
+  },
+  "game_premap": {
+   "source": "src/game/premap.c",
+   "profile": "game",
+   "include": [
+    "src/game"
+   ],
+   "kind": "c",
+   "provenance": "Split of the GAME address range (gamesplit worker 2026-11-26): second object 1:11380-14fad (xyzmirror ... prelevel, enterlevel, check_file_id); boundary STRONG (separate CONST pool 2:00648-006a8, _BSS mspos 2:0ac60, Duke 1.5 PREMAP.C function order); file name HYPOTHESIS",
+   "functions": {
+    "check_file_id": {
+     "status": "STRICT"
+    },
+    "getscorename": {
+     "status": "STRICT"
+    },
+    "newscore": {
+     "status": "STRICT"
+    },
+    "render_camera_tile": {
+     "status": "NEAR_MATCH"
+    },
+    "render_sprite_camera": {
+     "status": "NEAR_MATCH"
+    },
+    "render_mirror": {
+     "status": "NEAR_MATCH"
+    },
+    "resetplayer": {
+     "status": "NEAR_MATCH"
+    },
+    "reset_player_motion": {
+     "status": "NEAR_MATCH"
+    },
+    "prelevel": {
+     "status": "NEAR_MATCH"
+    },
+    "newgame": {
+     "status": "NEAR_MATCH"
+    },
+    "enterlevel": {
+     "status": "STRICT"
+    }
+   },
+   "segments": {
+    "CONST": "VERIFIED",
     "_BSS": "VERIFIED"
    }
   },
