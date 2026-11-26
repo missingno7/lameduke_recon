@@ -46,7 +46,7 @@
 //             bit 6: 1 = Relative alignment to first point on wall list "R"
 //             bit 7: reserved
 
-typedef struct sectortype
+struct sectortype
 {
 	short unsigned int wallptr, wallnum;
 	short ceilingpicnum, floorpicnum;
@@ -60,7 +60,7 @@ typedef struct sectortype
 	char visibility;
 	short lotag, hitag;
 	short extra;
-} sectortype;
+};
 
 //cstat, bit 0: 1 = clip xoring, 0 = not                              "B"
 //       bit 1: 1 = bottoms of invisible walls swapped, 0 = not       "2"
@@ -79,7 +79,7 @@ typedef struct sectortype
 //       bit 14: reserved
 //       bit 15: reserved
 
-typedef struct walltype
+struct walltype
 {
 	long x, y;
 	short point2;
@@ -91,7 +91,7 @@ typedef struct walltype
 	short nextsector2, nextwall2;
 	short lotag, hitag;
 	short extra;
-} walltype;
+};
 
 //cstat, bit 0: 1 = Sprite blocks bullets (ex: hitscan) and you, 0 = not
 //              Yes.  That's right.  This is the bit that tells whether
@@ -105,7 +105,7 @@ typedef struct walltype
 //       bit 6: reserved
 //       bit 7: reserved
 
-typedef struct spritetype
+struct spritetype
 {
 	long x, y, z;
 	char cstat;
@@ -115,13 +115,13 @@ typedef struct spritetype
 	short sectnum, statnum;
 	short lotag, hitag;
 	short extra;
-} spritetype;
+};
 
-typedef struct extratype
+struct extratype
 {
 	short tag[4];
 	short point2;
-} extratype;
+};
 
 EXTERN struct sectortype sector[MAXSECTORS];
 EXTERN struct walltype wall[MAXWALLS];
@@ -140,7 +140,6 @@ EXTERN char parallaxtype;
 EXTERN char visibility;
 EXTERN short pskyoff[MAXPSKYTILES], pskybits;
 EXTERN char *palookup[MAXPALOOKUPS];
-EXTERN char gotsector[MAXSECTORS>>3];
 EXTERN long parallaxyoffs;
 
 EXTERN long scaredfallz;
@@ -174,6 +173,7 @@ EXTERN char show2dwall[MAXWALLS>>3];
 EXTERN char show2dsprite[MAXSPRITES>>3];
 EXTERN char automapping;
 
+EXTERN char gotsector[MAXSECTORS>>3];
 EXTERN char gotpic[MAXTILES>>3];
 
 /*************************************************************************

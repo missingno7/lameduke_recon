@@ -1,65 +1,77 @@
-# December 1994 Build engine, fourth pass
+# December 1994 Build engine, fifth pass
 
-The candidate is in `src4/`. It started from the integrated third pass and uses the stock staged Watcom 9.5b profile `-4r -s -or`.
+`src5/` starts with the integrated fourth pass. It uses the stock Watcom 9.5b engine profile `-4r -s -or`.
 
 | Verifier status | Before functions | Before candidate bytes | After functions | After candidate bytes | After target bytes |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| STRICT | 53 | 24,339 | 57 | 27,502 | 27,502 |
+| STRICT | 57 | 27,502 | 58 | 28,526 | 28,526 |
 | CODE_BYTES_MATCH | 0 | 0 | 0 | 0 | 0 |
-| NEAR_MATCH | 45 | 54,915 | 41 | 52,056 | 53,493 |
+| NEAR_MATCH | 41 | 52,056 | 40 | 51,134 | 52,469 |
 | UNPLACED | 0 | 0 | 0 | 0 | 0 |
-| Total | 98 | 79,254 | 98 | 79,558 | 80,995 |
+| Total | 98 | 79,558 | 98 | 79,660 | 80,995 |
 
-All 53 baseline matches are preserved. Four new matches add 3,163 STRICT bytes.
-
-| New STRICT function | Target start | Bytes |
-| --- | --- | ---: |
-| `loadpalette` | `1:39647` | 510 |
-| `transmaskvline` | `1:39e44` | 636 |
-| `initcache` | `1:3a819` | 79 |
-| `wallmost` | `1:464ce` | 1,938 |
+The new match is `addboxlinum`, 1,024 bytes at `1:36bec`. All 57 baseline STRICT functions held.
 
 ## Reproduce
 
 ```powershell
 $p = 'build/workers/engine'
-python -B tools/match.py --profile engine --symbols "$p/overlay.json" "-i=$p/src4" "$p/src4/ENGINE.C" --json "$p/results.json"
+python -B tools/match.py --profile engine --symbols "$p/overlay.json" "-i=$p/src5" "$p/src5/ENGINE.C" --json "$p/results.json"
 ```
 
-The stock compiler ran with zero warnings and errors. The matcher exited 1 with 41 NEAR results. The verifier's ten unit tests passed. `overlay.json` proposes five data bindings, with their target instructions and site counts. The integrated source and canonical bindings were used read-only.
+The fresh result used the stock DOS host and reported zero compile warnings or errors. The matcher exited 1 with the 40 NEAR results. All ten verifier unit tests passed. The overlay proposes eight data bindings with their LE instruction evidence. The integration gate was green for the supplied baseline.
 
-## Extent and shared returns
+## Code extent and displacement dependencies
 
-**STRONG** ENGINE.OBJ occupies `[1:33e5c,1:47abf)`, 80,995 bytes. The keyboard interrupt handler begins there, `setbrightness` returns at `1:47abe`, and MULTI's six-entry dispatch table starts at `1:47abf`. The 1994-09-15 changelog records the ENGINE/MULTI split. The 98-public sequence is unchanged. The 677-byte block previously considered for `clippoly4` was resolved in pass two as part of `rotatesprite`. The first code-placement drift is still the nine-byte deficit in `scansector`.
+**STRONG** ENGINE.OBJ occupies `[1:33e5c,1:47abf)`, 80,995 bytes across 98 publics. The keyboard handler starts at `1:33e5c`. `setbrightness` returns at `1:47abe`, before MULTI's dispatch table. The 1994-09-15 changelog records the split. Prior analysis placed the disputed 677-byte block inside `rotatesprite`.
 
-**PROVEN** Staging the projected wall coordinates and their stores in target order reduced `addboxlinum` from 1,029 to 1,024 bytes. Its two body differences are displacements at `+0x1cf` and `+0x3fc` to the same shared return in `wallfront`. The candidate displacements are each 98 higher. `calcwalls`, in between, is 98 bytes short. The earlier `wallfront` public is one byte short and that shared return is one byte earlier within its public.
+**PROVEN** `calcwalls` grew from 4,970 to 5,068 bytes, its full oracle extent. All relocation sites and targets match. Ten instruction bytes differ across two local stack homes. At `+0x20d`, the wall texture numerator step is stored at `[esp+0xc]` and the oracle uses `[esp+0x10]`. The resolved sky tile used across a `wallscan` call occupies the other home. Each appears consistently in the intended body. Trying explicit local scopes, equivalent integer widths, and expression staging regressed these allocations. The selected picking-store order removed the eight other byte differences and four fixup problems in the 18-byte-diff control.
 
-**PROVEN** `loadpalette` and `initcache` now reach their target return paths in `drawmasks` and `setgamemode`. The `hline` span is 965 bytes and `transmaskvline` now owns its original 603-byte body, one-byte alignment NOP at `1:3a09f` and 32-byte switch table at `1:3a0a0`. Across `addboxlinum`, `hline` and `transmaskvline`, the changes from the integrated object are -5, +4 and +1 bytes. The combined span retains the verified distance from `drawalls` to the shared `drawmasks` return. Absolute `_TEXT` bases still conflict.
+**PROVEN** The restored `calcwalls` extent closes both shared-return jumps in `addboxlinum`. Changes to `scansector` and `wallfront` retain the target switch-table alignment. Their 748- and 562-byte candidate spans respectively are eight bytes short and eight long. Their combined span is exactly 1,310 bytes. The selected `wallfront` product order has more matching normalized instructions than the integrated version. A 554-byte pointer variant also yielded 58 STRICT but left the subsequent run eight bytes earlier than its target offset. At base `1:33e5c`, the selected source places all 37 publics from `calcwalls` through `drawmaskwall` at their oracle offsets. Whole-object placement remains open.
 
-**OPEN** Fourteen NEAR extents totaling 4,899 bytes have their code differences confined to cross-function jump operands. `setvesamode` additionally has unresolved section-relative RMI fixups. The five sprite-list functions share a -1,046-byte displacement error to `drawmasks+341`. Their intervening code includes `drawsprite` (10,425 candidate bytes, 9,875 target), `grouvline` (2,337 against 2,169), `overwritesprite` (1,323 against 1,063), and `ceilspritehline` (1,044 against 976). The largest remaining span shortfall is `draw2dscreen` (3,169 against 4,585).
+**OPEN** Thirteen NEAR extents covering 3,875 bytes have their code differences confined to cross-function jump operands. `setvesamode` also has unresolved anonymous BSS references. Correcting `qinterpolate` in `drawmaskwall` and `drawsprite` accounts for the six-byte change in several downstream displacements. The five sprite-list functions still have the same ?1,040-byte displacement error to `drawmasks+341`. The largest contributors are `drawsprite`, `overwritesprite`, `grouvline`, and `ceilspritehline`. The jump in `ceilspritescan` reaches back across the recently expanded `calcwalls`, plus the subsequent sprite drawing code.
 
-## Source changes and controls
+| Affected functions | Oracle return path | Candidate displacement minus oracle |
+| --- | --- | ---: |
+| `ceilspritescan` | `wallfront+224` | ?544 |
+| `initspritelists`, `insertspritesect`, `insertspritestat`, `deletespritesect`, `deletespritestat` | `drawmasks+341` | ?1,040 |
+| `keepaway` | `ceilscan+4b1` | ?844 |
+| `rotatepoint` | `clipinsideboxline+171` | ?755 |
+| `draw2dgrid` | `printext+2aa` | ?163 |
+| `makeradarang` | `drawmasks+33d` | +1,372 |
+| `setvesamode`, `setredbluepalette` | `drawmasks+341` | +1,335 |
+| `setverts` | `wallscan+b1f` | +1,335 |
 
-Dates below are changelog entries or archive dates. The December disassembly establishes implementation details without an individual changelog entry.
+## Source evidence and controls
 
-| Evidence | Reconstruction |
+| Date or target evidence | Reconstruction |
 | --- | --- |
-| December `addboxlinum` at `1:36cf2-36dbf` and `1:36f9c-36fe2` | Project horizontal and depth components together for each endpoint. Test facing before rejecting the two nonpositive depths. Store the projected depths, sector, wall and horizontal coordinates in the observed order. |
-| 1994-04-22 `ENGINE.C` horizontal rasterizer, December `1:39ade-39b57` | The December distance and projection use the April two-product form, adjusted for dynamic screen width and global position. Selected independent X staging and a combined Y expression restore the extent. This candidate still chooses different stack slots and registers. The alternative 963-byte candidate has closer normalized instructions through the rest of the body. It moves the `transmaskvline` entry by two bytes and changes its switch-table padding from one to three bytes. |
-| December `wallfront` and `spritewallfront` | Reuse the decoded wall and point2 indices. Evaluate the corresponding Y product first for the wall cross product. The sprite test uses the two endpoint and sprite deltas directly. Local pointer aliases, short wall indices and different product orders left allocation differences. The selected `wallfront` extent is 553 bytes, within one byte of the target. |
-| 1994-11-23 tiled parallax sky entry and December `calcwalls` at `1:34b24-34c57` | Cache wall X repeat for the projection numerator, reread the horizontal span from `xb1/xb2`, and derive odd columns using the neighboring dword samples. This region is closer to the oracle. The sky path remains open. Two independent sky-array bindings follow the November feature's tile and scale operands. |
-| 1994-12-28 wall/sprite palette proposal, 1995-01-01 map v6, 1995-01-03 column-width change, December `drawmaskwall` | Recover the unscaled reciprocal depths and scale the initial depth and step for nondefault widths. The wall-front test compares a wall index with the returned foreground index. Closed spans assign dword clip pairs in loops. The 1,890-byte extent is recovered. Alternate X-repeat staging and shift comparisons changed allocation without matching the whole function. |
-| 1994-04-22 inline interpolation precedent, 1995-01-03 clip-column change, December `wallmost` | Compare against top and bottom screen extents relative to the horizon, clip at `ytop/ybot`, and divide the original Z by each endpoint depth before applying the viewport scale. The dword `qinterpolatedown16` uses `jecxz` and `loop` at all five target sites. The two uninitialized clipping globals disappear. |
-| 1994-10-06 and June 1995 `BUILD.H` | The older header has no `vidoption`. The June header defines it, and the integrated December source has no users. Removing that byte aligns the complete named byte tail with the oracle. |
+| 1994-11-23 tiled skies, 1994-12-28 drawing and palettes, and `1:35052-35682` | `calcwalls` compares the resolved sky tile IDs at segment endpoints, including when two sky positions use the same tile. Both sky passes traverse the `p2` chain to the -1 sentinel. The type-2 sky uses `divscale(16384L,(long)sintable[...],16)`. The direct signed lookup and shift/divide sequence are visible at `1:35381-3539f`. The ceiling orientation assignment uses the earlier source order. |
+| December `1:34c84-34cb9`, `1:34da6-34fdd` | The right edge compares the shifted repeat against the live last column. Picking selects ceiling, floor and solid walls in order. On portals it can test both edges, then tests a one-way wall only while no hit was selected. Wall, status and hit stores follow the oracle order. The changelog does not date these implementation details. |
+| 1994-04-22 interpolation precedent and `1:34d8c-34d9a`, `1:3c6bd-3c6cb` | Plain dword `qinterpolate` uses `jecxz` and `loop`, now restored in `PRAGMAS.H`. The same template applies to the existing calls in `drawmaskwall` and `drawsprite`. With the earlier intermediate layout this change perturbed four existing strict spans. The selected source restores their alignment. |
+| 1994-11-09 `gotsector`, and target `1:34334-34358`, `1:34582-3459f` | `scansector` takes both copies of the scan count from the same value after reading the wall range. It uses the positive ceiling-bit test used in the sprite palette path. `wallfront` uses ordinary two-endpoint products with the original subtraction operand order. Both remain NEAR. |
+| 1994-10-06 map-v5 `BUILD.H`, 1994-11-09 `gotsector` | Restore tagged structs without the four typedef aliases. Keep `gotsector` beside `gotpic`, both discovery bitsets. The rule and oracle determine the symbol page, with several placements inside that page giving the same offsets. |
 
-The target also has the earlier `jecxz`/`loop` form of plain `qinterpolate` at `1:34d8c` in `calcwalls` and `1:3c6bd` in `drawmaskwall`. A stock compile with that form changed `calcwalls` by three bytes and shifted the switch-table padding. It regressed `drawalls`, `loadpalette` and `initcache`. The plain helper retains the integrated form until the upstream placement is resolved. The dword-output `qinterpolatedown16` used by `wallmost` retains its recovered form.
+## Bounded register-allocation permuter
+
+`permuter/` adapts the existing Rayman 10.6 source mutator to the pinned 9.5b preprocessor, CP437/CRLF and the serial compiler wrapper. Existing target-body, round-trip, macro, data shape and regression checks remain active. The scorer only prioritized variants. The ordinary verifier decided status. The pilot used seed 942, conservative mutations, a maximum of 20 compiler invocations and 32 seconds of admission time per run. Runs ending on the timer let their last compile finish.
+
+| Function | Compiler invocations | Variants compiled | Ineligible | Best admissible byte diffs | Accepted shape |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `spritewallfront` | 20 | 18 | 0 | 7 ? 7 | Baseline |
+| `setview` | 20 | 18 | 0 | 221 ? 221 | Baseline |
+| `makepalookup` | 2 | 0 | 0 | Guard refused `unsigned` | Baseline |
+| `lintersect` | 9 | 7 | 0 | 339 ? 339 | Baseline |
+| `calcwalls` | 4 | 2 | 2 | 18 ? 18 | Baseline |
+
+The pilots on `spritewallfront`, `setview`, `lintersect`, and `makepalookup` used the integrated source. The `calcwalls` pilot used the 18-byte-diff source before the final picking-store correction. The stock wrapper switched from native Windows to the canonical DOS host during this pass, shortening the number of compiles that fit the later time budgets. The `makepalookup` refusal came from a residual keyword shared with a dormant SDK definition. The program retained that guard. Declaration permutations produced only one diagnostic score for all 18 `spritewallfront` variants. This pilot found no compiler-steered shape to adopt. The manually reconstructed `calcwalls` changes are ordinary rendering expressions and branches.
 
 ## Data ownership and order
 
-- **PROVEN initialized spans.** The stock compiler with fixed staging verifies all 75 `CONST` bytes at `2:1184` and all 237 `_DATA` bytes at `2:2c00`.
-- **STRONG uninitialized extent.** The candidate emits 1,097,937 BSS bytes, down nine from the integrated baseline. That equals the span inferred from `localtilestart` at `2:b1e00` to the exclusive end of the 50-byte anonymous real-mode register block at `2:1bded1`. The RMI starts at `2:1bde9f`, the byte immediately following `visibility`. Its position agrees with the candidate at relative `0x10c09f`. The next contribution's ownership remains open.
-- **PROVEN named tail placement against that base.** The ten one-byte globals from `oldreadch` at `2:1bde95` through `visibility` at `2:1bde9e` all agree. The stock `bssrule.predict` on the same-page byte-symbol slice emits `automapping, vidoption, parallaxtype, visibility` at slice offsets 0, 1, 2, 3 (hashes 71, 94, 101, 185). Removing the unused declaration predicts the latter two offsets moving back by one, as observed in the OMF. This small slice tests the local ordering without assigning pages to the entire engine.
-- **OPEN full order.** There are 203 named BSS publics. The 187 bound ones imply 41 candidate bases. Fifty-four agree with `2:b1e00`. With the stock `size_bucket` and `name_hash`, the target run from `clipobjectval` (bucket 6, hash 31) to `hitwalls` (bucket 6, hash 186) precedes `lastx` (bucket 6, hash 1), requiring a symbol-page break. The candidate puts `lastx` and `palette` ahead of the clip run. The historical first-declaration stream remains unresolved. Retain the distinction between total length, named placements, and the matcher's sectional verification.
+- **PROVEN** All 75 `CONST` bytes at `2:1184` and all 237 `_DATA` bytes at `2:2c00` verify. The candidate BSS size is 1,097,937 bytes, which agrees with the inferred span from `2:b1e00` to `2:1bded1`.
+- **PROVEN** With packed alignment and measured sizes, `bssrule.predict` reproduces the current candidate's 203 BSS starts from its preprocessed ordered declarations. The initial slot is 18. The pre-keyhandler declaration stream has 577 distinct named entries after removing four aliases, down from 581. A modeled four-slot shift alone predicted 172 of the then 187 oracle bindings at the correct offsets. Moving `gotsector` into the later page predicted all 187, confirmed by an independent stock compile. The baseline had 54 agreeing addresses and 41 implied bases.
+- **PROVEN** Eight new floor-sprite data bindings follow the oracle's first vertex stores, copies between the two clipping buffers, and screen X/Y projection. The 195 independently bound BSS publics now agree on base `2:b1e00`. The recorded evidence for the eight bindings is in `overlay.json`.
+- **OPEN** The verifier still reports eight unbound BSS publics. The projected offsets get no exact-address fixup votes. The candidate contains the three start-position longs, unused zero-handler vector, two unused shorts, start angle and start sector there. The 50-byte anonymous RMI follows the byte tail. Its size and oracle address are independently suggested by the VESA call, but the matcher requires verified BSS references, and anonymous RMI references still carry that debt.
 
 ## Target function order
 
@@ -69,119 +81,118 @@ Each target extent ends at the next row. The final extent ends at `1:47abf`. The
 | --- | ---: | ---: | ---: | --- | --- |
 | `1:33e5c` | 188 | `00000` | 188 | `keyhandler` | STRICT |
 | `1:33f18` | 928 | `000bc` | 928 | `drawrooms` | NEAR_MATCH |
-| `1:342b8` | 756 | `0045c` | 747 | `scansector` | NEAR_MATCH |
-| `1:345ac` | 554 | `00747` | 553 | `wallfront` | NEAR_MATCH |
-| `1:347d6` | 114 | `00970` | 114 | `spritewallfront` | NEAR_MATCH |
-| `1:34848` | 245 | `009e2` | 245 | `bunchfront` | STRICT |
-| `1:3493d` | 5,068 | `00ad7` | 4,970 | `calcwalls` | NEAR_MATCH |
-| `1:35d09` | 3,811 | `01e41` | 3,811 | `drawalls` | STRICT |
-| `1:36bec` | 1,024 | `02d24` | 1,024 | `addboxlinum` | NEAR_MATCH |
-| `1:36fec` | 1,209 | `03124` | 1,209 | `ceilscan` | STRICT |
-| `1:374a5` | 1,226 | `035dd` | 1,226 | `florscan` | STRICT |
-| `1:3796f` | 2,853 | `03aa7` | 2,853 | `wallscan` | STRICT |
-| `1:38494` | 2,917 | `045cc` | 2,917 | `maskwallscan` | STRICT |
-| `1:38ff9` | 302 | `05131` | 302 | `transmaskwallscan` | STRICT |
-| `1:39127` | 528 | `0525f` | 528 | `loadboard` | STRICT |
-| `1:39337` | 481 | `0546f` | 481 | `saveboard` | STRICT |
-| `1:39518` | 303 | `05650` | 303 | `loadtables` | STRICT |
-| `1:39647` | 510 | `0577f` | 510 | `loadpalette` | STRICT |
-| `1:39845` | 570 | `0597d` | 570 | `setgamemode` | STRICT |
-| `1:39a7f` | 965 | `05bb7` | 965 | `hline` | NEAR_MATCH |
-| `1:39e44` | 636 | `05f7c` | 636 | `transmaskvline` | STRICT |
-| `1:3a0c0` | 921 | `061f8` | 921 | `initengine` | STRICT |
-| `1:3a459` | 219 | `06591` | 219 | `uninitengine` | STRICT |
-| `1:3a534` | 741 | `0666c` | 741 | `nextpage` | STRICT |
-| `1:3a819` | 79 | `06951` | 79 | `initcache` | STRICT |
-| `1:3a868` | 411 | `069a0` | 411 | `allocache` | STRICT |
-| `1:3aa03` | 198 | `06b3b` | 198 | `allocatepermanenttile` | STRICT |
-| `1:3aac9` | 258 | `06c01` | 258 | `loadtile` | STRICT |
-| `1:3abcb` | 773 | `06d03` | 773 | `loadpics` | STRICT |
-| `1:3aed0` | 122 | `07008` | 122 | `showengineinfo` | STRICT |
-| `1:3af4a` | 23 | `07082` | 23 | `resettiming` | STRICT |
-| `1:3af61` | 470 | `07099` | 470 | `clipinsidebox` | STRICT |
-| `1:3b137` | 375 | `0726f` | 375 | `clipinsideboxline` | STRICT |
-| `1:3b2ae` | 226 | `073e6` | 226 | `getpixel16` | STRICT |
-| `1:3b390` | 1,511 | `074c8` | 1,511 | `screencapture` | NEAR_MATCH |
-| `1:3b977` | 271 | `07aaf` | 271 | `inside` | STRICT |
-| `1:3ba86` | 230 | `07bbe` | 230 | `getangle` | STRICT |
-| `1:3bb6c` | 60 | `07ca4` | 60 | `ksqrt` | STRICT |
-| `1:3bba8` | 62 | `07ce0` | 62 | `calcksqrt` | STRICT |
-| `1:3bbe6` | 325 | `07d1e` | 325 | `copytilepiece` | STRICT |
-| `1:3bd2b` | 688 | `07e63` | 688 | `printext` | STRICT |
-| `1:3bfdb` | 839 | `08113` | 839 | `drawmasks` | STRICT |
-| `1:3c322` | 1,890 | `0845a` | 1,890 | `drawmaskwall` | NEAR_MATCH |
-| `1:3ca84` | 9,875 | `08bbc` | 10,425 | `drawsprite` | NEAR_MATCH |
-| `1:3f117` | 402 | `0b475` | 402 | `ceilspritescan` | NEAR_MATCH |
-| `1:3f2a9` | 976 | `0b607` | 1,044 | `ceilspritehline` | NEAR_MATCH |
-| `1:3f679` | 1,063 | `0ba1b` | 1,323 | `overwritesprite` | NEAR_MATCH |
-| `1:3faa0` | 1,358 | `0bf46` | 1,358 | `permanentwritesprite` | NEAR_MATCH |
-| `1:3ffee` | 2,169 | `0c494` | 2,337 | `grouvline` | NEAR_MATCH |
-| `1:40867` | 98 | `0cdb5` | 98 | `setsprite` | STRICT |
-| `1:408c9` | 281 | `0ce17` | 281 | `movesprite` | STRICT |
-| `1:409e2` | 144 | `0cf30` | 144 | `animateoffs` | STRICT |
-| `1:40a72` | 206 | `0cfc0` | 206 | `initspritelists` | NEAR_MATCH |
-| `1:40b40` | 21 | `0d08e` | 21 | `insertsprite` | STRICT |
-| `1:40b55` | 158 | `0d0a3` | 158 | `insertspritesect` | NEAR_MATCH |
-| `1:40bf3` | 156 | `0d141` | 156 | `insertspritestat` | NEAR_MATCH |
-| `1:40c8f` | 20 | `0d1dd` | 20 | `deletesprite` | STRICT |
-| `1:40ca3` | 219 | `0d1f1` | 219 | `deletespritesect` | NEAR_MATCH |
-| `1:40d7e` | 217 | `0d2cc` | 217 | `deletespritestat` | NEAR_MATCH |
-| `1:40e57` | 73 | `0d3a5` | 73 | `changespritesect` | STRICT |
-| `1:40ea0` | 73 | `0d3ee` | 73 | `changespritestat` | STRICT |
-| `1:40ee9` | 233 | `0d437` | 233 | `nextsectorneighborz` | STRICT |
-| `1:40fd2` | 68 | `0d520` | 68 | `zerohandler` | STRICT |
-| `1:41016` | 430 | `0d564` | 388 | `cansee` | NEAR_MATCH |
-| `1:411c4` | 1,745 | `0d6e8` | 1,659 | `hitscan` | NEAR_MATCH |
-| `1:41895` | 1,644 | `0dd63` | 1,583 | `neartag` | NEAR_MATCH |
-| `1:41f01` | 545 | `0e392` | 548 | `lintersect` | NEAR_MATCH |
-| `1:42122` | 252 | `0e5b6` | 252 | `dragpoint` | STRICT |
-| `1:4221e` | 62 | `0e6b2` | 62 | `lastwall` | STRICT |
-| `1:4225c` | 813 | `0e6f0` | 807 | `clipmove` | NEAR_MATCH |
-| `1:42589` | 3,589 | `0ea17` | 3,585 | `getcliplines` | NEAR_MATCH |
-| `1:4338e` | 65 | `0f818` | 65 | `addclipline` | STRICT |
-| `1:433cf` | 355 | `0f859` | 355 | `keepaway` | NEAR_MATCH |
-| `1:43532` | 613 | `0f9bc` | 524 | `raytrace` | NEAR_MATCH |
-| `1:43797` | 202 | `0fbc8` | 202 | `updatesector` | STRICT |
-| `1:43861` | 179 | `0fc92` | 179 | `rotatepoint` | NEAR_MATCH |
-| `1:43914` | 38 | `0fd45` | 38 | `getmousevalues` | STRICT |
-| `1:4393a` | 3 | `0fd6b` | 3 | `printscreeninterrupt` | STRICT |
-| `1:4393d` | 1,541 | `0fd6e` | 1,171 | `drawline16` | NEAR_MATCH |
-| `1:43f42` | 494 | `10201` | 272 | `qsetmode640480` | NEAR_MATCH |
-| `1:44130` | 79 | `10311` | 79 | `clear2dscreen` | STRICT |
-| `1:4417f` | 735 | `10360` | 735 | `draw2dgrid` | NEAR_MATCH |
-| `1:4445e` | 4,585 | `1063f` | 3,169 | `draw2dscreen` | NEAR_MATCH |
-| `1:45647` | 32 | `112a0` | 32 | `krand` | STRICT |
-| `1:45667` | 2,938 | `112c0` | 2,819 | `getzrange` | NEAR_MATCH |
-| `1:461e1` | 229 | `11dc3` | 229 | `makeradarang` | NEAR_MATCH |
-| `1:462c6` | 334 | `11ea8` | 336 | `setview` | NEAR_MATCH |
-| `1:46414` | 186 | `11ff8` | 186 | `precache` | STRICT |
-| `1:464ce` | 1,938 | `120b2` | 1,938 | `wallmost` | STRICT |
-| `1:46c60` | 1,497 | `12844` | 1,538 | `rotatesprite` | NEAR_MATCH |
-| `1:47239` | 599 | `12e46` | 593 | `makepalookup` | NEAR_MATCH |
-| `1:47490` | 292 | `13097` | 292 | `setvesamode` | NEAR_MATCH |
-| `1:475b4` | 229 | `131bb` | 229 | `stereoinit` | STRICT |
-| `1:47699` | 551 | `132a0` | 551 | `setverts` | NEAR_MATCH |
-| `1:478c0` | 177 | `134c7` | 177 | `stereoblit` | STRICT |
-| `1:47971` | 57 | `13578` | 57 | `stereoredblueblit` | STRICT |
-| `1:479aa` | 176 | `135b1` | 176 | `setredbluepalette` | NEAR_MATCH |
-| `1:47a5a` | 101 | `13661` | 101 | `setbrightness` | STRICT |
+| `1:342b8` | 756 | `0045c` | 748 | `scansector` | NEAR_MATCH |
+| `1:345ac` | 554 | `00748` | 562 | `wallfront` | NEAR_MATCH |
+| `1:347d6` | 114 | `0097a` | 114 | `spritewallfront` | NEAR_MATCH |
+| `1:34848` | 245 | `009ec` | 245 | `bunchfront` | STRICT |
+| `1:3493d` | 5,068 | `00ae1` | 5,068 | `calcwalls` | NEAR_MATCH |
+| `1:35d09` | 3,811 | `01ead` | 3,811 | `drawalls` | STRICT |
+| `1:36bec` | 1,024 | `02d90` | 1,024 | `addboxlinum` | STRICT |
+| `1:36fec` | 1,209 | `03190` | 1,209 | `ceilscan` | STRICT |
+| `1:374a5` | 1,226 | `03649` | 1,226 | `florscan` | STRICT |
+| `1:3796f` | 2,853 | `03b13` | 2,853 | `wallscan` | STRICT |
+| `1:38494` | 2,917 | `04638` | 2,917 | `maskwallscan` | STRICT |
+| `1:38ff9` | 302 | `0519d` | 302 | `transmaskwallscan` | STRICT |
+| `1:39127` | 528 | `052cb` | 528 | `loadboard` | STRICT |
+| `1:39337` | 481 | `054db` | 481 | `saveboard` | STRICT |
+| `1:39518` | 303 | `056bc` | 303 | `loadtables` | STRICT |
+| `1:39647` | 510 | `057eb` | 510 | `loadpalette` | STRICT |
+| `1:39845` | 570 | `059e9` | 570 | `setgamemode` | STRICT |
+| `1:39a7f` | 965 | `05c23` | 965 | `hline` | NEAR_MATCH |
+| `1:39e44` | 636 | `05fe8` | 636 | `transmaskvline` | STRICT |
+| `1:3a0c0` | 921 | `06264` | 921 | `initengine` | STRICT |
+| `1:3a459` | 219 | `065fd` | 219 | `uninitengine` | STRICT |
+| `1:3a534` | 741 | `066d8` | 741 | `nextpage` | STRICT |
+| `1:3a819` | 79 | `069bd` | 79 | `initcache` | STRICT |
+| `1:3a868` | 411 | `06a0c` | 411 | `allocache` | STRICT |
+| `1:3aa03` | 198 | `06ba7` | 198 | `allocatepermanenttile` | STRICT |
+| `1:3aac9` | 258 | `06c6d` | 258 | `loadtile` | STRICT |
+| `1:3abcb` | 773 | `06d6f` | 773 | `loadpics` | STRICT |
+| `1:3aed0` | 122 | `07074` | 122 | `showengineinfo` | STRICT |
+| `1:3af4a` | 23 | `070ee` | 23 | `resettiming` | STRICT |
+| `1:3af61` | 470 | `07105` | 470 | `clipinsidebox` | STRICT |
+| `1:3b137` | 375 | `072db` | 375 | `clipinsideboxline` | STRICT |
+| `1:3b2ae` | 226 | `07452` | 226 | `getpixel16` | STRICT |
+| `1:3b390` | 1,511 | `07534` | 1,511 | `screencapture` | NEAR_MATCH |
+| `1:3b977` | 271 | `07b1b` | 271 | `inside` | STRICT |
+| `1:3ba86` | 230 | `07c2a` | 230 | `getangle` | STRICT |
+| `1:3bb6c` | 60 | `07d10` | 60 | `ksqrt` | STRICT |
+| `1:3bba8` | 62 | `07d4c` | 62 | `calcksqrt` | STRICT |
+| `1:3bbe6` | 325 | `07d8a` | 325 | `copytilepiece` | STRICT |
+| `1:3bd2b` | 688 | `07ecf` | 688 | `printext` | STRICT |
+| `1:3bfdb` | 839 | `0817f` | 839 | `drawmasks` | STRICT |
+| `1:3c322` | 1,890 | `084c6` | 1,887 | `drawmaskwall` | NEAR_MATCH |
+| `1:3ca84` | 9,875 | `08c25` | 10,422 | `drawsprite` | NEAR_MATCH |
+| `1:3f117` | 402 | `0b4db` | 402 | `ceilspritescan` | NEAR_MATCH |
+| `1:3f2a9` | 976 | `0b66d` | 1,044 | `ceilspritehline` | NEAR_MATCH |
+| `1:3f679` | 1,063 | `0ba81` | 1,323 | `overwritesprite` | NEAR_MATCH |
+| `1:3faa0` | 1,358 | `0bfac` | 1,358 | `permanentwritesprite` | NEAR_MATCH |
+| `1:3ffee` | 2,169 | `0c4fa` | 2,337 | `grouvline` | NEAR_MATCH |
+| `1:40867` | 98 | `0ce1b` | 98 | `setsprite` | STRICT |
+| `1:408c9` | 281 | `0ce7d` | 281 | `movesprite` | STRICT |
+| `1:409e2` | 144 | `0cf96` | 144 | `animateoffs` | STRICT |
+| `1:40a72` | 206 | `0d026` | 206 | `initspritelists` | NEAR_MATCH |
+| `1:40b40` | 21 | `0d0f4` | 21 | `insertsprite` | STRICT |
+| `1:40b55` | 158 | `0d109` | 158 | `insertspritesect` | NEAR_MATCH |
+| `1:40bf3` | 156 | `0d1a7` | 156 | `insertspritestat` | NEAR_MATCH |
+| `1:40c8f` | 20 | `0d243` | 20 | `deletesprite` | STRICT |
+| `1:40ca3` | 219 | `0d257` | 219 | `deletespritesect` | NEAR_MATCH |
+| `1:40d7e` | 217 | `0d332` | 217 | `deletespritestat` | NEAR_MATCH |
+| `1:40e57` | 73 | `0d40b` | 73 | `changespritesect` | STRICT |
+| `1:40ea0` | 73 | `0d454` | 73 | `changespritestat` | STRICT |
+| `1:40ee9` | 233 | `0d49d` | 233 | `nextsectorneighborz` | STRICT |
+| `1:40fd2` | 68 | `0d586` | 68 | `zerohandler` | STRICT |
+| `1:41016` | 430 | `0d5ca` | 388 | `cansee` | NEAR_MATCH |
+| `1:411c4` | 1,745 | `0d74e` | 1,659 | `hitscan` | NEAR_MATCH |
+| `1:41895` | 1,644 | `0ddc9` | 1,583 | `neartag` | NEAR_MATCH |
+| `1:41f01` | 545 | `0e3f8` | 548 | `lintersect` | NEAR_MATCH |
+| `1:42122` | 252 | `0e61c` | 252 | `dragpoint` | STRICT |
+| `1:4221e` | 62 | `0e718` | 62 | `lastwall` | STRICT |
+| `1:4225c` | 813 | `0e756` | 807 | `clipmove` | NEAR_MATCH |
+| `1:42589` | 3,589 | `0ea7d` | 3,585 | `getcliplines` | NEAR_MATCH |
+| `1:4338e` | 65 | `0f87e` | 65 | `addclipline` | STRICT |
+| `1:433cf` | 355 | `0f8bf` | 355 | `keepaway` | NEAR_MATCH |
+| `1:43532` | 613 | `0fa22` | 524 | `raytrace` | NEAR_MATCH |
+| `1:43797` | 202 | `0fc2e` | 202 | `updatesector` | STRICT |
+| `1:43861` | 179 | `0fcf8` | 179 | `rotatepoint` | NEAR_MATCH |
+| `1:43914` | 38 | `0fdab` | 38 | `getmousevalues` | STRICT |
+| `1:4393a` | 3 | `0fdd1` | 3 | `printscreeninterrupt` | STRICT |
+| `1:4393d` | 1,541 | `0fdd4` | 1,171 | `drawline16` | NEAR_MATCH |
+| `1:43f42` | 494 | `10267` | 272 | `qsetmode640480` | NEAR_MATCH |
+| `1:44130` | 79 | `10377` | 79 | `clear2dscreen` | STRICT |
+| `1:4417f` | 735 | `103c6` | 735 | `draw2dgrid` | NEAR_MATCH |
+| `1:4445e` | 4,585 | `106a5` | 3,169 | `draw2dscreen` | NEAR_MATCH |
+| `1:45647` | 32 | `11306` | 32 | `krand` | STRICT |
+| `1:45667` | 2,938 | `11326` | 2,819 | `getzrange` | NEAR_MATCH |
+| `1:461e1` | 229 | `11e29` | 229 | `makeradarang` | NEAR_MATCH |
+| `1:462c6` | 334 | `11f0e` | 336 | `setview` | NEAR_MATCH |
+| `1:46414` | 186 | `1205e` | 186 | `precache` | STRICT |
+| `1:464ce` | 1,938 | `12118` | 1,938 | `wallmost` | STRICT |
+| `1:46c60` | 1,497 | `128aa` | 1,538 | `rotatesprite` | NEAR_MATCH |
+| `1:47239` | 599 | `12eac` | 593 | `makepalookup` | NEAR_MATCH |
+| `1:47490` | 292 | `130fd` | 292 | `setvesamode` | NEAR_MATCH |
+| `1:475b4` | 229 | `13221` | 229 | `stereoinit` | STRICT |
+| `1:47699` | 551 | `13306` | 551 | `setverts` | NEAR_MATCH |
+| `1:478c0` | 177 | `1352d` | 177 | `stereoblit` | STRICT |
+| `1:47971` | 57 | `135de` | 57 | `stereoredblueblit` | STRICT |
+| `1:479aa` | 176 | `13617` | 176 | `setredbluepalette` | NEAR_MATCH |
+| `1:47a5a` | 101 | `136c7` | 101 | `setbrightness` | STRICT |
 
 ## Remaining first differences
 
-The offsets come from the fresh matcher. Layout entries describe the first differing operand. Source and allocation classifications also note the principal remaining body differences.
+The offsets come from the fresh matcher. Layout entries describe the first differing jump operand. Allocation and source rows record the first mismatch and any established body differences.
 
 | Function | First byte | Candidate / target bytes | Classification |
 | --- | ---: | ---: | --- |
-| `drawrooms` | `+0x271` | 928 / 928 | Layout first, then source and fixup-site differences in bunch traversal |
-| `scansector` | `+0x10` | 747 / 756 | Source/body layout of terminal branch and scan loop |
-| `wallfront` | `+0x27` | 553 / 554 | Register allocation of short wall indices and later comparison flow |
+| `drawrooms` | `+0x283` | 928 / 928 | Layout first, then source and fixup-site differences in bunch traversal |
+| `scansector` | `+0x10` | 748 / 756 | Layout first at the initial return branch, followed by allocation and traversal shape |
+| `wallfront` | `+0x27` | 562 / 554 | Register allocation in wall endpoint loads and the cross products |
 | `spritewallfront` | `+0x1d` | 114 / 114 | Register allocation and load order |
-| `calcwalls` | `+0x16` | 4,970 / 5,068 | Stack allocation, with source differences in sector paint and sky traversal |
-| `addboxlinum` | `+0x1cf` | 1,024 / 1,024 | Layout. Two jumps to the shared zero-return path at `wallfront+221` |
+| `calcwalls` | `+0x20d` | 5,068 / 5,068 | Stack allocation. The projection step and sky tile temporary use exchanged stack homes |
 | `hline` | `+0x5` | 965 / 965 | Register and stack allocation in the prologue, projection and raster arguments |
 | `screencapture` | `+0x34` | 1,511 / 1,511 | Stack slot for the inverse flag. Register scheduling and palette loop still differ across the full extent |
-| `drawmaskwall` | `+0xd6` | 1,890 / 1,890 | Instruction selection and register allocation at the first xrepeat load, with the dword copy-loop form still pending |
-| `drawsprite` | `+0x5` | 10,425 / 9,875 | Stack allocation. Early offset and division forms are restored. Projection and clipping shapes still differ |
+| `drawmaskwall` | `+0xc2` | 1,887 / 1,890 | Instruction selection and register allocation at the first xrepeat load. The historical dword interpolation loop is restored |
+| `drawsprite` | `+0x5` | 10,422 / 9,875 | Stack allocation. Early offset and division forms are restored. Projection and clipping shapes still differ |
 | `ceilspritescan` | `+0x18e` | 402 / 402 | Layout. Displacement to `wallfront+224` |
 | `ceilspritehline` | `+0x6` | 1,044 / 976 | Stack allocation, with source differences in span setup and writers |
 | `overwritesprite` | `+0x5` | 1,323 / 1,063 | Stack allocation, with source differences in column writers |

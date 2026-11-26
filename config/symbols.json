@@ -6087,6 +6087,38 @@
    "scan_ascii_shift": {
     "addr": "2:027b8",
     "evidence": "game2 worker 2026-11-26: The corresponding input branches select this base when either shift key is held. Uppercase and punctuation entries independently identify the US shifted map."
+   },
+   "rzi": {
+    "addr": "2:b5ab0",
+    "evidence": "engine worker 2026-11-26: drawsprite stores the camera depth of vertex zero at 1:3df6a. The array supplies the denominator of both screen projections at 1:3ea02 and 1:3ea1d. 25 exact-address LE fixup sites."
+   },
+   "rxi": {
+    "addr": "2:b6b50",
+    "evidence": "engine worker 2026-11-26: drawsprite stores the camera-horizontal component at 1:3dfa9. The screen-X projection uses it as its numerator at 1:3ea08. 41 exact-address LE fixup sites."
+   },
+   "ryi": {
+    "addr": "2:b6b70",
+    "evidence": "engine worker 2026-11-26: drawsprite writes the scaled sprite Z minus viewer Z at 1:3e17b, then fills the next three entries with that same plane height. It is the numerator of screen Y at 1:3ea29. 34 exact-address LE fixup sites."
+   },
+   "rxi2": {
+    "addr": "2:b6af0",
+    "evidence": "engine worker 2026-11-26: On the first polygon clip, drawsprite copies the horizontal source coordinate from rxi to this destination at 1:3e385 and 1:3e38c. A later clip copies it back at 1:3e878 and 1:3e886. 14 exact-address LE fixup sites."
+   },
+   "ryi2": {
+    "addr": "2:b5a90",
+    "evidence": "engine worker 2026-11-26: drawsprite copies the vertical source coordinate from ryi to this clip destination at 1:3e393 and 1:3e3a1. A later clip copies it back at 1:3e897 and 1:3e8a2. 14 exact-address LE fixup sites."
+   },
+   "rzi2": {
+    "addr": "2:b6b10",
+    "evidence": "engine worker 2026-11-26: drawsprite copies the depth coordinate from rzi to this clip destination at 1:3e39a and 1:3e3ab. A later clip copies it back at 1:3e87f and 1:3e88d. 15 exact-address LE fixup sites."
+   },
+   "xsi": {
+    "addr": "2:b6b30",
+    "evidence": "engine worker 2026-11-26: drawsprite stores projected X at 1:3ea23 after adding xdimen shifted by 15. The next checks clamp this array against zero and xdimen shifted by 16. 17 exact-address LE fixup sites."
+   },
+   "ysi": {
+    "addr": "2:b6ad0",
+    "evidence": "engine worker 2026-11-26: drawsprite stores projected Y at 1:3ea44 after adding globalhoriz shifted by 16. The next checks clamp this array to the top and bottom screen rows. 11 exact-address LE fixup sites."
    }
   }
  }

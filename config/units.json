@@ -104,7 +104,7 @@
      "status": "STRICT"
     },
     "addboxlinum": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "ceilscan": {
      "status": "STRICT"

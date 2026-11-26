@@ -432,7 +432,7 @@ scansector (short sectnum)
 					spritex[spritesortcnt] = (xdimen<<7)+scale(xp,xdimen<<7,yp);
 				spritepicnum[spritesortcnt] = sprite[z].picnum;
 				spritey[spritesortcnt] = yp;
-				if ((sector[sectnum].ceilingstat&1) != 0)
+				if ((sector[sectnum].ceilingstat&1) > 0)
 					spritepal[spritesortcnt] = sector[sectnum].ceilingpal;
 				else
 					spritepal[spritesortcnt] = sector[sectnum].floorpal;
@@ -442,11 +442,9 @@ scansector (short sectnum)
 
 		gotsector[sectnum>>3] |= (1<<(sectnum&7));
 
-		numscansbefore = numscans;
-
 		startwall = sector[sectnum].wallptr;
 		endwall = startwall + sector[sectnum].wallnum - 1;
-		scanfirst = numscans;
+		numscansbefore = scanfirst = numscans;
 		for(z=startwall;z<=endwall;z++)
 		{
 			if (addboxlinum(sectnum,z) == 1) p2[numscans-1] = numscans;
@@ -489,28 +487,28 @@ wallfront (short l1, short l2)
 	x2l2 = wall[w].x;
 	y2l2 = wall[w].y;
 
-	templong1 = (x1l2-x1l1)*(y2l1-y1l1) - (y1l2-y1l1)*(x2l1-x1l1); //p1(l2) vs. l1
-	templong2 = (x2l2-x1l1)*(y2l1-y1l1) - (y2l2-y1l1)*(x2l1-x1l1); //p2(l2) vs. l1
+	templong1 = (x1l2-x1l1)*(y2l1-y1l1) - (x2l1-x1l1)*(y1l2-y1l1); //p1(l2) vs. l1
+	templong2 = (x2l2-x1l1)*(y2l1-y1l1) - (x2l1-x1l1)*(y2l2-y1l1); //p2(l2) vs. l1
 	if ((templong1|templong2) == 0) return(-1);
 	if (templong1 == 0) templong1 = templong2;
 	if (templong2 == 0) templong2 = templong1;
 	if ((templong1 < 0) == (templong2 < 0))
 	{
-		templong0 = (globalposx-x1l1)*(y2l1-y1l1) - (globalposy-y1l1)*(x2l1-x1l1);  //pos vs. l1
+		templong0 = (globalposx-x1l1)*(y2l1-y1l1) - (x2l1-x1l1)*(globalposy-y1l1);  //pos vs. l1
 		if ((templong1<0) == (templong0<0))
 			return(l2);
 		else
 			return(l1);
 	}
 
-	templong1 = (x1l1-x1l2)*(y2l2-y1l2) - (y1l1-y1l2)*(x2l2-x1l2); //p1(l1) vs. l2
-	templong2 = (x2l1-x1l2)*(y2l2-y1l2) - (y2l1-y1l2)*(x2l2-x1l2); //p2(l1) vs. l2
+	templong1 = (x1l1-x1l2)*(y2l2-y1l2) - (x2l2-x1l2)*(y1l1-y1l2); //p1(l1) vs. l2
+	templong2 = (x2l1-x1l2)*(y2l2-y1l2) - (x2l2-x1l2)*(y2l1-y1l2); //p2(l1) vs. l2
 	if ((templong1|templong2) == 0) return(-1);
 	if (templong1 == 0) templong1 = templong2;
 	if (templong2 == 0) templong2 = templong1;
 	if ((templong1 < 0) == (templong2 < 0))
 	{
-		templong0 = (globalposx-x1l2)*(y2l2-y1l2) - (globalposy-y1l2)*(x2l2-x1l2);  //pos vs. l2
+		templong0 = (globalposx-x1l2)*(y2l2-y1l2) - (x2l2-x1l2)*(globalposy-y1l2);  //pos vs. l2
 		if ((templong1<0) == (templong0<0))
 			return(l1);
 		else
@@ -572,7 +570,7 @@ bunchfront (short b1, short b2)
 
 void calcwalls(short bunch)
 {
-	char cstat1, cstat2, andwstat1, andwstat2;
+	char cstat1, cstat2, andwstat2, andwstat1;
 	short z, wallnum, sectnum, nextsectnum;
 	long i, j, k, l, m, n, top, topinc, bot, botinc, x, y;
 	long xrepeat, templong, z1, z2, hplc, hplc2, hinc, daplc, llin, rlin, scalej;
@@ -633,8 +631,8 @@ void calcwalls(short bunch)
 			if (lwall[xb1[z]] < 0) lwall[xb1[z]] = 0;
 			if (wall[wallnum].xrepeat > 0)
 			{
-				k = ((long)wall[wallnum].xrepeat<<9);
-				if (lwall[xb2[z]] >= k) lwall[xb2[z]] = k-1;
+				if (lwall[xb2[z]] >= ((long)wall[wallnum].xrepeat<<9))
+					lwall[xb2[z]] = ((long)wall[wallnum].xrepeat<<9)-1;
 			}
 
 			if ((wall[wallnum].cstat&8) > 0)
@@ -654,59 +652,57 @@ void calcwalls(short bunch)
 		if (searchy <= uplc[searchx])
 		{
 			searchsector = sectnum;
-			searchwall = wallnum;
 			searchstat = 1;  //ceiling
 			searchit = 1;
-			continue;
+			searchwall = wallnum;
 		}
-		if (searchy >= dplc[searchx])
+		else if (searchy >= dplc[searchx])
 		{
 			searchsector = sectnum;
-			searchwall = wallnum;
 			searchstat = 2;  //floor
 			searchit = 1;
-			continue;
+			searchwall = wallnum;
 		}
-		if (nextsectnum == -1)
+		else if (nextsectnum == -1)
 		{
 			searchsector = sectnum;
 			searchwall = wallnum;
 			searchstat = 0;  //wall
 			searchit = 1;
-			continue;
 		}
-		if (sector[nextsectnum].ceilingz > z1)
+		else
 		{
-			y = globalhoriz + mulscale(swall[searchx],sector[nextsectnum].ceilingz-globalposz,24);
-			if (searchy <= y)
+			if (sector[nextsectnum].ceilingz > z1)
+			{
+				y = mulscale(swall[searchx],sector[nextsectnum].ceilingz-globalposz,24)+globalhoriz;
+				if (y >= searchy)
+				{
+					searchsector = sectnum;
+					searchwall = wallnum;
+					searchstat = 0;  //wall
+					searchit = 1;
+				}
+			}
+			if (sector[nextsectnum].floorz < z2)
+			{
+				y = mulscale(swall[searchx],sector[nextsectnum].floorz-globalposz,24)+globalhoriz;
+				if (y <= searchy)
+				{
+					searchsector = sectnum;
+					searchwall = wallnum;
+					if ((wall[wallnum].cstat&2) > 0) searchwall = wall[wallnum].nextwall1;
+					searchstat = 0;  //wall
+					searchit = 1;
+					continue;
+				}
+			}
+			if ((searchit == 2) && ((wall[wallnum].cstat&32) > 0))
 			{
 				searchsector = sectnum;
-				searchwall = wallnum;
-				searchstat = 0;  //wall
+				searchstat = 4;  //1-way wall
 				searchit = 1;
-				continue;
-			}
-		}
-		if (sector[nextsectnum].floorz < z2)
-		{
-			y = globalhoriz + mulscale(swall[searchx],sector[nextsectnum].floorz-globalposz,24);
-			if (searchy >= y)
-			{
-				searchsector = sectnum;
 				searchwall = wallnum;
-				if ((wall[wallnum].cstat&2) > 0) searchwall = wall[wallnum].nextwall1;
-				searchstat = 0;  //wall
-				searchit = 1;
-				continue;
 			}
-		}
-		if ((wall[wallnum].cstat&32) > 0)
-		{
-			searchsector = sectnum;
-			searchwall = wallnum;
-			searchstat = 4;  //1-way wall
-			searchit = 1;
-			continue;
 		}
 	}
 	while ((z = p2[z]) != -1);
@@ -738,7 +734,8 @@ void calcwalls(short bunch)
 
 			x = -1;
 
-			for(z=bunchfirst[bunch];z>=0;z=p2[z])
+			z = bunchfirst[bunch];
+			do
 			{
 				wallnum = thewall[z]; nextsectnum = wall[wallnum].nextsector1;
 
@@ -772,7 +769,7 @@ void calcwalls(short bunch)
 							{
 								uwall[j] = umost[j];
 								dwall[j] = uplc[j];
-								swplc[j] = 16384*65536 / sintable[(radarang2[j]+2560)&2047];
+								swplc[j] = divscale(16384L,(long)sintable[(radarang2[j]+2560)&2047],16);
 								if (xdimen != XDIM)
 									swplc[j] = mulscale(swplc[j],xdimenscale,16);
 								lplc[j] = ((((radarang2[j]+globalang)&2047)>>k)<<6);
@@ -785,7 +782,7 @@ void calcwalls(short bunch)
 					l = globalpicnum; m = (picsiz[globalpicnum]&15)+6;
 					globalpicnum = l+pskyoff[lplc[x]>>m];
 
-					if (((lplc[x]^lplc[xb1[z]-1])>>m) == 0)
+					if (globalpicnum == l+pskyoff[lplc[xb1[z]-1]>>m])
 					{
 						wallscan(x,xb1[z]-1,uwall,dwall,swplc,lplc);
 					}
@@ -795,7 +792,7 @@ void calcwalls(short bunch)
 						while (x < xb1[z])
 						{
 							n = l+pskyoff[lplc[x]>>m];
-							if (n != globalpicnum)
+							if (globalpicnum != n)
 							{
 								wallscan(j,x-1,uwall,dwall,swplc,lplc);
 								j = x;
@@ -811,13 +808,14 @@ void calcwalls(short bunch)
 					x = -1;
 				}
 			}
+			while ((z = p2[z]) != -1);
 
 			if (x >= 0)
 			{
 				l = globalpicnum; m = (picsiz[globalpicnum]&15)+6;
 				globalpicnum = l+pskyoff[lplc[x]>>m];
 
-				if (((lplc[x]^lplc[xb2[bunchlast[bunch]]])>>m) == 0)
+				if (globalpicnum == l+pskyoff[lplc[xb2[bunchlast[bunch]]]>>m])
 				{
 					wallscan(x,xb2[bunchlast[bunch]],uwall,dwall,swplc,lplc);
 				}
@@ -827,7 +825,7 @@ void calcwalls(short bunch)
 					while (x <= xb2[bunchlast[bunch]])
 					{
 						n = l+pskyoff[lplc[x]>>m];
-						if (n != globalpicnum)
+						if (globalpicnum != n)
 						{
 							wallscan(j,x-1,uwall,dwall,swplc,lplc);
 							j = x;
@@ -853,8 +851,8 @@ void calcwalls(short bunch)
 		else if ((cstat2&1) > 0)  //Parallaxing floor SKY
 		{
 			globalpal = sector[sectnum].floorpal;
-			globalorientation = 0L;
 			globalpicnum = sector[sectnum].floorpicnum;
+			globalorientation = 0L;
 			if ((globalpicnum & ~(MAXTILES-1)) != 0) globalpicnum = 0;
 			globalshade = (long)sector[sectnum].floorshade;
 			globalxpanning = (long)sector[sectnum].floorxpanning;
@@ -871,7 +869,8 @@ void calcwalls(short bunch)
 
 			x = -1;
 
-			for(z=bunchfirst[bunch];z>=0;z=p2[z])
+			z = bunchfirst[bunch];
+			do
 			{
 				wallnum = thewall[z]; nextsectnum = wall[wallnum].nextsector1;
 
@@ -905,7 +904,7 @@ void calcwalls(short bunch)
 							{
 								uwall[j] = dplc[j];
 								dwall[j] = dmost[j];
-								swplc[j] = 16384*65536 / sintable[(radarang2[j]+2560)&2047];
+								swplc[j] = divscale(16384L,(long)sintable[(radarang2[j]+2560)&2047],16);
 								if (xdimen != XDIM)
 									swplc[j] = mulscale(swplc[j],xdimenscale,16);
 								lplc[j] = ((((radarang2[j]+globalang)&2047)>>k)<<6);
@@ -918,7 +917,7 @@ void calcwalls(short bunch)
 					l = globalpicnum; m = (picsiz[globalpicnum]&15)+6;
 					globalpicnum = l+pskyoff[lplc[x]>>m];
 
-					if (((lplc[x]^lplc[xb1[z]-1])>>m) == 0)
+					if (globalpicnum == l+pskyoff[lplc[xb1[z]-1]>>m])
 					{
 						wallscan(x,xb1[z]-1,uwall,dwall,swplc,lplc);
 					}
@@ -928,7 +927,7 @@ void calcwalls(short bunch)
 						while (x < xb1[z])
 						{
 							n = l+pskyoff[lplc[x]>>m];
-							if (n != globalpicnum)
+							if (globalpicnum != n)
 							{
 								wallscan(j,x-1,uwall,dwall,swplc,lplc);
 								j = x;
@@ -944,13 +943,14 @@ void calcwalls(short bunch)
 					x = -1;
 				}
 			}
+			while ((z = p2[z]) != -1);
 
 			if (x >= 0)
 			{
 				l = globalpicnum; m = (picsiz[globalpicnum]&15)+6;
 				globalpicnum = l+pskyoff[lplc[x]>>m];
 
-				if (((lplc[x]^lplc[xb2[bunchlast[bunch]]])>>m) == 0)
+				if (globalpicnum == l+pskyoff[lplc[xb2[bunchlast[bunch]]]>>m])
 				{
 					wallscan(x,xb2[bunchlast[bunch]],uwall,dwall,swplc,lplc);
 				}
@@ -960,7 +960,7 @@ void calcwalls(short bunch)
 					while (x <= xb2[bunchlast[bunch]])
 					{
 						n = l+pskyoff[lplc[x]>>m];
-						if (n != globalpicnum)
+						if (globalpicnum != n)
 						{
 							wallscan(j,x-1,uwall,dwall,swplc,lplc);
 							j = x;
@@ -5730,9 +5730,9 @@ clipmove (long *x, long *y, long *z, short *sectnum,
 
 getcliplines(long x, long y, long z, long goalx, long goaly, short sectnum, long walldist, long ceildist, long flordist, char cliptype)
 {
-	walltype *wal, *wal2;
-	spritetype *spr;
-	sectortype *sec, *sec2;
+	struct walltype *wal, *wal2;
+	struct spritetype *spr;
+	struct sectortype *sec, *sec2;
 	long i, j, k, l, clipsectcnt, startwall, endwall;
 	long x1, y1, x2, y2, cx, cy, rad, xmin, ymin, xmax, ymax, daz, daz2;
 	long bsz, dax, day, xoff, yoff, xspan, yspan, cosang, sinang, tilenum;
@@ -6278,7 +6278,7 @@ draw2dgrid(long posxe, long posye, short ange, long zoome, short gride)
 
 draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
 {
-	walltype *wal;
+	struct walltype *wal;
 	long i, j, k, xp1, yp1, xp2, yp2, tempy, templong;
 	char col, mask;
 
@@ -6464,9 +6464,9 @@ getzrange(long x, long y, long z, short sectnum,
 			 long *ceilz, long *ceilhit, long *florz, long *florhit,
 			 long walldist, char cliptype)
 {
-	sectortype *sec;
-	walltype *wal, *wal2;
-	spritetype *spr;
+	struct sectortype *sec;
+	struct walltype *wal, *wal2;
+	struct spritetype *spr;
 	long clipsectcnt, startwall, endwall, tilenum, xoff, yoff, dax, day;
 	long xmin, ymin, xmax, ymax, i, j, k, l, daz, daz2, dx, dy;
 	long x1, y1, x2, y2, x3, y3, x4, y4, ang, cosang, sinang;
