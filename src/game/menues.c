@@ -1,23 +1,48 @@
 #include <stdlib.h>
 #include "menues.h"
 
-struct menu menu_main, menu_pause, menu_episode, menu_skill;
-struct menu menu_load, menu_save, menu_instructions, menu_options;
-struct menu menu_ordering, menu_scores;
+extern struct menu menu_main, menu_pause, menu_episode, menu_skill;
+extern struct menu menu_load, menu_save, menu_instructions, menu_options;
+extern struct menu menu_ordering, menu_scores;
 extern long current_menu;
 extern unsigned long player_bits[];
 extern short sound_volume, music_volume, mouse_sensitivity;
 extern void FX_SetVolume(long volume);
 extern void MUSIC_SetVolume(long volume);
 extern short menu_x, menu_y, menu_mouse, menu_drag, transition_zoom;
-short menu_zoom;
+extern short menu_zoom;
 
 long ripple_count, ripple_phase;
-long ripple_age[16], ripple_x[16], ripple_y[16];
-long ring_count[32], ring_x[32][128], ring_y[32][128];
-long ripple_strength[16];
-unsigned char ripple_palette[128];
 unsigned char ripple_border[130 * 130];
+long ripple_x[16], ripple_y[16];
+
+/* FILE_ID.DIZ notice compared by check_file_id (2:0291c, 500-byte initialised record). Owner by
+   link position (after SOUNDS _DATA, before GAMEDEF _DATA): HYPOTHESIS. */
+char file_id_record[500] =
+    "ллллВБА ALERT THE SYSOP IMMEDIATELY! АБВлллл*ллллллллллллллл"
+    "ллллллллллллллллллллллллллллл*THIS FILE IS NOT SHAREWARE -- "
+    "it is ILLEGAL*and forbidden to upload this copyrighted*softw"
+    "are to bulletin boards. If you see this*message on a BBS, pl"
+    "ease request that the*Sysop remove this software IMMEDIATELY"
+    "!!!*лВБА OR CONTACT APOGEE: (214) 278-5655 АБВл*IT IS ILLEGA"
+    "L TO GET THIS FILE FROM A BBS!*ллллллллллллллллллллллллллллл"
+    "ллллллллллллллл";
+
+#pragma pack(1)
+struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
+    unsigned char visibility, quotes, brightness, sound, music;
+    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
+    unsigned char reserved[4];
+};
+#pragma pack()
+extern struct user_settings userdefs;
+
+/* dataown: one object, one name. The spellings below are fields of the GLOBAL settings block; the extern
+   declarations above keep this unit's symbol slots. */
+#define sound_volume userdefs.sound_volume
+#define music_volume userdefs.music_volume
+#define mouse_sensitivity userdefs.mouse_sensitivity
+#define transition_zoom userdefs.paused
 
 #define SAVE_SLOTS "empty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nBack"
 
@@ -145,6 +170,8 @@ void initmenus(void)
         SLIDER_BODY(x, y, value, shade)                                         \
     }
 
+long ring_count[32], ring_x[32][128], ring_y[32][128];
+
 void draw_menu_slider(short x, short y, short *value, short shade)
 {
     short i;
@@ -242,6 +269,9 @@ long drawmenu(long x, long y, unsigned char *text, short shade0,
         return 0;                                                               \
     }
 
+long ripple_strength[16];
+unsigned char ripple_palette[128];
+
 long probe(struct menu item)
 {
     MENU_INPUT(item)
@@ -290,6 +320,8 @@ long draw_and_probe(struct menu item, unsigned char color)
         drawmenu(selected.x, selected.y, selected.text, color, cursor);         \
         (action) = probe(selected);                                             \
     }
+
+long ripple_age[16];
 
 void menus(void)
 {

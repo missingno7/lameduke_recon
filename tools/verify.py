@@ -58,9 +58,9 @@ def main(argv):
             print(e)
             regressions.append(f"{name}: build failed")
             continue
-        results = []
+        results, segs = [], []
         for m in omf.load(obj):
-            results += match.verify_object(img, m)
+            results += match.verify_object(img, m, None, segs)
         got = {r["function"]: r for r in results}
         rec = ent.setdefault("functions", {})
         for fn, want in rec.items():
@@ -84,6 +84,20 @@ def main(argv):
             if update and RANK[r["status"]] > RANK[rec.get(fn, {}).get("status")]:
                 rec.setdefault(fn, {})["status"] = r["status"]
         report[name] = {fn: {"status": r["status"], "size": r["size"], "oracle": r.get("oracle")} for fn, r in got.items()}
+        # data segments: a recorded VERIFIED segment must stay VERIFIED
+        recs = ent.setdefault("segments", {})
+        seg_now = {g["segment"]: g["status"] for g in segs}
+        for sname, st in recs.items():
+            if st == "VERIFIED" and seg_now.get(sname) != "VERIFIED":
+                regressions.append(f"{name}:segment {sname} VERIFIED -> {seg_now.get(sname)}")
+        if update:
+            for sname, st in seg_now.items():
+                if st == "VERIFIED":
+                    recs[sname] = "VERIFIED"
+        totals.setdefault("verified_data", 0)
+        totals["verified_data"] += sum(g["size"] for g in segs if g["status"] == "VERIFIED" and g["class"].upper() != "BSS")
+        totals.setdefault("verified_bss", 0)
+        totals["verified_bss"] += sum(g["size"] for g in segs if g["status"] == "VERIFIED" and g["class"].upper() == "BSS")
         print(f"{name:20s} " + " ".join(f"{k}={sum(1 for r in got.values() if r['status'] == k)}"
                                         for k in ("STRICT", "CODE_BYTES_MATCH", "NEAR_MATCH", "UNPLACED")))
     dump_json(BUILD / "verify.json", {"totals": totals, "units": report, "regressions": regressions})

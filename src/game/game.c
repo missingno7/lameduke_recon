@@ -29,38 +29,10 @@ extern void setvmode(long mode);
     "int 0x10" \
     parm [eax];
 
-char quote_text[13][32] = {
-    "She's tougher than she looks!",
-    "Go get the gun.",
-    "The reactor must be destroyed!",
-    "Enemy ALERT!!!",
-    "The door is unlocked...",
-    "The door is locked...",
-    "Cola increases health.",
-    "It's CRASHINGING!!!!!",
-    "Shutting airlock bay doors.",
-    "You found a secret room..!",
-    "Pintched by the doors!",
-    "ALL DOORS UNLOCKED!!!",
-    "Falling to your bloody death."
-};
+extern char quote_text[13][32];
 
-/* US PC set-1 printable keys, with zero entries for non-text keys. */
-unsigned char scan_ascii[128] =
-    "\0\0" "1234567890-=" "\0\0"                 /* 00-0f */
-    "qwertyuiop[]" "\0\0" "as"                    /* 10-1f */
-    "dfghjkl;'\x60" "\0" "\\zxcv"                  /* 20-2f */
-    "bnm,./\0*\0 " "\0\0\0\0\0\0"                  /* 30-3f */
-    "\0\0\0\0\0\0\0" "789-456+1"                   /* 40-4f */
-    "230.";                                       /* 50-53 */
-
-unsigned char scan_ascii_shift[128] =
-    "\0\0" "!@#$%^&*()_+" "\0\0"                 /* 00-0f */
-    "QWERTYUIOP{}" "\0\0" "AS"                    /* 10-1f */
-    "DFGHJKL:\"~" "\0" "|ZXCV"                     /* 20-2f */
-    "BNM<>?\0*\0 " "\0\0\0\0\0\0"                  /* 30-3f */
-    "\0\0\0\0\0\0\0" "789-456+1"                   /* 40-4f */
-    "230.";                                       /* 50-53 */
+extern unsigned char scan_ascii[128];
+extern unsigned char scan_ascii_shift[128];
 
 void (__interrupt __far *oldtimerhandler)(void);
 extern short hudpulse;
@@ -259,7 +231,8 @@ struct animwall_entry {
 extern struct animwall_entry animwall[256];
 
 /* Declarations used by the functions in 1:04cd0-0ba30. */
-extern char level_warp, output_path[];
+char level_warp;
+extern char output_path[];
 extern char savegame_filename[], saveboard_filename[], saveboard_missing[];
 extern char help_banner[], help_usage[], help_help[], help_level[], help_volume[];
 extern char help_skill[], help_quotes[], help_debug[], help_record[], help_output[];
@@ -283,7 +256,12 @@ extern void FX_SetVolume(int volume), MUSIC_SetVolume(int volume);
 extern int MUSIC_Init(int card, int address);
 extern void TestCallBack(unsigned long number);
 extern void draw_fade_transition(void);
-extern short bonus_marks[][16];
+/* Bonus-screen tally marks, x/y pairs, eight per episode (2:02304, GAME _DATA). */
+short bonus_marks[3][16] = {
+    { 9, 60, 61, 82, 84, 57, 85, 112, 300, 64, 261, 83, 223, 97, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+};
 extern char bonus_press_space[], bonus_title[], bonus_secrets[], bonus_percent[];
 extern char bonus_points[], bonus_squashed[], bonus_killed[];
 extern long current_menu;
@@ -295,6 +273,18 @@ extern void setbrightness(unsigned char brightness);
 extern void MUSIC_Pause(void), MUSIC_Continue(void);
 extern void qsetmode640480(void);
 extern char score_rank_title[], score_quote_title[], score_score_title[];
+
+
+/* dataown: one object, one name. GLOBAL defines the timer ramps as avel/vel/svel and the 21-byte settings
+   block as userdefs; the separate spellings used here are its fields. */
+extern long avel, vel, svel;
+#define turn_velocity avel
+#define strafe_velocity vel
+#define forward_velocity svel
+#define disable_armor userdefs.debug
+#define gamepaused userdefs.paused
+#define camerasprite userdefs.camera
+#define facing_sprite userdefs.camera
 
 /* The status bar drawing, written out through the helper calls. */
 #define STATUS_BAR(P)                                                     \

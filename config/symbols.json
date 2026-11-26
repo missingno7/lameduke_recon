@@ -4940,18 +4940,6 @@
     "addr": "2:02838",
     "evidence": "sounds worker 2026-11-26: 39 consecutive initialized VOC pointers, independently indexed by loadsounds and the CON compiler at 2ed60."
    },
-   "camerasprite": {
-    "addr": "2:a57b5",
-    "evidence": "sounds worker 2026-11-26: GAME main initializes this word to -1 and display code at ba30 uses the alternate sprite viewpoint. RELOCATION_VOTES 2 sites in 2 byte-matching functions: pan3dsound, xyzsound."
-   },
-   "SoundToggle": {
-    "addr": "2:a57ab",
-    "evidence": "sounds worker 2026-11-26: GAME audio shutdown/restart helper 4cd0 controls the effects path based on this byte."
-   },
-   "MusicToggle": {
-    "addr": "2:1bde42",
-    "evidence": "sounds worker 2026-11-26: GAME 4cd0 and gameexit separately test this byte before calling the music stop/shutdown path."
-   },
    "tempbuf": {
     "addr": "2:a4830",
     "evidence": "gamedef worker 2026-11-26: Shared scratch passed to strcmp by keyword/transword/transnum, also used by game startup and file-ID checks."
@@ -5051,14 +5039,6 @@
    "script_tics": {
     "addr": "2:a57c1",
     "evidence": "gamedef worker 2026-11-26: Game tick loop and player/actor routines use this 8-bit tick increment. Execute adds the same increment to the sprite animation counter."
-   },
-   "disable_armor": {
-    "addr": "2:a57ad",
-    "evidence": "gamedef worker 2026-11-26: Shared gameplay mode value set by newgame/level handling. The name here denotes its local role as the armor gate."
-   },
-   "facing_sprite": {
-    "addr": "2:a57b5",
-    "evidence": "gamedef worker 2026-11-26: Game camera and spritesound use this sprite index as view/listener reference. Runtime ifp compares its angle."
    },
    "player_vel": {
     "addr": "2:a53dd",
@@ -5916,10 +5896,6 @@
     "addr": "2:a539c",
     "evidence": "menues worker 2026-11-26: Shared mouse y field updated by GAME cursor handling; slider and both probe variants also use it."
    },
-   "transition_zoom": {
-    "addr": "2:a57b3",
-    "evidence": "menues worker 2026-11-26: Title sequence 1:5b60 resets and checks this scale independently of the helper's clamp; gameplay transition callers use the same short."
-   },
    "ripple_age": {
     "addr": "2:a59e0",
     "evidence": "menues worker 2026-11-26: Update initializes 16 parallel ages to one and increments/compacts them. Scaled dword indices and neighboring palette establish base and size."
@@ -5967,18 +5943,6 @@
    "current_menu": {
     "addr": "2:a52f0",
     "evidence": "menues worker 2026-11-26: GAME initializes it and PLAYER input at 1:19720 selects menu state; 1:2ccf0 consumes low seven bits and sets the initialization flag."
-   },
-   "sound_volume": {
-    "addr": "2:a57af",
-    "evidence": "menues worker 2026-11-26: USERDEFS.TMP reads the packed 21-byte block including this short; main and the options slider pass it to independently bound FX_SetVolume."
-   },
-   "music_volume": {
-    "addr": "2:a57b1",
-    "evidence": "menues worker 2026-11-26: USERDEFS.TMP packed settings and startup music use; options slider passes the signed short to MUSIC_SetVolume at 1:2d8a8."
-   },
-   "mouse_sensitivity": {
-    "addr": "2:a57b7",
-    "evidence": "menues worker 2026-11-26: Packed USERDEFS settings. PLAYER input and cursor updater consume this short as a scaling value; third options slider directly writes it."
    },
    "menu_ordering": {
     "addr": "2:a5708",
@@ -6040,14 +6004,6 @@
     "addr": "2:a52f4",
     "evidence": "sector worker 2026-11-26: Dword output supplied to the engine neartag distance argument. Identified by the independent engine callee's argument order and distance store."
    },
-   "menupage": {
-    "addr": "2:a52f0",
-    "evidence": "sector worker 2026-11-26: Menu dispatcher at 2ccf0 selects its screen from the dword written here by the player-input menu shortcuts."
-   },
-   "gamepaused": {
-    "addr": "2:a57b3",
-    "evidence": "sector worker 2026-11-26: Player input toggles this word on the pause bit. GAME tick paths at 08ea0 and 00d10 test it and bypass simulation; stage preparation clears it."
-   },
    "lplc": {
     "addr": "2:b6b90",
     "evidence": "engine worker 2026-11-26: calcwalls stores column angle-derived tile coordinates and shifts them to index pskyoff. The address is the final stack argument to wallscan at 1:3547e and recurs at 22 exact-address LE fixup sites."
@@ -6088,10 +6044,6 @@
     "addr": "2:a5304",
     "evidence": "player worker 2026-11-26: GAME tick advancement and demo timing references at 1:08ec9 and 1:08283. Compared with totalclock in PLAYER."
    },
-   "user_visibility": {
-    "addr": "2:a57a8",
-    "evidence": "player worker 2026-11-26: First byte of the 21-byte USERDEFS.TMP settings block read and initialized by GAME. PLAYER copies it to the bound visibility variable."
-   },
    "knee_frames": {
     "addr": "2:02364",
     "evidence": "player worker 2026-11-26: Three display references and one processinput reference, each indexing 20 times the player's sequence byte plus the frame. The same 0xff-terminated sequences recover independently from the image."
@@ -6099,18 +6051,6 @@
    "oldtimerhandler": {
     "addr": "2:0ac50",
     "evidence": "game2 worker 2026-11-26: Far pointer stored at main's _dos_getvect and reloaded in gameexit's _dos_setvect, split into offset at 0ac50 and selector at 0ac54."
-   },
-   "turn_velocity": {
-    "addr": "2:a52f8",
-    "evidence": "game2 worker 2026-11-26: Updated by the timer code for left/right without the strafe modifier. Read by getinput at 1:20e60."
-   },
-   "strafe_velocity": {
-    "addr": "2:a52fc",
-    "evidence": "game2 worker 2026-11-26: Updated by timer left/right with the strafe modifier and used for lateral motion by getinput."
-   },
-   "forward_velocity": {
-    "addr": "2:a5300",
-    "evidence": "game2 worker 2026-11-26: Updated by timer forward/back keys and used for longitudinal motion by getinput."
    },
    "hudpulse": {
     "addr": "2:a5390",
@@ -6499,6 +6439,30 @@
    "fx_device": {
     "addr": "2:a52e4",
     "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: address passed as the second FX_SetupCard argument at 1:05c9d (ASS fx_device *device)"
+   },
+   "level_tick_state": {
+    "addr": "2:a57c0",
+    "evidence": "dataown worker 2026-11-26: enterlevel stores a byte at 2:a57c0 (1:14b5x) in the statement that also clears the bound script_tics; game.c's level_tick_state = script_tics = 0. One-byte bucket of the GLOBAL _BSS between killit_flag and script_tics."
+   },
+   "unref_9d430": {
+    "addr": "2:9d430",
+    "evidence": "dataown worker 2026-11-26: LAYOUT ONLY, no reference in the executable. 16384 bytes between input_text (80 B used by strget) and animatesect in the 8-multiple bucket of the GLOBAL _BSS."
+   },
+   "unref_a539e": {
+    "addr": "2:a539e",
+    "evidence": "dataown worker 2026-11-26: LAYOUT ONLY, no reference. Two-byte slot between menu_y and randomstash in the size-2 bucket of the GLOBAL _BSS."
+   },
+   "unref_a5778": {
+    "addr": "2:a5778",
+    "evidence": "dataown worker 2026-11-26: LAYOUT ONLY, no reference. Unassigned 15-byte menu descriptor slot between menu_instructions and menu_episode (docs/units/menues.md)."
+   },
+   "SoundToggle": {
+    "addr": "2:a57ab",
+    "evidence": "sounds worker 2026-11-26: GAME audio shutdown/restart helper 4cd0 controls the effects path based on this byte. | field alias inside GLOBAL storage (kept for SOUNDS references; GLOBAL defines the enclosing object)"
+   },
+   "camerasprite": {
+    "addr": "2:a57b5",
+    "evidence": "sounds worker 2026-11-26: GAME main initializes this word to -1 and display code at ba30 uses the alternate sprite viewpoint. RELOCATION_VOTES 2 sites in 2 byte-matching functions: pan3dsound, xyzsound. | field alias inside GLOBAL storage (kept for SOUNDS references; GLOBAL defines the enclosing object)"
    }
   }
  }

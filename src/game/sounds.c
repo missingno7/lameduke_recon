@@ -32,6 +32,19 @@ extern struct sound_voice sound_voices[NUM_SOUNDS];
 /* BootLeg CacheMaster bookkeeping owned by this module. */
 long cache_sizes[128], cache_depth, cache_remaining;
 char *cache_cursor;
+#pragma pack(1)
+struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
+    unsigned char visibility, quotes, brightness, sound, music;
+    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
+    unsigned char reserved[4];
+};
+#pragma pack()
+extern struct user_settings userdefs;
+
+/* dataown: one object, one name. The spellings below are the GLOBAL definitions or fields of
+   its settings block; the extern declarations above keep this unit's symbol slots. */
+extern char option[];
+#define MusicToggle option[2]
 
 char *bootleg_cache_alloc(long size)
 {

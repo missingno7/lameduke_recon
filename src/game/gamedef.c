@@ -23,6 +23,27 @@ char *keyw[NUMKEYWORDS] = {
     "include", "ifstrength", "blood", "guts", "ifspawnedby"
 };
 
+/* Compiler and interpreter state, this unit's _BSS (2:b1df0-b1dff); slots come from gamedef.h. */
+char *last_used_text;
+short line_number, total_lines;
+char parsing_state;
+signed char brace_depth;
+unsigned char checking_ifelse;
+short cached_cansee, hit_sprite;
+#pragma pack(1)
+struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
+    unsigned char visibility, quotes, brightness, sound, music;
+    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
+    unsigned char reserved[4];
+};
+#pragma pack()
+extern struct user_settings userdefs;
+
+/* dataown: one object, one name. The spellings below are the GLOBAL definitions or fields of
+   its settings block; the extern declarations above keep this unit's symbol slots. */
+#define disable_armor userdefs.debug
+#define facing_sprite userdefs.camera
+
 short getincangle_shift(short a, short na, short shift)
 {
     a &= 2047;

@@ -221,3 +221,17 @@ Each entry names the command or artefact that supports it.
 - Ordering facts: GAME starts at 1:00010 as in the oracle; SECTOR is the first shifted unit (net code deficits
   SECTOR 736, GAMEDEF 733, ENGINE 713 bytes). CONST order differs from the first byte (GAME's pool must come first).
   The oracle's stack is larger than the stock 4 KiB (ESP differs by 0x974d0 -> option stack / BSS ownership).
+
+## Data ownership (dataown worker 2026-11-26, docs/OWNERSHIP.md)
+- STRONG a code-less object (src/global/global.c; file name HYPOTHESIS, cf. Duke 1.5 GLOBAL.C) defines the shared game
+  storage: _DATA 2:023dc-02838 (1,116 B) and _BSS 2:0ac70-a57c3 (633,683 B), one Watcom size-bucket sequence that
+  interleaves storage used by every game unit. Both segments VERIFIED. Linked after ACTORS.
+- Ownership of all 149 previously undefined game globals assigned with evidence; link undefined symbols 152 -> 58
+  (56 GAME string names still provisional externs + 2); 2 if GAME's strings are literals, but then the compiler merges
+  duplicate strings the original keeps (CONST fails): OPEN.
+- STRONG GAME's code range holds a second object, probably starting at 1:0f160 (own string pool 2:00648-006a8, _BSS
+  mspos at 0ac60). OPEN: every _BSS contribution after GAME's starts paragraph-aligned in the oracle (ours: 4).
+- Registry: 13 alias bindings dropped (one address = one symbol); SoundToggle/camerasprite kept as field aliases
+  inside GLOBAL objects. match.py's BSS layout check now accepts names strictly inside one of the segment's own
+  objects (field aliases); names at object starts or outside objects still fail. verify.py now records VERIFIED data
+  segments per unit and fails on their regression.

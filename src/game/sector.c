@@ -2,13 +2,32 @@
 #include "sector.h"
 #include "operate_helpers.h"
 
-short animatesect[MAXANIMATES];
-long *animateptr[MAXANIMATES];
-long animategoal[MAXANIMATES], animatevel[MAXANIMATES], animatecnt;
-animwalltype animwall[MAXANIMWALLS];
-short numanimwalls;
+extern short animatesect[MAXANIMATES];
+extern long *animateptr[MAXANIMATES];
+extern long animategoal[MAXANIMATES], animatevel[MAXANIMATES], animatecnt;
+extern animwalltype animwall[MAXANIMWALLS];
+extern short numanimwalls;
+/* Interim host. The only _BSS of the object that starts after GAME's (2:0ac60); its users are spawn,
+   resetplayer and prelevel. See OWNERSHIP.md for the second GAME-range object. */
+long mspos;
 extern short neartagsprite, neartagsector, neartagwall;
 extern long neartaghitdist;
+
+#pragma pack(1)
+struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
+    unsigned char visibility, quotes, brightness, sound, music;
+    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
+    unsigned char reserved[4];
+};
+#pragma pack()
+extern struct user_settings userdefs;
+
+/* dataown: one object, one name. The spellings below are the GLOBAL definitions or fields of
+   its settings block; the extern declarations above keep this unit's symbol slots. */
+extern long current_menu;
+#define gamepaused userdefs.paused
+#define disable_armor userdefs.debug
+#define menupage current_menu
 
 short checkcursectnums(short sn)
 {

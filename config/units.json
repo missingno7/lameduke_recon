@@ -68,7 +68,8 @@
     "THLINESKIPMODIFY": {
      "status": "STRICT"
     }
-   }
+   },
+   "segments": {}
   },
   "engine": {
    "source": "src/engine/ENGINE.C",
@@ -388,6 +389,10 @@
     "printext16": {
      "status": "STRICT"
     }
+   },
+   "segments": {
+    "CONST": "VERIFIED",
+    "_DATA": "VERIFIED"
    }
   },
   "ass_adlibfx": {
@@ -439,6 +444,10 @@
     "ADLIBFX_Shutdown": {
      "status": "STRICT"
     }
+   },
+   "segments": {
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   },
   "ass_al_midi": {
@@ -529,6 +538,9 @@
     "AL_Init": {
      "status": "NEAR_MATCH"
     }
+   },
+   "segments": {
+    "CONST": "VERIFIED"
    }
   },
   "ass_awe32": {
@@ -580,6 +592,9 @@
     "AWE32_Shutdown": {
      "status": "CODE_BYTES_MATCH"
     }
+   },
+   "segments": {
+    "_BSS": "VERIFIED"
    }
   },
   "ass_blastold": {
@@ -745,7 +760,8 @@
     "BLASTER_SetupWaveBlaster": {
      "status": "STRICT"
     }
-   }
+   },
+   "segments": {}
   },
   "ass_dma": {
    "source": "src/audiolib/dma.c",
@@ -778,6 +794,9 @@
     "DMA_GetTransferCount": {
      "status": "CODE_BYTES_MATCH"
     }
+   },
+   "segments": {
+    "_DATA": "VERIFIED"
    }
   },
   "ass_dpmi": {
@@ -811,6 +830,9 @@
     "DPMI_UnlockMemory": {
      "status": "CODE_BYTES_MATCH"
     }
+   },
+   "segments": {
+    "_BSS": "VERIFIED"
    }
   },
   "ass_fx_man": {
@@ -868,6 +890,10 @@
     "FX_StopAllSounds": {
      "status": "CODE_BYTES_MATCH"
     }
+   },
+   "segments": {
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   },
   "ass_gmtimbre": {
@@ -879,7 +905,10 @@
    "kind": "c",
    "component": "apogee_sound_system",
    "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
-   "functions": {}
+   "functions": {},
+   "segments": {
+    "_DATA": "VERIFIED"
+   }
   },
   "ass_gus": {
    "source": "src/audiolib/gus.c",
@@ -909,7 +938,11 @@
     "-w4",
     "-d2",
     "-DLIBVER_ASSREV=19950518"
-   ]
+   ],
+   "segments": {
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
+   }
   },
   "ass_gusmidi": {
    "source": "src/audiolib/gusmidi.c",
@@ -972,7 +1005,11 @@
     "-5r",
     "-zp1",
     "-DLIBVER_ASSREV=19950518"
-   ]
+   ],
+   "segments": {
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
+   }
   },
   "ass_guswave": {
    "source": "src/audiolib/guswave.c",
@@ -1038,6 +1075,10 @@
     "GUSWAVE_Init": {
      "status": "CODE_BYTES_MATCH"
     }
+   },
+   "segments": {
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   },
   "ass_irq": {
@@ -1065,7 +1106,8 @@
     "IRQ_D32DosMemAlloc": {
      "status": "STRICT"
     }
-   }
+   },
+   "segments": {}
   },
   "ass_ll_man": {
    "source": "src/audiolib/ll_man.c",
@@ -1092,7 +1134,8 @@
     "LL_LockMemory": {
      "status": "CODE_BYTES_MATCH"
     }
-   }
+   },
+   "segments": {}
   },
   "ass_midi": {
    "source": "src/audiolib/midi.c",
@@ -1182,6 +1225,9 @@
     "MIDI_ServiceRoutine": {
      "status": "STRICT"
     }
+   },
+   "segments": {
+    "_DATA": "VERIFIED"
    }
   },
   "ass_mpu401": {
@@ -1239,6 +1285,10 @@
     "MPU_LockMemory": {
      "status": "CODE_BYTES_MATCH"
     }
+   },
+   "segments": {
+    "CONST": "VERIFIED",
+    "_DATA": "VERIFIED"
    }
   },
   "ass_multivoc": {
@@ -1368,7 +1418,11 @@
     "-zp4",
     "-5r",
     "-DLIBVER_ASSREV=19950518"
-   ]
+   ],
+   "segments": {
+    "CONST": "VERIFIED",
+    "_DATA": "VERIFIED"
+   }
   },
   "ass_music": {
    "source": "src/audiolib/music.c",
@@ -1446,6 +1500,9 @@
     "MUSIC_FadeVolume": {
      "status": "STRICT"
     }
+   },
+   "segments": {
+    "_DATA": "VERIFIED"
    }
   },
   "ass_pas16": {
@@ -1584,7 +1641,8 @@
     "PAS_Shutdown": {
      "status": "STRICT"
     }
-   }
+   },
+   "segments": {}
   },
   "ass_pcfx": {
    "source": "src/audiolib/pcfx.c",
@@ -1638,6 +1696,9 @@
     "PCFX_LockMemory": {
      "status": "CODE_BYTES_MATCH"
     }
+   },
+   "segments": {
+    "_DATA": "VERIFIED"
    }
   },
   "ass_pitch": {
@@ -1665,6 +1726,11 @@
     "PITCH_LockMemory": {
      "status": "CODE_BYTES_MATCH"
     }
+   },
+   "segments": {
+    "CONST": "VERIFIED",
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   },
   "ass_sndsrc": {
@@ -1728,6 +1794,10 @@
     "SS_LockMemory": {
      "status": "CODE_BYTES_MATCH"
     }
+   },
+   "segments": {
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   },
   "ass_task_man": {
@@ -1794,6 +1864,9 @@
     "TS_LockMemory": {
      "status": "CODE_BYTES_MATCH"
     }
+   },
+   "segments": {
+    "_BSS": "VERIFIED"
    }
   },
   "ass_user": {
@@ -1812,7 +1885,8 @@
     "USER_GetText": {
      "status": "CODE_BYTES_MATCH"
     }
-   }
+   },
+   "segments": {}
   },
   "game_sounds": {
    "source": "src/game/sounds.c",
@@ -1866,6 +1940,11 @@
     "TestCallBack": {
      "status": "STRICT"
     }
+   },
+   "segments": {
+    "CONST": "VERIFIED",
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   },
   "game_gamedef": {
@@ -1920,7 +1999,12 @@
      "status": "NEAR_MATCH"
     }
    },
-   "quality": "COMPILER_STEERED: parsecommand calls ispecial/isaltok through #pragma aux aliases so the written-out GET_LABEL/KEYWORD copies keep them as calls (as the original does) under -oe; see docs/units/gamefix5.md"
+   "quality": "COMPILER_STEERED: parsecommand calls ispecial/isaltok through #pragma aux aliases so the written-out GET_LABEL/KEYWORD copies keep them as calls (as the original does) under -oe; see docs/units/gamefix5.md",
+   "segments": {
+    "CONST": "VERIFIED",
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
+   }
   },
   "multi": {
    "source": "src/multi/multi.c",
@@ -2007,6 +2091,10 @@
     "getoutputcirclesize": {
      "status": "STRICT"
     }
+   },
+   "segments": {
+    "CONST": "VERIFIED",
+    "_DATA": "VERIFIED"
    }
   },
   "multi_data": {
@@ -2017,7 +2105,8 @@
    ],
    "kind": "c",
    "provenance": "provisional storage split of MULTI.OBJ",
-   "functions": {}
+   "functions": {},
+   "segments": {}
   },
   "game_menues": {
    "source": "src/game/menues.c",
@@ -2061,6 +2150,11 @@
     "resetparallax": {
      "status": "STRICT"
     }
+   },
+   "segments": {
+    "CONST": "VERIFIED",
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   },
   "game_sector": {
@@ -2126,6 +2220,9 @@
     "allignwarpelevators": {
      "status": "STRICT"
     }
+   },
+   "segments": {
+    "_BSS": "VERIFIED"
    }
   },
   "game_player": {
@@ -2156,11 +2253,14 @@
      "status": "NEAR_MATCH"
     },
     "update_air": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "processinput": {
      "status": "NEAR_MATCH"
     }
+   },
+   "segments": {
+    "_DATA": "VERIFIED"
    }
   },
   "game_game": {
@@ -2275,7 +2375,7 @@
      "status": "NEAR_MATCH"
     },
     "enterlevel": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "timerhandler": {
      "status": "NEAR_MATCH"
@@ -2356,7 +2456,12 @@
      "status": "STRICT"
     }
    },
-   "quality": "COMPILER_STEERED in places: getscorename, next_text_shade, newscore and check_file_id are called through #pragma aux aliases so -oe does not inline them where the oracle keeps calls (docs/units/gamefix6.md); written-out macro copies model the original's expanded bodies"
+   "quality": "COMPILER_STEERED in places: getscorename, next_text_shade, newscore and check_file_id are called through #pragma aux aliases so -oe does not inline them where the oracle keeps calls (docs/units/gamefix6.md); written-out macro copies model the original's expanded bodies",
+   "segments": {
+    "CONST": "VERIFIED",
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
+   }
   },
   "game_actors": {
    "source": "src/game/actors.c",
@@ -2421,6 +2526,23 @@
     "movestandables": {
      "status": "NEAR_MATCH"
     }
+   },
+   "segments": {}
+  },
+  "global": {
+   "source": "src/global/global.c",
+   "profile": "game",
+   "include": [
+    "src/global",
+    "src/game"
+   ],
+   "kind": "c",
+   "provenance": "DATA_ONLY object: shared game storage 2:023dc-02838 (_DATA) and 2:0ac70-a57c3 (_BSS); ownership STRONG (one Watcom size-bucket sequence interleaving storage used by every game unit), file name GLOBAL.C HYPOTHESIS; dataown worker 2026-11-26",
+   "quality": "COMPILER_STEERED declaration order (prototype slots); three unreferenced placeholder variables (unref_*) model layout-only gaps (explicit debt)",
+   "functions": {},
+   "segments": {
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   }
  }

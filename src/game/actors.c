@@ -33,7 +33,20 @@
 #define BLUESPARK 1406
 #define CAM1 1408
 
-long msx[1024], msy[1024];
+extern long msx[1024], msy[1024];
+#pragma pack(1)
+struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
+    unsigned char visibility, quotes, brightness, sound, music;
+    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
+    unsigned char reserved[4];
+};
+#pragma pack()
+extern struct user_settings userdefs;
+
+/* dataown: one object, one name. The spellings below are the GLOBAL definitions or fields of
+   its settings block; the extern declarations above keep this unit's symbol slots. */
+#define disable_armor userdefs.debug
+#define music_volume userdefs.music_volume
 
 void addweapon(short p, unsigned short weapon, unsigned char force)
 {

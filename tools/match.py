@@ -247,8 +247,17 @@ def segment_report(img, mod, seg_base, binds):
                 o2, b2 = bound[0][2][0], bound[0][2][1] - bound[0][1]
                 ent["oracle"] = f"{o2}:{b2:05x}"
                 names = {demangle(n) for n, _ in pubs} | {n for n, _ in pubs}
+                # A bound name strictly inside one of this segment's own objects (between a public and the next) is
+                # a field/element alias of storage defined here (e.g. SOUNDS' SoundToggle inside GLOBAL's settings
+                # block), not a missing definition. Names at an object start or in front of the first public remain
+                # foreign. (2026-11-26, dataown integration)
+                starts = sorted(b2 + o for _, o in pubs)
+                def _field_alias(addr):
+                    import bisect as _b
+                    i = _b.bisect_right(starts, addr) - 1
+                    return i >= 0 and starts[i] < addr and (i + 1 >= len(starts) or addr < starts[i + 1])
                 foreign = [k for k, a in binds.game.items() if a[0] == o2 and b2 <= a[1] < b2 + seg.size
-                           and k not in names]
+                           and k not in names and not _field_alias(a[1])]
                 if foreign:
                     ent["status"] = "MISMATCH"
                     ent["problem"] = "bound globals inside this BSS span not defined here: " + ", ".join(sorted(foreign)[:6])
