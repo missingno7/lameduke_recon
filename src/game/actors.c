@@ -326,12 +326,13 @@ void moveactors(void)
     short i, nexti, j, hit;
 
     for (i = headspritestat[1]; i >= 0; i = nexti) {
-        long *t = hittype[i], dist, d;
+        long *t, dist, d;
         short p, sect;
 
         nexti = nextspritestat[i];
         p = findplayer(i, &dist);
         sect = sprite[i].sectnum;
+        t = hittype[i];
         if (sprite[i].picnum == CAM1) {
             if (dist < 2048)
                 viewscreen = i;

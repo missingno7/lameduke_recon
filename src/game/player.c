@@ -2,8 +2,17 @@
 /* Shared C projectile dispatch used at the original inlining sites. */
 #define SHOOT_BODY(i, tile, move_to_hit) \
 do { \
-    long x, y, z, zvel, distance; \
-    short angle, sect, hitwall, hitsprite, p, j; \
+    long zvel; \
+    long y; \
+    short sect; \
+    long z; \
+    long x; \
+    long distance; \
+    short p; \
+    short angle; \
+    short hitsprite; \
+    short j; \
+    short hitwall; \
  \
     if (move_to_hit) { \
         hitscan(sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum, \
@@ -60,7 +69,7 @@ do { \
         sect = sprite[i].sectnum; \
     } \
  \
-    switch ((unsigned short)tile) { \
+    switch ((long)(unsigned short)tile) { \
     case CLUB: \
         x += sintable[(angle + 544) & 2047] >> 7; \
         y += sintable[(angle + 32) & 2047] >> 7; \
@@ -99,17 +108,15 @@ do { \
 } while (0)
 
 /* The tile IDs used by the prototype and its DEFS.CON. */
-enum {
-    SHOTSPARK1 = 191,
-    LASERSITE = 214,
-    APLAYER = 283,
-    BULLET = 389,
-    RPG = 563,
-    HEAVYHBOMB = 721,
-    HANDREMOTE = 1140,
-    OTHERSHOTSPARK = 1210,
-    CLUB = 1230
-};
+#define SHOTSPARK1 191
+#define LASERSITE 214
+#define APLAYER 283
+#define BULLET 389
+#define RPG 563
+#define HEAVYHBOMB 721
+#define HANDREMOTE 1140
+#define OTHERSHOTSPARK 1210
+#define CLUB 1230
 
 void kickview(short p, short i)
 {
@@ -489,7 +496,9 @@ void processinput(short snum)
     long tics, tics2, cz, ch, fz, fh, xvect, yvect;
     short lotag;
     long eye;
-    unsigned char kick;
+    unsigned char move_to_hit;
+    short i, tile;
+    long kick;
 
     if (ps[snum].health <= 0) {
         if ((sector[ps[snum].cursectnum].lotag & 0x7FFF) == 2) {
@@ -501,13 +510,12 @@ void processinput(short snum)
         }
         return;
     }
-    if (ps[snum].newowner >= 0) {
-        struct spritetype *c = &sprite[ps[snum].newowner];
-
-        ps[snum].posx = c->x;
-        ps[snum].posy = c->y;
-        ps[snum].posz = c->z;
-        ps[snum].ang = c->ang;
+    i = ps[snum].newowner;
+    if (i >= 0) {
+        ps[snum].posx = sprite[i].x;
+        ps[snum].posy = sprite[i].y;
+        ps[snum].posz = sprite[i].z;
+        ps[snum].ang = sprite[i].ang;
         return;
     }
     if (ps[snum].weapon_delay[ps[snum].weapon_slot] > 1)
@@ -518,7 +526,6 @@ void processinput(short snum)
     else if (player_bits[snum] & 0x80)
         ps[snum].lookang += 192;
     ps[snum].lookang -= ps[snum].lookang / 3;
-    xvect = yvect = 0;
     if (ps[snum].state82 >= 0)
         goto domove;
 
@@ -572,15 +579,15 @@ void processinput(short snum)
             player_svel[snum] >>= 2;
         ps[snum].jumping_counter = 0;
         if (player_bits[snum] & 1) {
-            if (ps[snum].poszv <= -2048)
-                ps[snum].poszv = -2048;
-            else
+            if (ps[snum].poszv > -2048)
                 ps[snum].poszv -= 348;
-        } else if (player_bits[snum] & 2) {
-            if (ps[snum].poszv >= 2048)
-                ps[snum].poszv = 2048;
             else
+                ps[snum].poszv = -2048;
+        } else if (player_bits[snum] & 2) {
+            if (ps[snum].poszv < 2048)
                 ps[snum].poszv += 348;
+            else
+                ps[snum].poszv = 2048;
         } else {
             ps[snum].bobcounter += 32;
             ps[snum].poszv += sintable[(2 * ps[snum].bobcounter) & 2047] >> 8;
@@ -595,7 +602,7 @@ void processinput(short snum)
         }
         goto doturn;
     }
-    tics2 = tics * 2;
+    tics2 = tics + tics;
     if (ps[snum].jetpack_on) {
         ps[snum].on_ground = 0;
         ps[snum].jumping_counter = 0;
@@ -637,7 +644,12 @@ void processinput(short snum)
         if (!(player_bits[snum] & 2) && (player_bits[snum] & 0x20))
             tics = tics2;
     }
-    if (fz - (eye << 8) <= ps[snum].posz) {
+    if (fz - (eye << 8) > ps[snum].posz) {
+        ps[snum].on_ground = 0;
+        if (ps[snum].poszv < 6144)
+            ps[snum].poszv += 320;
+        ps[snum].bobcounter = 0;
+    } else {
         if (ps[snum].on_ground == 0 && ps[snum].poszv > 3072) {
             spritesound(9, ps[snum].i);
             ps[snum].hard_landing = (unsigned char)(ps[snum].poszv >> 10);
@@ -660,23 +672,22 @@ void processinput(short snum)
             ps[snum].jumping_counter = 348;
             spritesound(8, ps[snum].i);
         }
-        if ((player_bits[snum] & 2) && ps[snum].on_ground)
-            ps[snum].posz += eye == 40 ? 3072 : 2048;
-    } else {
-        ps[snum].on_ground = 0;
-        if (ps[snum].poszv < 6144)
-            ps[snum].poszv += 320;
-        ps[snum].bobcounter = 0;
+        if ((player_bits[snum] & 2) && ps[snum].on_ground) {
+            if (eye == 40)
+                ps[snum].posz += 3072;
+            else
+                ps[snum].posz += 2048;
+        }
     }
     if (ps[snum].jumping_counter) {
         ps[snum].bobcounter = 1024;
-        if (ps[snum].jumping_counter >= 1024) {
-            ps[snum].jumping_counter = 0;
-            ps[snum].poszv = 0;
-        } else {
+        if (ps[snum].jumping_counter < 1024) {
             ps[snum].on_ground = 0;
             ps[snum].poszv -= sintable[ps[snum].jumping_counter] >> 5;
             ps[snum].jumping_counter += 92;
+        } else {
+            ps[snum].jumping_counter = 0;
+            ps[snum].poszv = 0;
         }
     }
     if (cz + 4096 > ps[snum].posz) {
@@ -695,34 +706,33 @@ doturn:
         lotag = sector[ps[snum].cursectnum].lotag & 0x7FFF;
         if (lotag > 2 && lotag != 23) {
             sector[ps[snum].cursectnum].ceilingz -= 1024;
-            if (disable_armor || ps[snum].armor == 0) {
-                if (ps[snum].health <= 0)
-                    ps[snum].health = 0;
-                else
-                    ps[snum].health -= 5;
-            } else {
+            if (disable_armor == 0 && ps[snum].armor > 0)
                 ps[snum].armor -= 4;
-            }
+            else if (ps[snum].health > 0)
+                ps[snum].health -= 5;
+            else
+                ps[snum].health = 0;
         }
     }
+    xvect = yvect = 0;
     if (player_vel[snum] | player_svel[snum]) {
-        if (sintable[ps[snum].bobcounter & 2047] >> 12 != 3) {
-            ps[snum].footstep = 0;
-        } else if (ps[snum].footstep == 0 && ps[snum].on_ground) {
-            lotag = sector[ps[snum].cursectnum].lotag & 0x7FFF;
-            switch (lotag) {
-            case 2:
-                break;
-            default:
-                spritesound(2, ps[snum].i);
-                ps[snum].footstep = 1;
-                break;
-            case 1:
-                spritesound(28, ps[snum].i);
-                ps[snum].footstep = 1;
-                break;
+        if (sintable[ps[snum].bobcounter & 2047] >> 12 == 3) {
+            if (ps[snum].footstep == 0 && ps[snum].on_ground) {
+                switch (sector[ps[snum].cursectnum].lotag & 0x7FFF) {
+                case 1:
+                    spritesound(28, ps[snum].i);
+                    ps[snum].footstep = 1;
+                    break;
+                case 2:
+                    break;
+                default:
+                    spritesound(2, ps[snum].i);
+                    ps[snum].footstep = 1;
+                    break;
+                }
             }
-        }
+        } else
+            ps[snum].footstep = 0;
         if (ps[snum].hard_landing)
             tics = 0;
         if (player_svel[snum]) {
@@ -810,15 +820,14 @@ domove:
     if (sector[sprite[i].sectnum].floorz - 768 < sprite[i].z)
         sprite[i].z -= 768;
     }
-    if ((kick & 0x7F) == 0 || (kick & 0x7F) == 6) {
-        if (ps[snum].last_weapon >= 0) {
-            ps[snum].weapon_pos = 0x81;
-            ps[snum].last_weapon = -1;
-        }
-    } else if (!(kick & 0x80)) {
-        ps[snum].weapon_pos--;
-    } else {
-        ps[snum].weapon_pos++;
+    if ((kick & 0x7F) && (kick & 0x7F) != 6) {
+        if (kick & 0x80)
+            ps[snum].weapon_pos++;
+        else
+            ps[snum].weapon_pos--;
+    } else if (ps[snum].last_weapon >= 0) {
+        ps[snum].weapon_pos = 0x81;
+        ps[snum].last_weapon = -1;
     }
 
     if ((player_bits[snum] & 4) && ps[snum].kickback_pic == 0 && ps[snum].last_weapon == -1) {
@@ -882,8 +891,9 @@ domove:
         break;
     case SHOTSPARK1:
         if (ps[snum].kickback_pic == 1) {
-            short i = ps[snum].i, tile = SHOTSPARK1;
-            unsigned char move_to_hit = 0;
+            i = ps[snum].i;
+            tile = SHOTSPARK1;
+            move_to_hit = 0;
 
             SHOOT_BODY(i, tile, move_to_hit);
         } else if (ps[snum].kickback_pic == 2)
@@ -898,8 +908,9 @@ domove:
         if (++ps[snum].kickback_pic >= 6)
             ps[snum].kickback_pic = 0;
         if (ps[snum].kickback_pic == 3) {
-            short i = ps[snum].i, tile = BULLET;
-            unsigned char move_to_hit = 0;
+            i = ps[snum].i;
+            tile = BULLET;
+            move_to_hit = 0;
 
             SHOOT_BODY(i, tile, move_to_hit);
         }
@@ -913,8 +924,9 @@ domove:
             if (frame == 3 && ps[snum].kickback_pic == 4 && ps[snum].batteryammo && (player_bits[snum] & 4)
                 && (sector[ps[snum].cursectnum].lotag & 0x7FFF) != 2) {
                 {
-                    short i = ps[snum].i, tile = CLUB;
-                    unsigned char move_to_hit = 0;
+                    i = ps[snum].i;
+                    tile = CLUB;
+                    move_to_hit = 0;
 
                     SHOOT_BODY(i, tile, move_to_hit);
                 }
@@ -925,8 +937,9 @@ domove:
             }
         } else if (frame == 4) {
             {
-                short i = ps[snum].i, tile = CLUB;
-                unsigned char move_to_hit = 0;
+                i = ps[snum].i;
+                tile = CLUB;
+                move_to_hit = 0;
 
                 SHOOT_BODY(i, tile, move_to_hit);
             }
@@ -940,8 +953,9 @@ domove:
             ps[snum].kickback_pic = 11;
             ps[snum].rocket_ammo--;
             {
-                short i = ps[snum].i, tile = RPG;
-                unsigned char move_to_hit = 0;
+                i = ps[snum].i;
+                tile = RPG;
+                move_to_hit = 0;
 
                 SHOOT_BODY(i, tile, move_to_hit);
             }

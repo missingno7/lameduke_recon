@@ -5,6 +5,7 @@
    publics use the callable entry instead. */
 #define SET_ANIMATION_INLINE(sn_, ptr_, goal_, vel_, result_) \
     do { \
+        short sector_ = (sn_); \
         long *position = (ptr_); \
         long target = (goal_); \
         long velocity = (vel_); \
@@ -18,7 +19,7 @@
                     slot = index; \
                     break; \
                 } \
-            animatesect[slot] = (sn_); \
+            animatesect[slot] = sector_; \
             animateptr[slot] = position; \
             animategoal[slot] = target; \
             animatevel[slot] = velocity; \

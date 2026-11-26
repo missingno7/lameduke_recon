@@ -194,3 +194,12 @@ Each entry names the command or artefact that supports it.
   units the patched compilers also give fewer STRICT functions than GA (e.g. GAME 19 vs 26). NEGATIVE: the patch level
   does not explain the remaining read-modify-write / allocation residue in GAME.
 - Consequence: the profile name wc95b means "the 9.5 GA install in C:/tools/watcom-9.5b" (kept for hash pinning).
+
+## Game code-shape rules (gamefix3, 2026-11-26)
+- PROVEN (A/B) Watcom 9.5 compares a `short` against an enum constant in 32 bits but against a #define literal in
+  16 bits (and byte bit tests); the original uses the 16-bit/byte forms: tile and flag constants were #defines
+  (PLAYER, GAMEDEF size fixes). Check every enum compared against short/char in all units.
+- STRONG the original's in-function copies (shoot inside processinput, parse inside execute, setanimation inside
+  operatesectors) keep their parameters in fresh temporaries (no constant folding): written-out macro/copy bodies
+  with argument variables, consistent with the GAME findings.
+- STRONG SECTOR's sprite-list loops are top-tested while loops.

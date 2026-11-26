@@ -557,14 +557,13 @@ void operateactivators(short lotag)
 {
     short i, sn, source;
 
-    for (i = headspritestat[8]; i >= 0; i = nextspritestat[i]) {
-        if (sprite[i].lotag != lotag)
-            continue;
-
-        sn = sprite[i].sectnum;
+    i = headspritestat[8];
+    while (i >= 0) {
+        if (sprite[i].lotag == lotag) {
         if (sprite[i].picnum == 23) {
-            sector[sn].lotag ^= 0x4000;
+            sector[sprite[i].sectnum].lotag ^= 0x4000;
         } else {
+            sn = sprite[i].sectnum;
             source = i;
 /* Sector operation appears both as a public and inside callers. In each
  * context sn identifies the region and source identifies its trigger sprite. */
@@ -668,9 +667,12 @@ void operateactivators(short lotag)
         break;
     }
     case 15:
-        for (a = headspritesect[sn]; a >= 0; a = nextspritesect[a])
+        a = headspritesect[sn];
+        while (a >= 0) {
             if (sprite[a].picnum == SECTOREFFECTOR && sprite[a].lotag == 17)
                 break;
+            a = nextspritesect[a];
+        }
         b = FIND_PLAYER(sn);
         if (b == -1) {
             if (sector[sn].floorz > sprite[a].z)
@@ -734,7 +736,8 @@ elevator_up:
             a = nextsectorneighborz(sn, sector[sn].ceilingz, -1, -1);
             goal = sector[a].ceilingz;
         }
-        for (i = headspritestat[3]; i >= 0; i = nextspritestat[i])
+        i = headspritestat[3];
+        while (i >= 0) {
             if (sprite[i].lotag == 22 && sprite[i].hitag == sector[sn].hitag) {
                 if (sector[sn].lotag & 0x8000)
                     sprite[i].yvel = sector[sn].extra;
@@ -743,15 +746,20 @@ elevator_up:
                 hittype[i][0] = sn;
                 hittype[i][1] = 1;
             }
+            i = nextspritestat[i];
+        }
         sector[sn].lotag ^= 0x8000;
         SET_ANIMATION(&sector[sn].ceilingz, goal, sector[sn].extra);
         spritesound(6, source);
         break;
     case 20:
         if (sector[sn].lotag & 0x8000) {
-            for (i = headspritestat[3]; i >= 0; i = nextspritestat[i])
+            i = headspritestat[3];
+            while (i >= 0) {
                 if (sprite[i].sectnum == sn && sprite[i].lotag == 9)
                     break;
+                i = nextspritestat[i];
+            }
             goal = i == -1 ? sector[sn].floorz : sprite[i].z;
         } else {
             a = nextsectorneighborz(sn, sector[sn].ceilingz, -1, -1);
@@ -821,29 +829,39 @@ elevator_up:
         }
         break;
     case 23:
-        for (i = headspritestat[3]; i >= 0; i = nextspritestat[i])
+        i = headspritestat[3];
+        while (i >= 0) {
             if (sprite[i].lotag == 11 && sprite[i].sectnum == sn && hittype[i][4] == 0)
                 break;
+            i = nextspritestat[i];
+        }
         if (i < 0)
             break;
         sector[sn].lotag ^= 0x8000;
         hittype[i][4] = 1;
         hittype[i][3] = -hittype[i][3];
         spritesound(6, source);
-        for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
+        j = headspritestat[3];
+        while (j >= 0) {
             if (j != i && sprite[j].lotag == 11 && sprite[j].hitag == sprite[i].hitag && hittype[j][4] == 0) {
                 sector[sprite[j].sectnum].lotag ^= 0x8000;
                 hittype[j][4] = 1;
                 hittype[j][3] = -hittype[j][3];
             }
+            j = nextspritestat[j];
+        }
         break;
     case 25:
-        for (i = headspritestat[3]; i >= 0; i = nextspritestat[i])
+        i = headspritestat[3];
+        while (i >= 0) {
             if (sprite[i].lotag == 15 && sprite[i].sectnum == sn)
                 break;
+            i = nextspritestat[i];
+        }
         if (i >= 0)
             spritesound(6, source);
-        for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
+        j = headspritestat[3];
+        while (j >= 0) {
             if (sprite[j].hitag == sprite[i].hitag) {
                 if (sprite[j].lotag == 18)
                     hittype[j][0] ^= 1;
@@ -853,24 +871,35 @@ elevator_up:
                     hittype[j][4] = (sector[sprite[j].sectnum].lotag & 0x8000) ? 1 : 2;
                 }
             }
+            j = nextspritestat[j];
+        }
         break;
     case 27:
-        for (i = headspritestat[3]; i >= 0; i = nextspritestat[i])
+        i = headspritestat[3];
+        while (i >= 0) {
             if ((sprite[i].lotag & 255) == 20 && sprite[i].sectnum == sn) {
                 sector[sn].lotag ^= 0x8000;
                 hittype[i][0] = (sector[sn].lotag & 0x8000) ? 1 : 2;
                 spritesound(6, source);
                 break;
             }
+            i = nextspritestat[i];
+        }
         break;
     case 28:
-        for (i = headspritesect[sn]; i >= 0; i = nextspritesect[i])
+        i = headspritesect[sn];
+        while (i >= 0) {
             if (sprite[i].statnum == 3 && (sprite[i].lotag & 32767) == 21)
                 break;
+            i = nextspritesect[i];
+        }
         goal = sprite[i].hitag;
-        for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
+        j = headspritestat[3];
+        while (j >= 0) {
             if ((sprite[j].lotag & 32767) == 21 && hittype[j][0] == 0 && sprite[j].hitag == goal)
                 hittype[j][0] = 1;
+            j = nextspritestat[j];
+        }
         break;
     }
 #undef SET_ANIMATION
@@ -879,6 +908,8 @@ elevator_up:
 #undef WARP_ELEVATORS
 }
         }
+        }
+        i = nextspritestat[i];
     }
 }
 

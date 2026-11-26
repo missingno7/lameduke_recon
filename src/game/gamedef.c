@@ -602,11 +602,17 @@ short furthestangle(short i, short angs)
     return best_angle;
 }
 
-enum move_flag {
-    SLOW_TO_STOP = 1, FACE_PLAYER = 2, FACE_EXIT = 4, GET_H = 8, GET_V = 16,
-    HOVER = 32, STICK_TO_CEILING = 64, FACE_TO_PLAYER = 128,
-    RHR = 256, ON_OWNER = 512, STICK_TO_FLOOR = 1024
-};
+#define SLOW_TO_STOP 1
+#define FACE_PLAYER 2
+#define FACE_EXIT 4
+#define GET_H 8
+#define GET_V 16
+#define HOVER 32
+#define STICK_TO_CEILING 64
+#define FACE_TO_PLAYER 128
+#define RHR 256
+#define ON_OWNER 512
+#define STICK_TO_FLOOR 1024
 
 void move_actor(short i, short p, long x)
 {
@@ -662,12 +668,12 @@ if (sprite[i].xvel | sprite[i].zvel) {
 #define PARSE_IF(condition) do { \
     if (condition) { \
         insptr += 2; \
-        parse(i, p, x); \
+        parse(PARSE_ARGS); \
     } else { \
         insptr = (long *)insptr[1]; \
         if (*insptr == CON_ELSE) { \
             insptr += 2; \
-            parse(i, p, x); \
+            parse(PARSE_ARGS); \
         } \
     } \
 } while (0)
@@ -684,6 +690,7 @@ char parse(short i, short p, long x)
     if (killit_flag)
         return 1;
 
+#define PARSE_ARGS i, p, x
 #define CON_NEXT() return 0
 #define CON_STOP() return 1
 /* Shared opcode bodies. The caller supplies its continuation and exit. */
@@ -1030,6 +1037,7 @@ default:
 }
 #undef CON_STOP
 #undef CON_NEXT
+#undef PARSE_ARGS
 }
 
 void execute(short i, short p, long x)
@@ -1053,10 +1061,15 @@ void execute(short i, short p, long x)
             hittype[i].actionframe = 0;
     }
 
+    {
+    short i2 = i, p2 = p;
+    long x2 = x;
+
     while (!killit_flag) {
         long j, flags, speed, *resume;
         short angle, difference;
 
+#define PARSE_ARGS i2, p2, x2
 #define CON_NEXT() continue
 #define CON_STOP() goto end_script
 /* Shared opcode bodies. The caller supplies its continuation and exit. */
@@ -1068,12 +1081,12 @@ case CON_IFRND:
 
 case CON_IFCANSEE:
     if (cached_cansee == -1) {
-        angle = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-        difference = getincangle_shift(sprite[i].ang, angle, 0);
+        angle = getangle(ps[p2].posx - sprite[i2].x, ps[p2].posy - sprite[i2].y);
+        difference = getincangle_shift(sprite[i2].ang, angle, 0);
         if (difference > -128 && difference < 128)
-            cached_cansee = cansee(sprite[i].x, sprite[i].y,
-                sprite[i].z - (sprite[i].yrepeat << 7), sprite[i].sectnum,
-                ps[p].posx, ps[p].posy, ps[p].posz - (16 << 8), ps[p].cursectnum);
+            cached_cansee = cansee(sprite[i2].x, sprite[i2].y,
+                sprite[i2].z - (sprite[i2].yrepeat << 7), sprite[i2].sectnum,
+                ps[p2].posx, ps[p2].posy, ps[p2].posz - (16 << 8), ps[p2].cursectnum);
         else
             cached_cansee = 0;
     }
@@ -1081,38 +1094,38 @@ case CON_IFCANSEE:
     CON_NEXT();
 
 case CON_IFHITWEAPON:
-    hit_sprite = ifhitbyweapon(i);
+    hit_sprite = ifhitbyweapon(i2);
     PARSE_IF(hit_sprite >= 0);
     CON_NEXT();
 
 case CON_IFSQUISHED:
-    PARSE_IF(ifsquished(i, p) >= 0);
+    PARSE_IF(ifsquished(i2, p2) >= 0);
     CON_NEXT();
 
 case CON_IFDEAD:
-    if (sprite[i].picnum == APLAYER)
-        j = ps[sprite[i].yvel].health - 1;
+    if (sprite[i2].picnum == APLAYER)
+        j = ps[sprite[i2].yvel].health - 1;
     else
-        j = sprite[i].extra;
+        j = sprite[i2].extra;
     PARSE_IF(j < 0);
     CON_NEXT();
 
 case CON_ACTION:
-    hittype[i].actioncount = 0;
-    hittype[i].actionframe = 0;
+    hittype[i2].actioncount = 0;
+    hittype[i2].actionframe = 0;
     insptr++;
-    hittype[i].action = (long *)*insptr;
+    hittype[i2].action = (long *)*insptr;
     insptr++;
     CON_NEXT();
 
 case CON_IFPDISTL:
     insptr++;
-    PARSE_IF(x < *insptr);
+    PARSE_IF(x2 < *insptr);
     CON_NEXT();
 
 case CON_IFPDISTG:
     insptr++;
-    PARSE_IF(x > *insptr);
+    PARSE_IF(x2 > *insptr);
     CON_NEXT();
 
 case CON_ELSE:
@@ -1121,45 +1134,45 @@ case CON_ELSE:
 
 case CON_STRENGTH:
     insptr++;
-    if (sprite[i].picnum == APLAYER)
-        ps[sprite[i].yvel].health = *insptr;
+    if (sprite[i2].picnum == APLAYER)
+        ps[sprite[i2].yvel].health = *insptr;
     else
-        sprite[i].extra = *insptr;
+        sprite[i2].extra = *insptr;
     insptr++;
     CON_NEXT();
 
 case CON_CACTOR:
     insptr++;
-    sprite[i].picnum = *insptr++;
+    sprite[i2].picnum = *insptr++;
     CON_NEXT();
 
 case CON_SHOOT:
     insptr++;
-    shoot(i, *insptr);
+    shoot(i2, *insptr);
     insptr++;
     CON_NEXT();
 
 case CON_ADDSCORE:
     insptr++;
-    ps[p].score += *insptr;
+    ps[p2].score += *insptr;
     insptr++;
     CON_NEXT();
 
 case CON_SOUND:
     insptr++;
-    spritesound(*insptr, i);
+    spritesound(*insptr, i2);
     insptr++;
     CON_NEXT();
 
 case CON_FALL:
     insptr++;
-    if (sprite[i].z < sector[sprite[i].sectnum].floorz) {
-        if (sprite[i].zvel < 2048)
-            sprite[i].zvel += 256;
-        sprite[i].z += sprite[i].zvel;
+    if (sprite[i2].z < sector[sprite[i2].sectnum].floorz) {
+        if (sprite[i2].zvel < 2048)
+            sprite[i2].zvel += 256;
+        sprite[i2].z += sprite[i2].zvel;
     } else {
-        sprite[i].zvel = 0;
-        sprite[i].z = sector[sprite[i].sectnum].floorz;
+        sprite[i2].zvel = 0;
+        sprite[i2].z = sector[sprite[i2].sectnum].floorz;
     }
     CON_NEXT();
 
@@ -1169,13 +1182,13 @@ case CON_RBRACE:
 
 case CON_ADDBATTERYAMMO:
     insptr++;
-    ps[p].batteryammo += *insptr;
+    ps[p2].batteryammo += *insptr;
     insptr++;
     CON_NEXT();
 
 case CON_NUKE:
     insptr++;
-    nuke(sprite[i].x, sprite[i].y, sprite[i].z, i);
+    nuke(sprite[i2].x, sprite[i2].y, sprite[i2].z, i2);
     CON_NEXT();
 
 case CON_KILLIT:
@@ -1185,7 +1198,7 @@ case CON_KILLIT:
 
 case CON_ADDWEAPON:
     insptr++;
-    addweapon(p, *insptr, 0);
+    addweapon(p2, *insptr, 0);
     insptr++;
     CON_NEXT();
 
@@ -1195,41 +1208,41 @@ case CON_WEAPON:
 
 case CON_ADDHEALTH:
     insptr++;
-    if (!disable_armor && ps[p].armor)
-        ps[p].armor -= 4;
-    else if (ps[p].health > 0)
-        ps[p].health += *insptr;
+    if (!disable_armor && ps[p2].armor)
+        ps[p2].armor -= 4;
+    else if (ps[p2].health > 0)
+        ps[p2].health += *insptr;
     else
-        ps[p].health = 0;
+        ps[p2].health = 0;
     insptr++;
     CON_NEXT();
 
 case CON_STATE:
     resume = insptr + 2;
     insptr = (long *)insptr[1];
-    while (!parse(i, p, x))
+    while (!parse(i2, p2, x2))
         ;
     insptr = resume;
     CON_NEXT();
 
 case CON_LBRACE:
     insptr++;
-    while (!parse(i, p, x))
+    while (!parse(i2, p2, x2))
         ;
     CON_NEXT();
 
 case CON_MOVE:
-    hittype[i].movecount = 0;
+    hittype[i2].movecount = 0;
     insptr++;
-    hittype[i].move = (long *)*insptr++;
-    sprite[i].hitag = *insptr++;
-    if (sprite[i].hitag & FACE_EXIT)
-        sprite[i].ang = furthestangle(i, 8);
+    hittype[i2].move = (long *)*insptr++;
+    sprite[i2].hitag = *insptr++;
+    if (sprite[i2].hitag & FACE_EXIT)
+        sprite[i2].ang = furthestangle(i2, 8);
     CON_NEXT();
 
 case CON_SPAWN:
     insptr++;
-    spawn(i, *insptr);
+    spawn(i2, *insptr);
     insptr++;
     CON_NEXT();
 
@@ -1240,156 +1253,156 @@ case CON_IFWASWEAPON:
 
 case CON_IFACTION:
     insptr++;
-    PARSE_IF((long)hittype[i].action == *insptr);
+    PARSE_IF((long)hittype[i2].action == *insptr);
     CON_NEXT();
 
 case CON_IFACTIONCOUNT:
     insptr++;
-    PARSE_IF(hittype[i].actioncount >= *insptr);
+    PARSE_IF(hittype[i2].actioncount >= *insptr);
     CON_NEXT();
 
 case CON_RESETACTIONCOUNT:
     insptr++;
-    hittype[i].actioncount = 0;
+    hittype[i2].actioncount = 0;
     CON_NEXT();
 
 case CON_DEBRIS:
     insptr++;
     for (j = 0; j < *insptr; j++)
-        EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z, 0,
+        EGS(sprite[i2].sectnum, sprite[i2].x, sprite[i2].y, sprite[i2].z, 0,
             SCRAP1 + krand() % 11, -8, 32, 32, krand() & 2047,
-            64 + (krand() & 128), -512 - (krand() & 511), i, 5);
+            64 + (krand() & 128), -512 - (krand() & 511), i2, 5);
     insptr++;
     CON_NEXT();
 
 case CON_IFSKILL:
     insptr++;
-    PARSE_IF(ps[p].skill < *insptr);
+    PARSE_IF(ps[p2].skill < *insptr);
     CON_NEXT();
 
 case CON_CSTAT:
     insptr++;
-    sprite[i].cstat = *insptr++;
+    sprite[i2].cstat = *insptr++;
     CON_NEXT();
 
 case CON_IFMOVE:
     insptr++;
-    PARSE_IF((long)hittype[i].move == *insptr);
+    PARSE_IF((long)hittype[i2].move == *insptr);
     CON_NEXT();
 
 case CON_RESETPLAYER:
     insptr++;
-    resetplayer(p);
+    resetplayer(p2);
     CON_NEXT();
 
 case CON_IFONWATER:
-    PARSE_IF((sector[sprite[i].sectnum].lotag & 32767) == 1 &&
-        sector[sprite[i].sectnum].floorz - sprite[i].z < (sprite[i].yrepeat << 7));
+    PARSE_IF((sector[sprite[i2].sectnum].lotag & 32767) == 1 &&
+        sector[sprite[i2].sectnum].floorz - sprite[i2].z < (sprite[i2].yrepeat << 7));
     CON_NEXT();
 
 case CON_IFINWATER:
-    PARSE_IF((sector[sprite[i].sectnum].lotag & 32767) == 2);
+    PARSE_IF((sector[sprite[i2].sectnum].lotag & 32767) == 2);
     CON_NEXT();
 
 case CON_IFPLAYERSWEAPON:
     insptr++;
-    PARSE_IF(ps[p].curr_weapon == *insptr);
+    PARSE_IF(ps[p2].curr_weapon == *insptr);
     CON_NEXT();
 
 case CON_IFMOVECOUNT:
     insptr++;
-    PARSE_IF(hittype[i].movecount >= *insptr);
+    PARSE_IF(hittype[i2].movecount >= *insptr);
     CON_NEXT();
 
 case CON_RESETMOVECOUNT:
     insptr++;
-    hittype[i].movecount = 0;
+    hittype[i2].movecount = 0;
     CON_NEXT();
 
 case CON_ADDINVENTORY:
     insptr++;
     switch (*insptr) {
-    case 0: ps[p].inventory[2] = 1; break;
-    case 1: ps[p].inventory[3] = 1; break;
-    case 2: ps[p].inventory[0] = 1; break;
-    case 3: ps[p].inventory[4] = 1; break;
-    case 4: ps[p].inventory[1] = 1; break;
+    case 0: ps[p2].inventory[2] = 1; break;
+    case 1: ps[p2].inventory[3] = 1; break;
+    case 2: ps[p2].inventory[0] = 1; break;
+    case 3: ps[p2].inventory[4] = 1; break;
+    case 4: ps[p2].inventory[1] = 1; break;
     }
     insptr++;
     CON_NEXT();
 
 case CON_ADDAMMO:
     insptr++;
-    ps[p].ammo += *insptr;
+    ps[p2].ammo += *insptr;
     insptr++;
     CON_NEXT();
 
 case CON_HITRADIUS:
-    hitradius(i, insptr[1], insptr[2]);
+    hitradius(i2, insptr[1], insptr[2]);
     insptr += 3;
     CON_NEXT();
 
 case CON_IFP:
     insptr++;
     flags = *insptr;
-    speed = player_vel[p] + player_svel[p];
-    PARSE_IF(((flags & 8) && ps[p].on_ground && (player_bits[p] & 2)) ||
-        ((flags & 16) && !ps[p].poszv && !ps[p].on_ground &&
-            sector[ps[p].cursectnum].floorz - ps[p].posz > 18432) ||
-        ((flags & 32) && ps[p].poszv > 348) ||
+    speed = player_vel[p2] + player_svel[p2];
+    PARSE_IF(((flags & 8) && ps[p2].on_ground && (player_bits[p2] & 2)) ||
+        ((flags & 16) && !ps[p2].poszv && !ps[p2].on_ground &&
+            sector[ps[p2].cursectnum].floorz - ps[p2].posz > 18432) ||
+        ((flags & 32) && ps[p2].poszv > 348) ||
         ((flags & 1) && speed >= 0 && speed < 8) ||
-        ((flags & 2) && speed >= 8 && !(player_bits[p] & 32)) ||
-        ((flags & 4) && speed >= 8 && (player_bits[p] & 32)) ||
-        ((flags & 64) && sprite[i].z - 12288 > ps[p].posz) ||
-        ((flags & 128) && speed <= -8 && !(player_bits[p] & 32)) ||
-        ((flags & 256) && speed <= -8 && (player_bits[p] & 32)) ||
-        ((flags & 512) && ps[p].horiz < -128) ||
-        ((flags & 1024) && ps[p].horiz > 128) ||
+        ((flags & 2) && speed >= 8 && !(player_bits[p2] & 32)) ||
+        ((flags & 4) && speed >= 8 && (player_bits[p2] & 32)) ||
+        ((flags & 64) && sprite[i2].z - 12288 > ps[p2].posz) ||
+        ((flags & 128) && speed <= -8 && !(player_bits[p2] & 32)) ||
+        ((flags & 256) && speed <= -8 && (player_bits[p2] & 32)) ||
+        ((flags & 512) && ps[p2].horiz < -128) ||
+        ((flags & 1024) && ps[p2].horiz > 128) ||
         ((flags & 2048) ?
-            ((((sprite[i].ang + 3200 - sprite[facing_sprite].ang) & 2047) >> 8) < 2) :
-            (((flags & 4096) && ps[p].shooting) ||
-             ((flags & 8192) && ps[p].on_ground) ||
-             ((flags & 16384) && ps[p].jetpack_on))));
+            ((((sprite[i2].ang + 3200 - sprite[facing_sprite].ang) & 2047) >> 8) < 2) :
+            (((flags & 4096) && ps[p2].shooting) ||
+             ((flags & 8192) && ps[p2].on_ground) ||
+             ((flags & 16384) && ps[p2].jetpack_on))));
     CON_NEXT();
 
 case CON_ADDRAMMO:
     insptr++;
-    ps[p].rammo += *insptr;
+    ps[p2].rammo += *insptr;
     insptr++;
     CON_NEXT();
 
 case CON_SINK:
-    sprite[i].z += 4096;
-    sprite[i].xvel >>= 1;
+    sprite[i2].z += 4096;
+    sprite[i2].xvel >>= 1;
     insptr++;
     CON_NEXT();
 
 case CON_IFSTRENGTH:
     insptr++;
-    if (sprite[i].picnum == APLAYER)
-        j = ps[sprite[i].yvel].health;
+    if (sprite[i2].picnum == APLAYER)
+        j = ps[sprite[i2].yvel].health;
     else
-        j = sprite[i].extra;
+        j = sprite[i2].extra;
     PARSE_IF(j <= *insptr);
     CON_NEXT();
 
 case CON_BLOOD:
     insptr++;
     for (j = 0; j < *insptr; j++)
-        EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - 8192,
+        EGS(sprite[i2].sectnum, sprite[i2].x, sprite[i2].y, sprite[i2].z - 8192,
             krand() & 2, BLOOD, -16, 8 + (krand() & 7), 8 + (krand() & 7),
-            sprite[i].ang + (krand() & 127), 0, -1024 - (krand() & 255), i, 5);
+            sprite[i2].ang + (krand() & 127), 0, -1024 - (krand() & 255), i2, 5);
     insptr++;
     CON_NEXT();
 
 case CON_GUTS:
     insptr++;
-    guts(i);
+    guts(i2);
     CON_NEXT();
 
 case CON_IFSPAWNEDBY:
     insptr++;
-    PARSE_IF(sprite[i].owner >= 0 && sprite[i].owner == *insptr);
+    PARSE_IF(sprite[i2].owner >= 0 && sprite[i2].owner == *insptr);
     CON_NEXT();
 
 case CON_ENDA:
@@ -1398,11 +1411,14 @@ case CON_ENDS:
     CON_STOP();
 
 default:
-    gameexit(ltoa(sprite[i].picnum, tempbuf, 10));
+    gameexit(ltoa(sprite[i2].picnum, tempbuf, 10));
     CON_STOP();
 }
 #undef CON_STOP
 #undef CON_NEXT
+#undef PARSE_ARGS
+    }
+
     }
 
 end_script:
