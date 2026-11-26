@@ -10,6 +10,9 @@ Each entry names the command or artefact that supports it.
 - PROVEN two objects: obj1 code base 0x10000 vsize 0x6c445 (109 pages); obj2 data base 0x80000 vsize 0x1c99d0
   (11 pages, 0xb000 file-backed = initialised data; rest BSS; ESP = obj2:0x1c99d0). EIP = obj1:0x62e00 (cstart).
 - PROVEN 21046 internal fixups, all source type 0x07 (32-bit offset); none are selector/import fixups.
+- PROVEN provenance: archive.org item `lameduke` (lameduke.zip, md5 81a0a391cd064b4279b6f995fada7eda) contains a
+  D3D.EXE identical to the oracle, dated 1994-12-30 18:38; SETUP.EXE 1994-12-29 15:01; DOS4GW.EXE 1994-05-31;
+  GAME.CON 1994-12-30 19:47 (after the EXE); TILES001.ART 1995-01-01; demos to 1995-01-02.
 - PROVEN resident module name `game` (linked output was GAME.EXE).
 - PROVEN distributed DOS4GW.EXE = DOS/4GW 1.95 (Nov 23 1993), byte-identical to `C:/tools/watcom-10.0/BIN/dos4gw.exe`.
 - OPEN the 10418-byte MZ stub matches no installed WSTUB.EXE (9.5b 10386, 10.0 10610 bytes).
@@ -21,6 +24,9 @@ Each entry names the command or artefact that supports it.
   (10.0/10.0a say 1988-1994, 10.5+ 1988-1995). `libscan.py --compare` 9.5b vs 10.0 CLIB3R: 9.5b has 86 exact+sites
   whole-member hits, 10.0 only trivially small ones. With MATH387R/MATH3R: 104 exact+sites members, 20,790 bytes
   (`build/scan/clib95b.json`). Runtime occupies roughly obj1:0x62d8d-0x6b685, cstart at 0x62e00.
+- PROVEN runtime patch level is 9.5b, not 9.5c: the 9.5c (1994-06-30) CLIB3R replacement library (c32_c.zip
+  3CRDL.C, an OMF library) has changed versions of scnf, sbrk386, nmalloc, grownear, fputs; none of them occurs in the
+  target while their 9.5b versions match exact+sites. (close and fclose are unchanged and match in both.)
 - OPEN 3 masked (sites-differ) members: sscanf, initrtns, chk8087; unexplained runtime gaps in 0x62d8d-0x6b685.
 
 ## Compiler calibration (2026-11-26)

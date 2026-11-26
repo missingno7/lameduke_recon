@@ -24,15 +24,84 @@
    "announcement": "https://forums.duke4.net/topic/10589-release-historical-build-engine-object-files-and-sources/",
    "license": "Ken Silverman BUILDLIC.TXT",
    "relevance": "1995-1997 engine objects/sources (SRC_9505 A.OBJ/ENGINE.OBJ). Later than the target."
+  },
+  "lameduke": {
+   "url": "https://archive.org/download/lameduke/lameduke.zip",
+   "local": "external/dl/lameduke.zip",
+   "md5": "81a0a391cd064b4279b6f995fada7eda",
+   "relevance": "Original 1997 distribution; D3D.EXE identical to oracle; file timestamps."
+  },
+  "watcom95_c32_a": {
+   "url": "https://archive.org/download/Watcom_C_9.5/c32_a.zip",
+   "local": "external/dl/wat95_c32_a.zip",
+   "md5": "c2d9836ae40542ae9c56960c8fea79c2",
+   "relevance": "Watcom 9.5 32-bit patch kit (a 1993-09, b 1994-01, c 1994-06-30). Library patches are OMF libraries of replacement members; executables use WATCOM binary patch format (BPATCH)."
+  },
+  "watcom95_c32_b": {
+   "url": "https://archive.org/download/Watcom_C_9.5/c32_b.zip",
+   "local": "external/dl/wat95_c32_b.zip",
+   "md5": "913f52403756701a446b37d1b4a01f93",
+   "relevance": "Watcom 9.5 32-bit patch kit (a 1993-09, b 1994-01, c 1994-06-30). Library patches are OMF libraries of replacement members; executables use WATCOM binary patch format (BPATCH)."
+  },
+  "watcom95_c32_c": {
+   "url": "https://archive.org/download/Watcom_C_9.5/c32_c.zip",
+   "local": "external/dl/wat95_c32_c.zip",
+   "md5": "1aa29ed7af293d13bbaa4fc289f9c191",
+   "relevance": "Watcom 9.5 32-bit patch kit (a 1993-09, b 1994-01, c 1994-06-30). Library patches are OMF libraries of replacement members; executables use WATCOM binary patch format (BPATCH)."
   }
  },
  "repositories": {
-  "duke3d-1.3d": {"url": "https://github.com/abedegno/duke3d-1.3d", "commit": "69037cb710a2017f55da983754fc72e225789cc0", "path": "external/duke3d-1.3d", "license": "mixed, see its LICENSE.md (GPL game code, BUILDLIC engine)", "relevance": "Byte-identical Duke3D v1.3D reconstruction (Watcom 10.0, 1996). Infrastructure and research reference; code is ~1 year later than the target."},
-  "exhume": {"url": "https://github.com/abedegno/Exhume.git", "commit": "d566d00f70c6a162d3a35fef8d0aa8c2455f2b20", "path": "external/duke3d-1.3d/exhume"},
-  "dukenukem3d": {"url": "https://github.com/videogamepreservation/dukenukem3d.git", "commit": "ef609159bd352985a0c63734a11241d86c873fe5", "path": "external/duke3d-1.3d/dukenukem3d", "license": "GPLv2 (game) / BUILDLIC (engine)", "relevance": "Duke3D 1.5 released source: semantic reference for game code names and logic."},
-  "audiolib-reconstructions": {"url": "https://github.com/gamesrc-ver-recreation/audiolib.git", "commit": "c363124d376d373441a21b3304eb44d32c0a69f7", "path": "external/duke3d-1.3d/reference/audiolib-reconstructions", "license": "GPLv2", "relevance": "Apogee Sound System 1.04-1.12 reconstructions + original LIBs. ASS 1.04 AUDIO_WF.LIB gives 337 exact function hits in the target."},
-  "build-reconstructions": {"url": "https://github.com/gamesrc-ver-recreation/build.git", "commit": "88ffca1bdb8d93c731f6d02e62ae5119393bc73b", "path": "external/duke3d-1.3d/reference/build-reconstructions", "license": "BUILDLIC", "relevance": "1996-97 engine reconstructions; A.OBJ needs MASM 5.10."},
-  "duke3d-reconstructions": {"url": "https://github.com/gamesrc-ver-recreation/duke3d.git", "commit": "fdb214ceea671341aa03d54d09fb7fe47940d3b7", "path": "external/duke3d-1.3d/reference/duke3d-reconstructions", "license": "GPLv2"},
-  "rayman_recon": {"url": "https://github.com/missingno7/rayman_recon", "commit": "d94c23386860a64f0804c5407ff9e1def7f81400", "path": "external/rayman_recon", "license": "GPLv2", "relevance": "Watcom matching infrastructure; tools/omf.py, match.py, libscan.py, wcc.py adapted here."}
+  "duke3d-1.3d": {
+   "url": "https://github.com/abedegno/duke3d-1.3d",
+   "commit": "69037cb710a2017f55da983754fc72e225789cc0",
+   "path": "external/duke3d-1.3d",
+   "license": "mixed, see its LICENSE.md (GPL game code, BUILDLIC engine)",
+   "relevance": "Byte-identical Duke3D v1.3D reconstruction (Watcom 10.0, 1996). Infrastructure and research reference; code is ~1 year later than the target."
+  },
+  "exhume": {
+   "url": "https://github.com/abedegno/Exhume.git",
+   "commit": "d566d00f70c6a162d3a35fef8d0aa8c2455f2b20",
+   "path": "external/duke3d-1.3d/exhume"
+  },
+  "dukenukem3d": {
+   "url": "https://github.com/videogamepreservation/dukenukem3d.git",
+   "commit": "ef609159bd352985a0c63734a11241d86c873fe5",
+   "path": "external/duke3d-1.3d/dukenukem3d",
+   "license": "GPLv2 (game) / BUILDLIC (engine)",
+   "relevance": "Duke3D 1.5 released source: semantic reference for game code names and logic."
+  },
+  "audiolib-reconstructions": {
+   "url": "https://github.com/gamesrc-ver-recreation/audiolib.git",
+   "commit": "c363124d376d373441a21b3304eb44d32c0a69f7",
+   "path": "external/duke3d-1.3d/reference/audiolib-reconstructions",
+   "license": "GPLv2",
+   "relevance": "Apogee Sound System 1.04-1.12 reconstructions + original LIBs. ASS 1.04 AUDIO_WF.LIB gives 337 exact function hits in the target."
+  },
+  "build-reconstructions": {
+   "url": "https://github.com/gamesrc-ver-recreation/build.git",
+   "commit": "88ffca1bdb8d93c731f6d02e62ae5119393bc73b",
+   "path": "external/duke3d-1.3d/reference/build-reconstructions",
+   "license": "BUILDLIC",
+   "relevance": "1996-97 engine reconstructions; A.OBJ needs MASM 5.10."
+  },
+  "duke3d-reconstructions": {
+   "url": "https://github.com/gamesrc-ver-recreation/duke3d.git",
+   "commit": "fdb214ceea671341aa03d54d09fb7fe47940d3b7",
+   "path": "external/duke3d-1.3d/reference/duke3d-reconstructions",
+   "license": "GPLv2"
+  },
+  "rayman_recon": {
+   "url": "https://github.com/missingno7/rayman_recon",
+   "commit": "d94c23386860a64f0804c5407ff9e1def7f81400",
+   "path": "external/rayman_recon",
+   "license": "GPLv2",
+   "relevance": "Watcom matching infrastructure; tools/omf.py, match.py, libscan.py, wcc.py adapted here."
+  }
+ },
+ "leads": {
+  "tekwar_witchaven": "Les Bird Capstone dev snapshots (archive.org tekwar_source, WHAVEN): Build ENGINE.OBJ 1995-07, A.OBJ 1995-06, built with Watcom 9.5 per author; Witchaven GAME.OBJ 1995-03, BUILD.TXT 1995-09.",
+  "rott_shareware_1_0": "ROTT 1.0 shareware 1994-12-21 (classicdosgames 1rott.zip): Apogee Sound System binary 9 days before LameDuke.",
+  "sw_prototypes": "Shadow Warrior 1995-01-15 / 02-10 prototypes (Steam Shadow Warrior Classic extras): post-LameDuke engine binaries, map v6; unverified.",
+  "convmaps": "advsys.net/ken CONVMAPS.ZIP: map v4-7 converters with source (v5 format)."
  }
 }
