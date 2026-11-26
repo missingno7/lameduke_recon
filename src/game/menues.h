@@ -59,12 +59,12 @@ extern long klabs(long value);
     "skipnegate:" \
     parm nomemory [eax];
 
-/* Historical Build dword copy from BUIL0615/PRAGMAS.H. */
+/* Ken's 1994 copybuf (BUIL0422 ENGINE.C/BUILD.C, also buil1995 PRAGMAS.H) has no modify clause; movelava's
+   register allocation depends on it (kengame worker). */
 extern void copybuf(void *source, void *dest, long count);
 #pragma aux copybuf = \
     "rep movsd" \
-    parm [esi] [edi] [ecx] \
-    modify exact [ecx esi edi];
+    parm [esi] [edi] [ecx];
 
 #endif
 

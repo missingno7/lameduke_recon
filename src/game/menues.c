@@ -12,9 +12,9 @@ extern void MUSIC_SetVolume(long volume);
 extern short menu_x, menu_y, menu_mouse, menu_drag, transition_zoom;
 extern short menu_zoom;
 
-long ripple_count, ripple_phase;
-unsigned char ripple_border[130 * 130];
-long ripple_x[16], ripple_y[16];
+long lavanumdrops, lavanumframes;
+unsigned char lavabakpic[130 * 130];
+long lavadropx[16], lavadropy[16];
 
 /* FILE_ID.DIZ notice compared by check_file_id (2:0291c, 500-byte initialised record). Owner by
    link position (after SOUNDS _DATA, before GAMEDEF _DATA): HYPOTHESIS. */
@@ -170,7 +170,7 @@ void initmenus(void)
         SLIDER_BODY(x, y, value, shade)                                         \
     }
 
-long ring_count[32], ring_x[32][128], ring_y[32][128];
+long lavaradcnt[32], lavaradx[32][128], lavarady[32][128];
 
 void draw_menu_slider(short x, short y, short *value, short shade)
 {
@@ -269,8 +269,8 @@ long drawmenu(long x, long y, unsigned char *text, short shade0,
         return 0;                                                               \
     }
 
-long ripple_strength[16];
-unsigned char ripple_palette[128];
+long lavadropsizlookup[16];
+unsigned char lavainc[128];
 
 long probe(struct menu item)
 {
@@ -321,7 +321,7 @@ long draw_and_probe(struct menu item, unsigned char color)
         (action) = probe(selected);                                             \
     }
 
-long ripple_age[16];
+long lavadropsiz[16];
 
 void menus(void)
 {
@@ -520,118 +520,134 @@ void vscrn(short p)
         setview(margin, margin, 319 - margin, 199 - margin);
 }
 
-void init_water_ripples(void)
+/* Ken Silverman's lava/water effect (Ken-Build GAME.C initlava/movelava; BUILD.TXT 9/29/94). LameDuke uses
+   at most 16 drops and the palette base 64 where Ken's June-1995 GAME.C has 32 drops and 192. */
+#define LAVASIZ 128
+#define LAVALOGSIZ 7
+#define LAVAMAXDROPS 16
+
+void initlava(void)
 {
-    long x, y, radius, i;
+    long x, y, z, r;
 
     for (x = -16; x <= 16; x++)
-    {
         for (y = -16; y <= 16; y++)
         {
-            radius = ksqrt(x * x + y * y);
-            ring_y[radius][ring_count[radius]] = y;
-            ring_x[radius][ring_count[radius]] = x;
-            ring_count[radius]++;
+            r = ksqrt(x * x + y * y);
+            lavaradx[r][lavaradcnt[r]] = x;
+            lavarady[r][lavaradcnt[r]] = y;
+            lavaradcnt[r]++;
         }
-    }
-    for (i = 0; i < 16; i++)
-        ripple_strength[i] = 8 / (ksqrt(i) + 1);
-    for (i = 0; i < 128; i++)
-        ripple_palette[i] = (unsigned char)(12 + klabs((((i ^ 17) >> 4) & 7) - 4));
-    ripple_count = 0;
-    ripple_phase = 0;
+
+    for (z = 0; z < 16; z++)
+        lavadropsizlookup[z] = 8 / (ksqrt(z) + 1);
+
+    for (z = 0; z < LAVASIZ; z++)
+        lavainc[z] = klabs((((z ^ 17) >> 4) & 7) - 4) + 12;
+
+    lavanumdrops = 0;
+    lavanumframes = 0;
 }
 
-void animate_water_ripples(unsigned char *pixels)
+void movelava(unsigned char *dapic)
 {
-    long i, j, x, y, n, age, delta, row, col, center;
-    unsigned char *pixel;
-    unsigned char level;
+    unsigned char dat, *ptr;
+    long x, y, z, zx, dalavadropsiz, dadropsizlookup, offs, offs2;
+    long dalavax, dalavay;
 
-    n = 3;
-    if (ripple_count + n >= 16)
-        n = 16 - ripple_count - 1;
-    while (n >= 0)
+    z = 3;
+    if (lavanumdrops + z >= LAVAMAXDROPS)
+        z = LAVAMAXDROPS - lavanumdrops - 1;
+    while (z >= 0)
     {
-        ripple_x[ripple_count] = rand() & 127;
-        ripple_y[ripple_count] = rand() & 127;
-        ripple_age[ripple_count] = 1;
-        ripple_count++;
-        n--;
+        lavadropx[lavanumdrops] = (rand() & (LAVASIZ - 1));
+        lavadropy[lavanumdrops] = (rand() & (LAVASIZ - 1));
+        lavadropsiz[lavanumdrops] = 1;
+        lavanumdrops++;
+        z--;
     }
 
-    for (i = ripple_count - 1; i >= 0; i--)
+    z = lavanumdrops - 1;
+    while (z >= 0)
     {
-        delta = ripple_strength[ripple_age[i]] * ((i & 1) * 2 - 1);
-        age = ripple_age[i];
-        x = ripple_x[i];
-        y = ripple_y[i];
-        for (j = ring_count[age] - 1; j >= 0; j--)
+        dadropsizlookup = lavadropsizlookup[lavadropsiz[z]] * (((z & 1) << 1) - 1);
+        dalavadropsiz = lavadropsiz[z];
+        dalavax = lavadropx[z]; dalavay = lavadropy[z];
+        for (zx = lavaradcnt[lavadropsiz[z]] - 1; zx >= 0; zx--)
         {
-            long column = (ring_x[age][j] + x) & 127;
-            long line = (ring_y[age][j] + y) & 127;
-
-            pixel = &pixels[(column << 7) + line];
-            *pixel += delta;
-            if (*pixel < 64)
-                *pixel = 64;
+            offs = (((lavaradx[dalavadropsiz][zx] + dalavax) & (LAVASIZ - 1)) << LAVALOGSIZ);
+            offs += ((lavarady[dalavadropsiz][zx] + dalavay) & (LAVASIZ - 1));
+            dapic[offs] += dadropsizlookup;
+            if (dapic[offs] < 64) dapic[offs] = 64;
         }
-        if (++ripple_age[i] > 10)
+
+        lavadropsiz[z]++;
+        if (lavadropsiz[z] > 10)
         {
-            --ripple_count;
-            ripple_x[i] = ripple_x[ripple_count];
-            ripple_y[i] = ripple_y[ripple_count];
-            ripple_age[i] = ripple_age[ripple_count];
+            lavanumdrops--;
+            lavadropx[z] = lavadropx[lavanumdrops];
+            lavadropy[z] = lavadropy[lavanumdrops];
+            lavadropsiz[z] = lavadropsiz[lavanumdrops];
         }
+        z--;
     }
 
-    /* Copy the tile and wrap its edges into a one-pixel border. */
-    for (row = 0; row < 128; row += 2)
+        /* Back up dapic with 1 pixel extra on each boundary
+           (to prevent anding for wrap-around) */
+    offs = ((long)dapic);
+    offs2 = (LAVASIZ + 2) + 1 + ((long)lavabakpic);
+    for (x = 0; x < LAVASIZ; x++)
     {
-        copybuf(pixels + (row << 7), &ripple_border[(row + 1) * 130 + 1], 32);
-        copybuf(pixels + ((row + 1) << 7), &ripple_border[(row + 2) * 130 + 1], 32);
+        copybuf((void *)offs, (void *)offs2, LAVASIZ >> 2);
+        offs += LAVASIZ;
+        offs2 += LAVASIZ + 2;
+    }
+    for (y = 0; y < LAVASIZ; y++)
+    {
+        lavabakpic[y + 1] = dapic[y + ((LAVASIZ - 1) << LAVALOGSIZ)];
+        lavabakpic[y + 1 + (LAVASIZ + 1) * (LAVASIZ + 2)] = dapic[y];
+    }
+    for (x = 0; x < LAVASIZ; x++)
+    {
+        lavabakpic[(x + 1) * (LAVASIZ + 2)] = dapic[(x << LAVALOGSIZ) + (LAVASIZ - 1)];
+        lavabakpic[(x + 1) * (LAVASIZ + 2) + (LAVASIZ + 1)] = dapic[x << LAVALOGSIZ];
+    }
+    lavabakpic[0] = dapic[LAVASIZ * LAVASIZ - 1];
+    lavabakpic[LAVASIZ + 1] = dapic[LAVASIZ * (LAVASIZ - 1)];
+    lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 1)] = dapic[LAVASIZ - 1];
+    lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 2) - 1] = dapic[0];
+
+    for (z = (LAVASIZ + 2) * (LAVASIZ + 2) - 4; z >= 0; z -= 4)
+    {
+        lavabakpic[z + 0] &= 31;
+        lavabakpic[z + 1] &= 31;
+        lavabakpic[z + 2] &= 31;
+        lavabakpic[z + 3] &= 31;
     }
 
-    for (col = 0; col < 128; col++)
+    for (x = LAVASIZ - 1; x >= 0; x--)
     {
-        ripple_border[col + 1] = pixels[(127 << 7) + col];
-        ripple_border[129 * 130 + col + 1] = pixels[col];
-    }
-    for (row = 0; row < 128; row++)
-    {
-        ripple_border[(row + 1) * 130] = pixels[(row << 7) + 127];
-        ripple_border[(row + 1) * 130 + 129] = pixels[row << 7];
-    }
-    ripple_border[0] = pixels[(128 << 7) - 1];
-    ripple_border[129] = pixels[127 << 7];
-    ripple_border[129 * 130] = pixels[127];
-    ripple_border[129 * 130 + 129] = pixels[0];
+        offs = (x + 1) * (LAVASIZ + 2) + 1;
+        ptr = (unsigned char *)((x << LAVALOGSIZ) + (long)dapic);
 
-    /* Extract the five-bit intensity in groups of four pixels. */
-    for (i = 130 * 130 - 4; i >= 0; i -= 4)
-    {
-        ripple_border[i] &= 31;
-        ripple_border[i + 1] &= 31;
-        ripple_border[i + 2] &= 31;
-        ripple_border[i + 3] &= 31;
-    }
+        zx = ((x + lavanumframes) & (LAVASIZ - 1));
 
-    /* Filter the snapshot as the next frame is written to the tile. */
-    for (row = 127; row >= 0; row--)
-    {
-        unsigned char *output = pixels + (row << 7);
-        center = (row + 1) * 130 + 1;
-        i = (ripple_phase + row) & 127;
-        for (col = 127; col >= 0; col--, center++)
+        offs2 = LAVASIZ - 1;
+        for (y = offs; y < offs + LAVASIZ; y++)
         {
-            level = ripple_palette[i & col] + ripple_border[center - 131] +
-                ripple_border[center - 130] + ripple_border[center - 129] +
-                ripple_border[center - 1] + ripple_border[center + 1] +
-                ripple_border[center + 130] + ripple_border[center + 129];
-            *output++ = 64 + (level >> 3);
+            dat = lavainc[(offs2--) & zx];
+            dat += lavabakpic[y - (LAVASIZ + 2) - 1];
+            dat += lavabakpic[y - (LAVASIZ + 2)];
+            dat += lavabakpic[y - (LAVASIZ + 2) + 1];
+            dat += lavabakpic[y - 1];
+            dat += lavabakpic[y + 1];
+            dat += lavabakpic[y + (LAVASIZ + 2)];
+            dat += lavabakpic[y + (LAVASIZ + 2) - 1];
+            *ptr++ = (dat >> 3) + 64;
         }
     }
-    ripple_phase++;
+
+    lavanumframes++;
 }
 
 void resetparallax(void)

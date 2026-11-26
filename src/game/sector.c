@@ -166,7 +166,7 @@ void animatewalls(void)
     if ((gotpic[570 >> 3] & 4) > 0)
         mirror = 1;
     if ((gotpic[49 >> 3] & 2) > 0 && waloff[49] != -1)
-        update_ripple_tile(waloff[49]);
+        movelava(waloff[49]);
 
     for (i = 0; i < numanimwalls; i++) {
         w = animwall[i].wallnum;

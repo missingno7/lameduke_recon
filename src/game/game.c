@@ -270,7 +270,7 @@ extern int saveboard(char *filename, long *x, long *y, long *z, short *ang, shor
 #define main_game_over "Game Over, or is it?"
 extern void init_bootleg_cache(void), loadefs(void), initmenus(void), initengine(void);
 extern void initmultiplayers(unsigned char option, unsigned char rate);
-extern void loadpics(char *filename), init_water_ripples(void), loadsounds(void);
+extern void loadpics(char *filename), initlava(void), loadsounds(void);
 extern int sound_device_map[];
 extern struct { long MaxVoices, MaxSampleBits, MaxChannels; } fx_device;
 extern char *FX_ErrorString(int error), *MUSIC_ErrorString(int error);
@@ -1592,7 +1592,7 @@ void main(int argc, char **argv)
     puts(main_loading_art);
     loadpics(main_tiles_file);
     puts(main_init_remaps);
-    init_water_ripples();
+    initlava();
     loadlookup();
     if (option[1]) {
         puts(main_init_fx);

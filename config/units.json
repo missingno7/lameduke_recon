@@ -2141,13 +2141,13 @@
     "vscrn": {
      "status": "STRICT"
     },
-    "init_water_ripples": {
+    "resetparallax": {
      "status": "STRICT"
     },
-    "animate_water_ripples": {
-     "status": "NEAR_MATCH"
+    "initlava": {
+     "status": "STRICT"
     },
-    "resetparallax": {
+    "movelava": {
      "status": "STRICT"
     }
    },

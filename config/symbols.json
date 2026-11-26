@@ -2914,14 +2914,6 @@
     "addr": "1:2e0d0",
     "evidence": "menues worker 2026-11-26: Called by stage setup at 1:14bcd and gameplay margin changes at 1:19839, 1989e, 19a03. Calls setview."
    },
-   "init_water_ripples": {
-    "addr": "1:2e120",
-    "evidence": "menues worker 2026-11-26: Called at startup at 1:5c75. Seeds rings and palette used by animatewalls call at 1:15587."
-   },
-   "animate_water_ripples": {
-    "addr": "1:2e200",
-    "evidence": "menues worker 2026-11-26: Called from animatewalls at 1:15587 with mutable water tile pixels; uses the startup ring/palette tables."
-   },
    "resetparallax": {
     "addr": "1:2e6e0",
     "evidence": "menues worker 2026-11-26: Called at 1:3769; sets pskyoff[0] and pskybits, independently bound in ENGINE."
@@ -3033,10 +3025,6 @@
    "render_mirror": {
     "addr": "1:11a10",
     "evidence": "sector worker 2026-11-26: Renderer collects triggering wall positions, calls engine mirror preparation, then draws and reverses a reflected view. Display paths call for the mirror tile."
-   },
-   "update_ripple_tile": {
-    "addr": "1:2e200",
-    "evidence": "sector worker 2026-11-26: Renderer modifies a 128-pixel grid using the separately initialized radial tables, with a pointer from waloff."
    },
    "FTA": {
     "addr": "1:02630",
@@ -3349,6 +3337,14 @@
    "spawn_random_effects": {
     "addr": "1:0acb0",
     "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: No inbound reference; start recovered after displayhighscores' ret and fill (docs/units/game.md); prologue saves AX/DX arguments."
+   },
+   "initlava": {
+    "addr": "1:2e120",
+    "evidence": "Ken-Build GAME.C initlava (Jun-95 source compiles to identical bytes; BUILD.TXT 9/29/94); kengame worker 2026-11-26"
+   },
+   "movelava": {
+    "addr": "1:2e200",
+    "evidence": "Ken-Build GAME.C movelava (Ken's text with 16 drops/base colour 64 is STRICT, 1,248 B); kengame worker 2026-11-26"
    }
   },
   "data": {
@@ -5896,50 +5892,6 @@
     "addr": "2:a539c",
     "evidence": "menues worker 2026-11-26: Shared mouse y field updated by GAME cursor handling; slider and both probe variants also use it."
    },
-   "ripple_age": {
-    "addr": "2:a59e0",
-    "evidence": "menues worker 2026-11-26: Update initializes 16 parallel ages to one and increments/compacts them. Scaled dword indices and neighboring palette establish base and size."
-   },
-   "ripple_palette": {
-    "addr": "2:a5a20",
-    "evidence": "menues worker 2026-11-26: Initializer writes the 128-byte wave ramp; renderer reads the same palette with a 7-bit index."
-   },
-   "ripple_strength": {
-    "addr": "2:a5aa0",
-    "evidence": "menues worker 2026-11-26: Initializer fills 16 dwords using the square root table. Renderer reads by age with the same stride."
-   },
-   "ring_x": {
-    "addr": "2:a5ae0",
-    "evidence": "menues worker 2026-11-26: Initializer writes x with radius stride 512; renderer uses same coordinates and stride. Initializer uses preincrement with base-minus-four."
-   },
-   "ring_y": {
-    "addr": "2:a9ae0",
-    "evidence": "menues worker 2026-11-26: Independent initializer and renderer both use radius stride 512 and the y coordinate."
-   },
-   "ring_count": {
-    "addr": "2:adae0",
-    "evidence": "menues worker 2026-11-26: Indexed dword counts written by the initializer and read for each rendered ring."
-   },
-   "ripple_x": {
-    "addr": "2:adb60",
-    "evidence": "menues worker 2026-11-26: First random draw per entry, read as column-major x and copied during removal."
-   },
-   "ripple_y": {
-    "addr": "2:adba0",
-    "evidence": "menues worker 2026-11-26: Second random draw per entry, read as column-major y and copied during removal."
-   },
-   "ripple_border": {
-    "addr": "2:adbe0",
-    "evidence": "menues worker 2026-11-26: Independent interior-copy, wrap-border writes and filter reads give a 130 by 130 byte workspace with this first corner."
-   },
-   "ripple_phase": {
-    "addr": "2:b1de4",
-    "evidence": "menues worker 2026-11-26: Initializer clears the dword. Renderer adds it to row before indexing palette and advances it once per call."
-   },
-   "ripple_count": {
-    "addr": "2:b1de8",
-    "evidence": "menues worker 2026-11-26: Initializer clears the dword. Renderer clamps total below the 16-entry arrays and updates it as active ripples are created or removed."
-   },
    "current_menu": {
     "addr": "2:a52f0",
     "evidence": "menues worker 2026-11-26: GAME initializes it and PLAYER input at 1:19720 selects menu state; 1:2ccf0 consumes low seven bits and sets the initialization flag."
@@ -6463,6 +6415,50 @@
    "camerasprite": {
     "addr": "2:a57b5",
     "evidence": "sounds worker 2026-11-26: GAME main initializes this word to -1 and display code at ba30 uses the alternate sprite viewpoint. RELOCATION_VOTES 2 sites in 2 byte-matching functions: pan3dsound, xyzsound. | field alias inside GLOBAL storage (kept for SOUNDS references; GLOBAL defines the enclosing object)"
+   },
+   "lavanumdrops": {
+    "addr": "2:b1de8",
+    "evidence": "menues worker 2026-11-26: Initializer clears the dword. Renderer clamps total below the 16-entry arrays and updates it as active ripples are created or removed."
+   },
+   "lavanumframes": {
+    "addr": "2:b1de4",
+    "evidence": "menues worker 2026-11-26: Initializer clears the dword. Renderer adds it to row before indexing palette and advances it once per call."
+   },
+   "lavadropx": {
+    "addr": "2:adb60",
+    "evidence": "menues worker 2026-11-26: First random draw per entry, read as column-major x and copied during removal."
+   },
+   "lavadropy": {
+    "addr": "2:adba0",
+    "evidence": "menues worker 2026-11-26: Second random draw per entry, read as column-major y and copied during removal."
+   },
+   "lavadropsiz": {
+    "addr": "2:a59e0",
+    "evidence": "menues worker 2026-11-26: Update initializes 16 parallel ages to one and increments/compacts them. Scaled dword indices and neighboring palette establish base and size."
+   },
+   "lavadropsizlookup": {
+    "addr": "2:a5aa0",
+    "evidence": "menues worker 2026-11-26: Initializer fills 16 dwords using the square root table. Renderer reads by age with the same stride."
+   },
+   "lavainc": {
+    "addr": "2:a5a20",
+    "evidence": "menues worker 2026-11-26: Initializer writes the 128-byte wave ramp; renderer reads the same palette with a 7-bit index."
+   },
+   "lavaradcnt": {
+    "addr": "2:adae0",
+    "evidence": "menues worker 2026-11-26: Indexed dword counts written by the initializer and read for each rendered ring."
+   },
+   "lavaradx": {
+    "addr": "2:a5ae0",
+    "evidence": "menues worker 2026-11-26: Initializer writes x with radius stride 512; renderer uses same coordinates and stride. Initializer uses preincrement with base-minus-four."
+   },
+   "lavarady": {
+    "addr": "2:a9ae0",
+    "evidence": "menues worker 2026-11-26: Independent initializer and renderer both use radius stride 512 and the y coordinate."
+   },
+   "lavabakpic": {
+    "addr": "2:adbe0",
+    "evidence": "menues worker 2026-11-26: Independent interior-copy, wrap-border writes and filter reads give a 130 by 130 byte workspace with this first corner."
    }
   }
  }

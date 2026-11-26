@@ -242,7 +242,7 @@ extern char main_tiles_file[], main_init_remaps[], main_init_fx[], main_reading_
 extern char main_init_music[], main_locating[], main_master[], main_slave[], main_game_over[];
 extern void init_bootleg_cache(void), loadefs(void), initmenus(void), initengine(void);
 extern void initmultiplayers(unsigned char option, unsigned char rate);
-extern void loadpics(char *filename), init_water_ripples(void), loadsounds(void);
+extern void loadpics(char *filename), initlava(void), loadsounds(void);
 extern int sound_device_map[];
 extern struct { long MaxVoices, MaxSampleBits, MaxChannels; } fx_device;
 extern char *FX_ErrorString(int error), *MUSIC_ErrorString(int error);

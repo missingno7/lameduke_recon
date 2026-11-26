@@ -282,3 +282,13 @@ Each entry names the command or artefact that supports it.
   spawn_random_effects, reset_player_motion, render_camera_tile copies) are inline sources, not dead code.
 - Other units: PLAYER/SOUNDS unaffected by N; MENUES/ACTORS change at N>=100 (untested); GAMEDEF crashes wcc386 at
   N>=1500 (recursive parse); SECTOR not explained by large N (open). wcc386 9.5 can hang: always use timeouts.
+
+## Ken-Build ancestry (kengame worker 2026-11-26, docs/ANCESTRY.md)
+- PROVEN Ken's Build demo GAME.C shares code with LameDuke: inittimer, uninittimer, initlava (Jun-95 source, -oe=3000,
+  exact) and movelava (Ken's text, 16 drops / base colour 64, STRICT 1,248 B). Original names adopted (initlava,
+  movelava, lava* globals); MENUES _BSS still VERIFIED under Ken's names.
+- PROVEN movelava matches only with Ken's 1994 copybuf pragma without a modify clause (`parm [esi][edi][ecx]`); Watcom
+  itself unrolls Ken's loops (hand-unrolled source was the wrong model).
+- STRONG semantic correspondences: update_timer_input = Ken's keytimerstuff, domovethings_multiplayer = getpackets,
+  network_move_loop = sync, record/playback/wait_for_players/findplayer/operatesectors case 9 follow Ken's code.
+  Naming hazard: our svel/player_svel is Ken's vel/syncvel (forward) and our vel is Ken's svel (strafe).

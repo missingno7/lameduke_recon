@@ -3,8 +3,6 @@ system dos4g
 name game.exe
 option map,statics,nodefaultlibs,dosseg,stack=4k
 segment class CODE loadoncall, class DATA loadoncall, class BEGDATA loadoncall, class BSS loadoncall, class STACK loadoncall
-# Both names are independently bound to 1:2e200 in config/symbols.json.
-alias update_ripple_tile_=animate_water_ripples_
 # The runtime census identifies one shared 81-byte atol/atoi body.
 alias atol_=atoi_
 
