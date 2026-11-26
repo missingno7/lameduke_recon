@@ -399,8 +399,8 @@ void getinput(short p)
     if (ps[myconnectindex].gm & 1) {
         svel = 0;
         player_bits[myconnectindex] = 0;
-        avel = vel = 0;
         player_avel[p] = player_vel[p] = player_svel[p] = 0;
+        avel = vel = 0;
         return;
     }
     if (moustat == 1) {

@@ -201,13 +201,13 @@ short ifsquished(short i, short p)
         && (sector[sn].lotag & 0x8000) == 0 && (sector[sn].lotag & 0x7fff) != 0) {
         if ((short)(sector[sn].lotag & 0x7fff) != 23)
             sector[sn].ceilingz -= 4 << 8;
-        sprite[i].z = sector[sprite[i].sectnum].floorz;
         result = i;
+        sprite[i].z = sector[sprite[i].sectnum].floorz;
         switch ((unsigned short)sprite[i].picnum) {
         case 408: case 490: case 631: case 1536: case 1680: case 1820:
             ps[p].kills++;
-            sprite[i].xvel = 0;
-            sprite[i].cstat &= ~1;
+            sprite[result].xvel = 0;
+            sprite[result].cstat &= ~1;
             FTA(10);
             return result;
         case 579:
@@ -1309,7 +1309,6 @@ void moveeffects(void)
 void moveplayers(void)
 {
     short i, nexti;
-    unsigned char tics;
 
     for (i = headspritestat[10]; i >= 0; i = nexti) {
         nexti = nextspritestat[i];
@@ -1348,13 +1347,12 @@ void moveplayers(void)
                 sprite[i].cstat &= 0xfd;
             }
             if (sprite[i].yvel < 8) {
-                sprite[i].ang = ps[sprite[i].yvel].ang;
-                tics = script_tics;
                 sprite[i].xvel = 128;
+                sprite[i].ang = ps[sprite[i].yvel].ang;
                 sprite[i].yvel++;
                 movesprite(i, (sprite[i].xvel * sintable[(sprite[i].ang + 512) & 2047]) >> 14,
                     (sintable[(short)(sprite[i].ang & 2047)] * sprite[i].xvel) >> 14,
-                    sprite[i].zvel, 128, 1024, 1024, 0, tics);
+                    sprite[i].zvel, 128, 1024, 1024, 0, script_tics);
             } else {
                 sprite[i].ang = 2047 - ps[sprite[i].yvel].ang;
                 setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);

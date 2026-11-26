@@ -34,7 +34,7 @@ extern struct menu_player ps[17];
 extern struct menu_sector sector[1024];
 extern short screenpeek, myconnectindex;
 extern short tilesizx[4096], tilesizy[4096], pskyoff[], pskybits;
-extern unsigned char keystatus[256];
+extern volatile unsigned char keystatus[256];
 
 extern void overwritesprite(long x, long y, short tile, long shade,
     long orientation, long palette);

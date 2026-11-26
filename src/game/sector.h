@@ -95,7 +95,8 @@ extern char gotpic[];
 extern long waloff[];
 extern short sintable[];
 extern unsigned long player_bits[];
-extern char option[], keystatus[];
+extern char option[];
+extern volatile char keystatus[];
 extern short gamepaused, disable_armor;
 extern long menupage;
 
