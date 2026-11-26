@@ -1,0 +1,243 @@
+# Watcom 9.5 GA, DOSBox-X. Names resolve on guest D:.
+system dos4g
+name game.exe
+option map,statics,nodefaultlibs,dosseg
+segment class CODE loadoncall, class DATA loadoncall, class BEGDATA loadoncall, class BSS loadoncall, class STACK loadoncall
+# Both names are independently bound to 1:2e200 in config/symbols.json.
+alias update_ripple_tile_=animate_water_ripples_
+# The runtime census identifies one shared 81-byte atol/atoi body.
+alias atol_=atoi_
+
+# Registered game, Build and multiplayer units.
+file obj\game.obj
+file obj\sector.obj
+file obj\player.obj
+file obj\actors.obj
+file obj\sounds.obj
+file obj\menues.obj
+file obj\gamedef.obj
+file obj\engine.obj
+file obj\multi.obj
+file obj\mdata.obj
+
+# Vendor archive order (code order and associated data-only members).
+file v\nrpnvar.obj # stock AUDIO nrpnvar
+file v\nrpn.obj # stock AUDIO nrpn
+file v\sbkload.obj # stock AUDIO sbkload
+file v\hardware.obj # stock AUDIO hardware
+file v\midivar.obj # stock AUDIO midivar
+file v\midieng.obj # stock AUDIO midieng
+file v\embed.obj # stock AUDIO embed
+file v\os.obj # stock AUDIO os
+file v\gf1sound.obj # stock AUDIO gf1sound
+file v\voltab.obj # stock AUDIO voltab
+file v\gf1mixer.obj # stock AUDIO gf1mixer
+file v\gf1rec.obj # stock AUDIO gf1rec
+file v\gf1uart.obj # stock AUDIO gf1uart
+file v\gf1midi.obj # stock AUDIO gf1midi
+file v\gf1scale.obj # stock AUDIO gf1scale
+file v\gf1error.obj # stock AUDIO gf1error
+file v\timer.obj # stock AUDIO timer
+file v\gf1note1.obj # stock AUDIO gf1note1
+file v\gf1note.obj # stock AUDIO gf1note
+file v\digpos.obj # stock AUDIO digpos
+file v\digpause.obj # stock AUDIO digpause
+file v\digital.obj # stock AUDIO digital
+file v\gf1wave.obj # stock AUDIO gf1wave
+file v\gf1pat1.obj # stock AUDIO gf1pat1
+file v\gf1patch.obj # stock AUDIO gf1patch
+file v\divisor.obj # stock AUDIO divisor
+file v\gf1addr.obj # stock AUDIO gf1addr
+file v\gf1dma1.obj # stock AUDIO gf1dma1
+file v\gf1dma.obj # stock AUDIO gf1dma
+file v\gf1voice.obj # stock AUDIO gf1voice
+file v\gf1utils.obj # stock AUDIO gf1utils
+file v\gf1dram.obj # stock AUDIO gf1dram
+file v\gf1mem.obj # stock AUDIO gf1mem
+file v\globals.obj # stock AUDIO globals
+file v\gf1detct.obj # stock AUDIO gf1detct
+file v\gf1isr.obj # stock AUDIO gf1isr
+file v\gf1init.obj # stock AUDIO gf1init
+file v\gf1wisr.obj # stock AUDIO gf1wisr
+file v\wdigital.obj # stock AUDIO wdigital
+file v\wtimer.obj # stock AUDIO wtimer
+file v\gf1wsnd.obj # stock AUDIO gf1wsnd
+file v\gf1wuart.obj # stock AUDIO gf1wuart
+file v\gf1wnote.obj # stock AUDIO gf1wnote
+file v\gf1wdma.obj # stock AUDIO gf1wdma
+file v\gf1wvoic.obj # stock AUDIO gf1wvoic
+file v\gf1wmem.obj # stock AUDIO gf1wmem
+file v\gf1sem.obj # stock AUDIO gf1sem
+file v\gf1init2.obj # stock AUDIO gf1init2
+file v\gf1ainit.obj # stock AUDIO gf1ainit
+
+# Reconstructed Apogee C modules in target code order.
+file obj\user.obj
+file obj\task_man.obj
+file obj\sndsrc.obj
+file obj\pitch.obj
+file obj\pcfx.obj
+file obj\pas16.obj
+file obj\music.obj
+file obj\multivoc.obj
+file obj\mpu401.obj
+file obj\midi.obj
+file obj\ll_man.obj
+file obj\irq.obj
+file obj\guswave.obj
+file obj\gusmidi.obj
+file obj\gus.obj
+file obj\fx_man.obj
+file obj\dpmi.obj
+file obj\dma.obj
+file obj\blastold.obj
+file obj\al_midi.obj
+file obj\awe32.obj
+file obj\gmtmbold.obj
+file obj\adlibfx.obj
+
+# Runtime census order. Data-only insertions follow DGROUP and XI/YI anchors.
+file r\outp.obj # stock DOS/CLIB3R.LIB outp
+file r\d_getvec.obj # stock DOS/CLIB3R.LIB d_getvec
+file r\d_setvec.obj # stock DOS/CLIB3R.LIB d_setvec
+file r\dosseg.obj # stock DOS/CLIB3R.LIB dosseg
+file r\cstart.obj # stock DOS/CLIB3R.LIB cstart
+file r\puts.obj # stock DOS/CLIB3R.LIB puts
+file r\exit.obj # stock DOS/CLIB3R.LIB exit
+file r\ltoa.obj # stock DOS/CLIB3R.LIB ltoa
+file r\open.obj # stock DOS/CLIB3R.LIB open
+file r\read.obj # stock DOS/CLIB3R.LIB read
+file r\close.obj # stock DOS/CLIB3R.LIB close
+file r\printf.obj # stock DOS/CLIB3R.LIB printf
+file r\atoi.obj # stock DOS/CLIB3R.LIB atoi
+file r\unlink.obj # stock DOS/CLIB3R.LIB unlink
+file r\write.obj # stock DOS/CLIB3R.LIB write
+file r\argcargv.obj # stock DOS/CLIB3R.LIB argcargv
+file r\rand.obj # stock DOS/CLIB3R.LIB rand
+file r\filelen.obj # stock DOS/CLIB3R.LIB filelen
+file r\fopen.obj # stock DOS/CLIB3R.LIB fopen
+file r\fseek.obj # stock DOS/CLIB3R.LIB fseek
+file r\ftell.obj # stock DOS/CLIB3R.LIB ftell
+file r\fread.obj # stock DOS/CLIB3R.LIB fread
+file r\fclose.obj # stock DOS/CLIB3R.LIB fclose
+file r\_strcmp.obj # stock DOS/CLIB3R.LIB _strcmp
+file r\__stos.obj # stock DOS/CLIB3R.LIB __stos
+file r\getch.obj # stock DOS/CLIB3R.LIB getch
+file r\nmalloc.obj # stock DOS/CLIB3R.LIB nmalloc
+file r\disable.obj # stock DOS/CLIB3R.LIB disable
+file r\enable.obj # stock DOS/CLIB3R.LIB enable
+file r\nfree.obj # stock DOS/CLIB3R.LIB nfree
+file r\lseek.obj # stock DOS/CLIB3R.LIB lseek
+file r\strcpy.obj # stock DOS/CLIB3R.LIB strcpy
+file r\strlen.obj # stock DOS/CLIB3R.LIB strlen
+file r\memset.obj # stock DOS/CLIB3R.LIB memset
+file r\int386x.obj # stock DOS/CLIB3R.LIB int386x
+file r\inp.obj # stock DOS/CLIB3R.LIB inp
+file r\memcpy.obj # stock DOS/CLIB3R.LIB memcpy
+file r\int386.obj # stock DOS/CLIB3R.LIB int386
+file r\dosio.obj # stock DOS/CLIB3R.LIB dosio
+file r\dosfile.obj # stock DOS/CLIB3R.LIB dosfile
+file r\inpw.obj # stock DOS/CLIB3R.LIB inpw
+file r\outpw.obj # stock DOS/CLIB3R.LIB outpw
+file r\strncmp.obj # stock DOS/CLIB3R.LIB strncmp
+file r\getenv.obj # stock DOS/CLIB3R.LIB getenv
+file r\strtol.obj # stock DOS/CLIB3R.LIB strtol
+file r\stricmp.obj # stock DOS/CLIB3R.LIB stricmp
+file r\chainint.obj # stock DOS/CLIB3R.LIB chainint
+file r\atexit.obj # stock DOS/CLIB3R.LIB atexit
+file r\dosstime.obj # stock DOS/CLIB3R.LIB dosstime
+file r\pow387.obj # stock MATH387R.LIB pow387
+file r\fchop.obj # stock MATH387R.LIB fchop
+file r\fltused.obj # stock DOS/CLIB3R.LIB fltused
+file r\386inite.obj # stock DOS/EMU387.LIB 386inite
+file r\_8087.obj # stock DOS/CLIB3R.LIB _8087
+file r\strerror.obj # stock DOS/CLIB3R.LIB strerror
+file r\fgets.obj # stock DOS/CLIB3R.LIB fgets
+file r\sscanf.obj # stock DOS/CLIB3R.LIB sscanf
+file r\stk.obj # stock DOS/CLIB3R.LIB stk
+file r\toupper.obj # stock DOS/CLIB3R.LIB toupper
+file r\crwdata.obj # stock DOS/CLIB3R.LIB crwdata
+file r\cmain386.obj # stock DOS/CLIB3R.LIB cmain386
+file r\initrtns.obj # stock DOS/CLIB3R.LIB initrtns
+file r\fputs.obj # stock DOS/CLIB3R.LIB fputs
+file r\fputc.obj # stock DOS/CLIB3R.LIB fputc
+file r\isatty.obj # stock DOS/CLIB3R.LIB isatty
+file r\errno.obj # stock DOS/CLIB3R.LIB errno
+file r\___argc.obj # stock DOS/CLIB3R.LIB ___argc
+file r\heapmod.obj # stock DOS/CLIB3R.LIB heapmod
+file r\minreal.obj # stock DOS/CLIB3R.LIB minreal
+file r\iob.obj # stock DOS/CLIB3R.LIB iob
+file r\dosret.obj # stock DOS/CLIB3R.LIB dosret
+file r\umaskval.obj # stock DOS/CLIB3R.LIB umaskval
+file r\iomode.obj # stock DOS/CLIB3R.LIB iomode
+file r\fprtf.obj # stock DOS/CLIB3R.LIB fprtf
+file r\stack386.obj # stock DOS/CLIB3R.LIB stack386
+file r\initargv.obj # stock DOS/CLIB3R.LIB initargv
+file r\tolower.obj # stock DOS/CLIB3R.LIB tolower
+file r\allocfp.obj # stock DOS/CLIB3R.LIB allocfp
+file r\chktty.obj # stock DOS/CLIB3R.LIB chktty
+file r\flush.obj # stock DOS/CLIB3R.LIB flush
+file r\ioalloc.obj # stock DOS/CLIB3R.LIB ioalloc
+file r\fgetc.obj # stock DOS/CLIB3R.LIB fgetc
+file r\tell.obj # stock DOS/CLIB3R.LIB tell
+file r\qread.obj # stock DOS/CLIB3R.LIB qread
+file r\getpid.obj # stock DOS/CLIB3R.LIB getpid
+file r\remove.obj # stock DOS/CLIB3R.LIB remove
+file r\memalloc.obj # stock DOS/CLIB3R.LIB memalloc
+file r\grownear.obj # stock DOS/CLIB3R.LIB grownear
+file r\nmemneed.obj # stock DOS/CLIB3R.LIB nmemneed
+file r\int386xa.obj # stock DOS/CLIB3R.LIB int386xa
+file r\segread.obj # stock DOS/CLIB3R.LIB segread
+file r\doserror.obj # stock DOS/CLIB3R.LIB doserror
+file r\strnicmp.obj # stock DOS/CLIB3R.LIB strnicmp
+file r\exp387.obj # stock MATH387R.LIB exp387
+file r\pow87e.obj # stock MATH387R.LIB pow87e
+file r\setefg.obj # stock DOS/CLIB3R.LIB setefg
+file r\stinit.obj # stock DOS/CLIB3R.LIB stinit
+file r\environ.obj # stock DOS/CLIB3R.LIB environ
+file r\dosinite.obj # stock MATH387R.LIB dosinite
+file r\chk8087.obj # stock DOS/CLIB3R.LIB chk8087
+file r\istable.obj # stock DOS/CLIB3R.LIB istable
+file r\scnf.obj # stock DOS/CLIB3R.LIB scnf
+file r\cinit.obj # stock DOS/CLIB3R.LIB cinit
+file r\prtf.obj # stock DOS/CLIB3R.LIB prtf
+file r\initfile.obj # stock DOS/CLIB3R.LIB initfile
+file r\ioexit.obj # stock DOS/CLIB3R.LIB ioexit
+file r\qwrite.obj # stock DOS/CLIB3R.LIB qwrite
+file r\flushall.obj # stock DOS/CLIB3R.LIB flushall
+file r\getche.obj # stock DOS/CLIB3R.LIB getche
+file r\sbrk386.obj # stock DOS/CLIB3R.LIB sbrk386
+file r\setenvp.obj # stock DOS/CLIB3R.LIB setenvp
+file r\math87e.obj # stock MATH387R.LIB math87e
+file r\amblksiz.obj # stock DOS/CLIB3R.LIB amblksiz
+file r\math2err.obj # stock MATH387R.LIB math2err
+file r\noefgfmt.obj # stock DOS/CLIB3R.LIB noefgfmt
+file r\efgfmt.obj # stock DOS/CLIB3R.LIB efgfmt
+file r\cnvs2d.obj # stock MATH387R.LIB cnvs2d
+file r\8087cw.obj # stock DOS/CLIB3R.LIB 8087cw
+file r\hook387.obj # stock DOS/CLIB3R.LIB hook387
+file r\emu387.obj # stock DOS/EMU387.LIB emu387
+file r\save8087.obj # stock DOS/CLIB3R.LIB save8087
+file r\init8087.obj # stock DOS/CLIB3R.LIB init8087
+file r\fdfs.obj # stock DOS/CLIB3R.LIB fdfs
+file r\itoa.obj # stock DOS/CLIB3R.LIB itoa
+file r\hugeval.obj # stock DOS/CLIB3R.LIB hugeval
+file r\_matherr.obj # stock MATH387R.LIB _matherr
+file r\ftos.obj # stock MATH387R.LIB ftos
+file r\strtod.obj # stock MATH387R.LIB strtod
+file r\__mtherr.obj # stock MATH387R.LIB __mtherr
+file r\seterrno.obj # stock DOS/CLIB3R.LIB seterrno
+file r\nan_inf.obj # stock MATH387R.LIB nan_inf
+file r\fabs387.obj # stock MATH387R.LIB fabs387
+file r\log387.obj # stock MATH387R.LIB log387
+file r\scale.obj # stock MATH387R.LIB scale
+file r\cvt.obj # stock MATH387R.LIB cvt
+file r\amodf.obj # stock DOS/CLIB3R.LIB amodf
+file r\matherr.obj # stock MATH387R.LIB matherr
+file r\log87e.obj # stock MATH387R.LIB log87e
+file r\i64tos.obj # stock MATH387R.LIB i64tos
+file r\fpow10.obj # stock MATH387R.LIB fpow10
+file r\frexp.obj # stock MATH387R.LIB frexp
+
+# A.OBJ has a separate CODE segment in class CODE.
+file obj\a.obj

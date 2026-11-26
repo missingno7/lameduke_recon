@@ -64,6 +64,9 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
 - `tools/cg95/cgtrace95.py` + `tools/cg95/explain95.py` — Watcom 9.5b register-allocator trace (NT compiler under a
   debugger; identical code to the DOS host) and explanation of the first diverging allocation decision with likely
   source levers; for ALLOCATION-ONLY functions (docs/CG95.md has commands and validation).
+- `tools/link/link.py` — natural-link experiment: builds every unit, links with Watcom 9.5 WLINK (DOSBox-X,
+  tools/link/game.lnk), compares with D3D.EXE (build/link/run/comparison.json; docs/LINK_REPORT.md). Exit 0 = resolved
+  link, 2 = diagnostic image with undefined symbols. Evidence only.
 - `tools/gate.py` — integration gate (tests + fresh rebuild of every unit); run before every commit.
 - Watcom 9.5b compiles run on the canonical DOS host (tools/doshost.py: the original DOS compiler under DOSBox-X,
   ~1.7 s per compile) because CONST padding residue depends on the host; LAMEDUKE_HOST=nt gives the same code

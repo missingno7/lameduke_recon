@@ -211,3 +211,13 @@ Each entry names the command or artefact that supports it.
   source (gameexit/write_userdefs become inlinable at 26 before FTA at 32), so written-out copies remain the model.
 - PROVEN moveeffectors' compare tree needs the empty labels `case 1: case 7:` (split at 15, oracle body order);
   spawn returns void; sector wallptr/wallnum are signed short in GAME's view.
+
+## First natural link (link worker 2026-11-26, docs/LINK_REPORT.md)
+- PROVEN Watcom 9.5 GA WLINK `system dos4g` + OPTION DOSSEG, NODEFAULTLIBS, explicit FILE order and LOADONCALL
+  reproduces the full 0x28b8-byte MZ prefix (stub, 96-byte header, relocations), the LE object flags and A.ASM's CODE
+  segment landing last in obj1. 152 symbols remain undefined (149 game globals only declared extern, MULTI's two
+  real-mode template names, ENGINE printext16_). With UNDEFSOK the image is 637,549 bytes (oracle 685,121); fixed-offset
+  agreement obj1 4.77%, obj2 file-backed 18.4%; at function starts STRICT code agrees 85%.
+- Ordering facts: GAME starts at 1:00010 as in the oracle; SECTOR is the first shifted unit (net code deficits
+  SECTOR 736, GAMEDEF 733, ENGINE 713 bytes). CONST order differs from the first byte (GAME's pool must come first).
+  The oracle's stack is larger than the stock 4 KiB (ESP differs by 0x974d0 -> option stack / BSS ownership).

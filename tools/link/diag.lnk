@@ -1,0 +1,3 @@
+# Diagnostic image only. WLINK emits unresolved references for layout measurement.
+@game.lnk
+option undefsok
