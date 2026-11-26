@@ -1,0 +1,609 @@
+#include <stdlib.h>
+#include "menues.h"
+
+struct menu menu_main, menu_pause, menu_episode, menu_skill;
+struct menu menu_load, menu_save, menu_instructions, menu_options;
+struct menu menu_ordering, menu_scores;
+extern long current_menu;
+extern unsigned long player_bits[];
+extern short sound_volume, music_volume, mouse_sensitivity;
+extern void FX_SetVolume(long volume);
+extern void MUSIC_SetVolume(long volume);
+extern short menu_x, menu_y, menu_mouse, menu_drag, transition_zoom;
+short menu_zoom;
+
+long ripple_count, ripple_phase;
+long ripple_age[16], ripple_x[16], ripple_y[16];
+long ring_count[32], ring_x[32][128], ring_y[32][128];
+long ripple_strength[16];
+unsigned char ripple_palette[128];
+unsigned char ripple_border[130 * 130];
+
+#define SAVE_SLOTS "empty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nBack"
+
+void initmenus(void)
+{
+    menu_main.x = 100;
+    menu_main.y = 46;
+    menu_main.tile = 1129;
+    menu_main.lines = 8;
+    menu_main.flags = 7;
+    menu_main.text = "Begin a New Game\nRestore a Game\nInstructions\nGame Options\n"
+        "Ordering Info\nDemo\nHigh Scores\nQuit";
+
+    menu_pause.x = 100;
+    menu_pause.y = 40;
+    menu_pause.lines = 6;
+    menu_pause.tile = 1129;
+    menu_pause.text = "Return to Game\nHow to Play Me\nSave a Game\nRestore a Game\n"
+        "Game Options\nQuit to Main Menu";
+    menu_pause.flags = 7;
+
+    menu_episode.x = 100;
+    menu_episode.y = 40;
+    menu_episode.lines = 5;
+    menu_episode.tile = 616;
+    menu_episode.text = "Mr. Caliber\nMission Cockroach\nSuck Hole\nHard Landing\nBack";
+    menu_episode.flags = 7;
+
+    menu_skill.x = 100;
+    menu_skill.y = 40;
+    menu_skill.lines = 5;
+    menu_skill.tile = 617;
+    menu_skill.text = "Easy\nMedium\nHard\nHarder\nBack";
+    menu_skill.flags = 7;
+
+    menu_load.x = 100;
+    menu_load.y = 40;
+    menu_load.lines = 9;
+    menu_load.tile = 613;
+    menu_load.text = SAVE_SLOTS;
+    menu_load.flags = 7;
+
+    menu_save.x = 100;
+    menu_save.y = 40;
+    menu_save.lines = 9;
+    menu_save.tile = 1137;
+    menu_save.text = SAVE_SLOTS;
+    menu_save.flags = 7;
+
+    menu_instructions.x = 100;
+    menu_instructions.y = 40;
+    menu_instructions.lines = 1;
+    menu_instructions.tile = 615;
+    menu_instructions.text = "Back";
+    menu_instructions.flags = 4;
+
+    menu_options.x = 80;
+    menu_options.y = 40;
+    menu_options.lines = 5;
+    menu_options.tile = 1128;
+    menu_options.text = "Sound Volume\nMusic Volume\nMouse Sensitivity\nJoystick\nBack";
+    menu_options.flags = 7;
+
+    menu_ordering.x = 100;
+    menu_ordering.y = 40;
+    menu_ordering.lines = 1;
+    menu_ordering.tile = 615;
+    menu_ordering.text = "Back";
+    menu_ordering.flags = 4;
+
+    menu_scores.x = 100;
+    menu_scores.y = 40;
+    menu_scores.lines = 0;
+    menu_scores.tile = 1138;
+    menu_scores.text = "\0";
+    menu_scores.flags = 7;
+}
+
+/* The options page contains three inlined copies of the slider loop. */
+#define SLIDER_BODY(x, y, value, shade)                                         \
+    if (menu_y > y - 2 && menu_y < y + 14)                                      \
+    {                                                                           \
+        if (keystatus[0x4b])                                                    \
+        {                                                                       \
+            menu_x -= 8;                                                        \
+            if (menu_x < x)                                                     \
+                *value = 0;                                                     \
+            else                                                                \
+                *value = -32 + menu_x;                                          \
+        }                                                                       \
+        if (keystatus[0x4d])                                                    \
+        {                                                                       \
+            menu_x += 8;                                                        \
+            if (menu_x > x + 256)                                               \
+                *value = 255;                                                   \
+            else                                                                \
+                *value = -32 + menu_x;                                          \
+        }                                                                       \
+        if (menu_drag)                                                          \
+        {                                                                       \
+            if (menu_x > x + 256)                                               \
+                *value = 255;                                                   \
+            else if (menu_x < x)                                                \
+                *value = 0;                                                     \
+            else                                                                \
+                *value = -32 + menu_x;                                          \
+            shade = 0;                                                          \
+        }                                                                       \
+    }                                                                           \
+    for (i = 0; i < 32; i++)                                                    \
+        if (i <= (*value >> 3))                                                 \
+            overwritesprite(x + i * 8, y, 678, (short)shade, 0, 0);             \
+        else                                                                    \
+            overwritesprite(x + i * 8, y + 4, 679, (short)shade, 0, 0);
+
+#define DRAW_SLIDER(left, top, control, color)                                  \
+    {                                                                           \
+        short i;                                                                \
+        short x, y;                                                             \
+        short *value = (control);                                               \
+        short shade = (color);                                                  \
+                                                                                \
+        x = (left);                                                             \
+        y = (top);                                                              \
+        SLIDER_BODY(x, y, value, shade)                                         \
+    }
+
+void draw_menu_slider(short x, short y, short *value, short shade)
+{
+    short i;
+
+    SLIDER_BODY(x, y, value, shade)
+}
+
+#define DRAW_MENU_TEXT(x, y, text, shade, base_shade, cursor)                   \
+    while (*text) {                                                             \
+        if (*text == '\n') {                                                    \
+            x = start_x;                                                        \
+            y += 16;                                                            \
+            ++text;                                                             \
+            continue;                                                           \
+        }                                                                       \
+        if (klabs(y - cursor + 8) < 8) {                                        \
+            shade = next_text_shade();                                          \
+            if (menu_drag) shade -= 4;                                          \
+        }                                                                       \
+        else shade = base_shade;                                                \
+        if (*text == ' ') {                                                     \
+            x += 5;                                                             \
+            ++text;                                                             \
+            continue;                                                           \
+        }                                                                       \
+        if (*text >= '0' && *text <= '9') tile = *text + 101;                   \
+        if (*text >= 'a' && *text <= 'z') tile = *text + 26;                    \
+        if (*text >= 'A' && *text <= 'Z') tile = *text + 32;                    \
+        overwritesprite(x, y, tile, (unsigned char)shade, 0,                    \
+            sector[ps[screenpeek].cursectnum].floorpal);                        \
+        x += tilesizx[tile] + 1;                                                \
+        ++text;                                                                 \
+    }
+
+long drawmenu(long x, long y, unsigned char *text, short shade0,
+    short cursor)
+{
+    unsigned char shade;
+    short tile;
+    short base_shade;
+    short start_x;
+
+    if (ps[0].display_mode == 2) return 0;
+    start_x = x;
+    base_shade = (unsigned char)shade0;
+    DRAW_MENU_TEXT(x, y, text, shade, base_shade, cursor)
+    return x;
+}
+
+#define PRESSED_UP    (keystatus[0x48] | keystatus[0xc8])
+#define PRESSED_DOWN  (keystatus[0x50] | keystatus[0xd0])
+#define MOVED_CURSOR  (keystatus[0x48] | keystatus[0x50] |                      \
+                       keystatus[0xc8] | keystatus[0xd0])
+
+/* The descriptor flags use the original bitwise OR tests. */
+#define MENU_INPUT(item)                                                        \
+    {                                                                           \
+        if (item.flags | 4)                                                     \
+        {                                                                       \
+            if (keystatus[0x10] || menu_mouse == 2)                             \
+            {                                                                   \
+                keystatus[0x10] = 0;                                            \
+                return -1;                                                      \
+            }                                                                   \
+            if (keystatus[0x01] || menu_mouse == 2)                             \
+            {                                                                   \
+                keystatus[0x01] = 0;                                            \
+                return -2;                                                      \
+            }                                                                   \
+        }                                                                       \
+        if (item.flags | 2)                                                     \
+        {                                                                       \
+            if (keystatus[0x1c] || keystatus[0x39] || menu_mouse == 1)          \
+            {                                                                   \
+                keystatus[0x1c] = 0;                                            \
+                keystatus[0x39] = 0;                                            \
+                return ((long)menu_y - item.y) / 16 + 1;                        \
+            }                                                                   \
+        }                                                                       \
+        if (item.flags | 1)                                                     \
+        {                                                                       \
+            if (PRESSED_UP) menu_y -= 16;                                       \
+            if (PRESSED_DOWN) menu_y += 16;                                     \
+            if (MOVED_CURSOR)                                                   \
+            {                                                                   \
+                keystatus[0x48] = 0;                                            \
+                keystatus[0x50] = 0;                                            \
+                keystatus[0xc8] = 0;                                            \
+                keystatus[0xd0] = 0;                                            \
+                menu_x = item.x;                                                \
+                if (menu_y < item.y + 8) menu_y = item.y + (item.lines << 4) - 8; \
+                if (menu_y > item.y + (item.lines << 4) - 8) menu_y = item.y + 8; \
+            }                                                                   \
+        }                                                                       \
+        return 0;                                                               \
+    }
+
+long probe(struct menu item)
+{
+    MENU_INPUT(item)
+}
+
+#define DRAW_MENU_TITLE(item)                                                   \
+    if (menu_zoom < 8192 - 348) menu_zoom += 348; else menu_zoom = 8192;        \
+    rotatesprite(160L << 16, ((item).y - tilesizy[(item).tile] / 2L - 8) << 16, \
+        ((long)menu_zoom << 3) - 4096, menu_zoom, (item).tile)
+
+long draw_and_probe(struct menu item, unsigned char color)
+{
+    long x, y;
+    unsigned char *text;
+    unsigned char shade;
+    short tile, cursor, start_x, base_shade;
+
+    DRAW_MENU_TITLE(item);
+    cursor = menu_y;
+    x = item.x;
+    y = item.y;
+    text = item.text;
+    if (ps[0].display_mode != 2)
+    {
+        start_x = x;
+        base_shade = color;
+        DRAW_MENU_TEXT(x, y, text, shade, base_shade, cursor)
+    }
+    {
+        struct menu argument = item;
+        struct menu selected = argument;
+        MENU_INPUT(selected)
+    }
+}
+
+/* Preserve the by-value descriptor copies at each menu title/probe site. */
+#define MENU_ACTION(action, source)                                             \
+    {                                                                           \
+        struct menu selected;                                                   \
+        short cursor;                                                           \
+        short color = 4;                                                        \
+        argument = (source);                                                    \
+        selected = argument;                                                    \
+        DRAW_MENU_TITLE(selected);                                              \
+        cursor = menu_y;                                                        \
+        drawmenu(selected.x, selected.y, selected.text, color, cursor);         \
+        (action) = probe(selected);                                             \
+    }
+
+void menus(void)
+{
+    struct menu argument;
+    long action;
+
+    if (current_menu == 0 && (ps[myconnectindex].game_mode & 4))
+    {
+        current_menu = 100;
+        goto init_cursor;
+    }
+    if (current_menu < 128)
+    {
+init_cursor:
+        current_menu |= 128;
+        menu_mouse = 0;
+        menu_x = 160;
+        menu_y = 100;
+        menu_zoom = 0;
+    }
+
+    switch (current_menu & 127)
+    {
+    case 0:
+        MENU_ACTION(action, menu_main)
+        switch (action)
+        {
+        case -2: case -1: case 8:
+            ps[myconnectindex].game_mode = 128;
+            break;
+        case 1: current_menu = 1; break;
+        case 2: current_menu = 10; break;
+        case 3: current_menu = 20; break;
+        case 4: current_menu = 30; break;
+        case 5: current_menu = 40; break;
+        case 6: ps[myconnectindex].game_mode = 6; break;
+        case 7: current_menu = 60; break;
+        }
+        break;
+
+    case 1:
+        MENU_ACTION(action, menu_episode)
+        switch (action)
+        {
+        case -2: case -1: case 5: current_menu = 0; break;
+        case 1: ps[0].episode = 0; current_menu = 2; break;
+        case 2: ps[0].episode = 1; current_menu = 2; break;
+        case 3: ps[0].episode = 2; current_menu = 2; break;
+        case 4: ps[0].episode = 3; current_menu = 2; break;
+        }
+        break;
+
+    case 2:
+        MENU_ACTION(action, menu_skill)
+        switch (action)
+        {
+        case -2: case -1: case 5: current_menu = 1; break;
+        case 1:
+            ps[0].skill = 0;
+            newgame(ps[0].episode, 0, 0);
+            enterlevel(4);
+            break;
+        case 2:
+            ps[0].skill = 1;
+            newgame(ps[0].episode, 0, 1);
+            enterlevel(4);
+            break;
+        case 3:
+            ps[0].skill = 2;
+            newgame(ps[0].episode, 0, 2);
+            enterlevel(4);
+            break;
+        case 4:
+            ps[0].skill = 3;
+            newgame(ps[0].episode, 0, 3);
+            enterlevel(4);
+            break;
+        }
+        break;
+
+    case 10:
+        MENU_ACTION(action, menu_load)
+        switch (action)
+        {
+        case -2: case -1: case 9: current_menu = 0; break;
+        case 1: loadplayer(0); break;
+        case 2: loadplayer(1); break;
+        case 3: loadplayer(2); break;
+        case 4: loadplayer(3); break;
+        case 5: loadplayer(4); break;
+        case 6: loadplayer(5); break;
+        case 7: loadplayer(6); break;
+        case 8: loadplayer(7); break;
+        }
+        break;
+
+    case 20:
+        if (player_bits[0] & 1) gametext(10, 100, "Jump", 0);
+        if (player_bits[0] & 2) gametext(10, 115, "Duck", 0);
+        if (player_bits[0] & 4) gametext(10, 130, "Shoot", 0);
+        if (player_bits[0] & 8) gametext(10, 145, "Open\0\0\0", 0);
+        MENU_ACTION(action, menu_instructions)
+        switch (action)
+        {
+        case -2: case -1: case 1: current_menu = 0; break;
+        }
+        break;
+
+    case 30:
+        DRAW_SLIDER(32, menu_options.y, &sound_volume, 16)
+        FX_SetVolume(sound_volume);
+        DRAW_SLIDER(32, (short)(menu_options.y + 16), &music_volume, 16)
+        MUSIC_SetVolume(music_volume);
+        DRAW_SLIDER(32, (short)(menu_options.y + 32), &mouse_sensitivity, 16)
+        MENU_ACTION(action, menu_options)
+        switch (action)
+        {
+        case -2: case -1: case 5: current_menu = 0; break;
+        }
+        break;
+
+    case 40:
+        MENU_ACTION(action, menu_ordering)
+        switch (action)
+        {
+        case -2: case -1: case 1: current_menu = 0; break;
+        }
+        break;
+
+    case 50:
+        MENU_ACTION(action, menu_save)
+        switch (action)
+        {
+        case -2: case -1: case 9: current_menu = 0; break;
+        case 1: saveplayer(0); current_menu = 0; break;
+        case 2: saveplayer(1); current_menu = 0; break;
+        case 3: saveplayer(2); current_menu = 0; break;
+        case 4: saveplayer(3); current_menu = 0; break;
+        case 5: saveplayer(4); current_menu = 0; break;
+        case 6: saveplayer(5); current_menu = 0; break;
+        case 7: saveplayer(6); current_menu = 0; break;
+        case 8: saveplayer(7); current_menu = 0; break;
+        }
+        break;
+
+    case 60:
+        MENU_ACTION(action, menu_scores)
+        if ((unsigned long)action >= (unsigned long)-2)
+            current_menu = 0;
+        else
+            displayhighscores();
+        return;
+
+    case 100:
+        MENU_ACTION(action, menu_pause)
+        switch (action)
+        {
+        case -2: case 1:
+            ps[myconnectindex].game_mode = 128;
+            break;
+        case -1:
+            ps[myconnectindex].game_mode = 4;
+            break;
+        case 2: current_menu = 20; break;
+        case 3: current_menu = 50; break;
+        case 4: current_menu = 10; break;
+        case 5: current_menu = 30; break;
+        case 6: ps[myconnectindex].game_mode = 2; break;
+        }
+        break;
+
+    default:
+        return;
+    }
+
+    update_menu_cursor(614);
+}
+
+void draw_fade_transition(void)
+{
+    if (transition_zoom < 8192 - 348)
+        transition_zoom += 348;
+    else
+        transition_zoom = 8192;
+
+    rotatesprite(160L << 16, (100L - tilesizy[1139] / 2L - 8) << 16,
+        ((long)transition_zoom << 3) - 4096, transition_zoom, 1139);
+}
+
+void vscrn(short p)
+{
+    long margin = ps[p].screen_size;
+
+    if (margin < 0) margin = 0;
+    if (p == screenpeek)
+        setview(margin, margin, 319 - margin, 199 - margin);
+}
+
+void init_water_ripples(void)
+{
+    long x, y, radius, i;
+
+    for (x = -16; x <= 16; x++)
+    {
+        for (y = -16; y <= 16; y++)
+        {
+            radius = ksqrt(x * x + y * y);
+            ring_y[radius][ring_count[radius]] = y;
+            ring_x[radius][ring_count[radius]] = x;
+            ring_count[radius]++;
+        }
+    }
+    for (i = 0; i < 16; i++)
+        ripple_strength[i] = 8 / (ksqrt(i) + 1);
+    for (i = 0; i < 128; i++)
+        ripple_palette[i] = (unsigned char)(12 + klabs((((i ^ 17) >> 4) & 7) - 4));
+    ripple_count = 0;
+    ripple_phase = 0;
+}
+
+void animate_water_ripples(unsigned char *pixels)
+{
+    long i, j, x, y, n, age, delta, row, col, center;
+    unsigned char *pixel;
+    unsigned char level;
+
+    n = 3;
+    if (ripple_count + n >= 16)
+        n = 16 - ripple_count - 1;
+    while (n >= 0)
+    {
+        ripple_x[ripple_count] = rand() & 127;
+        ripple_y[ripple_count] = rand() & 127;
+        ripple_age[ripple_count] = 1;
+        ripple_count++;
+        n--;
+    }
+
+    for (i = ripple_count - 1; i >= 0; i--)
+    {
+        delta = ripple_strength[ripple_age[i]] * ((i & 1) * 2 - 1);
+        age = ripple_age[i];
+        x = ripple_x[i];
+        y = ripple_y[i];
+        for (j = ring_count[age] - 1; j >= 0; j--)
+        {
+            long column = (ring_x[age][j] + x) & 127;
+            long line = (ring_y[age][j] + y) & 127;
+
+            pixel = &pixels[(column << 7) + line];
+            *pixel += delta;
+            if (*pixel < 64)
+                *pixel = 64;
+        }
+        if (++ripple_age[i] > 10)
+        {
+            --ripple_count;
+            ripple_x[i] = ripple_x[ripple_count];
+            ripple_y[i] = ripple_y[ripple_count];
+            ripple_age[i] = ripple_age[ripple_count];
+        }
+    }
+
+    /* Copy the tile and wrap its edges into a one-pixel border. */
+    for (row = 0; row < 128; row += 2)
+    {
+        copybuf(pixels + (row << 7), &ripple_border[(row + 1) * 130 + 1], 32);
+        copybuf(pixels + ((row + 1) << 7), &ripple_border[(row + 2) * 130 + 1], 32);
+    }
+
+    for (col = 0; col < 128; col++)
+    {
+        ripple_border[col + 1] = pixels[(127 << 7) + col];
+        ripple_border[129 * 130 + col + 1] = pixels[col];
+    }
+    for (row = 0; row < 128; row++)
+    {
+        ripple_border[(row + 1) * 130] = pixels[(row << 7) + 127];
+        ripple_border[(row + 1) * 130 + 129] = pixels[row << 7];
+    }
+    ripple_border[0] = pixels[(128 << 7) - 1];
+    ripple_border[129] = pixels[127 << 7];
+    ripple_border[129 * 130] = pixels[127];
+    ripple_border[129 * 130 + 129] = pixels[0];
+
+    /* Extract the five-bit intensity in groups of four pixels. */
+    for (i = 130 * 130 - 4; i >= 0; i -= 4)
+    {
+        ripple_border[i] &= 31;
+        ripple_border[i + 1] &= 31;
+        ripple_border[i + 2] &= 31;
+        ripple_border[i + 3] &= 31;
+    }
+
+    /* Filter the snapshot as the next frame is written to the tile. */
+    for (row = 127; row >= 0; row--)
+    {
+        unsigned char *output = pixels + (row << 7);
+        center = (row + 1) * 130 + 1;
+        i = (ripple_phase + row) & 127;
+        for (col = 127; col >= 0; col--, center++)
+        {
+            level = ripple_palette[i & col] + ripple_border[center - 131] +
+                ripple_border[center - 130] + ripple_border[center - 129] +
+                ripple_border[center - 1] + ripple_border[center + 1] +
+                ripple_border[center + 130] + ripple_border[center + 129];
+            *output++ = 64 + (level >> 3);
+        }
+    }
+    ripple_phase++;
+}
+
+void resetparallax(void)
+{
+    pskyoff[0] = 0;
+    pskybits = 3;
+}

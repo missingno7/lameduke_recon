@@ -2002,6 +2002,50 @@
    "kind": "c",
    "provenance": "provisional storage split of MULTI.OBJ",
    "functions": {}
+  },
+  "game_menues": {
+   "source": "src/game/menues.c",
+   "profile": "game",
+   "include": [
+    "src/game"
+   ],
+   "kind": "c",
+   "provenance": "BINARY_DERIVED with raynorpat/lameduke and Duke3D 1.5 MENUES.C semantics; menues worker 2026-11-26",
+   "functions": {
+    "initmenus": {
+     "status": "NEAR_MATCH"
+    },
+    "draw_menu_slider": {
+     "status": "STRICT"
+    },
+    "drawmenu": {
+     "status": "STRICT"
+    },
+    "probe": {
+     "status": "NEAR_MATCH"
+    },
+    "draw_and_probe": {
+     "status": "NEAR_MATCH"
+    },
+    "menus": {
+     "status": "NEAR_MATCH"
+    },
+    "draw_fade_transition": {
+     "status": "STRICT"
+    },
+    "vscrn": {
+     "status": "STRICT"
+    },
+    "init_water_ripples": {
+     "status": "STRICT"
+    },
+    "animate_water_ripples": {
+     "status": "NEAR_MATCH"
+    },
+    "resetparallax": {
+     "status": "STRICT"
+    }
+   }
   }
  }
 }

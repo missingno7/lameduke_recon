@@ -2885,6 +2885,86 @@
    "IRQ_D32DosMemAlloc": {
     "addr": "1:5c780",
     "evidence": "audio worker 2026-11-26: IRQ_SetVector calls this private conventional memory allocator for its real-mode stub"
+   },
+   "initmenus": {
+    "addr": "1:2c1c0",
+    "evidence": "menues worker 2026-11-26: Main calls 1:5bdd; post-SOUNDS zero fill; builds nine literal-backed menus."
+   },
+   "draw_menu_slider": {
+    "addr": "1:2c430",
+    "evidence": "menues worker 2026-11-26: Independent prologue following initmenus return and instruction fill. Draws 32 segments with tiles 678/679 and edits a short through the third argument."
+   },
+   "drawmenu": {
+    "addr": "1:2c590",
+    "evidence": "menues worker 2026-11-26: Direct calls from ten menus branches. Renders descriptor text with selection-specific shade."
+   },
+   "probe": {
+    "addr": "1:2c6f0",
+    "evidence": "menues worker 2026-11-26: Direct calls from ten menus branches; consumes a packed 15-byte descriptor and returns menu actions."
+   },
+   "draw_and_probe": {
+    "addr": "1:2c880",
+    "evidence": "menues worker 2026-11-26: Independent prologue following probe return and instruction fill. Draws title and text, then polls a descriptor copied from its stack argument."
+   },
+   "menus": {
+    "addr": "1:2ccf0",
+    "evidence": "menues worker 2026-11-26: Main and demo calls 1:5fbe, 7461, 8da8; dispatches menu state."
+   },
+   "draw_fade_transition": {
+    "addr": "1:2e060",
+    "evidence": "menues worker 2026-11-26: Title sequence call from 1:64a3; rotates tile 1139 using transition state."
+   },
+   "vscrn": {
+    "addr": "1:2e0d0",
+    "evidence": "menues worker 2026-11-26: Called by stage setup at 1:14bcd and gameplay margin changes at 1:19839, 1989e, 19a03. Calls setview."
+   },
+   "init_water_ripples": {
+    "addr": "1:2e120",
+    "evidence": "menues worker 2026-11-26: Called at startup at 1:5c75. Seeds rings and palette used by animatewalls call at 1:15587."
+   },
+   "animate_water_ripples": {
+    "addr": "1:2e200",
+    "evidence": "menues worker 2026-11-26: Called from animatewalls at 1:15587 with mutable water tile pixels; uses the startup ring/palette tables."
+   },
+   "resetparallax": {
+    "addr": "1:2e6e0",
+    "evidence": "menues worker 2026-11-26: Called at 1:3769; sets pskyoff[0] and pskybits, independently bound in ENGINE."
+   },
+   "menues_text_end": {
+    "addr": "1:2e6fa",
+    "evidence": "menues worker 2026-11-26: Terminal ret at 1:2e6f9, followed by six zero bytes before the independently verified GAMEDEF entry."
+   },
+   "next_text_shade": {
+    "addr": "1:023d0",
+    "evidence": "menues worker 2026-11-26: Shared GAME score/name-entry and MENUES text renderer calls; callee advances sine phase by 128 and derives shade."
+   },
+   "gametext": {
+    "addr": "1:02750",
+    "evidence": "menues worker 2026-11-26: GAME and MENUES calls, including the four keyboard labels. Callee maps glyphs and draws with overwritesprite."
+   },
+   "update_menu_cursor": {
+    "addr": "1:0a6f0",
+    "evidence": "menues worker 2026-11-26: Callee reads mouse and updates the independently observed menu coordinate/button fields."
+   },
+   "displayhighscores": {
+    "addr": "1:0a8b0",
+    "evidence": "menues worker 2026-11-26: Reached from GAME at 1:7676, 783c and menus at 1:2deb6. Callee draws records with Score and Hero's Quote labels."
+   },
+   "saveplayer": {
+    "addr": "1:0b630",
+    "evidence": "menues worker 2026-11-26: Formats the SAVE filename, writes save header and calls bound saveboard."
+   },
+   "loadplayer": {
+    "addr": "1:0b700",
+    "evidence": "menues worker 2026-11-26: Reads the SAVE header and calls bound loadboard; menus supplies all eight slot values."
+   },
+   "newgame": {
+    "addr": "1:148a0",
+    "evidence": "menues worker 2026-11-26: Demo callers pass the three header settings. The callee stores them into the player record before resetting player state."
+   },
+   "enterlevel": {
+    "addr": "1:149b0",
+    "evidence": "menues worker 2026-11-26: Builds map names, runs bound loadboard, and calls prelevel."
    }
   },
   "data": {
@@ -5403,6 +5483,130 @@
    "yb2": {
     "addr": "2:e0590",
     "evidence": "engine worker 2026-11-26: addboxlinum stores the right clipped depth. calcwalls divides its fixed-point scale by the same right-end depth. 14 exact-address fixup sites (calcwalls 1:34a0b, addboxlinum 1:36f0e, drawmaskwall 1:3c60d, drawsprite 1:3d055)."
+   },
+   "menu_main": {
+    "addr": "2:a5798",
+    "evidence": "menues worker 2026-11-26: Title 1129, main text and a 15-byte descriptor copy at 1:2ce17."
+   },
+   "menu_pause": {
+    "addr": "2:a5738",
+    "evidence": "menues worker 2026-11-26: Pause text and a 15-byte descriptor copy in the in-game menu."
+   },
+   "menu_episode": {
+    "addr": "2:a5788",
+    "evidence": "menues worker 2026-11-26: Episode text and a 15-byte descriptor copy at 1:2cfa7."
+   },
+   "menu_skill": {
+    "addr": "2:a5748",
+    "evidence": "menues worker 2026-11-26: Skill text and a 15-byte descriptor copy in the skill-selection page."
+   },
+   "menu_load": {
+    "addr": "2:a5728",
+    "evidence": "menues worker 2026-11-26: Nine lines, tile 613, descriptor copied on load branch."
+   },
+   "menu_save": {
+    "addr": "2:a5718",
+    "evidence": "menues worker 2026-11-26: Nine lines, tile 1137, descriptor copied on save branch."
+   },
+   "menu_options": {
+    "addr": "2:a5758",
+    "evidence": "menues worker 2026-11-26: Four settings and Back, 15-byte copy in options dispatch."
+   },
+   "menu_zoom": {
+    "addr": "2:a5392",
+    "evidence": "menues worker 2026-11-26: Page dispatch resets this value and repeatedly reuses the standalone title-drawing growth and clamp."
+   },
+   "menu_mouse": {
+    "addr": "2:a5394",
+    "evidence": "menues worker 2026-11-26: The cursor updater at 1:0a6f0 changes this word using the mouse-button result; menu probes read actions 1 and 2."
+   },
+   "menu_drag": {
+    "addr": "2:a5398",
+    "evidence": "menues worker 2026-11-26: Set/cleared by GAME cursor handling; read by text, slider and menu dispatch. RELOCATION_VOTES 2 sites in 2 byte-matching functions: draw_menu_slider, drawmenu."
+   },
+   "menu_x": {
+    "addr": "2:a539a",
+    "evidence": "menues worker 2026-11-26: Shared mouse x field updated by GAME cursor handling; slider and probe also use it."
+   },
+   "menu_y": {
+    "addr": "2:a539c",
+    "evidence": "menues worker 2026-11-26: Shared mouse y field updated by GAME cursor handling; slider and both probe variants also use it."
+   },
+   "transition_zoom": {
+    "addr": "2:a57b3",
+    "evidence": "menues worker 2026-11-26: Title sequence 1:5b60 resets and checks this scale independently of the helper's clamp; gameplay transition callers use the same short."
+   },
+   "ripple_age": {
+    "addr": "2:a59e0",
+    "evidence": "menues worker 2026-11-26: Update initializes 16 parallel ages to one and increments/compacts them. Scaled dword indices and neighboring palette establish base and size."
+   },
+   "ripple_palette": {
+    "addr": "2:a5a20",
+    "evidence": "menues worker 2026-11-26: Initializer writes the 128-byte wave ramp; renderer reads the same palette with a 7-bit index."
+   },
+   "ripple_strength": {
+    "addr": "2:a5aa0",
+    "evidence": "menues worker 2026-11-26: Initializer fills 16 dwords using the square root table. Renderer reads by age with the same stride."
+   },
+   "ring_x": {
+    "addr": "2:a5ae0",
+    "evidence": "menues worker 2026-11-26: Initializer writes x with radius stride 512; renderer uses same coordinates and stride. Initializer uses preincrement with base-minus-four."
+   },
+   "ring_y": {
+    "addr": "2:a9ae0",
+    "evidence": "menues worker 2026-11-26: Independent initializer and renderer both use radius stride 512 and the y coordinate."
+   },
+   "ring_count": {
+    "addr": "2:adae0",
+    "evidence": "menues worker 2026-11-26: Indexed dword counts written by the initializer and read for each rendered ring."
+   },
+   "ripple_x": {
+    "addr": "2:adb60",
+    "evidence": "menues worker 2026-11-26: First random draw per entry, read as column-major x and copied during removal."
+   },
+   "ripple_y": {
+    "addr": "2:adba0",
+    "evidence": "menues worker 2026-11-26: Second random draw per entry, read as column-major y and copied during removal."
+   },
+   "ripple_border": {
+    "addr": "2:adbe0",
+    "evidence": "menues worker 2026-11-26: Independent interior-copy, wrap-border writes and filter reads give a 130 by 130 byte workspace with this first corner."
+   },
+   "ripple_phase": {
+    "addr": "2:b1de4",
+    "evidence": "menues worker 2026-11-26: Initializer clears the dword. Renderer adds it to row before indexing palette and advances it once per call."
+   },
+   "ripple_count": {
+    "addr": "2:b1de8",
+    "evidence": "menues worker 2026-11-26: Initializer clears the dword. Renderer clamps total below the 16-entry arrays and updates it as active ripples are created or removed."
+   },
+   "current_menu": {
+    "addr": "2:a52f0",
+    "evidence": "menues worker 2026-11-26: GAME initializes it and PLAYER input at 1:19720 selects menu state; 1:2ccf0 consumes low seven bits and sets the initialization flag."
+   },
+   "sound_volume": {
+    "addr": "2:a57af",
+    "evidence": "menues worker 2026-11-26: USERDEFS.TMP reads the packed 21-byte block including this short; main and the options slider pass it to independently bound FX_SetVolume."
+   },
+   "music_volume": {
+    "addr": "2:a57b1",
+    "evidence": "menues worker 2026-11-26: USERDEFS.TMP packed settings and startup music use; options slider passes the signed short to MUSIC_SetVolume at 1:2d8a8."
+   },
+   "mouse_sensitivity": {
+    "addr": "2:a57b7",
+    "evidence": "menues worker 2026-11-26: Packed USERDEFS settings. PLAYER input and cursor updater consume this short as a scaling value; third options slider directly writes it."
+   },
+   "menu_ordering": {
+    "addr": "2:a5708",
+    "evidence": "menues worker 2026-11-26: The Ordering Info choice selects page 40 in menus. That page copies this Back-only 15-byte descriptor at 1:2db34."
+   },
+   "menu_instructions": {
+    "addr": "2:a5768",
+    "evidence": "menues worker 2026-11-26: The Instructions choices select page 20. That page tests input bits and copies this Back-only descriptor at 1:2d48c."
+   },
+   "menu_scores": {
+    "addr": "2:a5410",
+    "evidence": "menues worker 2026-11-26: The High Scores choice selects page 60. That page copies this zero-line descriptor with title tile 1138 at 1:2ddd9."
    }
   }
  }
