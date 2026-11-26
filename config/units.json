@@ -1,0 +1,4 @@
+{
+ "note": "Integrator-owned registry of reconstructed units. tools/verify.py rebuilds each unit fresh and fails on any status regression.",
+ "units": {}
+}
