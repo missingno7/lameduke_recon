@@ -264,7 +264,7 @@ char parsecommand(void)
                 return 0;
             }
         }
-        if (i == 39) {
+        if (i == 38) {      /* oracle 1:2f136 cmp ecx,0x26 (asset worker 2026-11-27) */
             printf("  * ERROR!(L%ld) Sound '%s' not found.\n", (long)line_number, CURRENT_LABEL);
             error++;
         }

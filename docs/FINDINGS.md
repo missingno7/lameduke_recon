@@ -489,3 +489,6 @@ Each entry names the command or artefact that supports it.
   SOUNDOWNER voice record (i, voice, num) and SAMPLE ptr; data clubframes[6][20], bonus_xy[3][16], diz[500],
   user_quote, user_quote_time (formerly knee_frames, bonus_marks, file_id_record, msgtext, msgtime).
   HYPOTHESIS: temp_data as the pre-struct name of hittype[][5]; MusicPtr, typebuf/typebuflen; player_orig fields.
+- PROVEN (asset worker, 2026-11-27) the CON compiler's `sound` lookup scans 38 names and then tests `i == 38`
+  (1:2f12e cmp ebx,0x98 / 1:2f136 cmp ecx,0x26): the 39th table entry (rpg.voc) can never be named from CON and
+  the "Sound not found" error is reachable. src/game/gamedef.c tested `i == 39` (dead error path); fixed.
