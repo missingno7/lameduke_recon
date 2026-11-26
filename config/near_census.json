@@ -1,0 +1,5354 @@
+{
+ "schema": 1,
+ "registry_sha256": "c9601991129b91ae4b619b2646ba1a993969868bf0b2e2ba85f1690960bec1e4",
+ "watcom95b_host": "dos",
+ "selection": "NEAR_MATCH",
+ "counts": {
+  "ALLOCATION-ONLY": 21,
+  "LAYOUT": 18,
+  "SOURCE": 62,
+  "UNKNOWN": 24
+ },
+ "functions": [
+  {
+   "function": "drawrooms",
+   "size": 928,
+   "seg_offset": 188,
+   "oracle": "1:33f18",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 161,
+   "unit": "engine",
+   "match_first_diff": 643,
+   "oracle_size": 928,
+   "verdict": "MISMATCH",
+   "blocks": [
+    42,
+    40
+   ],
+   "aligned": 38,
+   "blocks_equal": 22,
+   "cfg_problems": [
+    "terminator kind br vs jmp at 341d7/387",
+    "terminator kind jmp vs br at 341d1/375",
+    "C block 3c5 aligned twice",
+    "terminator kind jmp vs br at 3420b/3b1"
+   ],
+   "unaligned": [
+    [
+     "34212",
+     "34216",
+     "341db",
+     "341e3"
+    ],
+    [
+     "3bb",
+     "37f"
+    ]
+   ],
+   "instructions": 453,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "341e4",
+    "c_block": "388",
+    "dos_block_insn": "341e4",
+    "c_block_insn": "388",
+    "dos_site": "1:341ed",
+    "c_site": "_TEXT+38f",
+    "dos": "lt_s32(phi@341e4:ebx, sx32(ld16[numbunches+0]))",
+    "c": "lt_s16(tr16(phi@388:ebx), ld16[numbunches+0])",
+    "detail": "branch predicate; innermost difference: DOS phi@341e4:ebx | C tr16(phi@388:ebx)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "scansector",
+   "size": 748,
+   "seg_offset": 1116,
+   "oracle": "1:342b8",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 457,
+   "unit": "engine",
+   "match_first_diff": 16,
+   "oracle_size": 756,
+   "verdict": "MISMATCH",
+   "blocks": [
+    37,
+    37
+   ],
+   "aligned": 37,
+   "blocks_equal": 20,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 398,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "return",
+    "dos_block": "345a4<34483",
+    "c_block": "740<708",
+    "dos_block_insn": "345a4",
+    "c_block_insn": "740",
+    "dos_site": "1:3c321",
+    "c_site": "_TEXT+84c5",
+    "dos": "phi@3447a:eax",
+    "c": "phi@6ff:eax",
+    "detail": "return value (eax); innermost difference: DOS phi@3447a:eax | C phi@6ff:eax [join value eax~eax at 3447a differs on edge from 34445: DOS phi@3443c:eax | C phi@6c1:eax]"
+   },
+   "class": "SOURCE",
+   "hint": "Trace the return value back to its defining load or arithmetic."
+  },
+  {
+   "function": "wallfront",
+   "size": 562,
+   "seg_offset": 1864,
+   "oracle": "1:345ac",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 338,
+   "unit": "engine",
+   "match_first_diff": 39,
+   "oracle_size": 554,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    19,
+    19
+   ],
+   "aligned": 19,
+   "blocks_equal": 19,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 398,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "spritewallfront",
+   "size": 114,
+   "seg_offset": 2426,
+   "oracle": "1:347d6",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 7,
+   "unit": "engine",
+   "match_first_diff": 29,
+   "oracle_size": 114,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    1,
+    1
+   ],
+   "aligned": 1,
+   "blocks_equal": 1,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 80,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "calcwalls",
+   "size": 5068,
+   "seg_offset": 2785,
+   "oracle": "1:3493d",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 10,
+   "unit": "engine",
+   "match_first_diff": 525,
+   "oracle_size": 5068,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    180,
+    180
+   ],
+   "aligned": 180,
+   "blocks_equal": 8,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 2506,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "34ab2",
+    "c_block": "c56",
+    "dos_block_insn": "34ab2",
+    "c_block_insn": "c56",
+    "dos_site": "1:34abe",
+    "c_site": "_TEXT+c62",
+    "dos": null,
+    "c": null,
+    "detail": "comparison depended on unsupported values"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check unresolved references and the expression or join named in the diagnostic."
+  },
+  {
+   "function": "hline",
+   "size": 965,
+   "seg_offset": 23587,
+   "oracle": "1:39a7f",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 703,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 965,
+   "verdict": "MISMATCH",
+   "blocks": [
+    30,
+    30
+   ],
+   "aligned": 30,
+   "blocks_equal": 28,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 614,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "39e1a",
+    "c_block": "5fc4",
+    "dos_block_insn": "39e1a",
+    "c_block_insn": "5fc4",
+    "dos_site": "1:39e38",
+    "c_site": "_TEXT+5fdc",
+    "dos": "call hlineasm64(edx=(shl32(phi@39d0b:esi, (31 and zx32(ld8[globalyshift+0]))) + ld32[globalypanning+0]), ebx=0, ecx=phi@39d65:ecx, esi=(shl32(phi@39cfb:edi, (31 and zx32(ld8[globalxshift+0]))) + ld32[globalxpanning+0]), edi=(phi@39e1a:eax + ld32[viewoffset+0]))",
+    "c": "call hlineasm64(edx=(shl32(phi@5eaa:esi, (31 and zx32(ld8[globalyshift+0]))) + ld32[globalypanning+0]), ebx=0, ecx=phi@5f03:ecx, esi=(shl32(phi@5e9b:edi, (31 and zx32(ld8[globalxshift+0]))) + ld32[globalxpanning+0]), edi=phi@5fc4:ebp)",
+    "detail": "effect #1 differs; innermost difference: DOS <edx=(shl32(phi@39d0b:esi, (31 and zx32(ld8[globalyshift+0]))) + ld32[globalypanning+0]), ebx=0, ecx=phi@39d65:ecx, esi=(shl32(phi@39cfb:edi, (31 and zx32(ld8[globalxshift+0]))) + ld32[globalxpanning+0]), edi=(phi@39e1a:eax + ld32[viewoffset+0])> | C <edx=(shl32(phi@5eaa:esi, (31 and zx32(ld8[globalyshift+0]))) + ld32[globalypanning+0]), ebx=0, ecx=phi@5f03:ecx, esi=(shl32(phi@5e9b:edi, (31 and zx32(ld8[globalxshift+0]))) + ld32[globalxpanning+0]), edi=phi@5fc4:ebp> [join value ebp at C 5fc4 differs on edge from 5f86: DOS (phi@39e1a:eax + ld32[viewoffset+0]) | C (320*in_ebx + ld32[frameplace+0] + in_eax + ld32[viewoffset+0])]"
+   },
+   "class": "SOURCE",
+   "hint": "Check the callee, evaluation order and argument values at the listed call."
+  },
+  {
+   "function": "screencapture",
+   "size": 1511,
+   "seg_offset": 30004,
+   "oracle": "1:3b390",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 316,
+   "unit": "engine",
+   "match_first_diff": 52,
+   "oracle_size": 1511,
+   "verdict": "MISMATCH",
+   "blocks": [
+    83,
+    83
+   ],
+   "aligned": 83,
+   "blocks_equal": 16,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 864,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "3b602",
+    "c_block": "77a6",
+    "dos_block_insn": "3b602",
+    "c_block_insn": "77a6",
+    "dos_site": "1:3b604",
+    "c_site": "_TEXT+77a8",
+    "dos": "lt_s32(phi@3b602:ecx, phi@3b602:edi)",
+    "c": "lt_s32(phi@77a6:esi, phi@77a6:edi)",
+    "detail": "branch predicate; innermost difference: DOS phi@3b602:ecx | C phi@77a6:esi [join value ecx~esi at 3b602 differs on edge from 3b7db: DOS phi@3b7db:ecx | C phi@797f:esi]"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "drawmaskwall",
+   "size": 1887,
+   "seg_offset": 33990,
+   "oracle": "1:3c322",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1087,
+   "unit": "engine",
+   "match_first_diff": 194,
+   "oracle_size": 1890,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    82,
+    82
+   ],
+   "aligned": 82,
+   "blocks_equal": 82,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 1029,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "drawsprite",
+   "size": 10422,
+   "seg_offset": 35877,
+   "oracle": "1:3ca84",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 7586,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 9875,
+   "verdict": "MISMATCH",
+   "blocks": [
+    418,
+    428
+   ],
+   "aligned": 203,
+   "blocks_equal": 15,
+   "cfg_problems": [
+    "terminator kind jmp vs br at 3d4fd/97c4",
+    "terminator kind br vs jmp at 3d540/9800",
+    "terminator kind br vs ret at 3d54b/b4d0<97ef",
+    "terminator kind ret vs br at 3f10c<3d52b/9890",
+    "block 3d539 aligned to 97ef and 982f"
+   ],
+   "unaligned": [
+    [
+     "3f10c<3d540",
+     "3d559",
+     "3d565",
+     "3d56d",
+     "3d590",
+     "3d596",
+     "3d5a5",
+     "3d5ad"
+    ],
+    [
+     "b4d0<97c4",
+     "982f",
+     "983b",
+     "9843",
+     "9865",
+     "986e",
+     "987d",
+     "9885"
+    ]
+   ],
+   "instructions": 5553,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "3d398",
+    "c_block": "95ff",
+    "dos_block_insn": "3d398",
+    "c_block_insn": "95ff",
+    "dos_site": "1:3d4fb",
+    "c_site": "_TEXT+97c2",
+    "dos": "lt_s32(mul32(sar32((mul32(ld32[cosglobalang+0], (-shrd32(..., ..., ...) + ld32[sprite+4 + (38*sx32(tr16(in_ecx)))] + -ld32[globalposy+0] + shrd32(..., ..., ...))) + -mul32((-ld32[globalposx+0] + shrd32(..., ..., ...) + ld32[sprite+0 + (38*sx32(tr16(in_ecx)))] + -shrd32(..., ..., ...)), ld32[singlobalang+0])), 14), sar32((mul32(ld32[cosglobalang+0], (-ld32[globalposx+0] + ld32[sprite+0 + (38*sx32(tr16(in_ecx)))] + -shrd32(..., ..., ...))) + mul32((-shrd32(..., ..., ...) + ld32[sprite+4 + (38*sx32(tr16(in_ecx)))] + -ld32[globalposy+0]), ld32[singlobalang+0])), 14)), mul32(sar32((mul32(ld32[cosglobalang+0], (-ld32[globalposx+0] + shrd32(..., ..., ...) + ld32[sprite+0 + (38*sx32(tr16(in_ecx)))] + -shrd32(..., ..., ...))) + mul32(ld32[singlobalang+0], (-shrd32(..., ..., ...) + ld32[sprite+4 + (38*sx32(tr16(in_ecx)))] + -ld32[globalposy+0] + shrd32(..., ..., ...)))), 14), sar32((mul32((-shrd32(..., ..., ...) + ld32[sprite+4 + (38*sx32(tr16(in_ecx)))] + -ld32[globalposy+0]), ld32[cosglobalang+0]) + -mul32(ld32[singlobalang+0], (-ld32[globalposx+0] + ld32[sprite+0 + (38*sx32(tr16(in_ecx)))] + -shrd32(..., ..., ...)))), 14)))",
+    "c": "lt_s32(shrd32((mul32(ld32[cosglobalang+0], (-ld32[globalposx+0] + ld32[sprite+0 + (38*sx32(tr16(in_ecx)))] + -shrd32(mul32(..., ...), mulhi_s32(..., ...), 16))) + mul32((-shrd32(mul32(..., ...), mulhi_s32(..., ...), 16) + ld32[sprite+4 + (38*sx32(tr16(in_ecx)))] + -ld32[globalposy+0]), ld32[singlobalang+0])), (zx32(bool(lt_u32((... + ...), mul32(..., ...)))) + mulhi_s32(ld32[cosglobalang+0], (-ld32[globalposx+0] + ld32[sprite+0 + (38*sx32(tr16(in_ecx)))] + -shrd32(mul32(..., ...), mulhi_s32(..., ...), 16))) + mulhi_s32((-shrd32(mul32(..., ...), mulhi_s32(..., ...), 16) + ld32[sprite+4 + (38*sx32(tr16(in_ecx)))] + -ld32[globalposy+0]), ld32[singlobalang+0])), 14), 1)",
+    "detail": "branch predicate; innermost difference: DOS mul32(sar32((mul32(ld32[cosglobalang+0], (-shrd32(mul32(..., ...), mulhi_s32(..., ...), 16) + ld32[sprite+4 + (38*sx32(tr16(in_ecx)))] + -ld32[globalposy+0] + shrd32(mul32(..., ...), mulhi_s32(..., ...), 16))) + -mul32((-ld32[globalposx+0] + shrd32(mul32(..., ...), mulhi_s32(..., ...), 16) + ld32[sprite+0 + (38*sx32(tr16(in_ecx)))] + -shrd32(mul32(..., ...), mulhi_s32(..., ...), 16)), ld32[singlobalang+0])), 14), sar32((mul32(ld32[cosglobalang+0], (-ld32[globalposx+0] + ld32[sprite+0 + (38*sx32(tr16(in_ecx)))] + -shrd32(mul32(..., ...), mulhi_s32(..., ...), 16))) + mul32((-shrd32(mul32(..., ...), mulhi_s32(..., ...), 16) + ld32[sprite+4 + (38*sx32(tr16(in_ecx)))] + -ld32[globalposy+0]), ld32[singlobalang+0])), 14)) | C shrd32((mul32(ld32[cosglobalang+0], (-ld32[globalposx+0] + ld32[sprite+0 + (38*sx32(tr16(in_ecx)))] + -shrd32(mul32(mul32(..., ...), (... + ...)), mulhi_s32(mul32(..., ...), (... + ...)), 16))) + mul32((-shrd32(mul32(mul32(..., ...), (... + ...)), mulhi_s32(mul32(..., ...), (... + ...)), 16) + ld32[sprite+4 + (38*sx32(tr16(in_ecx)))] + -ld32[globalposy+0]), ld32[singlobalang+0])), (zx32(bool(lt_u32((mul32(..., ...) + mul32(..., ...)), mul32((-... + ... + -...), ld32[singlobalang+0])))) + mulhi_s32(ld32[cosglobalang+0], (-ld32[globalposx+0] + ld32[sprite+0 + (38*sx32(tr16(in_ecx)))] + -shrd32(mul32(mul32(..., ...), (... + ...)), mulhi_s32(mul32(..., ...), (... + ...)), 16))) + mulhi_s32((-shrd32(mul32(mul32(..., ...), (... + ...)), mulhi_s32(mul32(..., ...), (... + ...)), 16) + ld32[sprite+4 + (38*sx32(tr16(in_ecx)))] + -ld32[globalposy+0]), ld32[singlobalang+0])), 14)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "ceilspritescan",
+   "size": 402,
+   "seg_offset": 46299,
+   "oracle": "1:3f117",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "engine",
+   "match_first_diff": 398,
+   "oracle_size": 402,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:3f2a4",
+    "c_site": "_TEXT+b668",
+    "dos": "jmp 0x347d0",
+    "c": "jmp 0x974",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "ceilspritehline",
+   "size": 1044,
+   "seg_offset": 46701,
+   "oracle": "1:3f2a9",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 798,
+   "unit": "engine",
+   "match_first_diff": 6,
+   "oracle_size": 976,
+   "verdict": "MISMATCH",
+   "blocks": [
+    22,
+    25
+   ],
+   "aligned": 7,
+   "blocks_equal": 1,
+   "cfg_problems": [
+    "terminator kind br vs jmp at 3f3a9/b760",
+    "terminator kind jmp vs br at 3f5ea/b782",
+    "C block b782 aligned twice"
+   ],
+   "unaligned": [
+    [
+     "3f418",
+     "3f41c",
+     "3f47e",
+     "3f484",
+     "3f4b8",
+     "3f4c2",
+     "3f671<3f4b8",
+     "3f521"
+    ],
+    [
+     "b791",
+     "b797",
+     "b7c1",
+     "b834",
+     "b838",
+     "b89b",
+     "b8a3",
+     "b8d7"
+    ]
+   ],
+   "instructions": 636,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "3f2c0",
+    "c_block": "b683",
+    "dos_block_insn": "3f2c0",
+    "c_block_insn": "b683",
+    "dos_site": "1:3f3a3",
+    "c_site": "_TEXT+b75e",
+    "dos": "eq8(ld8[option+0], 0)",
+    "c": "lt_s32(shrd32(mul32(ld32[globalzd+0], ld32[horizlookup+800 + (4*in_ebx + -4*ld32[globalhoriz+0])]), mulhi_s32(ld32[globalzd+0], ld32[horizlookup+800 + (4*in_ebx + -4*ld32[globalhoriz+0])]), 16), 0)",
+    "detail": "branch predicate; innermost difference: DOS eq8(ld8[option+0], 0) | C lt_s32(shrd32(mul32(ld32[globalzd+0], ld32[horizlookup+800 + (4*in_ebx + -4*ld32[globalhoriz+0])]), mulhi_s32(ld32[globalzd+0], ld32[horizlookup+800 + (4*in_ebx + -4*ld32[globalhoriz+0])]), 16), 0)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "overwritesprite",
+   "size": 1323,
+   "seg_offset": 47745,
+   "oracle": "1:3f679",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1007,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 1063,
+   "verdict": "MISMATCH",
+   "blocks": [
+    65,
+    78
+   ],
+   "aligned": 20,
+   "blocks_equal": 8,
+   "cfg_problems": [
+    "terminator kind jmp vs br at 3f73e/bb3a",
+    "terminator kind jmp vs br at 3f85d/bc60",
+    "block 3f85d aligned to bc60 and bc47",
+    "block 3f80e aligned to bbd0 and bbb3",
+    "block 3f80e aligned to bbd0 and bbb3"
+   ],
+   "unaligned": [
+    [
+     "3f874",
+     "3f887",
+     "3f891",
+     "3f893",
+     "3f8a1",
+     "3f8a7",
+     "3f8ab",
+     "3f8ad"
+    ],
+    [
+     "bb43",
+     "bbb3",
+     "bc47",
+     "bc6a",
+     "bc76",
+     "bcb3",
+     "bccc",
+     "bce3"
+    ]
+   ],
+   "instructions": 755,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "3f6ed",
+    "c_block": "baf5",
+    "dos_block_insn": "3f6ed",
+    "c_block_insn": "baf5",
+    "dos_site": "1:3f73c",
+    "c_site": "_TEXT+bb38",
+    "dos": "eq8((1 and arg[4]8), 0)",
+    "c": "eq32(ld32[stereofps+0], 0)",
+    "detail": "branch predicate; innermost difference: DOS eq8((1 and arg[4]8), 0) | C eq32(ld32[stereofps+0], 0)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "permanentwritesprite",
+   "size": 1358,
+   "seg_offset": 49068,
+   "oracle": "1:3faa0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 966,
+   "unit": "engine",
+   "match_first_diff": 25,
+   "oracle_size": 1358,
+   "verdict": "MISMATCH",
+   "blocks": [
+    74,
+    74
+   ],
+   "aligned": 74,
+   "blocks_equal": 6,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 846,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively"
+   ],
+   "first_difference": {
+    "kind": "branch:memory_order",
+    "dos_block": "3fae9",
+    "c_block": "bff5",
+    "dos_block_insn": "3fae9",
+    "c_block_insn": "bff5",
+    "dos_site": "1:3fb0c",
+    "c_site": "_TEXT+c014",
+    "dos": "eq32(ld32[waloff+0 + (4*sx32(tr16(in_ebx)))], -1)",
+    "c": "eq32(ld32[waloff+0 + (4*sx32(tr16(in_ebx)))], -1)",
+    "detail": "branch predicate; innermost difference: DOS eq32(ld32[waloff+0 + (4*sx32(tr16(in_ebx)))], -1) | C eq32(ld32[waloff+0 + (4*sx32(tr16(in_ebx)))], -1) - equal if loads ignore intervening stores (alias/ordering difference)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "grouvline",
+   "size": 2337,
+   "seg_offset": 50426,
+   "oracle": "1:3ffee",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1990,
+   "unit": "engine",
+   "match_first_diff": 8,
+   "oracle_size": 2169,
+   "verdict": "MISMATCH",
+   "blocks": [
+    94,
+    95
+   ],
+   "aligned": 94,
+   "blocks_equal": 2,
+   "cfg_problems": [
+    "block 4016a aligned to c68a and c688",
+    "block 4016a aligned to c68a and c688"
+   ],
+   "unaligned": [
+    [],
+    [
+     "c688"
+    ]
+   ],
+   "instructions": 1387,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively"
+   ],
+   "first_difference": {
+    "kind": "branch:memory_order",
+    "dos_block": "40015",
+    "c_block": "c522",
+    "dos_block_insn": "40015",
+    "c_block_insn": "c522",
+    "dos_site": "1:40023",
+    "c_site": "_TEXT+c530",
+    "dos": "lt_s32(ld32[umost+0 + (4*in_eax)], ld32[dmost+0 + (4*in_eax)])",
+    "c": "lt_s32(ld32[umost+0 + (4*in_eax)], ld32[dmost+0 + (4*in_eax)])",
+    "detail": "branch predicate; innermost difference: DOS <st32 [local32()] = in_ecx, st32 [local32()] = sar32(in_edx, 6)> | C <st32 [local32()] = sar32(in_edx, 6), st32 [local32()] = sar32(in_ebx, 6)> - equal if loads ignore intervening stores (alias/ordering difference)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "initspritelists",
+   "size": 206,
+   "seg_offset": 53286,
+   "oracle": "1:40a72",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "engine",
+   "match_first_diff": 202,
+   "oracle_size": 206,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:40b3b",
+    "c_site": "_TEXT+d0ef",
+    "dos": "jmp 0x3c31c",
+    "c": "jmp 0x84c0",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "insertspritesect",
+   "size": 158,
+   "seg_offset": 53513,
+   "oracle": "1:40b55",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 4,
+   "unit": "engine",
+   "match_first_diff": 31,
+   "oracle_size": 158,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:40b73",
+    "c_site": "_TEXT+d127",
+    "dos": "jmp 0x3c31c",
+    "c": "jmp 0x84c0",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "insertspritestat",
+   "size": 156,
+   "seg_offset": 53671,
+   "oracle": "1:40bf3",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "engine",
+   "match_first_diff": 31,
+   "oracle_size": 156,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:40c11",
+    "c_site": "_TEXT+d1c5",
+    "dos": "jmp 0x3c31c",
+    "c": "jmp 0x84c0",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "deletespritesect",
+   "size": 219,
+   "seg_offset": 53847,
+   "oracle": "1:40ca3",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 4,
+   "unit": "engine",
+   "match_first_diff": 33,
+   "oracle_size": 219,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:40cc3",
+    "c_site": "_TEXT+d277",
+    "dos": "jmp 0x3c31c",
+    "c": "jmp 0x84c0",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "deletespritestat",
+   "size": 217,
+   "seg_offset": 54066,
+   "oracle": "1:40d7e",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "engine",
+   "match_first_diff": 33,
+   "oracle_size": 217,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:40d9e",
+    "c_site": "_TEXT+d352",
+    "dos": "jmp 0x3c31c",
+    "c": "jmp 0x84c0",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "cansee",
+   "size": 388,
+   "seg_offset": 54730,
+   "oracle": "1:41016",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 307,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 430,
+   "verdict": "MISMATCH",
+   "blocks": [
+    22,
+    21
+   ],
+   "aligned": 20,
+   "blocks_equal": 3,
+   "cfg_problems": [
+    "block 4119b aligned to d71a and d709",
+    "C block d71a aligned twice",
+    "block 4119b aligned to d71a and d704",
+    "C block d6fe aligned twice"
+   ],
+   "unaligned": [
+    [
+     "4118f",
+     "41184"
+    ],
+    [
+     "d709"
+    ]
+   ],
+   "instructions": 261,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "4104f",
+    "c_block": "d736",
+    "dos_block_insn": "4104f",
+    "c_block_insn": "d736",
+    "dos_site": "1:41056",
+    "c_site": "_TEXT+d73e",
+    "dos": "lt_s16(tr16(phi@4104f:sp-24), tr16(phi@4104f:edi))",
+    "c": "lt_s32(phi@d736:sp-28, phi@d736:sp-20)",
+    "detail": "branch predicate; innermost difference: DOS tr16(phi@4104f:sp-24) | C phi@d736:sp-28"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "hitscan",
+   "size": 1659,
+   "seg_offset": 55118,
+   "oracle": "1:411c4",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1481,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 1745,
+   "verdict": "MISMATCH",
+   "blocks": [
+    82,
+    85
+   ],
+   "aligned": 70,
+   "blocks_equal": 2,
+   "cfg_problems": [
+    "terminator kind ret vs jmp at 4188c<411c4/d764",
+    "terminator kind ret vs jmp at 4188a/ddbc",
+    "block 41870 aligned to dda2 and dc4a",
+    "terminator kind br vs jmp at 41721/dc3f"
+   ],
+   "unaligned": [
+    [
+     "41737",
+     "417a5",
+     "417e1",
+     "417f3",
+     "417f5",
+     "41801",
+     "41803",
+     "41815"
+    ],
+    [
+     "dc4a",
+     "dc59",
+     "dc6c",
+     "dce7",
+     "dd21",
+     "dd2b",
+     "dd2d",
+     "dd39"
+    ]
+   ],
+   "instructions": 1019,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "41235",
+    "c_block": "d7a9",
+    "dos_block_insn": "41235",
+    "c_block_insn": "d7a9",
+    "dos_site": "1:4123e",
+    "c_site": "_TEXT+d7b2",
+    "dos": "lt_s16(tr16(phi@41235:sp-32), tr16(phi@41235:sp-16))",
+    "c": "lt_s16(tr16(phi@d7a9:sp-24), tr16(phi@d7a9:sp-32))",
+    "detail": "branch predicate; innermost difference: DOS tr16(phi@41235:sp-32) | C tr16(phi@d7a9:sp-24) [join value [sp-32]~[sp-24] at 41235 differs on edge from 411f0: DOS 0 | C ld16[local32()]]"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "neartag",
+   "size": 1583,
+   "seg_offset": 56777,
+   "oracle": "1:41895",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1377,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 1644,
+   "verdict": "MISMATCH",
+   "blocks": [
+    47,
+    49
+   ],
+   "aligned": 36,
+   "blocks_equal": 2,
+   "cfg_problems": [
+    "block 41ee0 aligned to e3d3 and e243",
+    "terminator kind br vs jmp at 41d64/e236"
+   ],
+   "unaligned": [
+    [
+     "41d7a",
+     "41de3",
+     "41e25",
+     "41e27",
+     "41e33",
+     "41e35",
+     "41e42",
+     "41e44"
+    ],
+    [
+     "e243",
+     "e252",
+     "e264",
+     "e2e2",
+     "e320",
+     "e322",
+     "e32e",
+     "e330"
+    ]
+   ],
+   "instructions": 902,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "41978",
+    "c_block": "dea3",
+    "dos_block_insn": "41978",
+    "c_block_insn": "dea3",
+    "dos_site": "1:41981",
+    "c_site": "_TEXT+deac",
+    "dos": "lt_s16(tr16(phi@41978:sp-28), tr16(phi@41978:sp-16))",
+    "c": "lt_s16(tr16(phi@dea3:sp-28), tr16(phi@dea3:sp-36))",
+    "detail": "branch predicate; innermost difference: DOS tr16(phi@41978:sp-28) | C tr16(phi@dea3:sp-28) [join value [sp-28]~[sp-28] at 41978 differs on edge from 41eed: DOS (tr16(phi@41ca6:sp-28) + 1) | C (tr16(phi@e178:sp-28) + 1)]"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "lintersect",
+   "size": 548,
+   "seg_offset": 58360,
+   "oracle": "1:41f01",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 339,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 545,
+   "verdict": "MISMATCH",
+   "blocks": [
+    36,
+    32
+   ],
+   "aligned": 32,
+   "blocks_equal": 27,
+   "cfg_problems": [
+    "C block e574 aligned twice",
+    "C block e568 aligned twice"
+   ],
+   "unaligned": [
+    [
+     "42063",
+     "42065",
+     "4206d",
+     "4206f"
+    ],
+    []
+   ],
+   "instructions": 392,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "4205d",
+    "c_block": "e554",
+    "dos_block_insn": "4205d",
+    "c_block_insn": "e554",
+    "dos_site": null,
+    "c_site": "_TEXT+e556",
+    "dos": "<none>",
+    "c": "call name:labs(eax=(mul32((arg[24]32 + -arg[16]32), (in_ecx + -arg[12]32)) + -mul32((arg[20]32 + -arg[12]32), (arg[4]32 + -arg[16]32))), edx=(mul32((arg[24]32 + -arg[16]32), (in_eax + -arg[12]32)) + -mul32((in_edx + -arg[16]32), (arg[20]32 + -arg[12]32))), ebx=arg[16]32, ecx=in_ecx)",
+    "detail": "C has an extra effect"
+   },
+   "class": "SOURCE",
+   "hint": "Check the width, destination, and value of the listed store or effect."
+  },
+  {
+   "function": "clipmove",
+   "size": 807,
+   "seg_offset": 59222,
+   "oracle": "1:4225c",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 689,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 813,
+   "verdict": "MISMATCH",
+   "blocks": [
+    30,
+    32
+   ],
+   "aligned": 7,
+   "blocks_equal": 1,
+   "cfg_problems": [
+    "terminator kind jmp vs br at 424f2/e97c",
+    "block 424f2 aligned to e97c and e8b8",
+    "terminator kind br vs jmp at 42306/e857"
+   ],
+   "unaligned": [
+    [
+     "42312",
+     "42342",
+     "4237d",
+     "423dc",
+     "42454",
+     "4245a",
+     "424b8",
+     "424c4"
+    ],
+    [
+     "e8b8",
+     "e91f",
+     "e924",
+     "e95f",
+     "e96b",
+     "e8da",
+     "e91e",
+     "e9a2"
+    ]
+   ],
+   "instructions": 498,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively"
+   ],
+   "first_difference": {
+    "kind": "effect:memory_order",
+    "dos_block": "4227b",
+    "c_block": "e77c",
+    "dos_block_insn": "4227b",
+    "c_block_insn": "e77c",
+    "dos_site": "1:422d8",
+    "c_site": "_TEXT+e7dd",
+    "dos": "call getcliplines(eax=ld32[in_eax], edx=ld32[in_edx], ebx=ld32[in_ebx], ecx=(ld32[in_eax] + sar32(arg[4]32, 14)); stack: (sar32(arg[8]32, 14) + ld32[in_edx]), sx32(ld16[in_ecx]), arg[12]32, arg[16]32, arg[20]32, zx32(arg[24]8))",
+    "c": "call getcliplines(eax=ld32[in_eax], edx=ld32[in_edx], ebx=ld32[in_ebx], ecx=(ld32[in_eax] + sar32(arg[4]32, 14)); stack: (ld32[in_edx] + sar32(arg[8]32, 14)), sx32(ld16[in_ecx]), arg[12]32, arg[16]32, arg[20]32, zx32(arg[24]8))",
+    "detail": "effect #0 differs; innermost difference: DOS <eax=ld32[in_eax], edx=ld32[in_edx], ebx=ld32[in_ebx], ecx=(ld32[in_eax] + sar32(arg[4]32, 14))> | C <eax=ld32[in_eax], edx=ld32[in_edx], ebx=ld32[in_ebx], ecx=(ld32[in_eax] + sar32(arg[4]32, 14))> - equal if loads ignore intervening stores (alias/ordering difference)"
+   },
+   "class": "SOURCE",
+   "hint": "Check the ordering of loads and stores that may alias."
+  },
+  {
+   "function": "getcliplines",
+   "size": 3585,
+   "seg_offset": 60029,
+   "oracle": "1:42589",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 3026,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 3589,
+   "verdict": "MISMATCH",
+   "blocks": [
+    122,
+    127
+   ],
+   "aligned": 7,
+   "blocks_equal": 0,
+   "cfg_problems": [
+    "terminator kind jmp vs ret at 42615/f873<ea7d",
+    "block 425e8 aligned to eaeb and eb75",
+    "terminator kind jmp vs br at 425ff/eaef",
+    "block 42615 aligned to f873<ea7d and eaef"
+   ],
+   "unaligned": [
+    [
+     "42678",
+     "4268b",
+     "42aca",
+     "42ad8",
+     "426c4",
+     "42737",
+     "42743",
+     "4274b"
+    ],
+    [
+     "eaf7",
+     "eb06",
+     "eb75",
+     "eb88",
+     "ef07",
+     "ef15",
+     "ebdd",
+     "ec16"
+    ]
+   ],
+   "instructions": 2044,
+   "unsupported_instructions": 2,
+   "unsupported_mnemonics": {
+    "bsr": 2
+   },
+   "assumptions": [],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "42589",
+    "c_block": "ea7d",
+    "dos_block_insn": "42589",
+    "c_block_insn": "ea7d",
+    "dos_site": "1:425e2",
+    "c_site": "_TEXT+ea99",
+    "dos": "eq32((mul32((in_ecx + -in_eax), (in_ecx + -in_eax)) + mul32((-in_edx + arg[4]32), (-in_edx + arg[4]32))), 0)",
+    "c": "lt_s16(tr16(arg[8]32), 0)",
+    "detail": "branch predicate; innermost difference: DOS eq32((mul32((in_ecx + -in_eax), (in_ecx + -in_eax)) + mul32((-in_edx + arg[4]32), (-in_edx + arg[4]32))), 0) | C lt_s16(tr16(arg[8]32), 0)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "keepaway",
+   "size": 355,
+   "seg_offset": 63679,
+   "oracle": "1:433cf",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "engine",
+   "match_first_diff": 264,
+   "oracle_size": 355,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:434d5",
+    "c_site": "_TEXT+f9c5",
+    "dos": "jg 0x3749d",
+    "c": "jg 0x3641",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "raytrace",
+   "size": 524,
+   "seg_offset": 64034,
+   "oracle": "1:43532",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 486,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 613,
+   "verdict": "MISMATCH",
+   "blocks": [
+    23,
+    23
+   ],
+   "aligned": 4,
+   "blocks_equal": 0,
+   "cfg_problems": [
+    "terminator kind br vs ret at 43576/fc23",
+    "terminator kind ret vs br at 4378a/fa46"
+   ],
+   "unaligned": [
+    [
+     "435ed",
+     "435f5",
+     "43657",
+     "4365f",
+     "4367f",
+     "43684",
+     "436f2",
+     "43710"
+    ],
+    [
+     "faaa",
+     "fad3",
+     "fb18",
+     "fb34",
+     "fb4a",
+     "fb4f",
+     "fb54",
+     "fb70"
+    ]
+   ],
+   "instructions": 373,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "43532",
+    "c_block": "fa22",
+    "dos_block_insn": "43532",
+    "c_block_insn": "fa22",
+    "dos_site": "1:43556",
+    "c_site": null,
+    "dos": "st32 [arg[4]32] = (in_eax + sar32(in_ebx, 14))",
+    "c": "<none>",
+    "detail": "DOS effect #0 has no partner"
+   },
+   "class": "SOURCE",
+   "hint": "Check the width, destination, and value of the listed store or effect."
+  },
+  {
+   "function": "rotatepoint",
+   "size": 179,
+   "seg_offset": 64760,
+   "oracle": "1:43861",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "engine",
+   "match_first_diff": 175,
+   "oracle_size": 179,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:4390f",
+    "c_site": "_TEXT+fda6",
+    "dos": "jmp 0x3b2a8",
+    "c": "jmp 0x744c",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "drawline16",
+   "size": 1171,
+   "seg_offset": 64980,
+   "oracle": "1:4393d",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1094,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 1541,
+   "verdict": "MISMATCH",
+   "blocks": [
+    101,
+    98
+   ],
+   "aligned": 13,
+   "blocks_equal": 0,
+   "cfg_problems": [
+    "terminator kind ret vs br at 43f3a<4394b/fe73",
+    "block 43953 aligned to fdfe and 1025f<fe67",
+    "terminator kind br vs ret at 4395d/1025f<fdfe",
+    "terminator kind br vs ret at 43972/1025f<fe0a",
+    "terminator kind br vs jmp at 439b1/fe2a"
+   ],
+   "unaligned": [
+    [
+     "43f3a<4395d",
+     "43f3a<43972",
+     "439bc",
+     "439c3",
+     "439ca",
+     "439d0",
+     "439dd",
+     "439e3"
+    ],
+    [
+     "fe44",
+     "fe5d",
+     "fe7b",
+     "fe7f",
+     "fe83",
+     "fe95",
+     "fe9b",
+     "fea3"
+    ]
+   ],
+   "instructions": 990,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "silent store dropped (writes back the value just read; no intervening aliasing store)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "4393d",
+    "c_block": "fdd4",
+    "dos_block_insn": "4393d",
+    "c_block_insn": "fdd4",
+    "dos_site": "1:43949",
+    "c_site": "_TEXT+fdfc",
+    "dos": "lt_s32(in_eax, 0)",
+    "c": "lt_s32((in_ebx + -in_eax), 0)",
+    "detail": "branch predicate; innermost difference: DOS in_eax | C (in_ebx + -in_eax)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "qsetmode640480",
+   "size": 272,
+   "seg_offset": 66151,
+   "oracle": "1:43f42",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 210,
+   "unit": "engine",
+   "match_first_diff": 4,
+   "oracle_size": 494,
+   "verdict": "MISMATCH",
+   "blocks": [
+    5,
+    5
+   ],
+   "aligned": 5,
+   "blocks_equal": 0,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 126,
+   "unsupported_instructions": 2,
+   "unsupported_mnemonics": {
+    "int": 2
+   },
+   "assumptions": [],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "43f42",
+    "c_block": "10267",
+    "dos_block_insn": "43f42",
+    "c_block_insn": "10267",
+    "dos_site": "1:43f50",
+    "c_site": "_TEXT+10276",
+    "dos": "eq32(ld32[qsetmode+0], 350)",
+    "c": "eq32(ld32[qsetmode+0], 480)",
+    "detail": "branch predicate; innermost difference: DOS eq32(ld32[qsetmode+0], 350) | C eq32(ld32[qsetmode+0], 480)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "draw2dgrid",
+   "size": 735,
+   "seg_offset": 66502,
+   "oracle": "1:4417f",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "engine",
+   "match_first_diff": 731,
+   "oracle_size": 735,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:44459",
+    "c_site": "_TEXT+106a0",
+    "dos": "jmp 0x3bfd5",
+    "c": "jmp 0x8179",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "draw2dscreen",
+   "size": 3169,
+   "seg_offset": 67237,
+   "oracle": "1:4445e",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2772,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 4585,
+   "verdict": "MISMATCH",
+   "blocks": [
+    66,
+    74
+   ],
+   "aligned": 14,
+   "blocks_equal": 4,
+   "cfg_problems": [
+    "terminator kind br vs jmp at 4451e/10cf9",
+    "terminator kind jmp vs br at 44b54/10762",
+    "C block 10cf9 aligned twice",
+    "terminator kind br vs ret at 444e9/11232",
+    "block 44b54 aligned to 10762 and 10cca"
+   ],
+   "unaligned": [
+    [
+     "44ff5",
+     "44b5f",
+     "44b67",
+     "44b70",
+     "44b7a",
+     "44b9d",
+     "44bb1",
+     "44bb6"
+    ],
+    [
+     "1121f",
+     "10d04",
+     "1120c",
+     "1121b",
+     "10d11",
+     "10d1b",
+     "10d45",
+     "10d5e"
+    ]
+   ],
+   "instructions": 1755,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "silent store dropped (writes back the value just read; no intervening aliasing store)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "44b2a",
+    "c_block": "10cd6",
+    "dos_block_insn": "44b2a",
+    "c_block_insn": "10cd6",
+    "dos_site": "1:44b37",
+    "c_site": "_TEXT+10cdc",
+    "dos": "lt_s32(phi@44b2a:sp-28, sx32(ld16[numwalls+0]))",
+    "c": "lt_s32(phi@10cd6:sp-56, 0)",
+    "detail": "branch predicate; innermost difference: DOS phi@44b2a:sp-28 | C phi@10cd6:sp-56 [predecessors of join 44b2a not aligned]"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "getzrange",
+   "size": 2819,
+   "seg_offset": 70438,
+   "oracle": "1:45667",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2569,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 2938,
+   "verdict": "MISMATCH",
+   "blocks": [
+    108,
+    119
+   ],
+   "aligned": 1,
+   "blocks_equal": 0,
+   "cfg_problems": [
+    "terminator kind jmp vs br at 45667/11326"
+   ],
+   "unaligned": [
+    [
+     "45709",
+     "4571c",
+     "45ba6",
+     "45bb4",
+     "45755",
+     "4576f",
+     "457aa",
+     "457b2"
+    ],
+    [
+     "11334",
+     "1136d",
+     "11407",
+     "1172a",
+     "11738",
+     "11750",
+     "11e0b",
+     "11e1e<11e0b"
+    ]
+   ],
+   "instructions": 1618,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "45667",
+    "c_block": "11326",
+    "dos_block_insn": "45667",
+    "c_block_insn": "11326",
+    "dos_site": "1:456be",
+    "c_site": null,
+    "dos": "st32 [arg[4]32] = ld32[sector+c + (37*sx32(tr16(in_ecx)))]",
+    "c": "<none>",
+    "detail": "DOS effect #0 has no partner"
+   },
+   "class": "SOURCE",
+   "hint": "Check the width, destination, and value of the listed store or effect."
+  },
+  {
+   "function": "makeradarang",
+   "size": 229,
+   "seg_offset": 73257,
+   "oracle": "1:461e1",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "engine",
+   "match_first_diff": 225,
+   "oracle_size": 229,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:462c1",
+    "c_site": "_TEXT+11f09",
+    "dos": "jmp 0x3c318",
+    "c": "jmp 0x84bc",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "setview",
+   "size": 336,
+   "seg_offset": 73486,
+   "oracle": "1:462c6",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 221,
+   "unit": "engine",
+   "match_first_diff": 3,
+   "oracle_size": 334,
+   "verdict": "MISMATCH",
+   "blocks": [
+    14,
+    14
+   ],
+   "aligned": 14,
+   "blocks_equal": 10,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 204,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "463df",
+    "c_block": "1202b",
+    "dos_block_insn": "463df",
+    "c_block_insn": "1202b",
+    "dos_site": "1:463ee",
+    "c_site": null,
+    "dos": "st32 [ytop+0] = sar32((-ld32[ydimen+0] + 200), 1)",
+    "c": "<none>",
+    "detail": "DOS effect #0 has no partner"
+   },
+   "class": "SOURCE",
+   "hint": "Check the width, destination, and value of the listed store or effect."
+  },
+  {
+   "function": "rotatesprite",
+   "size": 1538,
+   "seg_offset": 75946,
+   "oracle": "1:46c60",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1315,
+   "unit": "engine",
+   "match_first_diff": 5,
+   "oracle_size": 1497,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    77,
+    77
+   ],
+   "aligned": 77,
+   "blocks_equal": 4,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 927,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "46cad",
+    "c_block": "128f7",
+    "dos_block_insn": "46cad",
+    "c_block_insn": "128f7",
+    "dos_site": "1:46cf0",
+    "c_site": "_TEXT+1292b",
+    "dos": null,
+    "c": null,
+    "detail": "comparison depended on unsupported values"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check unresolved references and the expression or join named in the diagnostic."
+  },
+  {
+   "function": "makepalookup",
+   "size": 593,
+   "seg_offset": 77484,
+   "oracle": "1:47239",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 382,
+   "unit": "engine",
+   "match_first_diff": 11,
+   "oracle_size": 599,
+   "verdict": "MISMATCH",
+   "blocks": [
+    30,
+    30
+   ],
+   "aligned": 30,
+   "blocks_equal": 16,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 387,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "return",
+    "dos_block": "4748b",
+    "c_block": "130f8",
+    "dos_block_insn": "3bfd2",
+    "c_block_insn": "8176",
+    "dos_site": "1:3bfd8",
+    "c_site": "_TEXT+817c",
+    "dos": "phi@47463:eax",
+    "c": "phi@130d0:eax",
+    "detail": "return value (eax); innermost difference: DOS phi@47463:eax | C phi@130d0:eax [join value eax~eax at 47463 differs on edge from 4734f: DOS in_eax | C ld32[palookup+0 + (4*in_eax)]]"
+   },
+   "class": "SOURCE",
+   "hint": "Trace the return value back to its defining load or arithmetic."
+  },
+  {
+   "function": "setvesamode",
+   "size": 292,
+   "seg_offset": 78077,
+   "oracle": "1:47490",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "engine",
+   "match_first_diff": 288,
+   "oracle_size": 292,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:475af",
+    "c_site": "_TEXT+1321c",
+    "dos": "jmp 0x3c31c",
+    "c": "jmp 0x84c0",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "setverts",
+   "size": 551,
+   "seg_offset": 78598,
+   "oracle": "1:47699",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "engine",
+   "match_first_diff": 547,
+   "oracle_size": 551,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:478bb",
+    "c_site": "_TEXT+13528",
+    "dos": "jmp 0x3848e",
+    "c": "jmp 0x4632",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "setredbluepalette",
+   "size": 176,
+   "seg_offset": 79383,
+   "oracle": "1:479aa",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "engine",
+   "match_first_diff": 172,
+   "oracle_size": 176,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:47a55",
+    "c_site": "_TEXT+136c2",
+    "dos": "jmp 0x3c31c",
+    "c": "jmp 0x84c0",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "AL_SetVoiceTimbre",
+   "size": 1108,
+   "seg_offset": 116,
+   "oracle": "1:60b24",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 675,
+   "unit": "ass_al_midi",
+   "match_first_diff": 12,
+   "oracle_size": 1112,
+   "verdict": "MISMATCH",
+   "blocks": [
+    52,
+    51
+   ],
+   "aligned": 3,
+   "blocks_equal": 1,
+   "cfg_problems": [
+    "terminator kind br vs jmp at 60b46/96",
+    "terminator kind br vs jmp at 60b67/a4"
+   ],
+   "unaligned": [
+    [
+     "60b65",
+     "60f72<60b46",
+     "60b87",
+     "60bee",
+     "60c03",
+     "60c08",
+     "60c20",
+     "60c35"
+    ],
+    [
+     "b6",
+     "ce",
+     "135",
+     "14e",
+     "155",
+     "16a",
+     "17f",
+     "184"
+    ]
+   ],
+   "instructions": 638,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "terminator",
+    "dos_block": "60b46",
+    "c_block": "96",
+    "dos_block_insn": "60b46",
+    "c_block_insn": "96",
+    "dos_site": "1:60b5f",
+    "c_site": "_TEXT+a2",
+    "dos": "br",
+    "c": "jmp",
+    "detail": ""
+   },
+   "class": "SOURCE",
+   "hint": "Inspect the first differing control-flow exit or join and its incoming values."
+  },
+  {
+   "function": "AL_SetVoiceVolume",
+   "size": 576,
+   "seg_offset": 1224,
+   "oracle": "1:60f7c",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 408,
+   "unit": "ass_al_midi",
+   "match_first_diff": 6,
+   "oracle_size": 280,
+   "verdict": "MISMATCH",
+   "blocks": [
+    10,
+    18
+   ],
+   "aligned": 3,
+   "blocks_equal": 0,
+   "cfg_problems": [
+    "terminator kind jmp vs br at 60fb3/525",
+    "terminator kind br vs jmp at 60fb8/520"
+   ],
+   "unaligned": [
+    [
+     "60ff4",
+     "61010",
+     "6101d",
+     "61025",
+     "6105f",
+     "6106c",
+     "61085"
+    ],
+    [
+     "56b",
+     "59a",
+     "6fd<56b",
+     "5d1",
+     "5de",
+     "5e6",
+     "61e",
+     "62b"
+    ]
+   ],
+   "instructions": 252,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "60f7c",
+    "c_block": "4c8",
+    "dos_block_insn": "60f7c",
+    "c_block_insn": "4c8",
+    "dos_site": "1:60fb1",
+    "c_site": "_TEXT+51e",
+    "dos": "lt_s32((ld32[Voice+10 + (40*in_eax)] + ld32[Channel+2c + (48*ld32[Voice+14 + (40*in_eax)])]), 128)",
+    "c": "lt_s32((ld32[Voice+10 + (40*in_eax)] + ld32[Channel+2c + (48*ld32[Voice+14 + (40*in_eax)])]), 127)",
+    "detail": "branch predicate; innermost difference: DOS 128 | C 127"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "AL_SetVoicePitch",
+   "size": 512,
+   "seg_offset": 1916,
+   "oracle": "1:61108",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 360,
+   "unit": "ass_al_midi",
+   "match_first_diff": 14,
+   "oracle_size": 460,
+   "verdict": "MISMATCH",
+   "blocks": [
+    16,
+    16
+   ],
+   "aligned": 16,
+   "blocks_equal": 3,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 256,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "61141",
+    "c_block": "7e7",
+    "dos_block_insn": "61141",
+    "c_block_insn": "7e7",
+    "dos_site": "1:61161",
+    "c_site": "_TEXT+807",
+    "dos": "lt_s32((phi@61141:ecx + ld32[Channel+28 + (48*ld32[Voice+14 + (40*in_eax)])] + ld32[Channel+10 + (48*ld32[Voice+14 + (40*in_eax)])] + -12), 96)",
+    "c": "lt_s32((phi@7e7:ecx + ld32[Channel+28 + (48*ld32[Voice+14 + (40*in_eax)])] + ld32[Channel+10 + (48*ld32[Voice+14 + (40*in_eax)])] + -12), 96)",
+    "detail": "branch predicate; innermost difference: DOS phi@61141:ecx | C phi@7e7:ecx [join value ecx~ecx at 61141 differs on edge from 61126: DOS zx32(ld8[PercussionTable+1 + (2*ld32[Voice+c + (40*in_eax)])]) | C zx32(ld8[ADLIB_TimbreBank+60b + (12*ld32[Voice+c + (40*in_eax)])])]"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "AL_NoteOn",
+   "size": 196,
+   "seg_offset": 3732,
+   "oracle": "1:617ec",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 132,
+   "unit": "ass_al_midi",
+   "match_first_diff": 0,
+   "oracle_size": 208,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    10,
+    10
+   ],
+   "aligned": 10,
+   "blocks_equal": 10,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 153,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "AL_Init",
+   "size": 520,
+   "seg_offset": 4880,
+   "oracle": "1:61c74",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 256,
+   "unit": "ass_al_midi",
+   "match_first_diff": 4,
+   "oracle_size": 524,
+   "verdict": "STRUCTURALLY_SIMILAR",
+   "blocks": [
+    16,
+    16
+   ],
+   "aligned": 16,
+   "blocks_equal": 16,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 285,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively"
+   ],
+   "class": "UNKNOWN",
+   "hint": "Check unresolved references and the expression or join named in the diagnostic."
+  },
+  {
+   "function": "BLASTER_Init",
+   "size": 632,
+   "seg_offset": 6208,
+   "oracle": "1:60770",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 370,
+   "unit": "ass_blastold",
+   "match_first_diff": 54,
+   "oracle_size": 580,
+   "verdict": "MISMATCH",
+   "blocks": [
+    32,
+    31
+   ],
+   "aligned": 31,
+   "blocks_equal": 8,
+   "cfg_problems": [
+    "terminator kind jmp vs ret at 609a2/1aa6",
+    "terminator kind jmp vs ret at 608b6/19b2"
+   ],
+   "unaligned": [
+    [
+     "609a8"
+    ],
+    []
+   ],
+   "instructions": 389,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively"
+   ],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "607e2",
+    "c_block": "18c2",
+    "dos_block_insn": "607e2",
+    "c_block_insn": "18c2",
+    "dos_site": "1:607e7",
+    "c_site": "_TEXT+18cd",
+    "dos": "call BLASTER_ReadMixer(eax=50)",
+    "c": "out8((ld16[BLASTER_MixerAddress+0] + 4), 50, IOentry())",
+    "detail": "effect #0 differs; different effect kinds"
+   },
+   "class": "SOURCE",
+   "hint": "Check the callee, evaluation order and argument values at the listed call."
+  },
+  {
+   "function": "FX_ErrorString",
+   "size": 276,
+   "seg_offset": 80,
+   "oracle": "1:5ddf0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 0,
+   "unit": "ass_fx_man",
+   "match_first_diff": null,
+   "oracle_size": 276,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    19,
+    19
+   ],
+   "aligned": 19,
+   "blocks_equal": 4,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 152,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "5debf",
+    "c_block": "11f",
+    "dos_block_insn": "5debf",
+    "c_block_insn": "11f",
+    "dos_site": "1:5dec7",
+    "c_site": "_TEXT+127",
+    "dos": "(obj2 + 0x1ae8)",
+    "c": "UNK(unbound reference ('CONST', 56))",
+    "detail": "return value"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check unresolved references and the expression or join named in the diagnostic."
+  },
+  {
+   "function": "FX_SetupCard",
+   "size": 488,
+   "seg_offset": 356,
+   "oracle": "1:5df04",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 195,
+   "unit": "ass_fx_man",
+   "match_first_diff": 20,
+   "oracle_size": 492,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    20,
+    20
+   ],
+   "aligned": 20,
+   "blocks_equal": 15,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 329,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively"
+   ],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "5df44",
+    "c_block": "1a4",
+    "dos_block_insn": "5df44",
+    "c_block_insn": "1a4",
+    "dos_site": "1:5df54",
+    "c_site": "_TEXT+1b4",
+    "dos": "call BLASTER_SetCardSettings(; stack: UNK(missing stack arg), UNK(missing stack arg), UNK(missing stack arg), UNK(missing stack arg), UNK(missing stack arg), UNK(missing stack arg), UNK(missing stack arg))",
+    "c": "call BLASTER_SetCardSettings(; stack: UNK(missing stack arg), UNK(missing stack arg), UNK(missing stack arg), UNK(missing stack arg), UNK(missing stack arg), UNK(missing stack arg), UNK(missing stack arg))",
+    "detail": "unresolved or unsupported value in effect"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check unresolved references and the expression or join named in the diagnostic."
+  },
+  {
+   "function": "GUSWAVE_AllocVoice",
+   "size": 248,
+   "seg_offset": 1144,
+   "oracle": "1:5cfb8",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 0,
+   "unit": "ass_guswave",
+   "match_first_diff": null,
+   "oracle_size": 248,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    20,
+    20
+   ],
+   "aligned": 20,
+   "blocks_equal": 19,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 158,
+   "unsupported_instructions": 18,
+   "unsupported_mnemonics": {
+    "pushfd": 4,
+    "cli": 4,
+    "push": 6,
+    "popfd": 4
+   },
+   "assumptions": [],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "5d07a",
+    "c_block": "53a",
+    "dos_block_insn": "5d07a",
+    "c_block_insn": "53a",
+    "dos_site": "1:5d086",
+    "c_site": "_TEXT+546",
+    "dos": "None",
+    "c": "None",
+    "detail": "unresolved stack delta at return"
+   },
+   "class": "UNKNOWN",
+   "hint": "Inspect unsupported instructions before interpreting subsequent differences."
+  },
+  {
+   "function": "GUSWAVE_GetNextVOCBlock",
+   "size": 404,
+   "seg_offset": 1392,
+   "oracle": "1:5d0b0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 270,
+   "unit": "ass_guswave",
+   "match_first_diff": 8,
+   "oracle_size": 396,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    15,
+    15
+   ],
+   "aligned": 15,
+   "blocks_equal": 7,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 162,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "5d10f",
+    "c_block": "5cf",
+    "dos_block_insn": "5d10f",
+    "c_block_insn": "5cf",
+    "dos_site": "1:5d11b",
+    "c_site": "_TEXT+5db",
+    "dos": "indirect jump dword ptr cs:[ebp + 0x5d088]",
+    "c": "indirect jump dword ptr cs:[ebp + 0x548]",
+    "detail": "unsupported terminator"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check unresolved references and the expression or join named in the diagnostic."
+  },
+  {
+   "function": "GUSWAVE_PlayVOC",
+   "size": 372,
+   "seg_offset": 1796,
+   "oracle": "1:5d23c",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 5,
+   "unit": "ass_guswave",
+   "match_first_diff": 7,
+   "oracle_size": 372,
+   "verdict": "MISMATCH",
+   "blocks": [
+    9,
+    9
+   ],
+   "aligned": 9,
+   "blocks_equal": 2,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 240,
+   "unsupported_instructions": 20,
+   "unsupported_mnemonics": {
+    "pushfd": 4,
+    "cli": 4,
+    "push": 8,
+    "popfd": 4
+   },
+   "assumptions": [],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "5d26c",
+    "c_block": "734",
+    "dos_block_insn": "5d26c",
+    "c_block_insn": "734",
+    "dos_site": "1:5d287",
+    "c_site": "_TEXT+74f",
+    "dos": "st32 [(ret(1:5cfb8) + 24)] = (zx32(ld16[(clob_ebp(call GUSWAVE_AllocVoice(ecx=in_ecx)) + 20)]) + clob_ebp(call GUSWAVE_AllocVoice(ecx=in_ecx)))",
+    "c": "st32 [(ret(1:5cfb8) + 24)] = (clob_edi(call GUSWAVE_AllocVoice(ecx=in_ecx)) + zx32(ld16[(clob_edi(call GUSWAVE_AllocVoice(ecx=in_ecx)) + 20)]))",
+    "detail": "effect #1 differs; innermost difference: DOS zx32(ld16[(clob_ebp(call GUSWAVE_AllocVoice(ecx=in_ecx)) + 20)]) | C clob_edi(call GUSWAVE_AllocVoice(ecx=in_ecx))"
+   },
+   "class": "SOURCE",
+   "hint": "Check the width, destination, and value of the listed store or effect."
+  },
+  {
+   "function": "_MIDI_ResetTracks_",
+   "size": 108,
+   "seg_offset": 164,
+   "oracle": "1:5b634",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 0,
+   "unit": "ass_midi",
+   "match_first_diff": null,
+   "oracle_size": 111,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    4,
+    4
+   ],
+   "aligned": 4,
+   "blocks_equal": 4,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 54,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "_MIDI_ServiceRoutine_",
+   "size": 832,
+   "seg_offset": 272,
+   "oracle": "1:5b6a3",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 620,
+   "unit": "ass_midi",
+   "match_first_diff": 5,
+   "oracle_size": 841,
+   "verdict": "MISMATCH",
+   "blocks": [
+    55,
+    55
+   ],
+   "aligned": 55,
+   "blocks_equal": 2,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 561,
+   "unsupported_instructions": 16,
+   "unsupported_mnemonics": {
+    "call": 16
+   },
+   "assumptions": [],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "5b6d3",
+    "c_block": "141",
+    "dos_block_insn": "5b6d3",
+    "c_block_insn": "141",
+    "dos_site": "1:5b6d7",
+    "c_site": "_TEXT+145",
+    "dos": "eq32(ld32[(phi@5b6d3:esi + 12)], 0)",
+    "c": "eq32(ld32[(phi@141:esi + 12)], 0)",
+    "detail": "branch predicate; innermost difference: DOS eq32(ld32[(phi@5b6d3:esi + 12)], 0) | C eq32(ld32[(phi@141:esi + 12)], 0) [join value esi~esi at 5b6d3 differs on edge from 5b8be: DOS clob_esi(call _MIDI_SetChannelVolume_(eax=ld32[(in_ebp + -24)], edx=ld32[(in_ebp + -28)])) | C clob_esi(call _MIDI_SetChannelVolume_(eax=(phi@20f:eax and 15), edx=ld32[(UNK(esp join) + 4)]))]"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "MIDI_PlaySong",
+   "size": 708,
+   "seg_offset": 1964,
+   "oracle": "1:5bd48",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 304,
+   "unit": "ass_midi",
+   "match_first_diff": 46,
+   "oracle_size": 712,
+   "verdict": "MISMATCH",
+   "blocks": [
+    42,
+    42
+   ],
+   "aligned": 42,
+   "blocks_equal": 22,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 498,
+   "unsupported_instructions": 2,
+   "unsupported_mnemonics": {
+    "call": 2
+   },
+   "assumptions": [],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "5be48",
+    "c_block": "8aa",
+    "dos_block_insn": "5be48",
+    "c_block_insn": "8aa",
+    "dos_site": "1:5be60",
+    "c_site": "_TEXT+8c2",
+    "dos": "call USRHOOKS_GetMem(eax=(obj2 + 0x9558), edx=(28*phi@5bddb:eax), ebx=phi@5bdf9:ebx, edi=phi@5bdf9:edi)",
+    "c": "call USRHOOKS_GetMem(eax=(obj2 + 0x9558), edx=(28*phi@83f:eax), ebx=phi@800:eax, edi=phi@85d:edi)",
+    "detail": "effect #1 differs; innermost difference: DOS phi@5bdf9:ebx | C phi@800:eax"
+   },
+   "class": "SOURCE",
+   "hint": "Check the callee, evaluation order and argument values at the listed call."
+  },
+  {
+   "function": "MV_DeleteDeadVoices",
+   "size": 135,
+   "seg_offset": 1181,
+   "oracle": "1:597b6",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1,
+   "unit": "ass_multivoc",
+   "match_first_diff": 21,
+   "oracle_size": 135,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    9,
+    9
+   ],
+   "aligned": 9,
+   "blocks_equal": 5,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 86,
+   "unsupported_instructions": 2,
+   "unsupported_mnemonics": {
+    "call": 2
+   },
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "59815",
+    "c_block": "4fc",
+    "dos_block_insn": "59815",
+    "c_block_insn": "4fc",
+    "dos_site": "1:5981b",
+    "c_site": "_TEXT+502",
+    "dos": "opaque0()",
+    "c": "opaque0()",
+    "detail": "unsupported instruction with observable effects"
+   },
+   "class": "UNKNOWN",
+   "hint": "Inspect unsupported instructions before interpreting subsequent differences."
+  },
+  {
+   "function": "MV_ServiceVoc",
+   "size": 332,
+   "seg_offset": 1316,
+   "oracle": "1:5983d",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 6,
+   "unit": "ass_multivoc",
+   "match_first_diff": 132,
+   "oracle_size": 332,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    19,
+    19
+   ],
+   "aligned": 19,
+   "blocks_equal": 19,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 252,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "MV_Kill",
+   "size": 184,
+   "seg_offset": 1861,
+   "oracle": "1:59a5e",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 14,
+   "unit": "ass_multivoc",
+   "match_first_diff": 37,
+   "oracle_size": 188,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    8,
+    8
+   ],
+   "aligned": 8,
+   "blocks_equal": 2,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 158,
+   "unsupported_instructions": 18,
+   "unsupported_mnemonics": {
+    "pushfd": 2,
+    "cli": 2,
+    "push": 8,
+    "popfd": 4,
+    "call": 2
+   },
+   "assumptions": [],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "59a87",
+    "c_block": "76e",
+    "dos_block_insn": "59a87",
+    "c_block_insn": "76e",
+    "dos_site": "1:59a95",
+    "c_site": "_TEXT+77c",
+    "dos": "st32 [(UNK(pushfd pushfd) + 4)] = ret(1:599ce)",
+    "c": "st32 [(UNK(pushfd pushfd) + 4)] = ret(1:599ce)",
+    "detail": "unresolved or unsupported value in effect"
+   },
+   "class": "UNKNOWN",
+   "hint": "Inspect unsupported instructions before interpreting subsequent differences."
+  },
+  {
+   "function": "MV_AllocVoice",
+   "size": 201,
+   "seg_offset": 2106,
+   "oracle": "1:59b57",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "ass_multivoc",
+   "match_first_diff": 75,
+   "oracle_size": 201,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:59ba1",
+    "c_site": "_TEXT+884",
+    "dos": "jmp 0x5a65f",
+    "c": "jmp 0x1361",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "MV_SetPitch",
+   "size": 112,
+   "seg_offset": 2307,
+   "oracle": "1:59c20",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 3,
+   "unit": "ass_multivoc",
+   "match_first_diff": 31,
+   "oracle_size": 112,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:59c3e",
+    "c_site": "_TEXT+921",
+    "dos": "jmp 0x59473",
+    "c": "jmp 0x15a",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "MV_SetMixMode",
+   "size": 509,
+   "seg_offset": 2876,
+   "oracle": "1:59e59",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 6,
+   "unit": "ass_multivoc",
+   "match_first_diff": 17,
+   "oracle_size": 509,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    20,
+    20
+   ],
+   "aligned": 20,
+   "blocks_equal": 20,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 158,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "MV_StopPlayback",
+   "size": 172,
+   "seg_offset": 3385,
+   "oracle": "1:5a056",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1,
+   "unit": "ass_multivoc",
+   "match_first_diff": 168,
+   "oracle_size": 172,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:5a0fd",
+    "c_site": "_TEXT+de0",
+    "dos": "jmp 0x5a65e",
+    "c": "jmp 0x1360",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "MV_StartRecording",
+   "size": 213,
+   "seg_offset": 3557,
+   "oracle": "1:5a102",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 0,
+   "unit": "ass_multivoc",
+   "match_first_diff": null,
+   "oracle_size": 213,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    11,
+    11
+   ],
+   "aligned": 11,
+   "blocks_equal": 9,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 150,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "5a1d1",
+    "c_block": "eb4",
+    "dos_block_insn": "5a1d1",
+    "c_block_insn": "eb4",
+    "dos_site": "1:5a1d6",
+    "c_site": "_TEXT+eb9",
+    "dos": "falls off decoded range",
+    "c": "falls off decoded range",
+    "detail": "unsupported terminator"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check unresolved references and the expression or join named in the diagnostic."
+  },
+  {
+   "function": "MV_StartDemandFeedPlayback",
+   "size": 589,
+   "seg_offset": 3859,
+   "oracle": "1:5a230",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 438,
+   "unit": "ass_multivoc",
+   "match_first_diff": 3,
+   "oracle_size": 561,
+   "verdict": "MISMATCH",
+   "blocks": [
+    43,
+    44
+   ],
+   "aligned": 43,
+   "blocks_equal": 1,
+   "cfg_problems": [
+    "block 5a35c aligned to 1053 and 104a"
+   ],
+   "unaligned": [
+    [],
+    [
+     "104a"
+    ]
+   ],
+   "instructions": 312,
+   "unsupported_instructions": 10,
+   "unsupported_mnemonics": {
+    "pushfd": 2,
+    "cli": 2,
+    "push": 4,
+    "popfd": 2
+   },
+   "assumptions": [],
+   "first_difference": {
+    "kind": "return",
+    "dos_block": "5a24b",
+    "c_block": "f3e",
+    "dos_block_insn": "5a24b",
+    "c_block_insn": "f3e",
+    "dos_site": "1:5a434",
+    "c_site": "_TEXT+1135",
+    "dos": "ret 4",
+    "c": "ret 16",
+    "detail": "stack cleanup"
+   },
+   "class": "SOURCE",
+   "hint": "Trace the return value back to its defining load or arithmetic."
+  },
+  {
+   "function": "MV_GetNextVOCBlock",
+   "size": 519,
+   "seg_offset": 4448,
+   "oracle": "1:5a461",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 371,
+   "unit": "ass_multivoc",
+   "match_first_diff": 68,
+   "oracle_size": 516,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    22,
+    22
+   ],
+   "aligned": 22,
+   "blocks_equal": 6,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 233,
+   "unsupported_instructions": 2,
+   "unsupported_mnemonics": {
+    "call": 2
+   },
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "5a4b0",
+    "c_block": "11af",
+    "dos_block_insn": "5a4b0",
+    "c_block_insn": "11af",
+    "dos_site": "1:5a4bd",
+    "c_site": "_TEXT+11bc",
+    "dos": "opaque0()",
+    "c": "opaque0()",
+    "detail": "unsupported instruction with observable effects"
+   },
+   "class": "UNKNOWN",
+   "hint": "Inspect unsupported instructions before interpreting subsequent differences."
+  },
+  {
+   "function": "MV_PlayVOC",
+   "size": 520,
+   "seg_offset": 4967,
+   "oracle": "1:5a665",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 423,
+   "unit": "ass_multivoc",
+   "match_first_diff": 0,
+   "oracle_size": 523,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    44,
+    45
+   ],
+   "aligned": 7,
+   "blocks_equal": 3,
+   "cfg_problems": [
+    "terminator kind br vs jmp at 5a72f/1427",
+    "block 5a72f aligned to 1427 and 1430"
+   ],
+   "unaligned": [
+    [
+     "5a733",
+     "5a737",
+     "5a742",
+     "5a746",
+     "5a74b",
+     "5a762",
+     "5a76a",
+     "5a76e"
+    ],
+    [
+     "1430",
+     "1434",
+     "1438",
+     "1440",
+     "1444",
+     "1449",
+     "1460",
+     "1468"
+    ]
+   ],
+   "instructions": 321,
+   "unsupported_instructions": 10,
+   "unsupported_mnemonics": {
+    "pushfd": 2,
+    "cli": 2,
+    "push": 4,
+    "popfd": 2
+   },
+   "assumptions": [],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "5a6a9",
+    "c_block": "13ac",
+    "dos_block_insn": "5a6a9",
+    "c_block_insn": "13ac",
+    "dos_site": "1:5a86d",
+    "c_site": "_TEXT+156c",
+    "dos": "None",
+    "c": "16",
+    "detail": "unresolved stack delta at return"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check the reported control-flow edges and function bounds."
+  },
+  {
+   "function": "MV_CalcVolume",
+   "size": 269,
+   "seg_offset": 5637,
+   "oracle": "1:5a906",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1,
+   "unit": "ass_multivoc",
+   "match_first_diff": 265,
+   "oracle_size": 269,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:5aa0e",
+    "c_site": "_TEXT+170d",
+    "dos": "jmp 0x5a65b",
+    "c": "jmp 0x135d",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "MV_CalcPanTable",
+   "size": 189,
+   "seg_offset": 5906,
+   "oracle": "1:5aa13",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1,
+   "unit": "ass_multivoc",
+   "match_first_diff": 185,
+   "oracle_size": 189,
+   "class": "LAYOUT",
+   "first_difference": {
+    "kind": "cross-function displacement",
+    "dos_site": "1:5aacb",
+    "c_site": "_TEXT+17ca",
+    "dos": "jmp 0x5a65b",
+    "c": "jmp 0x135d",
+    "detail": "both jumps execute the same verified instruction sequence of a shared epilogue"
+   },
+   "hint": "Compare the linked displacement after restoring the neighboring function placement."
+  },
+  {
+   "function": "MV_Shutdown",
+   "size": 269,
+   "seg_offset": 6948,
+   "oracle": "1:5ae25",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 141,
+   "unit": "ass_multivoc",
+   "match_first_diff": 1,
+   "oracle_size": 271,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    20,
+    20
+   ],
+   "aligned": 20,
+   "blocks_equal": 17,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 171,
+   "unsupported_instructions": 10,
+   "unsupported_mnemonics": {
+    "pushfd": 2,
+    "cli": 2,
+    "push": 2,
+    "popfd": 2,
+    "int": 2
+   },
+   "assumptions": [],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "5aec1",
+    "c_block": "1bbf",
+    "dos_block_insn": "5aec1",
+    "c_block_insn": "1bbf",
+    "dos_site": "1:5af1a",
+    "c_site": "_TEXT+1c18",
+    "dos": "opaque0()",
+    "c": "opaque0()",
+    "detail": "unsupported instruction with observable effects"
+   },
+   "class": "UNKNOWN",
+   "hint": "Inspect unsupported instructions before interpreting subsequent differences."
+  },
+  {
+   "function": "TS_SetTimerToMaxTaskRate",
+   "size": 60,
+   "seg_offset": 160,
+   "oracle": "1:55c90",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 14,
+   "unit": "ass_task_man",
+   "match_first_diff": 1,
+   "oracle_size": 60,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    7,
+    7
+   ],
+   "aligned": 7,
+   "blocks_equal": 6,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 58,
+   "unsupported_instructions": 8,
+   "unsupported_mnemonics": {
+    "pushfd": 2,
+    "cli": 2,
+    "push": 2,
+    "popfd": 2
+   },
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "55cc4",
+    "c_block": "d4",
+    "dos_block_insn": "55cc4",
+    "c_block_insn": "d4",
+    "dos_site": "1:55ccb",
+    "c_site": "_TEXT+db",
+    "dos": "None",
+    "c": "None",
+    "detail": "unresolved stack delta at return"
+   },
+   "class": "UNKNOWN",
+   "hint": "Inspect unsupported instructions before interpreting subsequent differences."
+  },
+  {
+   "function": "TS_Startup",
+   "size": 200,
+   "seg_offset": 572,
+   "oracle": "1:55e2c",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 106,
+   "unit": "ass_task_man",
+   "match_first_diff": 3,
+   "oracle_size": 192,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    8,
+    8
+   ],
+   "aligned": 8,
+   "blocks_equal": 8,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 110,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "TS_AddTask",
+   "size": 156,
+   "seg_offset": 1472,
+   "oracle": "1:561a8",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 80,
+   "unit": "ass_task_man",
+   "match_first_diff": 4,
+   "oracle_size": 156,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    9,
+    9
+   ],
+   "aligned": 9,
+   "blocks_equal": 9,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 132,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "spritesound",
+   "size": 464,
+   "seg_offset": 1088,
+   "oracle": "1:2be70",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 149,
+   "unit": "game_sounds",
+   "match_first_diff": 10,
+   "oracle_size": 464,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    23,
+    23
+   ],
+   "aligned": 23,
+   "blocks_equal": 23,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 307,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "transnum",
+   "size": 640,
+   "seg_offset": 992,
+   "oracle": "1:2eae0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 0,
+   "unit": "game_gamedef",
+   "match_first_diff": null,
+   "oracle_size": 640,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    33,
+    33
+   ],
+   "aligned": 33,
+   "blocks_equal": 33,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 274,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "silent store dropped (writes back the value just read; no intervening aliasing store)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "parsecommand",
+   "size": 3536,
+   "seg_offset": 1632,
+   "oracle": "1:2ed60",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2220,
+   "unit": "game_gamedef",
+   "match_first_diff": 10,
+   "oracle_size": 5232,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    378,
+    9
+   ],
+   "aligned": 9,
+   "blocks_equal": 5,
+   "cfg_problems": [
+    "terminator kind switch vs unk at 2edb6/6b6"
+   ],
+   "unaligned": [
+    [
+     "2f904",
+     "2f909",
+     "2f921",
+     "2f925",
+     "2f929",
+     "2f92d",
+     "2f931",
+     "2f935"
+    ],
+    []
+   ],
+   "instructions": 1770,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "2edb6",
+    "c_block": "6b6",
+    "dos_block_insn": "2edb6",
+    "c_block_insn": "6b6",
+    "dos_site": "1:2edc1",
+    "c_site": "_TEXT+6c6",
+    "dos": "('sx', 32, ('sum', 16, 1, ((1, ('tr', 16, ('callret', 32, ('call', 32, '1:2e920', (), (), (('Mentry',), ()))))),)))",
+    "c": "indirect jump dword ptr cs:[edx + 0x56c]",
+    "detail": "unsupported terminator"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check the reported control-flow edges and function bounds."
+  },
+  {
+   "function": "move_actor",
+   "size": 1024,
+   "seg_offset": 5888,
+   "oracle": "1:304a0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 525,
+   "unit": "game_gamedef",
+   "match_first_diff": 6,
+   "oracle_size": 1040,
+   "verdict": "MISMATCH",
+   "blocks": [
+    36,
+    36
+   ],
+   "aligned": 36,
+   "blocks_equal": 2,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 457,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "304e7",
+    "c_block": "1742",
+    "dos_block_insn": "304e7",
+    "c_block_insn": "1742",
+    "dos_site": "1:304ff",
+    "c_site": "_TEXT+175b",
+    "dos": "eq8((tr8(shr16(ld16[sprite+22 + (38*sx32(tr16(in_eax)))], 8)) and 2), 0)",
+    "c": "eq8((2 and tr8(shr32(sx32(ld16[sprite+22 + (38*sx32(tr16(in_eax)))]), 8))), 0)",
+    "detail": "branch predicate; innermost difference: DOS eq8((tr8(shr16(ld16[sprite+22 + (38*sx32(tr16(in_eax)))], 8)) and 2), 0) | C eq8((2 and tr8(shr32(sx32(ld16[sprite+22 + (38*sx32(tr16(in_eax)))]), 8))), 0)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "parse",
+   "size": 6112,
+   "seg_offset": 6912,
+   "oracle": "1:308b0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 4310,
+   "unit": "game_gamedef",
+   "match_first_diff": 8,
+   "oracle_size": 6576,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    5,
+    5
+   ],
+   "aligned": 5,
+   "blocks_equal": 3,
+   "cfg_problems": [
+    "terminator kind ret vs jmp at 32124/31ac"
+   ],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 78,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value compared at 8 bits (our source's return type)"
+   ],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "308e5",
+    "c_block": "1b30",
+    "dos_block_insn": "308e5",
+    "c_block_insn": "1b30",
+    "dos_site": "1:308f9",
+    "c_site": "_TEXT+1b44",
+    "dos": "indirect jump dword ptr cs:[ebx + 0x307a8]",
+    "c": "indirect jump dword ptr cs:[ebx + 0x19fc]",
+    "detail": "unsupported terminator"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check the reported control-flow edges and function bounds."
+  },
+  {
+   "function": "execute",
+   "size": 6796,
+   "seg_offset": 13024,
+   "oracle": "1:32260",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 4817,
+   "unit": "game_gamedef",
+   "match_first_diff": 6,
+   "oracle_size": 7164,
+   "verdict": "MISMATCH",
+   "blocks": [
+    53,
+    53
+   ],
+   "aligned": 53,
+   "blocks_equal": 3,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 659,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect:memory_order",
+    "dos_block": "32309",
+    "c_block": "3381",
+    "dos_block_insn": "32309",
+    "c_block_insn": "3381",
+    "dos_site": "1:32312",
+    "c_site": "_TEXT+3383",
+    "dos": "st32 [hittype+8 + (20*sx32(tr16(in_eax)))] = (ld32[hittype+8 + (20*sx32(tr16(in_eax)))] + 1)",
+    "c": "st16 [sprite+20 + (38*sx32(tr16(in_eax)))] = 0",
+    "detail": "effect #0 differs; innermost difference: DOS (20*sx32(tr16(in_eax)) + obj2 + 0x893e8) | C (38*sx32(tr16(in_eax)) + obj2 + 0x146f30) - equal if loads ignore intervening stores (alias/ordering difference)"
+   },
+   "class": "SOURCE",
+   "hint": "Check the ordering of loads and stores that may alias."
+  },
+  {
+   "function": "neton",
+   "size": 949,
+   "seg_offset": 454,
+   "oracle": "1:47c85",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 424,
+   "unit": "multi",
+   "match_first_diff": 3,
+   "oracle_size": 1079,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    13,
+    13
+   ],
+   "aligned": 13,
+   "blocks_equal": 0,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 529,
+   "unsupported_instructions": 6,
+   "unsupported_mnemonics": {
+    "int": 6
+   },
+   "assumptions": [],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "47c85",
+    "c_block": "1c6",
+    "dos_block_insn": "47c85",
+    "c_block_insn": "1c6",
+    "dos_site": "1:47c94",
+    "c_site": "_TEXT+1d5",
+    "dos": "opaque0()",
+    "c": "opaque0()",
+    "detail": "unsupported instruction with observable effects"
+   },
+   "class": "UNKNOWN",
+   "hint": "Inspect unsupported instructions before interpreting subsequent differences."
+  },
+  {
+   "function": "netsend",
+   "size": 594,
+   "seg_offset": 2176,
+   "oracle": "1:483c1",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 241,
+   "unit": "multi",
+   "match_first_diff": 3,
+   "oracle_size": 593,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    15,
+    15
+   ],
+   "aligned": 15,
+   "blocks_equal": 15,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 311,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "comsend",
+   "size": 141,
+   "seg_offset": 2770,
+   "oracle": "1:48612",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 5,
+   "unit": "multi",
+   "match_first_diff": 93,
+   "oracle_size": 141,
+   "verdict": "MISMATCH",
+   "blocks": [
+    6,
+    6
+   ],
+   "aligned": 6,
+   "blocks_equal": 5,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 92,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "4868b",
+    "c_block": "b4b",
+    "dos_block_insn": "4868b",
+    "c_block_insn": "b4b",
+    "dos_site": "1:48697",
+    "c_site": "_TEXT+b57",
+    "dos": "st16 [ld32[outbufend+0]] = ins16((ld16[ld32[outbufend+0]] + 1), (tr8(shr32((ins32(..., ...) + 1), 8)) and 15))",
+    "c": "st16 [ld32[outbufend+0]] = ins16((ld16[ld32[outbufend+0]] + 1), (tr8(shr32((ins32(..., ...) + 1), 8)) and 15))",
+    "detail": "effect #0 differs; innermost difference: DOS (tr8(shr32((ins32(phi@4868b:edx, ld16[ld32[outbufend+0]]) + 1), 8)) and 15) | C (tr8(shr32((ins32(phi@b4b:edx, ld16[ld32[outbufend+0]]) + 1), 8)) and 15) [join value edx~edx at 4868b differs on edge from 4864c: DOS sx32(ins16((ld16[ld32[outbufend+0]] + 1), (tr8(shr32((ins32(..., ...) + 1), 8)) and 15))) | C ins32((ins32(ld32[outbuf+0], ld16[ld32[outbufend+0]]) + 1), (tr8(shr32((ins32(ld32[outbuf+0], ld16[ld32[outbufend+0]]) + 1), 8)) and 15))]"
+   },
+   "class": "SOURCE",
+   "hint": "Check the width, destination, and value of the listed store or effect."
+  },
+  {
+   "function": "netinitconnection",
+   "size": 484,
+   "seg_offset": 3509,
+   "oracle": "1:488f5",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 201,
+   "unit": "multi",
+   "match_first_diff": 21,
+   "oracle_size": 515,
+   "verdict": "MISMATCH",
+   "blocks": [
+    31,
+    30
+   ],
+   "aligned": 30,
+   "blocks_equal": 13,
+   "cfg_problems": [
+    "terminator kind jmp vs ret at 4890a/dca",
+    "terminator kind jmp vs ret at 48ae8/f8b"
+   ],
+   "unaligned": [
+    [
+     "48aed"
+    ],
+    []
+   ],
+   "instructions": 305,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "branch:memory_order",
+    "dos_block": "48aa8",
+    "c_block": "f54",
+    "dos_block_insn": "48aa8",
+    "c_block_insn": "f54",
+    "dos_site": "1:48ab5",
+    "c_site": "_TEXT+f59",
+    "dos": "lt_s32(phi@48aa8:edi, (sx32(ld16[numplayers+0]) + -1))",
+    "c": "lt_s32(phi@f54:edi, (sx32(ld16[numplayers+0]) + -1))",
+    "detail": "branch predicate; innermost difference: DOS <Mphi297640(), ()> | C <Mphi3874(), ()> - equal if loads ignore intervening stores (alias/ordering difference)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "sendpacket",
+   "size": 1026,
+   "seg_offset": 4342,
+   "oracle": "1:48c55",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 606,
+   "unit": "multi",
+   "match_first_diff": 19,
+   "oracle_size": 1054,
+   "verdict": "MISMATCH",
+   "blocks": [
+    54,
+    55
+   ],
+   "aligned": 54,
+   "blocks_equal": 17,
+   "cfg_problems": [
+    "block 48da6 aligned to 1240 and 124a"
+   ],
+   "unaligned": [
+    [],
+    [
+     "124a"
+    ]
+   ],
+   "instructions": 669,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "48da1",
+    "c_block": "1246",
+    "dos_block_insn": "48da1",
+    "c_block_insn": "1246",
+    "dos_site": "1:48da4",
+    "c_site": "_TEXT+1248",
+    "dos": "lt_s32((phi@48da6:ebx + -1), 1)",
+    "c": "lt_s32(phi@1240:ebx, 1)",
+    "detail": "branch predicate; innermost difference: DOS (phi@48da6:ebx + -1) | C phi@1240:ebx [join value ebx at C 1240 differs on edge from 1236: DOS (phi@48da6:ebx + -1) | C 0x40000]"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "getpacket",
+   "size": 1409,
+   "seg_offset": 5368,
+   "oracle": "1:49073",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 873,
+   "unit": "multi",
+   "match_first_diff": 22,
+   "oracle_size": 1424,
+   "verdict": "MISMATCH",
+   "blocks": [
+    80,
+    80
+   ],
+   "aligned": 80,
+   "blocks_equal": 14,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 856,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value compared at 16 bits (our source's return type)"
+   ],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "49139",
+    "c_block": "15be",
+    "dos_block_insn": "49139",
+    "c_block_insn": "15be",
+    "dos_site": "1:49156",
+    "c_site": "_TEXT+15de",
+    "dos": "st8 [(sx32(ins16((ld16[outbufindex+0 + (4*sx32(ins16(ins16(ld16[inbuf+0], ld8[(ld32[inbuf+0] + sx32(ld16[ld32[inbufplc+0]]))]), 0)))] + 4094), (15 and tr8(shr32((... + ...), 8))))) + ld32[outbuf+0])] = -127",
+    "c": "st8 [(sx32((4095 and (ld16[outbufindex+0 + (4*sx32(ins16(ins16(ld16[inbuf+0], ld8[(ld32[inbuf+0] + sx32(ld16[ld32[inbufplc+0]]))]), 0)))] + 4094))) + ld32[outbuf+0])] = -127",
+    "detail": "effect #0 differs; innermost difference: DOS ins16((ld16[outbufindex+0 + (4*sx32(ins16(ins16(ld16[inbuf+0], ld8[(ld32[inbuf+0] + sx32(ld16[ld32[inbufplc+0]]))]), 0)))] + 4094), (15 and tr8(shr32((ins32(ld32[inbuf+0], ld16[outbufindex+0 + (4*sx32(ins16(ins16(ld16[inbuf+0], ld8[(ld32[inbuf+0] + sx32(ld16[ld32[inbufplc+0]]))]), 0)))]) + 4094), 8)))) | C (4095 and (ld16[outbufindex+0 + (4*sx32(ins16(ins16(ld16[inbuf+0], ld8[(ld32[inbuf+0] + sx32(ld16[ld32[inbufplc+0]]))]), 0)))] + 4094))"
+   },
+   "class": "SOURCE",
+   "hint": "Check the width, destination, and value of the listed store or effect."
+  },
+  {
+   "function": "processreservedmessage",
+   "size": 644,
+   "seg_offset": 7483,
+   "oracle": "1:498c5",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 346,
+   "unit": "multi",
+   "match_first_diff": 20,
+   "oracle_size": 649,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    38,
+    38
+   ],
+   "aligned": 38,
+   "blocks_equal": 38,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 525,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "initmenus",
+   "size": 624,
+   "seg_offset": 0,
+   "oracle": "1:2c1c0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 253,
+   "unit": "game_menues",
+   "match_first_diff": 115,
+   "oracle_size": 624,
+   "verdict": "MISMATCH",
+   "blocks": [
+    1,
+    1
+   ],
+   "aligned": 1,
+   "blocks_equal": 0,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 245,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "2c1c0",
+    "c_block": "0",
+    "dos_block_insn": "2c1c0",
+    "c_block_insn": "0",
+    "dos_site": "1:2c352",
+    "c_site": "_TEXT+122",
+    "dos": "st16 [menu_ordering+8] = 1127",
+    "c": "st16 [menu_instructions+4] = 1",
+    "detail": "effect #38 differs; innermost difference: DOS (obj2 + 0xa5710) | C (obj2 + 0xa576c)"
+   },
+   "class": "SOURCE",
+   "hint": "Check the width, destination, and value of the listed store or effect."
+  },
+  {
+   "function": "probe",
+   "size": 400,
+   "seg_offset": 1328,
+   "oracle": "1:2c6f0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 54,
+   "unit": "game_menues",
+   "match_first_diff": 76,
+   "oracle_size": 400,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    24,
+    24
+   ],
+   "aligned": 24,
+   "blocks_equal": 24,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 228,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "silent store dropped (writes back the value just read; no intervening aliasing store)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "draw_and_probe",
+   "size": 1136,
+   "seg_offset": 1728,
+   "oracle": "1:2c880",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 636,
+   "unit": "game_menues",
+   "match_first_diff": 79,
+   "oracle_size": 1136,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    49,
+    49
+   ],
+   "aligned": 49,
+   "blocks_equal": 24,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 548,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "2c9d2",
+    "c_block": "80d",
+    "dos_block_insn": "2c9d2",
+    "c_block_insn": "80d",
+    "dos_site": "1:2ca3f",
+    "c_site": "_TEXT+87a",
+    "dos": null,
+    "c": null,
+    "detail": "comparison depended on unsupported values"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check unresolved references and the expression or join named in the diagnostic."
+  },
+  {
+   "function": "menus",
+   "size": 4912,
+   "seg_offset": 2864,
+   "oracle": "1:2ccf0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2989,
+   "unit": "game_menues",
+   "match_first_diff": 152,
+   "oracle_size": 4976,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    202,
+    195
+   ],
+   "aligned": 189,
+   "blocks_equal": 16,
+   "cfg_problems": [
+    "C block d7b aligned twice",
+    "C block d7b aligned twice",
+    "C block d7b aligned twice",
+    "C block ee5 aligned twice",
+    "C block ee5 aligned twice"
+   ],
+   "unaligned": [
+    [
+     "2e015",
+     "2e009",
+     "2dff1",
+     "2dfcc",
+     "2d5f0",
+     "2d80a",
+     "2d811",
+     "2d81b"
+    ],
+    [
+     "164a",
+     "1651",
+     "165b",
+     "17e5",
+     "17ec",
+     "17f6"
+    ]
+   ],
+   "instructions": 2520,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "2df12",
+    "c_block": "1d5b",
+    "dos_block_insn": "2df12",
+    "c_block_insn": "1d5b",
+    "dos_site": "1:2df8b",
+    "c_site": "_TEXT+1dd3",
+    "dos": "call probe(; stack: ld32[menu_pause+0], ld32[menu_pause+4], ld32[menu_pause+8], cat32(ld16[menu_pause+c], cat16(ld8[menu_pause+e], UNK(uninitialised stack -261))))",
+    "c": "call probe(; stack: ld32[menu_pause+0], ld32[menu_pause+4], ld32[menu_pause+8], cat32(ld16[menu_pause+c], cat16(ld8[menu_pause+e], UNK(uninitialised stack -261))))",
+    "detail": "unresolved or unsupported value in effect"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check the reported control-flow edges and function bounds."
+  },
+  {
+   "function": "animate_water_ripples",
+   "size": 1248,
+   "seg_offset": 8192,
+   "oracle": "1:2e200",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 625,
+   "unit": "game_menues",
+   "match_first_diff": 125,
+   "oracle_size": 1248,
+   "verdict": "MISMATCH",
+   "blocks": [
+    28,
+    28
+   ],
+   "aligned": 17,
+   "blocks_equal": 13,
+   "cfg_problems": [
+    "block 2e3c0 aligned to 21e0 and 221f",
+    "C block 21e0 aligned twice"
+   ],
+   "unaligned": [
+    [
+     "2e401",
+     "2e410",
+     "2e471",
+     "2e480",
+     "2e4a3",
+     "2e4d0",
+     "2e5f3",
+     "2e610"
+    ],
+    [
+     "221f",
+     "2230",
+     "2291",
+     "22a0",
+     "22c3",
+     "22f0",
+     "2413",
+     "2430"
+    ]
+   ],
+   "instructions": 635,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect:memory_order",
+    "dos_block": "2e34e",
+    "c_block": "214c",
+    "dos_block_insn": "2e34e",
+    "c_block_insn": "214c",
+    "dos_site": "1:2e35c",
+    "c_site": "_TEXT+2164",
+    "dos": "st32 [ripple_count+0] = (ld32[ripple_count+0] + -1)",
+    "c": "st32 [ripple_x+0 + phi@20a1:sp-36] = ld32[ring_count+7c + phi@20a1:sp-40]",
+    "detail": "effect #0 differs; innermost difference: DOS (obj2 + 0xb1de8) | C (phi@20a1:sp-36 + obj2 + 0xadb60) - equal if loads ignore intervening stores (alias/ordering difference)"
+   },
+   "class": "SOURCE",
+   "hint": "Check the ordering of loads and stores that may alias."
+  },
+  {
+   "function": "activatewarpelevators",
+   "size": 464,
+   "seg_offset": 2144,
+   "oracle": "1:15810",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 31,
+   "unit": "game_sector",
+   "match_first_diff": 56,
+   "oracle_size": 380,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    21,
+    21
+   ],
+   "aligned": 21,
+   "blocks_equal": 21,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 202,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "operatesectors",
+   "size": 10000,
+   "seg_offset": 2608,
+   "oracle": "1:159e0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 7242,
+   "unit": "game_sector",
+   "match_first_diff": 7,
+   "oracle_size": 10288,
+   "verdict": "MISMATCH",
+   "blocks": [
+    462,
+    3
+   ],
+   "aligned": 3,
+   "blocks_equal": 0,
+   "cfg_problems": [
+    "terminator kind switch vs unk at 15a21/a71"
+   ],
+   "unaligned": [
+    [
+     "1763b",
+     "17647",
+     "1766f",
+     "17695",
+     "176b0",
+     "176b9",
+     "176c9",
+     "176ee"
+    ],
+    []
+   ],
+   "instructions": 2428,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "159e0",
+    "c_block": "a30",
+    "dos_block_insn": "159e0",
+    "c_block_insn": "a30",
+    "dos_site": "1:15a1b",
+    "c_site": "_TEXT+a6b",
+    "dos": "lt_u16((ins16(ld16[sector+1f + (37*sx32(tr16(in_eax)))], (127 and tr8(shr32(ins32(..., ...), 8)))) + -9), 21)",
+    "c": "lt_u16((ins16(ld16[sector+1f + (37*sx32(tr16(in_eax)))], (tr8(shr32(ins32(..., ...), 8)) and 127)) + -9), 21)",
+    "detail": "branch predicate; innermost difference: DOS <st32 [local32()] = in_edx> | C ()"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "operateactivators",
+   "size": 4624,
+   "seg_offset": 12608,
+   "oracle": "1:18210",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 3329,
+   "unit": "game_sector",
+   "match_first_diff": 12,
+   "oracle_size": 4912,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    9,
+    9
+   ],
+   "aligned": 9,
+   "blocks_equal": 6,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 118,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "182ba",
+    "c_block": "31d2",
+    "dos_block_insn": "182ba",
+    "c_block_insn": "31d2",
+    "dos_site": "1:182db",
+    "c_site": "_TEXT+31f3",
+    "dos": "indirect jump dword ptr cs:[ebp + 0x181bc]",
+    "c": "indirect jump dword ptr cs:[ebp + 0x30e0]",
+    "detail": "unsupported terminator"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check unresolved references and the expression or join named in the diagnostic."
+  },
+  {
+   "function": "operateforcefields",
+   "size": 400,
+   "seg_offset": 17312,
+   "oracle": "1:19590",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 59,
+   "unit": "game_sector",
+   "match_first_diff": 21,
+   "oracle_size": 400,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    11,
+    11
+   ],
+   "aligned": 11,
+   "blocks_equal": 11,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 132,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "playerkeys",
+   "size": 7344,
+   "seg_offset": 17712,
+   "oracle": "1:19720",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 5234,
+   "unit": "game_sector",
+   "match_first_diff": 8,
+   "oracle_size": 7568,
+   "verdict": "MISMATCH",
+   "blocks": [
+    295,
+    137
+   ],
+   "aligned": 130,
+   "blocks_equal": 0,
+   "cfg_problems": [
+    "block 19c43 aligned to 4a45 and 4a1c",
+    "block 19cfd aligned to 4af5 and 4ad3",
+    "block 19c43 aligned to 4a45 and 4a25",
+    "block 19cfd aligned to 4af5 and 4ad5",
+    "block 19f8d aligned to 4d81 and 4d61"
+   ],
+   "unaligned": [
+    [
+     "1b3af",
+     "1b3b5",
+     "1b3d4",
+     "1b401",
+     "1aaa7",
+     "1aab3",
+     "1aadb",
+     "1ab01"
+    ],
+    [
+     "4a1c",
+     "4a25",
+     "4ad3",
+     "4ad5",
+     "4d61",
+     "60fd",
+     "6128"
+    ]
+   ],
+   "instructions": 2445,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch:memory_order",
+    "dos_block": "19720",
+    "c_block": "4530",
+    "dos_block_insn": "19720",
+    "c_block_insn": "4530",
+    "dos_site": "1:19738",
+    "c_site": "_TEXT+4546",
+    "dos": "eq8((ld8[player_bits+2 + (4*sx32(tr16(in_eax)))] and 1), 0)",
+    "c": "eq8((ld8[player_bits+2 + (4*sx32(tr16(in_eax)))] and 1), 0)",
+    "detail": "branch predicate; innermost difference: DOS eq8((ld8[player_bits+2 + (4*sx32(tr16(in_eax)))] and 1), 0) | C eq8((ld8[player_bits+2 + (4*sx32(tr16(in_eax)))] and 1), 0) - equal if loads ignore intervening stores (alias/ordering difference)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "checkhitswitch",
+   "size": 1728,
+   "seg_offset": 25056,
+   "oracle": "1:1b4b0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1085,
+   "unit": "game_sector",
+   "match_first_diff": 7,
+   "oracle_size": 1632,
+   "verdict": "MISMATCH",
+   "blocks": [
+    94,
+    93
+   ],
+   "aligned": 93,
+   "blocks_equal": 21,
+   "cfg_problems": [
+    "C block 687e aligned twice",
+    "C block 687e aligned twice"
+   ],
+   "unaligned": [
+    [
+     "1bae9"
+    ],
+    []
+   ],
+   "instructions": 912,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "1b9c7",
+    "c_block": "672a",
+    "dos_block_insn": "1b9c7",
+    "c_block_insn": "672a",
+    "dos_site": "1:1b9d4",
+    "c_site": "_TEXT+6737",
+    "dos": "eq16((tr16(phi@1b9c7:ebx) + -ld16[sprite+20 + (38*sx32(tr16(phi@1b9c7:ecx)))]), 0)",
+    "c": "eq16((tr16(phi@672a:esi) + -ld16[sprite+20 + (38*sx32(tr16(phi@672a:ecx)))]), 0)",
+    "detail": "branch predicate; innermost difference: DOS eq16((tr16(phi@1b9c7:ebx) + -ld16[sprite+20 + (38*sx32(tr16(phi@1b9c7:ecx)))]), 0) | C eq16((tr16(phi@672a:esi) + -ld16[sprite+20 + (38*sx32(tr16(phi@672a:ecx)))]), 0) [join value ebx~ld16[sprite+20 + (38*sx32(tr16(phi@672a:ecx)))] at 1b9c7 differs on edge from 1b99c: DOS ld16[wall+1d + (35*in_eax)] | C ld16[sprite+20 + (38*sx32(tr16(phi@672a:ecx)))]]"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "checkhitwall",
+   "size": 1648,
+   "seg_offset": 26784,
+   "oracle": "1:1bb10",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 528,
+   "unit": "game_sector",
+   "match_first_diff": 7,
+   "oracle_size": 1648,
+   "verdict": "MISMATCH",
+   "blocks": [
+    66,
+    66
+   ],
+   "aligned": 66,
+   "blocks_equal": 39,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 832,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "1bf71",
+    "c_block": "6cf8",
+    "dos_block_insn": "1bf71",
+    "c_block_insn": "6cf8",
+    "dos_site": "1:1bf91",
+    "c_site": "_TEXT+6d16",
+    "dos": "lt_s16(tr16(phi@1bf71:ecx), sx16(ld8[wall+e + (35*sx32(tr16(phi@1bf71:ebx)))]))",
+    "c": "lt_s32(phi@6cf8:ebx, sx32(ld8[wall+e + (35*sx32(tr16(phi@6cf8:ecx)))]))",
+    "detail": "branch predicate; innermost difference: DOS tr16(phi@1bf71:ecx) | C phi@6cf8:ebx"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "checkhitceiling",
+   "size": 1088,
+   "seg_offset": 28432,
+   "oracle": "1:1c180",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 289,
+   "unit": "game_sector",
+   "match_first_diff": 42,
+   "oracle_size": 1120,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    39,
+    40
+   ],
+   "aligned": 33,
+   "blocks_equal": 25,
+   "cfg_problems": [
+    "terminator kind br vs jmp at 1c3e5/717b"
+   ],
+   "unaligned": [
+    [
+     "1c3f0",
+     "1c42f",
+     "1c468",
+     "1c48f",
+     "1c4aa",
+     "1c4b0"
+    ],
+    [
+     "717f",
+     "718a",
+     "71c9",
+     "71fc",
+     "7223",
+     "723e",
+     "7244"
+    ]
+   ],
+   "instructions": 419,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value compared at 8 bits (our source's return type)"
+   ],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "1c366",
+    "c_block": "70f6",
+    "dos_block_insn": "1c366",
+    "c_block_insn": "70f6",
+    "dos_site": "1:1c3a8",
+    "c_site": "_TEXT+7137",
+    "dos": null,
+    "c": null,
+    "detail": "comparison depended on unsupported values"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check the reported control-flow edges and function bounds."
+  },
+  {
+   "function": "checksectors",
+   "size": 10736,
+   "seg_offset": 29520,
+   "oracle": "1:1c5e0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 7678,
+   "unit": "game_sector",
+   "match_first_diff": 8,
+   "oracle_size": 11184,
+   "verdict": "MISMATCH",
+   "blocks": [
+    417,
+    402
+   ],
+   "aligned": 337,
+   "blocks_equal": 7,
+   "cfg_problems": [
+    "terminator kind br vs ret at 1c697/7404",
+    "C block 751e aligned twice",
+    "C block 7dcc aligned twice",
+    "terminator kind jmp vs br at 1d5aa/824a",
+    "terminator kind jmp vs ret at 1d530/81ca"
+   ],
+   "unaligned": [
+    [
+     "1c6a0",
+     "1c7c8",
+     "1d9a1",
+     "1d9c6",
+     "1d9cf",
+     "1d9ec",
+     "1d9f6",
+     "1da07"
+    ],
+    [
+     "8622",
+     "8631",
+     "86dc",
+     "86e4",
+     "863d",
+     "8657",
+     "8661",
+     "8672"
+    ]
+   ],
+   "instructions": 5883,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "1c687",
+    "c_block": "73f7",
+    "dos_block_insn": "1c687",
+    "c_block_insn": "73f7",
+    "dos_site": "1:1c695",
+    "c_site": "_TEXT+7402",
+    "dos": "eq8((ld8[player_bits+0 + (4*sx32(tr16(in_eax)))] and 16), 0)",
+    "c": "eq32((0x80000010 and ld32[player_bits+0 + (4*sx32(tr16(in_eax)))]), 0)",
+    "detail": "branch predicate; innermost difference: DOS eq8((ld8[player_bits+0 + (4*sx32(tr16(in_eax)))] and 16), 0) | C eq32((0x80000010 and ld32[player_bits+0 + (4*sx32(tr16(in_eax)))]), 0)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "spawn_pistol_tracer",
+   "size": 592,
+   "seg_offset": 400,
+   "oracle": "1:1f410",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 365,
+   "unit": "game_player",
+   "match_first_diff": 8,
+   "oracle_size": 592,
+   "verdict": "MISMATCH",
+   "blocks": [
+    5,
+    5
+   ],
+   "aligned": 5,
+   "blocks_equal": 0,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 329,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "1f410",
+    "c_block": "190",
+    "dos_block_insn": "1f410",
+    "c_block_insn": "190",
+    "dos_site": "1:1f50f",
+    "c_site": "_TEXT+293",
+    "dos": "call hitscan(eax=(ld32[ps+a + (176*sx32(tr16(in_eax)))] + sar32(sx32(ld16[sintable+0 + (2*(2047 and (sx32(ld16[ps+3e + (176*sx32(tr16(in_eax)))]) + -16*zx32((ld8[ps+a1 + (176*sx32(tr16(in_eax)))] and 127)) + 592)))]), 8)), edx=(ld32[ps+e + (176*sx32(tr16(in_eax)))] + sar32(sx32(ld16[sintable+0 + (2*(2047 and (sx32(ld16[ps+3e + (176*sx32(tr16(in_eax)))]) + -16*zx32((ld8[ps+a1 + (176*sx32(tr16(in_eax)))] and 127)) + 80)))]), 8)), ebx=(-1024*zx32((ld8[ps+a1 + (176*sx32(tr16(in_eax)))] and 127)) + ld32[ps+12 + (176*sx32(tr16(in_eax)))] + 0x1500), ecx=ld16[ps+44 + (176*sx32(tr16(in_eax)))]; stack: sx32(ld16[sintable+0 + (2*(2047 and (sx32(ld16[ps+3e + (176*sx32(tr16(in_eax)))]) + -16*zx32((ld8[ps+a1 + (176*sx32(tr16(in_eax)))] and 127)) + sar32(sx32(ld8[player_avel+0 + sx32(tr16(in_eax))]), 3) + 592)))]), sx32(ld16[sintable+0 + (2*(2047 and (sx32(ld16[ps+3e + (176*sx32(tr16(in_eax)))]) + -16*zx32((ld8[ps+a1 + (176*sx32(tr16(in_eax)))] and 127)) + sar32(sx32(ld8[player_avel+0 + sx32(tr16(in_eax))]), 3) + 80)))]), (-2048*ld32[ps+16 + (176*sx32(tr16(in_eax)))] + 0x32000), local32(), local32(), local32(), local32(), local32(), local32())",
+    "c": "call hitscan(eax=(sar32(sx32(ld16[sintable+0 + (2*((sx32((-16*zx16((... and ...)) + ld16[ps+3e + (176*sx32(tr16(in_eax)))] + 80)) + 512) and 2047))]), 8) + ld32[ps+a + (176*sx32(tr16(in_eax)))]), edx=(sar32(sx32(ld16[sintable+0 + (2*sx32(ins16((-16*zx16((ld8[ps+a1 + (176*sx32(tr16(in_eax)))] and 127)) + ld16[ps+3e + (176*sx32(tr16(in_eax)))] + 80), (7 and tr8(shr32(cat32(..., ...), 8))))))]), 8) + ld32[ps+e + (176*sx32(tr16(in_eax)))]), ebx=(-1024*zx32((ld8[ps+a1 + (176*sx32(tr16(in_eax)))] and 127)) + ld32[ps+12 + (176*sx32(tr16(in_eax)))] + 0x1500), ecx=ld16[ps+44 + (176*sx32(tr16(in_eax)))]; stack: sx32(ld16[sintable+0 + (2*(2047 and (sar32(sx32(ld8[player_avel+0 + sx32(tr16(in_eax))]), 3) + sx32((-16*zx16((... and ...)) + ld16[ps+3e + (176*sx32(tr16(in_eax)))] + 80)) + 512)))]), sx32(ld16[sintable+0 + (2*(2047 and (sar32(sx32(ld8[player_avel+0 + sx32(tr16(in_eax))]), 3) + sx32((-16*zx16((... and ...)) + ld16[ps+3e + (176*sx32(tr16(in_eax)))] + 80)))))]), (-2048*ld32[ps+16 + (176*sx32(tr16(in_eax)))] + 0x32000), local32(), local32(), local32(), local32(), local32(), local32())",
+    "detail": "effect #0 differs; innermost difference: DOS <eax=(ld32[ps+a + (176*sx32(tr16(in_eax)))] + sar32(sx32(ld16[sintable+0 + (2*(2047 and (sx32(ld16[ps+3e + (176*sx32(tr16(in_eax)))]) + -16*zx32((ld8[ps+a1 + (176*sx32(tr16(in_eax)))] and 127)) + 592)))]), 8)), edx=(ld32[ps+e + (176*sx32(tr16(in_eax)))] + sar32(sx32(ld16[sintable+0 + (2*(2047 and (sx32(ld16[ps+3e + (176*sx32(tr16(in_eax)))]) + -16*zx32((ld8[ps+a1 + (176*sx32(tr16(in_eax)))] and 127)) + 80)))]), 8)), ebx=(-1024*zx32((ld8[ps+a1 + (176*sx32(tr16(in_eax)))] and 127)) + ld32[ps+12 + (176*sx32(tr16(in_eax)))] + 0x1500), ecx=ld16[ps+44 + (176*sx32(tr16(in_eax)))]> | C <eax=(sar32(sx32(ld16[sintable+0 + (2*((sx32((-16*zx16((... and ...)) + ld16[ps+3e + (176*sx32(tr16(in_eax)))] + 80)) + 512) and 2047))]), 8) + ld32[ps+a + (176*sx32(tr16(in_eax)))]), edx=(sar32(sx32(ld16[sintable+0 + (2*sx32(ins16((-16*zx16((ld8[ps+a1 + (176*sx32(tr16(in_eax)))] and 127)) + ld16[ps+3e + (176*sx32(tr16(in_eax)))] + 80), (7 and tr8(shr32(cat32(..., ...), 8))))))]), 8) + ld32[ps+e + (176*sx32(tr16(in_eax)))]), ebx=(-1024*zx32((ld8[ps+a1 + (176*sx32(tr16(in_eax)))] and 127)) + ld32[ps+12 + (176*sx32(tr16(in_eax)))] + 0x1500), ecx=ld16[ps+44 + (176*sx32(tr16(in_eax)))]>"
+   },
+   "class": "SOURCE",
+   "hint": "Check the callee, evaluation order and argument values at the listed call."
+  },
+  {
+   "function": "shoot",
+   "size": 1712,
+   "seg_offset": 992,
+   "oracle": "1:1f660",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 1134,
+   "unit": "game_player",
+   "match_first_diff": 6,
+   "oracle_size": 1728,
+   "verdict": "MISMATCH",
+   "blocks": [
+    45,
+    45
+   ],
+   "aligned": 45,
+   "blocks_equal": 1,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 1011,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "1f677",
+    "c_block": "3f7",
+    "dos_block_insn": "1f677",
+    "c_block_insn": "3f7",
+    "dos_site": "1:1f6e6",
+    "c_site": "_TEXT+466",
+    "dos": "call hitscan(eax=ld32[sprite+0 + (38*sx32(tr16(in_eax)))], edx=ld32[sprite+4 + (38*sx32(tr16(in_eax)))], ebx=ld32[sprite+8 + (38*sx32(tr16(in_eax)))], ecx=ld16[sprite+1c + (38*sx32(tr16(in_eax)))]; stack: sx32(ld16[sintable+0 + (2*(2047 and (sx32(ld16[sprite+12 + (38*sx32(tr16(in_eax)))]) + 512)))]), sx32(ld16[sintable+0 + (2*sx32(ins16(ld16[sprite+12 + (38*sx32(tr16(in_eax)))], (tr8(shr32(ins32(..., ...), 8)) and 7))))]), 0, local32(), local32(), local32(), local32(), local32(), local32())",
+    "c": "call hitscan(eax=ld32[sprite+0 + (38*sx32(tr16(in_eax)))], edx=ld32[sprite+4 + (38*sx32(tr16(in_eax)))], ebx=ld32[sprite+8 + (38*sx32(tr16(in_eax)))], ecx=ld16[sprite+1c + (38*sx32(tr16(in_eax)))]; stack: sx32(ld16[sintable+0 + (2*(2047 and (sx32(ld16[sprite+12 + (38*sx32(tr16(in_eax)))]) + 512)))]), sx32(ld16[sintable+0 + (2*sx32(ins16(ld16[sprite+12 + (38*sx32(tr16(in_eax)))], (tr8(shr32(ins32(..., ...), 8)) and 7))))]), 0, local32(), local32(), local32(), local32(), local32(), local32())",
+    "detail": "effect #0 differs; innermost difference: DOS <sx32(ld16[sintable+0 + (2*(2047 and (sx32(ld16[sprite+12 + (38*sx32(tr16(in_eax)))]) + 512)))]), sx32(ld16[sintable+0 + (2*sx32(ins16(ld16[sprite+12 + (38*sx32(tr16(in_eax)))], (tr8(shr32(ins32(..., ...), 8)) and 7))))]), 0, local32(), local32(), local32(), local32(), local32(), local32()> | C <sx32(ld16[sintable+0 + (2*(2047 and (sx32(ld16[sprite+12 + (38*sx32(tr16(in_eax)))]) + 512)))]), sx32(ld16[sintable+0 + (2*sx32(ins16(ld16[sprite+12 + (38*sx32(tr16(in_eax)))], (tr8(shr32(ins32(..., ...), 8)) and 7))))]), 0, local32(), local32(), local32(), local32(), local32(), local32()>"
+   },
+   "class": "SOURCE",
+   "hint": "Check the callee, evaluation order and argument values at the listed call."
+  },
+  {
+   "function": "displayraise",
+   "size": 288,
+   "seg_offset": 2704,
+   "oracle": "1:1fd20",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 108,
+   "unit": "game_player",
+   "match_first_diff": 23,
+   "oracle_size": 288,
+   "verdict": "UNKNOWN",
+   "blocks": [
+    8,
+    8
+   ],
+   "aligned": 8,
+   "blocks_equal": 0,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 143,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value compared at 8 bits (our source's return type)"
+   ],
+   "first_difference": {
+    "kind": "unknown",
+    "dos_block": "1fd20",
+    "c_block": "a90",
+    "dos_block_insn": "1fd20",
+    "c_block_insn": "a90",
+    "dos_site": "1:1fd3a",
+    "c_site": "_TEXT+aa7",
+    "dos": "rep0(local32(), (obj1 + 0x1f280), 5, <Mentry(), <st32 [local32()] = in_eax>>)",
+    "c": "rep0(local32(), UNK(unbound reference (0,)), 5, <Mentry(), <st32 [local32()] = in_eax>>)",
+    "detail": "unresolved or unsupported value in effect"
+   },
+   "class": "UNKNOWN",
+   "hint": "Check unresolved references and the expression or join named in the diagnostic."
+  },
+  {
+   "function": "displayweapon",
+   "size": 4096,
+   "seg_offset": 2992,
+   "oracle": "1:1fe40",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 3364,
+   "unit": "game_player",
+   "match_first_diff": 8,
+   "oracle_size": 4128,
+   "verdict": "MISMATCH",
+   "blocks": [
+    104,
+    111
+   ],
+   "aligned": 7,
+   "blocks_equal": 5,
+   "cfg_problems": [
+    "terminator kind br vs jmp at 1feb5/c22",
+    "block 1feb5 aligned to c22 and c24"
+   ],
+   "unaligned": [
+    [
+     "1feef",
+     "1fef7",
+     "1fefc",
+     "1ff04",
+     "1ff1d",
+     "1ff48",
+     "1ff9c",
+     "1ffa0"
+    ],
+    [
+     "c24",
+     "c60",
+     "c68",
+     "c6d",
+     "c75",
+     "c8e",
+     "cb9",
+     "d0d"
+    ]
+   ],
+   "instructions": 2398,
+   "unsupported_instructions": 6,
+   "unsupported_mnemonics": {
+    "mul": 6
+   },
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "terminator",
+    "dos_block": "1feb5",
+    "c_block": "c22",
+    "dos_block_insn": "1feb5",
+    "c_block_insn": "c22",
+    "dos_site": "1:1feed",
+    "c_site": "_TEXT+c22",
+    "dos": "br",
+    "c": "jmp",
+    "detail": ""
+   },
+   "class": "SOURCE",
+   "hint": "Inspect the first differing control-flow exit or join and its incoming values."
+  },
+  {
+   "function": "getinput",
+   "size": 1056,
+   "seg_offset": 7088,
+   "oracle": "1:20e60",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 566,
+   "unit": "game_player",
+   "match_first_diff": 79,
+   "oracle_size": 1056,
+   "verdict": "MISMATCH",
+   "blocks": [
+    16,
+    16
+   ],
+   "aligned": 16,
+   "blocks_equal": 5,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 527,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect:memory_order",
+    "dos_block": "20eb0",
+    "c_block": "1c00",
+    "dos_block_insn": "20eb0",
+    "c_block_insn": "1c00",
+    "dos_site": "1:20eb9",
+    "c_site": "_TEXT+1c07",
+    "dos": "st32 [player_bits+0 + (4*sx32(ld16[myconnectindex+0]))] = 0",
+    "c": "st32 [strafe_velocity+0] = 0",
+    "detail": "effect #1 differs; innermost difference: DOS (4*sx32(ld16[myconnectindex+0]) + obj2 + 0xa52a0) | C (obj2 + 0xa52fc) - equal if loads ignore intervening stores (alias/ordering difference)"
+   },
+   "class": "SOURCE",
+   "hint": "Check the ordering of loads and stores that may alias."
+  },
+  {
+   "function": "update_air",
+   "size": 400,
+   "seg_offset": 8144,
+   "oracle": "1:21280",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 4,
+   "unit": "game_player",
+   "match_first_diff": 212,
+   "oracle_size": 400,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    19,
+    19
+   ],
+   "aligned": 19,
+   "blocks_equal": 19,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 254,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "processinput",
+   "size": 15694,
+   "seg_offset": 8544,
+   "oracle": "1:21410",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 11793,
+   "unit": "game_player",
+   "match_first_diff": 8,
+   "oracle_size": 15692,
+   "verdict": "MISMATCH",
+   "blocks": [
+    454,
+    452
+   ],
+   "aligned": 450,
+   "blocks_equal": 6,
+   "cfg_problems": [
+    "C block 2e34 aligned twice",
+    "C block 3730 aligned twice",
+    "C block 3730 aligned twice",
+    "block 21e5c aligned to 2b9b and 2b55",
+    "block 21e5c aligned to 2b9b and 2b55"
+   ],
+   "unaligned": [
+    [
+     "2210f",
+     "22a18",
+     "22a21",
+     "250b6"
+    ],
+    [
+     "2b55",
+     "3702"
+    ]
+   ],
+   "instructions": 8051,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "21492",
+    "c_block": "21e2",
+    "dos_block_insn": "21492",
+    "c_block_insn": "21e2",
+    "dos_site": "1:21503",
+    "c_site": "_TEXT+2253",
+    "dos": "call setsprite(eax=ld16[ps+0 + clob_edi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))], edx=ld32[ps+a + clob_edi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))], ebx=ld32[ps+e + clob_edi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))], ecx=ld32[ps+12 + clob_edi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))])",
+    "c": "call setsprite(eax=ld16[ps+0 + clob_esi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))], edx=ld32[ps+a + clob_esi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))], ebx=ld32[ps+e + clob_esi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))], ecx=ld32[ps+12 + clob_esi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))])",
+    "detail": "effect #2 differs; innermost difference: DOS <eax=ld16[ps+0 + clob_edi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))], edx=ld32[ps+a + clob_edi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))], ebx=ld32[ps+e + clob_edi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))], ecx=ld32[ps+12 + clob_edi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))]> | C <eax=ld16[ps+0 + clob_esi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))], edx=ld32[ps+a + clob_esi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))], ebx=ld32[ps+e + clob_esi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))], ecx=ld32[ps+12 + clob_esi(call clipmove(eax=(176*sx32(tr16(in_eax)) + obj2 + 0x8883a), edx=(176*sx32(tr16(in_eax)) + obj2 + 0x8883e), ebx=(176*sx32(tr16(in_eax)) + obj2 + 0x88842), ecx=(176*sx32(tr16(in_eax)) + obj2 + 0x88874); stack: 0, 0, 144, 1024, 1024, 0))]>"
+   },
+   "class": "SOURCE",
+   "hint": "Check the callee, evaluation order and argument values at the listed call."
+  },
+  {
+   "function": "update_timer_input",
+   "size": 448,
+   "seg_offset": 176,
+   "oracle": "1:000d0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 287,
+   "unit": "game_game",
+   "match_first_diff": 4,
+   "oracle_size": 448,
+   "verdict": "MISMATCH",
+   "blocks": [
+    35,
+    38
+   ],
+   "aligned": 35,
+   "blocks_equal": 1,
+   "cfg_problems": [
+    "block 235 aligned to 21f and 22a",
+    "block 240 aligned to 22a and 228",
+    "block 23e aligned to 21d and 228",
+    "block 24b aligned to 237 and 242",
+    "block 256 aligned to 242 and 240"
+   ],
+   "unaligned": [
+    [],
+    [
+     "228",
+     "240",
+     "258"
+    ]
+   ],
+   "instructions": 276,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "f6",
+    "c_block": "d6",
+    "dos_block_insn": "f6",
+    "c_block_insn": "d6",
+    "dos_site": "1:0011c",
+    "c_site": "_TEXT+fc",
+    "dos": "lt_s32((zx32(ld8[keystatus+0 + zx32(ld8[keys+2])]) or zx32(ld8[keystatus+cb]) or zx32(ld8[keystatus+4b])), 1)",
+    "c": "eq32((zx32(ld8[keystatus+0 + zx32(ld8[keys+2])]) or zx32(ld8[keystatus+cb]) or zx32(ld8[keystatus+4b])), 0)",
+    "detail": "branch predicate; innermost difference: DOS lt_s32((zx32(ld8[keystatus+0 + zx32(ld8[keys+2])]) or zx32(ld8[keystatus+cb]) or zx32(ld8[keystatus+4b])), 1) | C eq32((zx32(ld8[keystatus+0 + zx32(ld8[keys+2])]) or zx32(ld8[keystatus+cb]) or zx32(ld8[keystatus+4b])), 0)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "gametext",
+   "size": 272,
+   "seg_offset": 832,
+   "oracle": "1:02750",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 243,
+   "unit": "game_game",
+   "match_first_diff": 9,
+   "oracle_size": 256,
+   "verdict": "MISMATCH",
+   "blocks": [
+    18,
+    21
+   ],
+   "aligned": 18,
+   "blocks_equal": 1,
+   "cfg_problems": [
+    "terminator kind ret vs jmp at 278a/377",
+    "terminator kind ret vs jmp at 2842/441",
+    "block 2791 aligned to 37e and 437",
+    "block 2791 aligned to 37e and 437",
+    "terminator kind jmp vs br at 2810/404"
+   ],
+   "unaligned": [
+    [],
+    [
+     "40d",
+     "437",
+     "443"
+    ]
+   ],
+   "instructions": 181,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "terminator",
+    "dos_block": "278a",
+    "c_block": "377",
+    "dos_block_insn": "278a",
+    "c_block_insn": "377",
+    "dos_site": "1:0284a",
+    "c_site": "_TEXT+379",
+    "dos": "ret",
+    "c": "jmp",
+    "detail": ""
+   },
+   "class": "SOURCE",
+   "hint": "Inspect the first differing control-flow exit or join and its incoming values."
+  },
+  {
+   "function": "numtext_relative",
+   "size": 304,
+   "seg_offset": 1328,
+   "oracle": "1:02930",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 261,
+   "unit": "game_game",
+   "match_first_diff": 9,
+   "oracle_size": 272,
+   "verdict": "MISMATCH",
+   "blocks": [
+    18,
+    22
+   ],
+   "aligned": 18,
+   "blocks_equal": 1,
+   "cfg_problems": [
+    "block 2987 aligned to 58a and 64f",
+    "terminator kind jmp vs br at 29b5/5c9",
+    "terminator kind jmp vs br at 29ff/61c"
+   ],
+   "unaligned": [
+    [],
+    [
+     "5d2",
+     "625",
+     "64f",
+     "659<64f"
+    ]
+   ],
+   "instructions": 207,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "2987",
+    "c_block": "58a",
+    "dos_block_insn": "2987",
+    "c_block_insn": "58a",
+    "dos_site": "1:0298b",
+    "c_site": "_TEXT+59e",
+    "dos": "eq8(ld8[phi@2987:esi], 0)",
+    "c": "eq8(ld8[tempbuf+0], 0)",
+    "detail": "branch predicate; innermost difference: DOS eq8(ld8[phi@2987:esi], 0) | C eq8(ld8[tempbuf+0], 0) [join value esi~(obj2 + 0xa4830) at 2987 differs on edge from 299e: DOS (phi@2987:esi + 1) | C (obj2 + 0xa4830)]"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "strget",
+   "size": 1024,
+   "seg_offset": 1632,
+   "oracle": "1:02a40",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 785,
+   "unit": "game_game",
+   "match_first_diff": 5,
+   "oracle_size": 1024,
+   "verdict": "MISMATCH",
+   "blocks": [
+    65,
+    66
+   ],
+   "aligned": 38,
+   "blocks_equal": 8,
+   "cfg_problems": [
+    "terminator kind br vs jmp at 2bb7/938",
+    "C block 891 aligned twice",
+    "terminator kind br vs jmp at 2d03/7da",
+    "terminator kind jmp vs br at 2b1b/73c",
+    "C block 73c aligned twice"
+   ],
+   "unaligned": [
+    [
+     "2b21",
+     "2b38",
+     "2b4c",
+     "2bc9",
+     "2bd4",
+     "2be6",
+     "2bea",
+     "2bf1"
+    ],
+    [
+     "755",
+     "76a",
+     "7e2",
+     "7ee",
+     "7fb",
+     "800",
+     "808",
+     "80d"
+    ]
+   ],
+   "instructions": 579,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [],
+   "first_difference": {
+    "kind": "effect:memory_order",
+    "dos_block": "2abc",
+    "c_block": "6e1",
+    "dos_block_insn": "2abc",
+    "c_block_insn": "6e1",
+    "dos_site": "1:02aca",
+    "c_site": "_TEXT+6ed",
+    "dos": "st8 [input_text_length+0] = (ld8[input_text_length+0] + 1)",
+    "c": "st8 [input_text+0 + zx32(ld8[input_text_length+0])] = ld8[scan_ascii+0 + sx32(tr16(phi@680:eax))]",
+    "detail": "effect #0 differs; innermost difference: DOS (obj2 + 0xa57c2) | C (obj2 + zx32(ld8[input_text_length+0]) + 0x9d3e0) - equal if loads ignore intervening stores (alias/ordering difference)"
+   },
+   "class": "SOURCE",
+   "hint": "Check the ordering of loads and stores that may alias."
+  },
+  {
+   "function": "numtext",
+   "size": 240,
+   "seg_offset": 2896,
+   "oracle": "1:03800",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 24,
+   "unit": "game_game",
+   "match_first_diff": 9,
+   "oracle_size": 240,
+   "verdict": "MISMATCH",
+   "blocks": [
+    15,
+    15
+   ],
+   "aligned": 15,
+   "blocks_equal": 10,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 176,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "38ad",
+    "c_block": "bfd",
+    "dos_block_insn": "38ad",
+    "c_block_insn": "bfd",
+    "dos_site": "1:038c7",
+    "c_site": "_TEXT+c17",
+    "dos": "call overwritesprite(eax=phi@3864:edi, edx=(phi@3864:sp-24 + sx32(tr16(phi@38ad:edx))), ebx=(zx16(ld8[phi@3864:esi]) + 991), ecx=tr8(in_ecx); stack: 0, 0)",
+    "c": "call overwritesprite(eax=phi@bb4:edi, edx=(phi@bb4:sp-24 + sx32(tr16(phi@bfd:edx))), ebx=(zx16(ld8[phi@bb4:esi]) + 991), ecx=tr8(in_ecx); stack: 0, 0)",
+    "detail": "effect #0 differs; innermost difference: DOS <eax=phi@3864:edi, edx=(phi@3864:sp-24 + sx32(tr16(phi@38ad:edx))), ebx=(zx16(ld8[phi@3864:esi]) + 991), ecx=tr8(in_ecx)> | C <eax=phi@bb4:edi, edx=(phi@bb4:sp-24 + sx32(tr16(phi@bfd:edx))), ebx=(zx16(ld8[phi@bb4:esi]) + 991), ecx=tr8(in_ecx)> [join value edi~edi at 3864 differs on edge from 38d8: DOS phi@38d8:edi | C phi@c28:edi]"
+   },
+   "class": "SOURCE",
+   "hint": "Check the callee, evaluation order and argument values at the listed call."
+  },
+  {
+   "function": "draw_meter",
+   "size": 144,
+   "seg_offset": 3264,
+   "oracle": "1:03970",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 4,
+   "unit": "game_game",
+   "match_first_diff": 138,
+   "oracle_size": 176,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    5,
+    5
+   ],
+   "aligned": 5,
+   "blocks_equal": 5,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 114,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "draw_water_distortion",
+   "size": 192,
+   "seg_offset": 3408,
+   "oracle": "1:03f50",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 100,
+   "unit": "game_game",
+   "match_first_diff": 68,
+   "oracle_size": 256,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    14,
+    14
+   ],
+   "aligned": 14,
+   "blocks_equal": 14,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 126,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "update_menu_cursor",
+   "size": 448,
+   "seg_offset": 3712,
+   "oracle": "1:0a6f0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 266,
+   "unit": "game_game",
+   "match_first_diff": 37,
+   "oracle_size": 448,
+   "verdict": "MISMATCH",
+   "blocks": [
+    21,
+    21
+   ],
+   "aligned": 21,
+   "blocks_equal": 0,
+   "cfg_problems": [
+    "block a75f aligned to eef and f0c"
+   ],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 235,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "a6f0",
+    "c_block": "e80",
+    "dos_block_insn": "a6f0",
+    "c_block_insn": "e80",
+    "dos_site": "1:0a73d",
+    "c_site": "_TEXT+ecb",
+    "dos": "call getmousevalues(eax=local32(), edx=local32(), ebx=(obj2 + 0xa5398), ecx=zx16((tr8(sar32(sx32(ld16[sintable+0 + (2*sx32(ins16((ld16[hudpulse+0] + 128), (tr8(shr32((... + ...), 8)) and 7))))]), 10)) + 16)))",
+    "c": "call getmousevalues(eax=local32(), edx=local32(), ebx=(obj2 + 0xa5398), ecx=ins16(tr16(in_ecx), (tr8(sar32(sx32(ld16[sintable+0 + (2*sx32(ins16((ld16[hudpulse+0] + 128), (tr8(shr32((... + ...), 8)) and 7))))]), 10)) + 16)))",
+    "detail": "effect #2 differs; innermost difference: DOS zx16((tr8(sar32(sx32(ld16[sintable+0 + (2*sx32(ins16((ld16[hudpulse+0] + 128), (tr8(shr32((... + ...), 8)) and 7))))]), 10)) + 16)) | C ins16(tr16(in_ecx), (tr8(sar32(sx32(ld16[sintable+0 + (2*sx32(ins16((ld16[hudpulse+0] + 128), (tr8(shr32((... + ...), 8)) and 7))))]), 10)) + 16))"
+   },
+   "class": "SOURCE",
+   "hint": "Check the callee, evaluation order and argument values at the listed call."
+  },
+  {
+   "function": "write_demo",
+   "size": 272,
+   "seg_offset": 4704,
+   "oracle": "1:0b920",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 125,
+   "unit": "game_game",
+   "match_first_diff": 19,
+   "oracle_size": 272,
+   "verdict": "MISMATCH",
+   "blocks": [
+    9,
+    9
+   ],
+   "aligned": 9,
+   "blocks_equal": 3,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 151,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "b94f",
+    "c_block": "129c",
+    "dos_block_insn": "b94f",
+    "c_block_insn": "129c",
+    "dos_site": "1:0b94f",
+    "c_site": null,
+    "dos": "st8 [demo_filename+7] = 48",
+    "c": "<none>",
+    "detail": "DOS effect #0 has no partner"
+   },
+   "class": "SOURCE",
+   "hint": "Check the width, destination, and value of the listed store or effect."
+  },
+  {
+   "function": "hitradius",
+   "size": 304,
+   "seg_offset": 800,
+   "oracle": "1:25480",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2,
+   "unit": "game_actors",
+   "match_first_diff": 255,
+   "oracle_size": 304,
+   "verdict": "STRUCTURALLY_SIMILAR",
+   "blocks": [
+    8,
+    8
+   ],
+   "aligned": 8,
+   "blocks_equal": 8,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 170,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "class": "UNKNOWN",
+   "hint": "Check unresolved references and the expression or join named in the diagnostic."
+  },
+  {
+   "function": "movesector",
+   "size": 368,
+   "seg_offset": 1520,
+   "oracle": "1:25750",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 106,
+   "unit": "game_actors",
+   "match_first_diff": 12,
+   "oracle_size": 368,
+   "verdict": "MISMATCH",
+   "blocks": [
+    4,
+    4
+   ],
+   "aligned": 4,
+   "blocks_equal": 2,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 190,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch:memory_order",
+    "dos_block": "2581d",
+    "c_block": "6bd",
+    "dos_block_insn": "2581d",
+    "c_block_insn": "6bd",
+    "dos_site": "1:2588f",
+    "c_site": "_TEXT+72f",
+    "dos": "lt_s16((ld16[local32()] + 1), ld16[local32()])",
+    "c": "lt_s16((ld16[local32()] + 1), ld16[local32()])",
+    "detail": "branch predicate; innermost difference: DOS <call rotatepoint(eax=0, edx=0, ebx=ld32[msx+0 + phi@2581d:esi], ecx=ld32[msy+0 + phi@2581d:esi]; stack: (2047 and ld32[hittype+8 + (20*sx32(tr16(phi@2581d:sp-36)))]), local32(), local32()), ()> | C <call dragpoint(eax=ld16[local32()], edx=(ld32[local32()] + ld32[sprite+0 + (38*sx32(tr16(phi@6bd:sp-32)))]), ebx=(ld32[local32()] + ld32[sprite+4 + (38*sx32(tr16(phi@6bd:sp-32)))])), ()> - equal if loads ignore intervening stores (alias/ordering difference)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "wakeactors",
+   "size": 416,
+   "seg_offset": 1888,
+   "oracle": "1:258c0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 17,
+   "unit": "game_actors",
+   "match_first_diff": 107,
+   "oracle_size": 416,
+   "verdict": "STRUCTURALLY_SIMILAR",
+   "blocks": [
+    31,
+    31
+   ],
+   "aligned": 31,
+   "blocks_equal": 31,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 228,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "class": "UNKNOWN",
+   "hint": "Check unresolved references and the expression or join named in the diagnostic."
+  },
+  {
+   "function": "ifsquished",
+   "size": 384,
+   "seg_offset": 2304,
+   "oracle": "1:25a60",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 20,
+   "unit": "game_actors",
+   "match_first_diff": 164,
+   "oracle_size": 384,
+   "verdict": "MISMATCH",
+   "blocks": [
+    22,
+    22
+   ],
+   "aligned": 22,
+   "blocks_equal": 19,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 214,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value compared at 16 bits (our source's return type)"
+   ],
+   "first_difference": {
+    "kind": "effect:memory_order",
+    "dos_block": "25b3e",
+    "c_block": "9de",
+    "dos_block_insn": "25b3e",
+    "c_block_insn": "9de",
+    "dos_site": "1:25b83",
+    "c_site": "_TEXT+a23",
+    "dos": "st8 [ps+ad + (176*sx32(tr16(in_edx)))] = (ld8[ps+ad + (176*sx32(tr16(in_edx)))] + 1)",
+    "c": "st8 [ps+ad + (176*sx32(tr16(in_edx)))] = (ld8[ps+ad + (176*sx32(tr16(in_edx)))] + 1)",
+    "detail": "effect #2 differs; innermost difference: DOS <Mphi154329(), <st32 [sprite+8 + (38*sx32(tr16(in_eax)))] = ld32[sector+10 + (37*sx32(ld16[sprite+1c + (38*sx32(tr16(in_eax)))]))]>> | C <Mphi2425(), <st16 [sprite+14 + (38*sx32(tr16(in_eax)))] = 0, st32 [sprite+8 + (38*sx32(tr16(in_eax)))] = ld32[sector+10 + (37*sx32(ld16[sprite+1c + (38*sx32(tr16(in_eax)))]))]>> - equal if loads ignore intervening stores (alias/ordering difference)"
+   },
+   "class": "SOURCE",
+   "hint": "Check the ordering of loads and stores that may alias."
+  },
+  {
+   "function": "guts",
+   "size": 448,
+   "seg_offset": 3056,
+   "oracle": "1:25d50",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 42,
+   "unit": "game_actors",
+   "match_first_diff": 156,
+   "oracle_size": 448,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    1,
+    1
+   ],
+   "aligned": 1,
+   "blocks_equal": 1,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 224,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "moveactors",
+   "size": 12320,
+   "seg_offset": 3504,
+   "oracle": "1:25f10",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 8700,
+   "unit": "game_actors",
+   "match_first_diff": 8,
+   "oracle_size": 12320,
+   "verdict": "MISMATCH",
+   "blocks": [
+    529,
+    480
+   ],
+   "aligned": 138,
+   "blocks_equal": 1,
+   "cfg_problems": [
+    "terminator kind jmp vs br at 25ff6/e93",
+    "terminator kind jmp vs br at 2626c/1117",
+    "C block 1527 aligned twice",
+    "C block 26c9 aligned twice",
+    "block 27cfb aligned to 26c9 and 2bf7"
+   ],
+   "unaligned": [
+    [
+     "26002",
+     "2601b",
+     "26027",
+     "26029",
+     "26033",
+     "26035",
+     "2603b",
+     "2606c"
+    ],
+    [
+     "ea3",
+     "ead",
+     "eb4",
+     "ec7",
+     "ed4",
+     "ef3",
+     "ef8",
+     "f0e"
+    ]
+   ],
+   "instructions": 5391,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "25f2c",
+    "c_block": "dcc",
+    "dos_block_insn": "25f2c",
+    "c_block_insn": "dcc",
+    "dos_site": "1:25f46",
+    "c_site": "_TEXT+e01",
+    "dos": "call findplayer(eax=tr16(phi@25f2c:sp-52), edx=local32(), esi=(38*sx32(tr16(phi@25f2c:sp-52))))",
+    "c": "call findplayer(eax=tr16(phi@dcc:sp-32), edx=local32(), esi=phi@dcc:esi)",
+    "detail": "effect #0 differs; innermost difference: DOS <eax=tr16(phi@25f2c:sp-52), edx=local32(), esi=(38*sx32(tr16(phi@25f2c:sp-52)))> | C <eax=tr16(phi@dcc:sp-32), edx=local32(), esi=phi@dcc:esi> [join value [sp-52]~[sp-32] at 25f2c differs on edge from 28f0d: DOS tr16(phi@28f0d:sp-40) | C tr16(phi@3dae:sp-36)]"
+   },
+   "class": "SOURCE",
+   "hint": "Check the callee, evaluation order and argument values at the listed call."
+  },
+  {
+   "function": "moveweapons",
+   "size": 1456,
+   "seg_offset": 15824,
+   "oracle": "1:28f30",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 794,
+   "unit": "game_actors",
+   "match_first_diff": 21,
+   "oracle_size": 1456,
+   "verdict": "MISMATCH",
+   "blocks": [
+    67,
+    67
+   ],
+   "aligned": 67,
+   "blocks_equal": 1,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 700,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "28f49",
+    "c_block": "3de9",
+    "dos_block_insn": "28f49",
+    "c_block_insn": "3de9",
+    "dos_site": "1:28f61",
+    "c_site": "_TEXT+3dff",
+    "dos": "call findplayer(eax=tr16(phi@28f49:edi), edx=local32(), esi=(38*sx32(tr16(phi@28f49:edi))))",
+    "c": "call findplayer(eax=tr16(phi@3de9:edi), edx=local32(), esi=sx32(tr16(phi@3de9:edi)))",
+    "detail": "effect #0 differs; innermost difference: DOS <eax=tr16(phi@28f49:edi), edx=local32(), esi=(38*sx32(tr16(phi@28f49:edi)))> | C <eax=tr16(phi@3de9:edi), edx=local32(), esi=sx32(tr16(phi@3de9:edi))> [join value edi~edi at 28f49 differs on edge from 294c5: DOS ld16[nextspritestat+0 + (2*sx32(tr16(phi@28f49:edi)))] | C tr16(phi@435b:sp-32)]"
+   },
+   "class": "SOURCE",
+   "hint": "Check the callee, evaluation order and argument values at the listed call."
+  },
+  {
+   "function": "moveeffects",
+   "size": 3984,
+   "seg_offset": 17280,
+   "oracle": "1:294e0",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2829,
+   "unit": "game_actors",
+   "match_first_diff": 8,
+   "oracle_size": 3984,
+   "verdict": "MISMATCH",
+   "blocks": [
+    172,
+    170
+   ],
+   "aligned": 168,
+   "blocks_equal": 1,
+   "cfg_problems": [
+    "block 2a44f aligned to 514c and 5147",
+    "C block 5144 aligned twice",
+    "block 2a44f aligned to 514c and 5147",
+    "C block 5144 aligned twice",
+    "block 2a44f aligned to 514c and 5147"
+   ],
+   "unaligned": [
+    [
+     "29765",
+     "2990a",
+     "2a285",
+     "2a42f"
+    ],
+    [
+     "519d",
+     "5147"
+    ]
+   ],
+   "instructions": 1917,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "effect",
+    "dos_block": "294f9",
+    "c_block": "4399",
+    "dos_block_insn": "294f9",
+    "c_block_insn": "4399",
+    "dos_site": "1:29531",
+    "c_site": "_TEXT+43c6",
+    "dos": "call findplayer(eax=tr16(phi@294f9:edi), edx=local32(), esi=(20*sx32(tr16(phi@294f9:edi)) + obj2 + 0x893e0))",
+    "c": "call findplayer(eax=tr16(phi@4399:edi), edx=local32(), esi=(20*sx32(tr16(phi@4399:edi)) + obj2 + 0x893e0))",
+    "detail": "effect #0 differs; innermost difference: DOS <eax=tr16(phi@294f9:edi), edx=local32(), esi=(20*sx32(tr16(phi@294f9:edi)) + obj2 + 0x893e0)> | C <eax=tr16(phi@4399:edi), edx=local32(), esi=(20*sx32(tr16(phi@4399:edi)) + obj2 + 0x893e0)> [join value edi~edi at 294f9 differs on edge from 2a44f: DOS tr16(phi@2a44f:sp-32) | C tr16(phi@514c:sp-36)]"
+   },
+   "class": "SOURCE",
+   "hint": "Check the callee, evaluation order and argument values at the listed call."
+  },
+  {
+   "function": "moveplayers",
+   "size": 1008,
+   "seg_offset": 21264,
+   "oracle": "1:2a470",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 36,
+   "unit": "game_actors",
+   "match_first_diff": 724,
+   "oracle_size": 1008,
+   "verdict": "EXACT_LOCAL_EQUIVALENT",
+   "blocks": [
+    23,
+    23
+   ],
+   "aligned": 23,
+   "blocks_equal": 23,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 454,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "class": "ALLOCATION-ONLY",
+   "hint": "Inspect live ranges and stack homes at the verifier's first byte difference."
+  },
+  {
+   "function": "movemusic",
+   "size": 816,
+   "seg_offset": 22272,
+   "oracle": "1:2a860",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 158,
+   "unit": "game_actors",
+   "match_first_diff": 18,
+   "oracle_size": 816,
+   "verdict": "MISMATCH",
+   "blocks": [
+    35,
+    35
+   ],
+   "aligned": 35,
+   "blocks_equal": 1,
+   "cfg_problems": [],
+   "unaligned": [
+    [],
+    []
+   ],
+   "instructions": 411,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch:memory_order",
+    "dos_block": "2a876",
+    "c_block": "5716",
+    "dos_block_insn": "2a876",
+    "c_block_insn": "5716",
+    "dos_site": "1:2a898",
+    "c_site": "_TEXT+5738",
+    "dos": "lt_s16(ld16[sprite+20 + (38*sx32(tr16(phi@2a876:esi)))], 1000)",
+    "c": "lt_s16(ld16[sprite+20 + (38*sx32(tr16(phi@5716:esi)))], 1000)",
+    "detail": "branch predicate; innermost difference: DOS tr16(phi@2a876:esi) | C tr16(phi@5716:esi) [join value esi~esi at 2a876 differs on edge from 2ab67: DOS ld16[nextspritestat+0 + (2*sx32(tr16(phi@2ab67:esi)))] | C ld16[nextspritestat+0 + (2*sx32(tr16(phi@5a06:esi)))]] - equal if loads ignore intervening stores (alias/ordering difference)"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  },
+  {
+   "function": "movestandables",
+   "size": 3737,
+   "seg_offset": 23088,
+   "oracle": "1:2ab90",
+   "status": "NEAR_MATCH",
+   "byte_diffs": 2610,
+   "unit": "game_actors",
+   "match_first_diff": 8,
+   "oracle_size": 3735,
+   "verdict": "MISMATCH",
+   "blocks": [
+    160,
+    155
+   ],
+   "aligned": 113,
+   "blocks_equal": 1,
+   "cfg_problems": [
+    "block 2ba0c aligned to 68b2 and 5bef",
+    "terminator kind br vs jmp at 2b9f5/68a3",
+    "block 2ba0c aligned to 68b2 and 5c15",
+    "C block 68b2 aligned twice",
+    "C block 5bea aligned twice"
+   ],
+   "unaligned": [
+    [
+     "2ad0b",
+     "2ad10",
+     "2ad09",
+     "2ad4a",
+     "2ad68",
+     "2ad72",
+     "2ad79",
+     "2ad89"
+    ],
+    [
+     "5bef",
+     "5c15",
+     "5c24",
+     "5c40",
+     "5c4a",
+     "5c51",
+     "5c5f",
+     "6096"
+    ]
+   ],
+   "instructions": 1763,
+   "unsupported_instructions": 0,
+   "unsupported_mnemonics": {},
+   "assumptions": [
+    "stack addresses escape: escaped locals modelled as memory, invalidated by every call and pointer store; frame offsets renamed bijectively",
+    "return value ignored (our source declares void)"
+   ],
+   "first_difference": {
+    "kind": "branch",
+    "dos_block": "2abac",
+    "c_block": "5a49",
+    "dos_block_insn": "2abac",
+    "c_block_insn": "5a49",
+    "dos_site": "1:2abed",
+    "c_site": "_TEXT+5a71",
+    "dos": "eq16(ld16[sprite+10 + (38*sx32(tr16(phi@2abac:sp-28)))], 57)",
+    "c": "eq16(ld16[sprite+10 + (38*sx32(tr16(phi@5a49:esi)))], 57)",
+    "detail": "branch predicate; innermost difference: DOS eq16(ld16[sprite+10 + (38*sx32(tr16(phi@2abac:sp-28)))], 57) | C eq16(ld16[sprite+10 + (38*sx32(tr16(phi@5a49:esi)))], 57) [join value [sp-28]~esi at 2abac differs on edge from 2ba0c: DOS tr16(phi@2ba0c:sp-40) | C tr16(phi@68b2:sp-32)]"
+   },
+   "class": "SOURCE",
+   "hint": "Compare the predicate width, operands and test order at the listed branch."
+  }
+ ],
+ "build_errors": []
+}

@@ -154,3 +154,10 @@ Each entry names the command or artefact that supports it.
   worker's con_dispatch.inc: inlining both .inc files into gamedef.c restores the verified CONST (9 STRICT). The
   record buffer residue therefore constrains source-file structure: the original GAMEDEF was a single file
   (no such includes). Avoid private .inc splits in reconstructed sources.
+
+## NEAR census (semir worker 2026-11-26)
+- tools/semir.py (ported from rayman_recon) classifies all 125 registered NEAR functions: 62 SOURCE, 21
+  ALLOCATION-ONLY, 18 LAYOUT, 24 UNKNOWN (docs/NEAR_CENSUS.md). Controls: all 468 STRICT functions report EXACT;
+  constant, statement-order and local-width mutations report SOURCE at the right effect.
+- A 9.5b allocator tracing probe works on the NT compiler (identical code to DOS); full cgtrace/explain port estimated
+  1-2 weeks; targeted hooks 2-4 days (start with wallfront).

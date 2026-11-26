@@ -58,6 +58,9 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
 - `tools/decomp/decomp.py` — Ghidra headless drafts of every function (~45 s) into build/decomp/out/<TU>/, using our
   names, LE relocations and the Watcom register convention. Seeds for reading only, never matching evidence.
 - `tools/bssrule.py` — predicts Watcom 9.5b _BSS/_DATA offsets from declaration order and names (docs/BSS_LAYOUT.md).
+- `tools/semir.py [--unit UNIT] FUNC` (or `--src CAND.c FUNC`) — earliest semantic difference of a NEAR function:
+  SOURCE (fix the C), ALLOCATION-ONLY (same dataflow, register/stack choice), LAYOUT (cross-function displacement),
+  UNKNOWN. Run it before editing a NEAR function; docs/NEAR_CENSUS.md lists every NEAR function's class.
 - `tools/gate.py` — integration gate (tests + fresh rebuild of every unit); run before every commit.
 - Watcom 9.5b compiles run on the canonical DOS host (tools/doshost.py: the original DOS compiler under DOSBox-X,
   ~1.7 s per compile) because CONST padding residue depends on the host; LAMEDUKE_HOST=nt gives the same code
