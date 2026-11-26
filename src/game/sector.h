@@ -46,7 +46,7 @@ extern void xyzsound(short sound, short i, long x, long y, long z);
 extern void render_camera_tile(long x, long y, long z, short ang, short sn, short tile);
 extern void render_mirror(short w);
 extern void movelava(long tile_address);
-extern short nextsectorneighborz(short sectnum, long z, short topbottom, short direction);
+extern long nextsectorneighborz(short sectnum, long z, short topbottom, short direction);
 extern void updatesector(long x, long y, short *sectnum);
 extern int deletesprite(short i);
 extern short EGS(short sect, long x, long y, long z, unsigned char cstat, short picnum,

@@ -238,11 +238,14 @@ void activatewarpelevators(short s, short d)
 {
     short i;
 
-    for (i = headspritestat[STAT_EFFECTOR]; i >= 0; i = nextspritestat[i])
+    i = headspritestat[STAT_EFFECTOR];
+    while (i >= 0) {
         if (sprite[i].lotag == 17 && sprite[i].hitag == sprite[s].hitag)
             if (klabs(sector[sprite[s].sectnum].floorz - hittype[s][2]) > sprite[i].yvel ||
                 sector[sprite[i].sectnum].hitag == sector[sprite[s].sectnum].hitag - d)
                 break;
+        i = nextspritestat[i];
+    }
 
     if (i == -1)
         d = 0;
@@ -251,21 +254,24 @@ void activatewarpelevators(short s, short d)
     else
         spritesound(SOUND_LIFT_START, s);
 
-    for (i = headspritestat[STAT_EFFECTOR]; i >= 0; i = nextspritestat[i])
+    i = headspritestat[STAT_EFFECTOR];
+    while (i >= 0) {
         if (sprite[i].lotag == 17 && sprite[i].hitag == sprite[s].hitag) {
             hittype[i][0] = d;
             hittype[i][1] = d;
         }
+        i = nextspritestat[i];
+    }
 }
 
 /* Operate sector sn according to its lotag (doors, lifts, elevators); ii is the initiator. */
 void operatesectors(short sn, short ii)
 {
 {
-    long i, j, daz, middle;
-    int animation_result;
-    short a, p;
-
+    /* COMPILER_STEERED: declaration order chosen by search (r3sector perm.py); it only moves register ties. */
+    short a;
+    long j, middle, daz;
+    short p, i;
 
     switch ((short)(sector[sn].lotag & 32767)) {
     case 26:
@@ -316,16 +322,16 @@ void operatesectors(short sn, short ii)
                 if (dx != 0) {
                     dx = wall[wall[wall[door[j]].point2].point2].x;
                     dx -= wall[wall[door[j]].point2].x;
-                    animation_result = setanimation(sn, &wall[door[j]].x, wall[door[j]].x + dx, sp);
-                    animation_result = setanimation(sn, &wall[prev].x, wall[prev].x + dx, sp);
-                    animation_result = setanimation(sn, &wall[wall[door[j]].point2].x, wall[wall[door[j]].point2].x + dx, sp);
+                    setanimation(sn, &wall[door[j]].x, wall[door[j]].x + dx, sp);
+                    setanimation(sn, &wall[prev].x, wall[prev].x + dx, sp);
+                    setanimation(sn, &wall[wall[door[j]].point2].x, wall[wall[door[j]].point2].x + dx, sp);
                     spritesound(6, ii);
                 } else if (dy != 0) {
                     dy = wall[wall[wall[door[j]].point2].point2].y;
                     dy -= wall[wall[door[j]].point2].y;
-                    animation_result = setanimation(sn, &wall[door[j]].y, wall[door[j]].y + dy, sp);
-                    animation_result = setanimation(sn, &wall[prev].y, wall[prev].y + dy, sp);
-                    animation_result = setanimation(sn, &wall[wall[door[j]].point2].y, wall[wall[door[j]].point2].y + dy, sp);
+                    setanimation(sn, &wall[door[j]].y, wall[door[j]].y + dy, sp);
+                    setanimation(sn, &wall[prev].y, wall[prev].y + dy, sp);
+                    setanimation(sn, &wall[wall[door[j]].point2].y, wall[wall[door[j]].point2].y + dy, sp);
                     spritesound(6, ii);
                 }
             } else {
@@ -335,14 +341,14 @@ void operatesectors(short sn, short ii)
                 dx = ((wall[prev].x + wall[wall[door[j]].point2].x) >> 1) - wall[door[j]].x;
                 dy = ((wall[prev].y + wall[wall[door[j]].point2].y) >> 1) - wall[door[j]].y;
                 if (dx != 0) {
-                    animation_result = setanimation(sn, &wall[door[j]].x, cx, sp);
-                    animation_result = setanimation(sn, &wall[prev].x, cx + dx, sp);
-                    animation_result = setanimation(sn, &wall[wall[door[j]].point2].x, cx + dx, sp);
+                    setanimation(sn, &wall[door[j]].x, cx, sp);
+                    setanimation(sn, &wall[prev].x, cx + dx, sp);
+                    setanimation(sn, &wall[wall[door[j]].point2].x, cx + dx, sp);
                     spritesound(6, ii);
                 } else if (dy != 0) {
-                    animation_result = setanimation(sn, &wall[door[j]].y, cy, sp);
-                    animation_result = setanimation(sn, &wall[prev].y, cy + dy, sp);
-                    animation_result = setanimation(sn, &wall[wall[door[j]].point2].y, cy + dy, sp);
+                    setanimation(sn, &wall[door[j]].y, cy, sp);
+                    setanimation(sn, &wall[prev].y, cy + dy, sp);
+                    setanimation(sn, &wall[wall[door[j]].point2].y, cy + dy, sp);
                     spritesound(6, ii);
                 }
             }
@@ -357,214 +363,231 @@ void operatesectors(short sn, short ii)
             a = nextspritesect[a];
         }
         p = checkcursectnums(sn);
-        if (p == -1) {
-            if (sector[sn].floorz > sprite[a].z)
-                activatewarpelevators(a, -1);
-            else
-                activatewarpelevators(a, 1);
-        } else {
+        if (p >= 0) {
             if (syncbits[p] & SB_JUMP)
                 activatewarpelevators(a, -1);
             if (syncbits[p] & SB_CROUCH)
                 activatewarpelevators(a, 1);
+        } else {
+            if (sector[sn].floorz > sprite[a].z)
+                activatewarpelevators(a, -1);
+            else
+                activatewarpelevators(a, 1);
         }
         break;
-    case 17:
-lift_up:
-        a = nextsectorneighborz(sn, sector[sn].floorz, 1, -1);
-        if (a != -1) {
-            animation_result = setanimation(sn, &sector[sn].floorz, sector[a].floorz, sector[sn].extra);
-            spritesound(SOUND_LIFT_START, ii);
-            break;
-        }
-        sector[sn].lotag ^= 1;
-        /* Fall through to the opposite direction. */
     case 16:
+lift_down:
         a = nextsectorneighborz(sn, sector[sn].floorz, 1, 1);
         if (a == -1) {
             sector[sn].lotag ^= 1;
             goto lift_up;
         }
-        animation_result = setanimation(sn, &sector[sn].floorz, sector[a].floorz, sector[sn].extra);
+        setanimation(sn, &sector[sn].floorz, sector[a].floorz, sector[sn].extra);
         spritesound(SOUND_LIFT_START, ii);
         break;
-    case 19:
-elevator_up:
+    case 17:
+lift_up:
         a = nextsectorneighborz(sn, sector[sn].floorz, 1, -1);
-        if (a != -1) {
-            daz = sector[a].floorz;
-            animation_result = setanimation(sn, &sector[sn].floorz, daz, sector[sn].extra);
-            animation_result = setanimation(sn, &sector[sn].ceilingz, daz + sector[sn].ceilingz - sector[sn].floorz, sector[sn].extra);
-            spritesound(SOUND_LIFT_START, ii);
-            break;
+        if (a == -1) {
+            sector[sn].lotag ^= 1;
+            goto lift_down;
         }
-        sector[sn].lotag ^= 1;
-        /* Fall through to the opposite direction. */
+        setanimation(sn, &sector[sn].floorz, sector[a].floorz, sector[sn].extra);
+        spritesound(SOUND_LIFT_START, ii);
+        break;
     case 18:
+elevator_down:
         a = nextsectorneighborz(sn, sector[sn].floorz, 1, 1);
         if (a == -1) {
             sector[sn].lotag ^= 1;
             goto elevator_up;
         }
         daz = sector[a].floorz;
-        animation_result = setanimation(sn, &sector[sn].floorz, daz, 256);
-        animation_result = setanimation(sn, &sector[sn].ceilingz, daz + sector[sn].ceilingz - sector[sn].floorz, sector[sn].extra);
+        setanimation(sn, &sector[sn].floorz, daz, 256);
+        setanimation(sn, &sector[sn].ceilingz, daz + sector[sn].ceilingz - sector[sn].floorz, sector[sn].extra);
+        spritesound(SOUND_LIFT_START, ii);
+        break;
+    case 19:
+elevator_up:
+        a = nextsectorneighborz(sn, sector[sn].floorz, 1, -1);
+        if (a == -1) {
+            sector[sn].lotag ^= 1;
+            goto elevator_down;
+        }
+        daz = sector[a].floorz;
+        setanimation(sn, &sector[sn].floorz, daz, sector[sn].extra);
+        setanimation(sn, &sector[sn].ceilingz, daz + sector[sn].ceilingz - sector[sn].floorz, sector[sn].extra);
         spritesound(SOUND_LIFT_START, ii);
         break;
     case 29:
-        if (sector[sn].lotag & 0x8000) {
-            a = nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1);
-            daz = sector[a].floorz;
-        } else {
-            a = nextsectorneighborz(sn, sector[sn].ceilingz, -1, -1);
-            daz = sector[a].ceilingz;
-        }
-        for (i = headspritestat[STAT_EFFECTOR]; i >= 0; i = nextspritestat[i])
+        if (sector[sn].lotag & 0x8000)
+            daz = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
+        else
+            daz = sector[nextsectorneighborz(sn, sector[sn].ceilingz, -1, -1)].ceilingz;
+        j = sector[sn].extra;
+        i = headspritestat[STAT_EFFECTOR];
+        while (i >= 0) {
             if (sprite[i].lotag == 22 && sprite[i].hitag == sector[sn].hitag) {
                 if (sector[sn].lotag & 0x8000)
-                    sprite[i].yvel = sector[sn].extra;
+                    sprite[i].yvel = j;
                 else
-                    sprite[i].yvel = -sector[sn].extra;
+                    sprite[i].yvel = -j;
                 hittype[i][0] = sn;
                 hittype[i][1] = 1;
             }
+            i = nextspritestat[i];
+        }
         sector[sn].lotag ^= 0x8000;
-        animation_result = setanimation(sn, &sector[sn].ceilingz, daz, sector[sn].extra);
+        setanimation(sn, &sector[sn].ceilingz, daz, j);
         spritesound(6, ii);
         break;
     case 20:
         if (sector[sn].lotag & 0x8000) {
-            for (i = headspritestat[STAT_EFFECTOR]; i >= 0; i = nextspritestat[i])
-                if (sprite[i].sectnum == sn && sprite[i].lotag == 9)
+            i = headspritestat[STAT_EFFECTOR];
+            while (i >= 0) {
+                if (sprite[i].sectnum == sn && sprite[i].lotag == 9) {
+                    daz = sprite[i].z;
                     break;
-            daz = i == -1 ? sector[sn].floorz : sprite[i].z;
-        } else {
-            a = nextsectorneighborz(sn, sector[sn].ceilingz, -1, -1);
-            daz = sector[a].ceilingz;
-        }
+                }
+                i = nextspritestat[i];
+            }
+            if (i == -1)
+                daz = sector[sn].floorz;
+        } else
+            daz = sector[nextsectorneighborz(sn, sector[sn].ceilingz, -1, -1)].ceilingz;
         sector[sn].lotag ^= 0x8000;
-        animation_result = setanimation(sn, &sector[sn].ceilingz, daz, sector[sn].extra);
+        setanimation(sn, &sector[sn].ceilingz, daz, sector[sn].extra);
         spritesound(6, ii);
         break;
     case 21:
-        j = getanimationgoal(&sector[sn].floorz);
-        if (j >= 0) {
-            if (animategoal[sn] == sector[sn].ceilingz) {
-                a = nextsectorneighborz(sn, animategoal[sn], 1, 1);
-                animategoal[j] = sector[a].floorz;
-            } else
-                animategoal[j] = sector[sn].ceilingz;
+        i = getanimationgoal(&sector[sn].floorz);
+        if (i >= 0) {
+            if (animategoal[sn] == sector[sn].ceilingz)
+                animategoal[i] = sector[nextsectorneighborz(sn, animategoal[sn], 1, 1)].floorz;
+            else
+                animategoal[i] = sector[sn].ceilingz;
         } else {
-            daz = sector[sn].ceilingz;
-            if (daz == sector[sn].floorz) {
-                a = nextsectorneighborz(sn, daz, 1, 1);
-                daz = sector[a].floorz;
-            }
+            if (sector[sn].ceilingz == sector[sn].floorz)
+                daz = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
+            else
+                daz = sector[sn].ceilingz;
             sector[sn].lotag ^= 0x8000;
-            animation_result = setanimation(sn, &sector[sn].floorz, daz, sector[sn].extra);
-            if (animation_result >= 0)
+            if (setanimation(sn, &sector[sn].floorz, daz, sector[sn].extra) >= 0)
                 spritesound(6, ii);
         }
         break;
     case 22:
-        middle = (sector[sn].floorz + sector[sn].ceilingz) >> 1;
-        j = getanimationgoal(&sector[sn].ceilingz);
-        if (j >= 0) {
-            if (middle == animategoal[sn]) {
-                a = nextsectorneighborz(sn, sector[sn].floorz, -1, -1);
-                animategoal[j] = sector[a].ceilingz;
-            } else
-                animategoal[j] = middle;
+        middle = (sector[sn].ceilingz + sector[sn].floorz) >> 1;
+        i = getanimationgoal(&sector[sn].ceilingz);
+        if (i >= 0) {
+            if (middle == animategoal[sn])
+                animategoal[i] = sector[nextsectorneighborz(sn, sector[sn].floorz, -1, -1)].ceilingz;
+            else
+                animategoal[i] = middle;
         } else {
-            daz = middle;
-            if (middle == sector[sn].ceilingz) {
-                a = nextsectorneighborz(sn, sector[sn].floorz, -1, -1);
-                daz = sector[a].ceilingz;
-            }
-            animation_result = setanimation(sn, &sector[sn].ceilingz, daz, sector[sn].extra);
-            if (animation_result >= 0) {
+            if (middle == sector[sn].ceilingz)
+                daz = sector[nextsectorneighborz(sn, sector[sn].floorz, -1, -1)].ceilingz;
+            else
+                daz = middle;
+            if (setanimation(sn, &sector[sn].ceilingz, daz, sector[sn].extra) >= 0) {
                 sector[sn].lotag ^= 0x8000;
                 spritesound(6, ii);
             }
         }
-        j = getanimationgoal(&sector[sn].floorz);
-        if (j >= 0) {
-            if (middle == animategoal[sn]) {
-                a = nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1);
-                animategoal[j] = sector[a].floorz;
-            } else
-                animategoal[j] = middle;
+        i = getanimationgoal(&sector[sn].floorz);
+        if (i >= 0) {
+            if (middle == animategoal[sn])
+                animategoal[i] = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
+            else
+                animategoal[i] = middle;
         } else {
-            daz = middle;
-            if (middle == sector[sn].floorz) {
-                a = nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1);
-                daz = sector[a].floorz;
-            }
-            animation_result = setanimation(sn, &sector[sn].floorz, daz, sector[sn].extra);
-            if (animation_result >= 0)
+            if (middle == sector[sn].floorz)
+                daz = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
+            else
+                daz = middle;
+            if (setanimation(sn, &sector[sn].floorz, daz, sector[sn].extra) >= 0)
                 spritesound(6, ii);
         }
         break;
     case 23:
+        j = -1;
         i = headspritestat[STAT_EFFECTOR];
         while (i >= 0) {
-            if (sprite[i].lotag == 11 && sprite[i].sectnum == sn && hittype[i][4] == 0)
+            if (sprite[i].lotag == 11 && sprite[i].sectnum == sn && hittype[i][4] == 0) {
+                j = i;
+                sector[sn].lotag ^= 0x8000;
+                hittype[i][4] = 1;
+                hittype[i][3] = -hittype[i][3];
                 break;
-            i = nextspritestat[i];
-        }
-        if (i < 0)
-            break;
-        sector[sn].lotag ^= 0x8000;
-        hittype[i][4] = 1;
-        hittype[i][3] = -hittype[i][3];
-        spritesound(6, ii);
-        for (j = headspritestat[STAT_EFFECTOR]; j >= 0; j = nextspritestat[j])
-            if (j != i && sprite[j].lotag == 11 && sprite[j].hitag == sprite[i].hitag && hittype[j][4] == 0) {
-                sector[sprite[j].sectnum].lotag ^= 0x8000;
-                hittype[j][4] = 1;
-                hittype[j][3] = -hittype[j][3];
             }
-        break;
-    case 25:
-        i = headspritestat[STAT_EFFECTOR];
-        while (i >= 0) {
-            if (sprite[i].lotag == 15 && sprite[i].sectnum == sn)
-                break;
             i = nextspritestat[i];
         }
         if (i >= 0)
             spritesound(6, ii);
-        for (j = headspritestat[STAT_EFFECTOR]; j >= 0; j = nextspritestat[j])
-            if (sprite[j].hitag == sprite[i].hitag) {
-                if (sprite[j].lotag == 18)
-                    hittype[j][0] ^= 1;
-                if (sprite[j].lotag == 15) {
-                    sector[sprite[j].sectnum].lotag ^= 0x8000;
-                    sprite[j].ang += 1024;
-                    hittype[j][4] = (sector[sprite[j].sectnum].lotag & 0x8000) ? 1 : 2;
-                }
+        if (j < 0)
+            break;
+        i = headspritestat[STAT_EFFECTOR];
+        while (i >= 0) {
+            if (i != j && sprite[i].lotag == 11 && sprite[i].hitag == sprite[j].hitag && hittype[i][4] == 0) {
+                sector[sprite[i].sectnum].lotag ^= 0x8000;
+                hittype[i][4] = 1;
+                hittype[i][3] = -hittype[i][3];
             }
+            i = nextspritestat[i];
+        }
         break;
-    case 27:
-        for (i = headspritestat[STAT_EFFECTOR]; i >= 0; i = nextspritestat[i])
-            if ((sprite[i].lotag & 255) == 20 && sprite[i].sectnum == sn) {
-                sector[sn].lotag ^= 0x8000;
-                hittype[i][0] = (sector[sn].lotag & 0x8000) ? 1 : 2;
+    case 25:
+        j = headspritestat[STAT_EFFECTOR];
+        while (j >= 0) {
+            if (sprite[j].lotag == 15 && sprite[j].sectnum == sn) {
                 spritesound(6, ii);
                 break;
             }
+            j = nextspritestat[j];
+        }
+        i = headspritestat[STAT_EFFECTOR];
+        while (i >= 0) {
+            if (sprite[i].hitag == sprite[j].hitag) {
+                if (sprite[i].lotag == 18)
+                    hittype[i][0] ^= 1;
+                if (sprite[i].lotag == 15) {
+                    sector[sprite[i].sectnum].lotag ^= 0x8000;
+                    sprite[i].ang += 1024;
+                    if (sector[sprite[i].sectnum].lotag & 0x8000)
+                        hittype[i][4] = 1;
+                    else
+                        hittype[i][4] = 2;
+                }
+            }
+            i = nextspritestat[i];
+        }
+        break;
+    case 27:
+        j = headspritestat[STAT_EFFECTOR];
+        while (j >= 0) {
+            if ((sprite[j].lotag & 255) == 20 && sprite[j].sectnum == sn) {
+                sector[sprite[j].sectnum].lotag ^= 0x8000;
+                hittype[j][0] = (sector[sprite[j].sectnum].lotag & 0x8000) ? 1 : 2;
+                spritesound(6, ii);
+                break;
+            }
+            j = nextspritestat[j];
+        }
         break;
     case 28:
-        i = headspritesect[sn];
-        while (i >= 0) {
-            if (sprite[i].statnum == STAT_EFFECTOR && (sprite[i].lotag & 32767) == 21)
+        j = headspritesect[sn];
+        while (j >= 0) {
+            if (sprite[j].statnum == STAT_EFFECTOR && (sprite[j].lotag & 32767) == 21)
                 break;
-            i = nextspritesect[i];
+            j = nextspritesect[j];
         }
-        daz = sprite[i].hitag;
-        for (j = headspritestat[STAT_EFFECTOR]; j >= 0; j = nextspritestat[j])
+        daz = sprite[j].hitag;
+        j = headspritestat[STAT_EFFECTOR];
+        while (j >= 0) {
             if ((sprite[j].lotag & 32767) == 21 && hittype[j][0] == 0 && sprite[j].hitag == daz)
                 hittype[j][0] = 1;
+            j = nextspritestat[j];
+        }
         break;
     }
 }
@@ -704,12 +727,16 @@ void cheatkeys(short snum)
     if ((syncbits[snum] & SB_STEROIDS) && (ps[snum].inventory[2] || ud.debug)) {
         if (ud.debug)
             ps[snum].inventory[2] = 1;
-        ps[snum].steroids_on = ps[snum].steroids_on == 1 ? 0 : 128;
+        ps[snum].steroids_on ^= 1;
+        if (ps[snum].steroids_on)
+            ps[snum].steroids_on = 128;
     }
     if ((syncbits[snum] & SB_SHIELD) && (ps[snum].inventory[3] || ud.debug)) {
         if (ud.debug)
             ps[snum].inventory[3] = 1;
-        ps[snum].shield_amount = ps[snum].shield_amount == 0 ? 32 : 0;
+        ps[snum].shield_amount = !ps[snum].shield_amount;
+        if (ps[snum].shield_amount)
+            ps[snum].shield_amount = 32;
     }
     if ((syncbits[snum] & SB_SCUBA) && (ps[snum].inventory[0] || ud.debug)) {
         if (ud.debug)
@@ -719,22 +746,29 @@ void cheatkeys(short snum)
     if ((syncbits[snum] & SB_HOLODUKE) && (ps[snum].inventory[4] || ud.debug)) {
         if (ud.debug)
             ps[snum].inventory[4] = 1;
-        if (ps[snum].holoduke_on)
-            ps[snum].holoduke_on = 0;
-        else {
+        if (ps[snum].holoduke_on == 0) {
             ps[snum].holoduke_on = EGS(ps[snum].cursectnum, ps[snum].posx, ps[snum].posy, ps[snum].posz,
                 0, 283, -16, 48, 48, ps[snum].ang, 0, 0, -1, 10);
             hittype[ps[snum].holoduke_on][0] = snum;
-        }
+        } else
+            ps[snum].holoduke_on = 0;
     }
     if ((syncbits[snum] & SB_JETPACK) && (ps[snum].inventory[1] || ud.debug)) {
         if (ud.debug)
             ps[snum].inventory[1] = 1;
         ps[snum].jetpack_on = !ps[snum].jetpack_on;
-        spritesound(ps[snum].jetpack_on ? 18 : 27, ps[snum].i);
+        if (ps[snum].jetpack_on)
+            spritesound(18, ps[snum].i);
+        else
+            spritesound(27, ps[snum].i);
     }
     if ((syncbits[snum] & SB_HOLSTER) && ps[snum].somethingonplayer == -1)
-        ps[snum].weapon_pos = (ps[snum].weapon_pos & 128) ? 5 : 129;
+    {
+        if (ps[snum].weapon_pos & 128)
+            ps[snum].weapon_pos = 5;
+        else
+            ps[snum].weapon_pos = 129;
+    }
     if (!ud.debug) {
         if (syncbits[snum] & SB_STEROIDS) {
             current_menu = 20;
@@ -976,8 +1010,8 @@ char checkhitceiling(short sn)
 /* Sector specials and the use key for player snum. */
 void checksectors(short snum)
 {
-    short i, sn, source;
-    long w;
+    long i, w;
+    short sn, source;
 
     switch (sector[ps[snum].cursectnum].lotag) {
     case 32767:
@@ -991,7 +1025,7 @@ void checksectors(short snum)
     }
     if (ps[snum].gm & MODE_TYPE)
         return;
-    if (!(syncbits[snum] & (0x80000000UL | 16))) {
+    if (!(syncbits[snum] & SB_OPEN) && !(syncbits[snum] & SB_ESCAPE)) {
         ps[snum].toggle_key_flag = 0;
         return;
     }
@@ -1002,24 +1036,31 @@ void checksectors(short snum)
     neartag(ps[snum].posx, ps[snum].posy, ps[snum].posz + 5120, ps[snum].cursectnum, ps[snum].ang,
         &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1024);
     if (wall[neartagwall].picnum == 180 || ps[snum].newowner >= 0) {
-        if (!(syncbits[snum] & SB_ESCAPE))
-            for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nextspritestat[i])
+        if (syncbits[snum] & SB_ESCAPE)
+            i = -1;
+        else {
+            i = headspritestat[STAT_ACTOR];
+            while (i >= 0) {
                 if (sprite[i].picnum == 265 && sprite[i].yvel == 0) {
                     sprite[i].yvel = 1;
                     ps[snum].newowner = i;
                     return;
                 }
-
-        ps[snum].newowner = -1;
-        ps[snum].posx = ps[snum].oposx;
-        ps[snum].posy = ps[snum].oposy;
-        ps[snum].posz = ps[snum].oposz;
-        ps[snum].ang = ps[snum].oang;
-        i = headspritestat[STAT_ACTOR];
-        while (i >= 0) {
-            if (sprite[i].picnum == 265)
-                sprite[i].yvel = 0;
-            i = nextspritestat[i];
+                i = nextspritestat[i];
+            }
+        }
+        if (i == -1) {
+            ps[snum].newowner = -1;
+            ps[snum].posx = ps[snum].oposx;
+            ps[snum].posy = ps[snum].oposy;
+            ps[snum].posz = ps[snum].oposz;
+            ps[snum].ang = ps[snum].oang;
+            i = headspritestat[STAT_ACTOR];
+            while (i >= 0) {
+                if (sprite[i].picnum == 265)
+                    sprite[i].yvel = 0;
+                i = nextspritestat[i];
+            }
         }
     }
 

@@ -418,3 +418,21 @@ Each entry names the command or artefact that supports it.
   hoisted before the CLUB call (8 B, OPEN); spawn_pistol_tracer `long sa` + unsigned char weapon_pos is closer but
   32 B short and costs animateknuckles; displayweapon with `myos()` unprototyped reaches exact size but
   `unsigned char frame` loses animateknuckles' case offsets.
+
+## SECTOR round 3 (r3sector, 2026-11-26; build/workers/r3sector/NOTES.md, integrated)
+- STRONG SECTOR saw `nextsectorneighborz` returning long/int (ENGINE.C defines it with no return type): the oracle
+  indexes sector[] with the raw return value without sign extension. sector.h now declares it long (OPEN: game.c,
+  premap.c, global.c still declare short, untested).
+- PROVEN-by-layout source forms in operatesectors: top-tested `while` sprite-list loops (also in the inlined
+  activatewarpelevators copies; the standalone function stays STRICT), symmetric lift/elevator labels with case
+  16/18 first, case 15 `if (p >= 0)`, Ken's direct `sector[nextsectorneighborz(...)].floorz` in cases 20-22/29,
+  case 23 `j = -1 ... break`; operatesectors size now exactly 10288 and its case order matches (cases 17, 19, 23,
+  25 byte-exact). Local declaration order `short a; long j, middle, daz; short p, i;` COMPILER_STEERED (marked).
+- cheatkeys steroids/shield/holoduke/jetpack/holster as if/else or flag-reuse forms; checksectors use-key as two
+  byte tests and the Duke 1.5 CLEARCAMERAS shape (`long i, w`): its 833-byte head has the oracle's size.
+- Progress (tools/blockdiff.py content/layout): operatesectors .516 -> .646 / .670 -> .849, operateactivators
+  .265 -> .424 / .667 -> .911, cheatkeys .324 -> .668 / .818 -> .970, checksectors .245 -> .305 / .663 -> .952.
+  No STRICT change (9/18). Remaining residue is allocation (frames 0x1bc vs 0x1c4, 0x88 vs 0xa8; more spills).
+- NEGATIVE `gm |= MODE_MENU` (oracle load/or/store only with `gm = gm | MODE_MENU`, OPEN), removing the extra
+  block braces, case 21 animategoal reload forms, case 9 loop-variable splits and 150 local orders, case 15
+  `p != -1`/`p < 0`, a `sectortype *sptr` pointer in case 29.
