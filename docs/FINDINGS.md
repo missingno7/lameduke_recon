@@ -235,3 +235,13 @@ Each entry names the command or artefact that supports it.
   inside GLOBAL objects. match.py's BSS layout check now accepts names strictly inside one of the segment's own
   objects (field aliases); names at object starts or outside objects still fail. verify.py now records VERIFIED data
   segments per unit and fails on their regression.
+
+## Inliner facts (gamefix7, 2026-11-26)
+- PROVEN timerhandler (2,496 B STRICT) is the compiler's inline expansion of update_timer_input() six times
+  (update_timer_input at 1:000d0 is never referenced): with calls and -oe>=150 the code is identical; the inline
+  starts a new basic block, which keeps `inc/add [totalclock]` as memory operands (no volatile needed).
+  Reproduced in the canonical profile with do{}while(0) blocks (COMPILER_STEERED). OPEN: whether the original GAME
+  profile used a large -oe threshold (would make several written-out copies natural).
+- STRONG Watcom 9.5 never inlines a function containing a string literal (explains the kept calls to gameexit,
+  show_help, read/write_userdefs, loadlookup); functions defined after their caller can still be inlined.
+- copybuf pragma is Ken's 1994 form without a modify clause (BUIL0422).

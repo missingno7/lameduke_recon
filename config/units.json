@@ -2378,7 +2378,7 @@
      "status": "STRICT"
     },
     "timerhandler": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "gameexit": {
      "status": "STRICT"

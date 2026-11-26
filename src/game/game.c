@@ -187,7 +187,8 @@ extern long klabs(long value);
 #pragma aux klabs = "test eax,eax" "jns skipnegate" "neg eax" "skipnegate:" \
     parm nomemory [eax];
 extern void copybuf(void *source, void *dest, long count);
-#pragma aux copybuf = "rep movsd" parm [esi] [edi] [ecx] modify exact [ecx esi edi];
+/* Ken's 1994 copybuf (BUIL0422) has no modify clause: the callers reload their loop state. */
+#pragma aux copybuf = "rep movsd" parm [esi] [edi] [ecx];
 
 #define FTA_INLINE(quote)                                                \
     if (userdefs.quotes == 1 && ps[screenpeek].quote_time[quote] == 0) { \
@@ -478,10 +479,12 @@ void level_load_hook(void)
 #define held(binding, scan) \
     ((keystatus[keys[binding]] | keystatus[scan] | keystatus[(scan) + 128]) > 0)
 
+/* Each do/while (0) block is update_timer_input() as the compiler inlines it (COMPILER_STEERED: the
+   block boundary keeps totalclock++ / += 5 as memory inc/add, as the inline expansion does). */
 void __interrupt __far timerhandler(void)
 {
     totalclock++;
-    {
+    do {
         if (!keystatus[keys[5]]) {
             if (held(2, 0x4b)) {
                 turn_velocity -= 16;
@@ -546,10 +549,10 @@ void __interrupt __far timerhandler(void)
             if (forward_velocity < 0)
                 forward_velocity = 0;
         }
-    }
+    } while (0);
     if (option[2] != 0) {
         totalclock += 5;
-        {
+        do {
             if (!keystatus[keys[5]]) {
                 if (held(2, 0x4b)) {
                     turn_velocity -= 16;
@@ -614,8 +617,8 @@ void __interrupt __far timerhandler(void)
                 if (forward_velocity < 0)
                     forward_velocity = 0;
             }
-        }
-        {
+        } while (0);
+        do {
             if (!keystatus[keys[5]]) {
                 if (held(2, 0x4b)) {
                     turn_velocity -= 16;
@@ -680,8 +683,8 @@ void __interrupt __far timerhandler(void)
                 if (forward_velocity < 0)
                     forward_velocity = 0;
             }
-        }
-        {
+        } while (0);
+        do {
             if (!keystatus[keys[5]]) {
                 if (held(2, 0x4b)) {
                     turn_velocity -= 16;
@@ -746,8 +749,8 @@ void __interrupt __far timerhandler(void)
                 if (forward_velocity < 0)
                     forward_velocity = 0;
             }
-        }
-        {
+        } while (0);
+        do {
             if (!keystatus[keys[5]]) {
                 if (held(2, 0x4b)) {
                     turn_velocity -= 16;
@@ -812,8 +815,8 @@ void __interrupt __far timerhandler(void)
                 if (forward_velocity < 0)
                     forward_velocity = 0;
             }
-        }
-        {
+        } while (0);
+        do {
             if (!keystatus[keys[5]]) {
                 if (held(2, 0x4b)) {
                     turn_velocity -= 16;
@@ -878,7 +881,7 @@ void __interrupt __far timerhandler(void)
                 if (forward_velocity < 0)
                     forward_velocity = 0;
             }
-        }
+        } while (0);
     }
     outp(0x20, 0x20);
 }
@@ -983,7 +986,7 @@ void domovethings_multiplayer(void)
                 }
                 break;
             case 4:
-                input_text_length = 0;
+                input_text_length = 0; /* 9.5b keeps only the xor, as in the oracle */
                 for (j = 1; j < packbufleng; j++)
                     input_text[input_text_length++] = tempbuf[j];
                 msgtext = input_text;
@@ -2972,6 +2975,7 @@ void wait_for_players(void)
             }
             break;
         case 4:
+            input_text_length = 0;
             for (i = 1; i < packbufleng; i++)
                 input_text[input_text_length++] = tempbuf[i];
             msgtext = input_text;
@@ -5345,13 +5349,16 @@ void render_sprite_camera(short i)
 
 void render_mirror(short w)
 {
-    long x, y, z, player_x;
+    long x, y, z, x1, y1, x2, y2, player_x;
     short row, dest, row2, dest2, ang, sect, tile;
 
-    y = wall[w].y;
+    x1 = wall[w].x;
+    y1 = wall[w].y;
+    x2 = wall[wall[w].point2].x;
+    y2 = wall[wall[w].point2].y;
     player_x = ps[screenpeek].posx;
-    x = (wall[w].x + wall[wall[w].point2].x) / 2;
-    y = (y + wall[wall[w].point2].y) / 2;
+    x = (x1 + x2) / 2;
+    y = (y1 + y2) / 2;
     z = ps[screenpeek].posz;
     ang = getangle(player_x - x, ps[screenpeek].posy - y);
     tile = 570;
@@ -5361,7 +5368,7 @@ void render_mirror(short w)
     animatesprites(ang);
     drawmasks();
     row = dest = 0;
-    COPY_CAMERA_WINDOW(570, row, dest)
+    COPY_CAMERA_WINDOW(tile, row, dest)
     rotatesprite(47L << 16, 47L << 16, 1L << 16, 0, tile);
     row2 = dest2 = 0;
     COPY_CAMERA_WINDOW(tile, row2, dest2)
