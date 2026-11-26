@@ -41,7 +41,7 @@ Run `python tools/gate.py` then `python tools/status.py` for live numbers.
 
 Totals: 548 STRICT / 666 functions, 118,795 bytes; LameDuke 200 STRICT (73,363 bytes); Apogee Sound System 348 (45,432 bytes); CODE_BYTES_MATCH 14; verified data 10,530 bytes, verified _BSS layout 714,205 bytes.
 
-Identified, not reconstructed: Watcom 9.5b runtime (docs/RUNTIME_CENSUS.md), Creative AWE32 and Gravis GF1 vendor objects (docs/AUDIOLIB.md).
+Identified, not reconstructed: Watcom 9.5 runtime (docs/RUNTIME_CENSUS.md), Creative AWE32 and Gravis GF1 vendor objects (docs/AUDIOLIB.md).
 
 ## Code map (obj1)
 | Range | Contents | Source |
@@ -59,7 +59,7 @@ Identified, not reconstructed: Watcom 9.5b runtime (docs/RUNTIME_CENSUS.md), Cre
 | 47abf-49c84 | MULTI (Ken) | src/multi/multi.c (+ realmode.asm, provisional) |
 | 49c84-55b30 | Creative AWE32 + Gravis GF1 vendor objects | identity only |
 | 55b30-62d8d | Apogee Sound System (22 C modules) | src/audiolib/ |
-| 62d8d-6b685 | Watcom 9.5b runtime | library |
+| 62d8d-6b685 | Watcom 9.5 runtime | library |
 | 6b685-6c445 | A.ASM | src/engine/A.ASM |
 
 Every compiled C/asm object of the program now has candidate source; remaining work is NEAR->STRICT, data layout and the natural link.

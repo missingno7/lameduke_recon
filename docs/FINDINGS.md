@@ -334,3 +334,19 @@ Each entry names the command or artefact that supports it.
   declaration reordering all 18 Apogee _BSS layouts verify (build/workers/audfix/calibrate_bss.py; docs/units/audfix.md).
 - Audio library 330/375 STRICT; 32 CODE_BYTES_MATCH held by 18 terminal extents (module-last functions whose end is not
   a confirmed boundary) and 14 CONST references; remaining data mismatches are compiler padding.
+
+## SECTOR/GAMEDEF NEAR round 2 (r2secgd, 2026-11-26; worker files build/workers/r2secgd/, integrated)
+- STRONG GAMEDEF's `CON_NEXT()` is `break` with `return 0;` after the switch (Duke 1.5 parse style): reproduces the
+  oracle's 40 separate parse self-calls in parse and execute (was 21) and the killit prologue; unaligned
+  instructions parse 1759 -> 744, execute 1231 -> 788. Positional byte-diff counts rise because later bytes shift.
+- HYPOTHESIS (local evidence PROVEN) GAMEDEF saw the 18 game functions it calls without prototypes (old-style
+  `extern short EGS();`): the oracle computes every EGS argument in 32 bits without narrowing and loads `*insptr`
+  as a long for shoot/spawn/addweapon. Declared only in gamedef.h; other units keep their prototypes (OPEN: what
+  the other units saw).
+- PROVEN blockers: activatewarpelevators, operateforcefields (exact code), checkhitceiling, transnum and move_actor
+  are held only by a neighbour's jump table falling inside their extent (operatesectors, cheatkeys, checksectors,
+  parsecommand, parse).
+- NEGATIVE ~40 checkhitswitch toggle-loop forms: none folds the `wall` base into each access across the jump table
+  (size now exact 1632, 10 instructions differ). parse allocation needs j's savings above x's (x 708, i 512, j 408);
+  extra j assignments incl. the Duke IFP `j = 1` chain leave j at 408. checkhitceiling (AH vs BL zero register) and
+  checkhitwall (savings tie t83/t249) retraced without a natural fix.

@@ -63,29 +63,26 @@ extern unsigned long syncbits[];
 
 extern void *bootleg_cache_alloc(long size);
 extern void bootleg_cache_pop(void);
-extern void hitscan(long x, long y, long z, short sectnum,
-    long vx, long vy, long vz, short *hitsect, short *hitwall,
-    short *hitsprite, long *hitx, long *hity, long *hitz);
-extern short getangle(long x, long y);
-extern short ssp(short i, long cliptype);
-extern long krand(void);
-extern int cansee(long x1, long y1, long z1, short sect1,
-    long x2, long y2, long z2, short sect2);
-extern long ifhitbyweapon(short i);
-extern long ifsquished(short i, short p);
-extern void shoot(short i, short tile);
-extern void spritesound(short sound, short i);
-extern void nuke(long x, long y, long z, short i);
-extern void addweapon(short p, short tile, short amount);
-extern short spawn(short i, short tile);
-extern void resetplayer(short p);
-extern void hitradius(short i, long radius, long damage);
-extern void guts(short i);
-extern void gameexit(char *message);
-extern int deletesprite(short i);
-extern short EGS(short sect, long x, long y, long z, unsigned char cstat, short picnum,
-    signed char shade, unsigned char xrepeat, unsigned char yrepeat,
-    short ang, short xvel, short zvel, short owner, short statnum);
+/* Old-style declarations: GAMEDEF passes these arguments default-promoted (the oracle loads *insptr as a
+   long for shoot/spawn/addweapon and computes EGS arguments in 32 bits without narrowing). */
+extern void hitscan();
+extern short getangle();
+extern short ssp();
+extern long krand();
+extern int cansee();
+extern long ifhitbyweapon();
+extern long ifsquished();
+extern void shoot();
+extern void spritesound();
+extern void nuke();
+extern void addweapon();
+extern short spawn();
+extern void resetplayer();
+extern void hitradius();
+extern void guts();
+extern void gameexit();
+extern int deletesprite();
+extern short EGS();
 
 /* Build's original inline helper, present in the June 1994 PRAGMAS.H. */
 extern long klabs(long value);

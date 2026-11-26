@@ -71,6 +71,7 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
   Watcom 9.5): nearest compiled donor functions per LameDuke function; results docs/DONORS.md, config/donors.json.
 - docs/ANCESTRY.md — Ken-Build GAME.C counterparts (names, locals, comments) for game functions.
 - `tools/gate.py` — integration gate (tests + fresh rebuild of every unit); run before every commit.
+- `tools/readme.py` — regenerates the README.md progress bars from build/verify.json (after `verify.py --update`).
 - Watcom 9.5b compiles run on the canonical DOS host (tools/doshost.py: the original DOS compiler under DOSBox-X,
   ~1.7 s per compile) because CONST padding residue depends on the host; LAMEDUKE_HOST=nt gives the same code
   ~40x faster for exploration, but only DOS-host results count. Never bypass tools/wcc.py.

@@ -720,8 +720,7 @@ if (sprite[i].xvel | sprite[i].zvel) {
 }
 
 /* An if operand is followed by the address of its false branch. */
-#define PARSE_IF(condition) do { \
-    if (condition) { \
+#define PARSE_IF(condition) if (condition) { \
         insptr += 2; \
         parse(PARSE_ARGS); \
     } else { \
@@ -730,8 +729,7 @@ if (sprite[i].xvel | sprite[i].zvel) {
             insptr += 2; \
             parse(PARSE_ARGS); \
         } \
-    } \
-} while (0)
+    }
 
 #define APLAYER 283
 #define SCRAP1 235
@@ -747,7 +745,7 @@ char parse(short i, short p, long x)
         return 1;
 
 #define PARSE_ARGS i, p, x
-#define CON_NEXT() return 0
+#define CON_NEXT() break
 #define CON_STOP() return 1
 /* Shared opcode bodies. The caller supplies its continuation and exit. */
 switch (*insptr) {
@@ -1091,6 +1089,7 @@ default:
     gameexit(ltoa(sprite[i].picnum, tempbuf, 10));
     CON_STOP();
 }
+return 0;
 #undef CON_STOP
 #undef CON_NEXT
 #undef PARSE_ARGS

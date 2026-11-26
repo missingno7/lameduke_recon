@@ -770,7 +770,7 @@ void cheatkeys(short snum)
 void checkhitswitch(long w)
 {
 {
-    short i, j, lotag;
+    short i, lotag, j;
     walltype *wal;
 
     switch (wall[w].picnum) {
@@ -781,8 +781,9 @@ void checkhitswitch(long w)
     }
     lotag = wall[w].lotag;
     for (i = 0; i < numanimwalls; i++) {
-        wal = &wall[animwall[i].wallnum];
-        if (lotag == wal->lotag)
+        j = animwall[i].wallnum;
+        if (lotag == wall[j].lotag) {
+            wal = &wall[j];
             switch (wal->picnum) {
             case 395: case 405:
                 wal->picnum++;
@@ -791,6 +792,7 @@ void checkhitswitch(long w)
                 wal->picnum--;
                 break;
             }
+        }
     }
 
     switch (wall[w].picnum) {
