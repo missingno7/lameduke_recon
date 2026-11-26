@@ -3631,7 +3631,7 @@ void drawsprite (long xb, long yp, short tilenum, short spritenum, char dapalnum
 		lx = (x1>>8)+1; if (lx < 0) lx = 0;
 		rx = (x2>>8); if (rx >= xdimen) rx = xdimen-1;
 
-		shade = (yp>>(visibility+5))+sprite[spritenum].shade+6;
+		shade = (yp>>(visibility+4))+sprite[spritenum].shade+6;
 		if ((sector[sectnum].ceilingstat&1) > 0)
 			shade += ((signed short)sector[sectnum].ceilingshade);
 		else
@@ -5770,7 +5770,8 @@ getcliplines(long x, long y, long z, long goalx, long goaly, short sectnum, long
 
 	for(i=0;i<clipsectnum;i++)
 	{
-		for(j=headspritesect[clipsectorlist[i]];j!=-1;j=nextspritesect[j])
+		j = headspritesect[clipsectorlist[i]];
+		while (j != -1)
 		{
 			spr = &sprite[j];
 			cstat = spr->cstat;
@@ -5872,6 +5873,7 @@ getcliplines(long x, long y, long z, long goalx, long goaly, short sectnum, long
 						break;
 				}
 			}
+			j = nextspritesect[j];
 		}
 	}
 }
@@ -6603,7 +6605,8 @@ getzrange(long x, long y, long z, short sectnum,
 
 	for(i=0;i<clipsectnum;i++)
 	{
-		for(j=headspritesect[clipsectorlist[i]];j!=-1;j=nextspritesect[j])
+		j = headspritesect[clipsectorlist[i]];
+		while (j != -1)
 		{
 			cstat = sprite[j].cstat;
 			if ((cstat&1) > 0)
@@ -6682,6 +6685,7 @@ getzrange(long x, long y, long z, short sectnum,
 						{ *florz = daz2; *florhit = j+49152; }
 				}
 			}
+			j = nextspritesect[j];
 		}
 	}
 }
