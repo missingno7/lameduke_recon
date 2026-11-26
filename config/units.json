@@ -1687,6 +1687,103 @@
      "status": "NEAR_MATCH"
     }
    }
+  },
+  "multi": {
+   "source": "src/multi/multi.c",
+   "profile": "multi",
+   "include": [
+    "src/multi"
+   ],
+   "kind": "c",
+   "provenance": "LATER/EARLIER_SOURCE_BACKPORTED: network code of BUIL0422 ENGINE.C (Apr-94) + Aug-94 ENGINE.OBJ shapes + 1995 MULTI.OBJ; multi worker 2026-11-26",
+   "quality": "TU_STRUCTURE_PROVISIONAL: storage factored into multi_data.c (original MULTI.OBJ owned it); real-mode serial template src/multi/realmode.asm is audited separately (not in the gate)",
+   "functions": {
+    "initmultiplayers": {
+     "status": "STRICT"
+    },
+    "uninitmultiplayers": {
+     "status": "STRICT"
+    },
+    "netoff": {
+     "status": "STRICT"
+    },
+    "neton": {
+     "status": "NEAR_MATCH"
+    },
+    "comon": {
+     "status": "STRICT"
+    },
+    "comoff": {
+     "status": "STRICT"
+    },
+    "netsend": {
+     "status": "NEAR_MATCH"
+    },
+    "comsend": {
+     "status": "NEAR_MATCH"
+    },
+    "nethandler": {
+     "status": "STRICT"
+    },
+    "comhandler": {
+     "status": "STRICT"
+    },
+    "netinitconnection": {
+     "status": "NEAR_MATCH"
+    },
+    "netuninitconnection": {
+     "status": "STRICT"
+    },
+    "convalloc32": {
+     "status": "STRICT"
+    },
+    "simulateint": {
+     "status": "STRICT"
+    },
+    "sendpacket": {
+     "status": "NEAR_MATCH"
+    },
+    "getpacket": {
+     "status": "NEAR_MATCH"
+    },
+    "initcrc": {
+     "status": "STRICT"
+    },
+    "getcrc": {
+     "status": "STRICT"
+    },
+    "installbicomhandlers": {
+     "status": "STRICT"
+    },
+    "uninstallbicomhandlers": {
+     "status": "STRICT"
+    },
+    "allocbicom": {
+     "status": "STRICT"
+    },
+    "processreservedmessage": {
+     "status": "NEAR_MATCH"
+    },
+    "sendlogon": {
+     "status": "STRICT"
+    },
+    "sendlogoff": {
+     "status": "STRICT"
+    },
+    "getoutputcirclesize": {
+     "status": "STRICT"
+    }
+   }
+  },
+  "multi_data": {
+   "source": "src/multi/multi_data.c",
+   "profile": "multi",
+   "include": [
+    "src/multi"
+   ],
+   "kind": "c",
+   "provenance": "provisional storage split of MULTI.OBJ",
+   "functions": {}
   }
  }
 }

@@ -2489,6 +2489,106 @@
    "EGS": {
     "addr": "1:02e90",
     "evidence": "gamedef worker 2026-11-26: Calls insertsprite and sets the packed engine fields for many independently identified game spawn callers."
+   },
+   "initmultiplayers": {
+    "addr": "1:47ad7",
+    "evidence": "multi worker 2026-11-26: June 1995 MULTI.OBJ has this public immediately after the six-entry baud switch table. December table at 1:47abf targets the same six baud assignments."
+   },
+   "uninitmultiplayers": {
+    "addr": "1:47c25",
+    "evidence": "multi worker 2026-11-26: June 1995 MULTI.OBJ has the same numplayers guard and COM shutdown call followed by conditional fallthrough to netoff."
+   },
+   "netoff": {
+    "addr": "1:47c4d",
+    "evidence": "multi worker 2026-11-26: BUIL0801 ENGINE.OBJ netoff_ relocation-aware exact+sites hit, 0x38 bytes."
+   },
+   "neton": {
+    "addr": "1:47c85",
+    "evidence": "multi worker 2026-11-26: BUIL0801 ENGINE.OBJ neton_ and later MULTI.C install IPX at this point in the initmultiplayers dispatch. Same multiplex call 0x7a00 and errors -1/-2."
+   },
+   "comon": {
+    "addr": "1:480bc",
+    "evidence": "multi worker 2026-11-26: BUIL0422 ENGINE.C and later MULTI.C program the same UART divisor and PIC mask from the BIOS serial-port table, via the COM setup arm."
+   },
+   "comoff": {
+    "addr": "1:482c7",
+    "evidence": "multi worker 2026-11-26: uninitmultiplayers COM arm calls here. Later MULTI.C and BICOMC.C use the same PIC mask and uninstallbicomhandlers sequence."
+   },
+   "netsend": {
+    "addr": "1:483c1",
+    "evidence": "multi worker 2026-11-26: BUIL0801 ENGINE.OBJ and later MULTI.C construct an IPX header and ECB and issue IPX request 3. Invoked from sendpacket."
+   },
+   "comsend": {
+    "addr": "1:48612",
+    "evidence": "multi worker 2026-11-26: BUIL0801 ENGINE.OBJ comsend_ relocation-aware exact+sites hit, 0x8d bytes."
+   },
+   "nethandler": {
+    "addr": "1:4869f",
+    "evidence": "multi worker 2026-11-26: IPX setup installs this interrupt entry on vector 0x1c. BUIL0801 ENGINE.OBJ neton_ and nethandler_ have the same association."
+   },
+   "comhandler": {
+    "addr": "1:48783",
+    "evidence": "multi worker 2026-11-26: installbicomhandlers supplies this code address as the protected-mode COM interrupt vector. BUIL0801 ENGINE.OBJ and BICOMC.C name the handler."
+   },
+   "netinitconnection": {
+    "addr": "1:488f5",
+    "evidence": "multi worker 2026-11-26: Called from IPX setup with connection number and address. Later MULTI.C and BUIL0801 ENGINE.OBJ have the same per-player search and sorted insertion."
+   },
+   "netuninitconnection": {
+    "addr": "1:48af8",
+    "evidence": "multi worker 2026-11-26: Same removal sentinel and link-list rebuild as later MULTI.C and BUIL0801 ENGINE.OBJ netuninitconnection_."
+   },
+   "convalloc32": {
+    "addr": "1:48b4a",
+    "evidence": "multi worker 2026-11-26: BUIL0801 ENGINE.OBJ convalloc32_ relocation-aware exact+sites hit, 0x40 bytes."
+   },
+   "simulateint": {
+    "addr": "1:48b8a",
+    "evidence": "multi worker 2026-11-26: BUIL0801 ENGINE.OBJ simulateint_ relocation-aware exact+sites hit, 0xcb bytes."
+   },
+   "sendpacket": {
+    "addr": "1:48c55",
+    "evidence": "multi worker 2026-11-26: sendlogon/sendlogoff pass player, buffer and length here. Routine dispatches by multioption and calls comsend or netsend as in BUIL0801 ENGINE.OBJ and later MULTI.C."
+   },
+   "getpacket": {
+    "addr": "1:49073",
+    "evidence": "multi worker 2026-11-26: Invoked with source-index pointer and output buffer. COM/IPX receive paths and CRC call correspond to BUIL0801 ENGINE.OBJ and later MULTI.C getpacket."
+   },
+   "initcrc": {
+    "addr": "1:49603",
+    "evidence": "multi worker 2026-11-26: BUIL0801 ENGINE.OBJ initcrc_ computes the same 256 entries using polynomial 0x1021 and calls from initialization. December has a local epilogue."
+   },
+   "getcrc": {
+    "addr": "1:4965b",
+    "evidence": "multi worker 2026-11-26: BUIL0801 ENGINE.OBJ getcrc_ relocation-aware exact+sites hit, 0x44 bytes."
+   },
+   "installbicomhandlers": {
+    "addr": "1:4969f",
+    "evidence": "multi worker 2026-11-26: comon calls here before clearing ring pointers. Vector save/replace sequence matches BICOMC.C and later MULTI.C."
+   },
+   "uninstallbicomhandlers": {
+    "addr": "1:49797",
+    "evidence": "multi worker 2026-11-26: BUIL0801 ENGINE.OBJ uninstallbicomhandlers_ relocation-aware exact+sites hit, 0x80 bytes. Historical C counterpart in BICOMC.C."
+   },
+   "allocbicom": {
+    "addr": "1:49817",
+    "evidence": "multi worker 2026-11-26: Descriptive name for the callee of installbicomhandlers. Does the low-memory allocation, COM pointer setup and template copy that later MULTI.C performs within installbicomhandlers."
+   },
+   "processreservedmessage": {
+    "addr": "1:498c5",
+    "evidence": "multi worker 2026-11-26: getpacket dispatches control packets here. Types 253, 254 and 255 and the connection-management calls correspond to later MULTI.C."
+   },
+   "sendlogon": {
+    "addr": "1:49b4e",
+    "evidence": "multi worker 2026-11-26: Later MULTI.C sends packet type 253, using PIT input for serial mode and local address for IPX. The December routine does both."
+   },
+   "sendlogoff": {
+    "addr": "1:49c07",
+    "evidence": "multi worker 2026-11-26: Later MULTI.C sends packet type 255 and checks numplayers and multioption. December routine has these same guards and send types."
+   },
+   "getoutputcirclesize": {
+    "addr": "1:49c4e",
+    "evidence": "multi worker 2026-11-26: Documented in BUILD.TXT 10/16/94. Same calculation with December 4096-byte ring as June 1995 MULTI.OBJ uses with its 16384-byte ring."
    }
   },
   "data": {
@@ -4363,6 +4463,258 @@
    "ydimen": {
     "addr": "2:1bc3d0",
     "evidence": "engine worker 2026-11-26: setview computes the inclusive viewport height and reads it again for the bottom row. 2 exact-address oracle operands in the engine (setview 1:462f4)."
+   },
+   "multi_text_end": {
+    "addr": "1:49c82",
+    "evidence": "multi worker 2026-11-26: Extent label at the end of getoutputcirclesize's final ret. Two unreferenced zero bytes align the independently identified NRPN _TEXT at 1:49c84. ASS 1.04 AUDIO_WF.LIB nrpn.c SEGDEF align=5 (dword)."
+   },
+   "multioption": {
+    "addr": "2:02cf0",
+    "evidence": "multi worker 2026-11-26: initmultiplayers stores its first byte argument here. Referenced in the switch between null, serial, and IPX modes as in later MULTI.OBJ."
+   },
+   "comrateoption": {
+    "addr": "2:02cf1",
+    "evidence": "multi worker 2026-11-26: initmultiplayers stores the second byte argument here, the selector for its baud table."
+   },
+   "lastpacket2clock": {
+    "addr": "2:02cf2",
+    "evidence": "multi worker 2026-11-26: BUILD.TXT documents long pointer lastpacket2clock. allocbicom maps this pointer to COM template +13 where the serial ISR records packet time."
+   },
+   "totalclockinreal": {
+    "addr": "2:02cf6",
+    "evidence": "multi worker 2026-11-26: allocbicom maps pointer to COM template +17 and initializes its pointee from canonical totalclock. The real-mode ISR reads this shared clock."
+   },
+   "rmbuffer": {
+    "addr": "2:02cfa",
+    "evidence": "multi worker 2026-11-26: allocbicom copies this 384-byte template to conventional memory before installbicomhandlers sets the real-mode vector to +21. Later MULTI.C names the real-mode COM template rmbuffer."
+   },
+   "connectpoint2": {
+    "addr": "2:1be134",
+    "evidence": "multi worker 2026-11-26: initmultiplayers initializes 16 short entries to -1. netuninitconnection links each remaining slot through this array, as in later MULTI.C."
+   },
+   "connectnum": {
+    "addr": "2:1be474",
+    "evidence": "multi worker 2026-11-26: initmultiplayers initializes the 16 long entries to 0x7fffffff. netuninitconnection resets the indexed slot to this sentinel as in later MULTI.C."
+   },
+   "crctable": {
+    "addr": "2:1be6d4",
+    "evidence": "multi worker 2026-11-26: BUIL0801 ENGINE.OBJ getcrc_ uses a _crctable relocation at +0x2c. The corresponding LE fixup leads here and December initcrc fills the same table."
+   },
+   "myconnectindex": {
+    "addr": "2:02e7a",
+    "evidence": "multi worker 2026-11-26: Zeroed in single-player init and emitted as the local index in sendlogoff. Same operands and widths documented in BUILD.TXT and later MULTI.C."
+   },
+   "rmsegment16": {
+    "addr": "2:1bed3c",
+    "evidence": "multi worker 2026-11-26: Exact BUIL0801 ENGINE.OBJ simulateint_ uses _rmsegment16 at +0x68, and December neton derives this word from the conventional-memory base."
+   },
+   "rmoffset32": {
+    "addr": "2:1bed40",
+    "evidence": "multi worker 2026-11-26: Exact BUIL0801 ENGINE.OBJ simulateint_ uses _rmoffset32 at +0x4a, and December neton stores the conventional-memory base here."
+   },
+   "myconnectnum": {
+    "addr": "2:1bed44",
+    "evidence": "multi worker 2026-11-26: sendlogon derives the local serial ID from PIT bytes or emits the IPX ID from this long, following the later MULTI.C API."
+   },
+   "mycompaddr": {
+    "addr": "2:1bed48",
+    "evidence": "multi worker 2026-11-26: IPX initialization stores the local network address here and sendlogon emits the first ten bytes alongside myconnectnum."
+   },
+   "orig_pm_off": {
+    "addr": "2:1bed54",
+    "evidence": "multi worker 2026-11-26: Exact BUIL0801 ENGINE.OBJ uninstallbicomhandlers_ restores _orig_pm_off from this relocation. December install saves E/EBX here."
+   },
+   "comvect": {
+    "addr": "2:1bed58",
+    "evidence": "multi worker 2026-11-26: Exact BUIL0801 ENGINE.OBJ uninstallbicomhandlers_ references _comvect here. comon sets 0xb+(comnum&1) as in BUIL0422 ENGINE.C."
+   },
+   "comescape": {
+    "addr": "2:1bed5c",
+    "evidence": "multi worker 2026-11-26: comon clears this long and getpacket uses it to parse incoming escapes, corresponding to comescape in later MULTI.C."
+   },
+   "comspeed": {
+    "addr": "2:1bed60",
+    "evidence": "multi worker 2026-11-26: Six switch destinations store baud rates here. comon uses the long as the UART divisor denominator, as in BUIL0422 ENGINE.C."
+   },
+   "comerror": {
+    "addr": "2:1bed64",
+    "evidence": "multi worker 2026-11-26: allocbicom sets this byte pointer to template +11. comoff and comhandler count down the pending error response through it, as in later MULTI.C."
+   },
+   "comtype": {
+    "addr": "2:1bed68",
+    "evidence": "multi worker 2026-11-26: allocbicom sets this byte pointer to template +10. comon sets its pointee to UART FIFO depth 1 or 16 as in later MULTI.C."
+   },
+   "incnt": {
+    "addr": "2:1bed6c",
+    "evidence": "multi worker 2026-11-26: allocbicom maps this byte pointer to template +12. comoff emits its pointee as the serial error reply, as in later MULTI.C."
+   },
+   "outbufplc": {
+    "addr": "2:1bed74",
+    "evidence": "multi worker 2026-11-26: allocbicom maps this short pointer to template +4. Serial transmit handlers advance its pointee."
+   },
+   "inbufplc": {
+    "addr": "2:1bed78",
+    "evidence": "multi worker 2026-11-26: allocbicom maps this short pointer to template +0. getpacket advances its pointee while reading."
+   },
+   "comreset": {
+    "addr": "2:1bed7c",
+    "evidence": "multi worker 2026-11-26: comon clears this long alongside comescape and getpacket uses it for serial resynchronization, as in later MULTI.C."
+   },
+   "outbufend": {
+    "addr": "2:1bed84",
+    "evidence": "multi worker 2026-11-26: Exact BUIL0801 ENGINE.OBJ comsend_ references _outbufend here. allocbicom maps it to template +6."
+   },
+   "inbufend": {
+    "addr": "2:1bed88",
+    "evidence": "multi worker 2026-11-26: allocbicom maps this short pointer to template +2. Serial receive handlers advance its pointee."
+   },
+   "comnum": {
+    "addr": "2:1bed8c",
+    "evidence": "multi worker 2026-11-26: initmultiplayers assigns the COM number, which comon uses to index the BIOS port table."
+   },
+   "comport": {
+    "addr": "2:1bed90",
+    "evidence": "multi worker 2026-11-26: allocbicom maps the pointer to template +8, then comon stores the BIOS serial I/O base port through it."
+   },
+   "outcnt": {
+    "addr": "2:1bed94",
+    "evidence": "multi worker 2026-11-26: Initialization clears it and sendpacket increments the serial sequence modulo 64. Counter role confirmed by later MULTI.C."
+   },
+   "outbuf": {
+    "addr": "2:1bed98",
+    "evidence": "multi worker 2026-11-26: Exact BUIL0801 ENGINE.OBJ comsend_ references _outbuf here. allocbicom sets this pointer at the second serial ring."
+   },
+   "inbuf": {
+    "addr": "2:1bed9c",
+    "evidence": "multi worker 2026-11-26: allocbicom sets this pointer at the first serial ring. Serial receive IRQ stores bytes through it."
+   },
+   "oldnethandler": {
+    "addr": "2:1bedac",
+    "evidence": "multi worker 2026-11-26: Exact BUIL0801 ENGINE.OBJ netoff_ uses _oldnethandler for the selector:offset argument to _dos_setvect. neton saves vector 0x1c here."
+   },
+   "numplayers": {
+    "addr": "2:1bedb4",
+    "evidence": "multi worker 2026-11-26: initmultiplayers sets this short count. netuninitconnection decrements it and sendlogoff tests for at least two players."
+   },
+   "connecthead": {
+    "addr": "2:1bedb8",
+    "evidence": "multi worker 2026-11-26: Cleared in initmultiplayers. Assignment when netuninitconnection finds first connected slot matches later MULTI.C and BUILD.TXT public variable list."
+   },
+   "orig_rm_off": {
+    "addr": "2:1bedba",
+    "evidence": "multi worker 2026-11-26: Exact BUIL0801 ENGINE.OBJ uninstallbicomhandlers_ references _orig_rm_off here. install saves the real-mode DX offset here."
+   },
+   "orig_rm_seg": {
+    "addr": "2:1bedbc",
+    "evidence": "multi worker 2026-11-26: Exact BUIL0801 ENGINE.OBJ uninstallbicomhandlers_ references _orig_rm_seg here. install saves the real-mode CX selector here."
+   },
+   "orig_pm_sel": {
+    "addr": "2:1bedbe",
+    "evidence": "multi worker 2026-11-26: Exact BUIL0801 ENGINE.OBJ uninstallbicomhandlers_ references _orig_pm_sel here. install saves the protected-mode ES selector here."
+   },
+   "RMI": {
+    "addr": "2:1bedc0",
+    "evidence": "multi worker 2026-11-26: Exact BUIL0801 ENGINE.OBJ simulateint_ clears a 50-byte BSS object at the corresponding fixup. Later MULTI.C declares this DPMI register structure as RMI."
+   },
+   "damessleng": {
+    "addr": "2:1beda0",
+    "evidence": "multi worker 2026-11-26: Protected-mode IPX ISR stores the header length minus 30 at 1:486d6, then copies that many bytes. Compare BUIL0801 ENGINE.OBJ nethandler_."
+   },
+   "syncbufleng": {
+    "addr": "2:1beda4",
+    "evidence": "multi worker 2026-11-26: getpacket appends serial bytes at this index and uses it to calculate payload length, matching BUIL0801 ENGINE.OBJ and later MULTI.C."
+   },
+   "syncbuf": {
+    "addr": "2:1bead4",
+    "evidence": "multi worker 2026-11-26: getpacket appends serial bytes here and reads its header and CRC trailer, as in BUIL0801 ENGINE.OBJ and later MULTI.C."
+   },
+   "ecbget": {
+    "addr": "2:1bed38",
+    "evidence": "multi worker 2026-11-26: neton maps conventional memory +0 to this pointer and submits it with IPX request 4."
+   },
+   "ecbput": {
+    "addr": "2:1bed34",
+    "evidence": "multi worker 2026-11-26: neton maps conventional memory +48 to this pointer. netsend initializes its 48-byte ECB and submits it with IPX request 3."
+   },
+   "ipxin": {
+    "addr": "2:1bed2c",
+    "evidence": "multi worker 2026-11-26: neton maps conventional memory +96 to this pointer and describes it as the 30-byte receive header fragment. nethandler reads the IPX length at +2."
+   },
+   "ipxout": {
+    "addr": "2:1bed1c",
+    "evidence": "multi worker 2026-11-26: neton maps conventional memory +128 to this pointer. netsend constructs the 30-byte outgoing IPX header through it."
+   },
+   "messin": {
+    "addr": "2:1bed14",
+    "evidence": "multi worker 2026-11-26: neton maps conventional memory +160 to this pointer and sets it as the receive data fragment. nethandler copies payload bytes from it."
+   },
+   "messout": {
+    "addr": "2:1bed18",
+    "evidence": "multi worker 2026-11-26: neton maps conventional memory +720 to this pointer. sendpacket writes payload bytes here, and netsend makes it the second ECB fragment."
+   },
+   "tempinbuf": {
+    "addr": "2:1bed28",
+    "evidence": "multi worker 2026-11-26: neton allocates the 16-byte buffer at conventional memory +1280, as in later MULTI.C."
+   },
+   "tempoutbuf": {
+    "addr": "2:1bed24",
+    "evidence": "multi worker 2026-11-26: neton maps conventional memory +1296 and uses it to get the internetwork address with IPX request 9."
+   },
+   "rmnethandler": {
+    "addr": "2:1bed20",
+    "evidence": "multi worker 2026-11-26: neton populates the 16-bit IPX completion routine here and stores its segment:offset in receive ECB bytes 4-7."
+   },
+   "neti": {
+    "addr": "2:1bed30",
+    "evidence": "multi worker 2026-11-26: Counter for copying payload in the IPX ISR, same role as in BUIL0801 ENGINE.OBJ nethandler_."
+   },
+   "comi": {
+    "addr": "2:1bed70",
+    "evidence": "multi worker 2026-11-26: Serial ISR FIFO iteration count initialized from comtype, as in later MULTI.C."
+   },
+   "comtemp": {
+    "addr": "2:1bed80",
+    "evidence": "multi worker 2026-11-26: Serial ISR stores the low three bits of the UART interrupt identification register, as in later MULTI.C."
+   },
+   "otherconnectnum": {
+    "addr": "2:1beda8",
+    "evidence": "multi worker 2026-11-26: processreservedmessage decodes this long from the peer serial handshake. getpacket compares it with myconnectnum for arbitration, as in later MULTI.C."
+   },
+   "netincnt": {
+    "addr": "2:1be124",
+    "evidence": "multi worker 2026-11-26: getpacket checks and increments the incoming sequence per player, reset by neton and the IPX reserved subtype. Later MULTI.C names this netincnt."
+   },
+   "netoutcnt": {
+    "addr": "2:1be114",
+    "evidence": "multi worker 2026-11-26: sendpacket serializes and increments this per-player outgoing sequence, reset by neton and the IPX reserved subtype. Later MULTI.C names this netoutcnt."
+   },
+   "outbufindex": {
+    "addr": "2:1be5d4",
+    "evidence": "multi worker 2026-11-26: sendpacket saves ring positions for 64 serial sequence numbers and getpacket retrieves them on resend, as in BUIL0801 ENGINE.OBJ."
+   },
+   "prevpacket": {
+    "addr": "2:1bded4",
+    "evidence": "multi worker 2026-11-26: Descriptive name for IPX previous-payload history. sendpacket copies the current payload here after emitting the previous payload."
+   },
+   "prevpacketindex": {
+    "addr": "2:1bedb2",
+    "evidence": "multi worker 2026-11-26: Descriptive name for stored IPX destination index. sendpacket writes it from the destination argument and reuses it for the redundancy payload."
+   },
+   "prevpacketlength": {
+    "addr": "2:1bedb6",
+    "evidence": "multi worker 2026-11-26: Descriptive name for stored IPX payload length. sendpacket writes it from the length argument and reuses it for the redundancy payload."
+   },
+   "username": {
+    "addr": "2:1be154",
+    "evidence": "multi worker 2026-11-26: netinitconnection permutes the 16 player rows of 50 bytes alongside their addresses. BUIL0801 ENGINE.OBJ defines a matching username array."
+   },
+   "bridgeaddr": {
+    "addr": "2:1be4b4",
+    "evidence": "multi worker 2026-11-26: netinitconnection copies six node bytes here. netsend gives the address to the immediate-address field of the send ECB. BUIL0801 ENGINE.OBJ names this table bridgeaddr."
+   },
+   "compaddr": {
+    "addr": "2:1be514",
+    "evidence": "multi worker 2026-11-26: netinitconnection records the 12-byte peer address here. netsend copies it into the IPX header, as in BUIL0801 ENGINE.OBJ and later MULTI.C."
    }
   }
  }
