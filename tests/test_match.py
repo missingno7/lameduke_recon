@@ -122,5 +122,47 @@ class MatchControls(unittest.TestCase):
         self.assertFalse(match.data_covered(code))
 
 
+DPMI = ROOT / "build/verify/ass_dpmi.obj"      # fresh build of src/audiolib/dpmi.c by tools/verify.py
+
+
+@unittest.skipUnless(DPMI.exists() and (ROOT / "assets/D3D.EXE").exists(), "needs a built ass_dpmi.obj and assets/")
+class ObjectEndControls(unittest.TestCase):
+    """DPMI_UnlockMemory is the last public of DPMI.C's _TEXT (1:5eb24, 86 bytes); the oracle has two zero
+    padding bytes and then the next module at the 4-aligned 1:5eb7c."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.img = Image()
+        cls.mod = omf.load(DPMI)[0]
+
+    def ext_unverified(self, mod):
+        match.Bindings._cache.clear()
+        r = {x["function"]: x for x in match.verify_object(self.img, mod, {"DPMI_UnlockMemory"})}["DPMI_UnlockMemory"]
+        return r, [u for u in r["unverified"] if u.startswith("extent end")]
+
+    def test_object_end_positive(self):
+        r, ext = self.ext_unverified(self.mod)
+        self.assertEqual(ext, [])
+        self.assertEqual(r["status"], "STRICT", r)
+
+    def test_object_end_truncated(self):
+        # candidate segment cut by two bytes: the gap now holds real code bytes and must not be accepted
+        mod = copy.deepcopy(self.mod)
+        seg = mod.segments[1]
+        seg.size -= 2
+        del seg.data[-2:], seg.covered[-2:]
+        r, ext = self.ext_unverified(mod)
+        self.assertNotEqual(r["status"], "STRICT")
+        self.assertTrue(ext, r)
+
+    def test_object_end_helper(self):
+        cand = bytes(self.img.obj[1][0x5eb24:0x5eb7a])
+        self.assertTrue(match.object_end_confirmed(self.img, 1, 0x5eb7a, cand))
+        # absorbing one padding byte (candidate ending in 00) is refused
+        self.assertFalse(match.object_end_confirmed(self.img, 1, 0x5eb7b, cand + b"\x00"))
+        # an end inside the function, followed by non-zero bytes, is refused
+        self.assertFalse(match.object_end_confirmed(self.img, 1, 0x5eb70, cand[:-10]))
+
+
 if __name__ == "__main__":
     unittest.main()

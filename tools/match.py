@@ -46,6 +46,25 @@ MD = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
 DATA_HOLES_ARE_ZERO = True
 
 
+def object_end_confirmed(img, obj, oend, cand, binds=None):
+    """Extent end of a segment's LAST public (2026-11-26): the object's code ends there and the linker zero-pads
+    up to the next module's aligned contribution. True only when every oracle byte from oend up to an
+    independently known boundary B is zero and carries no fixup, B is exactly oend rounded up to an alignment of
+    2, 4, 8 or 16 (minimal padding, so no code can hide in it), and the candidate does not itself end in a zero
+    byte (otherwise a candidate could absorb padding and claim a longer extent)."""
+    if not cand or cand[-1] == 0:
+        return False
+    data = img.obj[obj]
+    for gap in range(1, 16):
+        p = oend + gap - 1
+        if p >= len(data) or data[p] != 0 or (obj, p) in img.fixups:
+            return False
+        b = oend + gap
+        if img.is_boundary(obj, b, binds):
+            return any(b == -(-oend // a) * a for a in (2, 4, 8, 16))
+    return False
+
+
 def data_covered(seg, a=0, b=None):
     """True when [a, b) of a data segment is defined: emitted bytes, or holes the linker zero-fills."""
     b = seg.size if b is None else b
@@ -564,7 +583,9 @@ def verify_object(img, mod, only=None, seg_report=None):
             # end of the oracle object.
             oend = paddr + len(cand)
             nxt_bound = binds.lookup(pubs[k + 1][1])[0] if k + 1 < len(pubs) else None
-            if not (nxt_bound == (pobj, oend) or img.is_boundary(pobj, oend, binds)):
+            object_end_ok = k + 1 >= len(pubs) and end == seg.size and \
+                object_end_confirmed(img, pobj, oend, cand, binds)
+            if not (nxt_bound == (pobj, oend) or img.is_boundary(pobj, oend, binds) or object_end_ok):
                 res["unverified"].append(f"extent end {pobj}:{oend:05x} is not a confirmed function boundary")
             if diffs or res["problems"]:
                 res["status"] = "NEAR_MATCH"

@@ -88,6 +88,11 @@ Each entry names the command or artefact that supports it.
 - FIXED verifier gap found by the game worker: a candidate shorter than the original function could pass as STRICT.
   match.py now requires the extent end to be a confirmed boundary (bound next public, bound symbol, funcmap start
   or object end); negative control tests/test_match.py::test_truncated_candidate.
+- ADDED (2026-11-26) module-last extent rule: the last public of a segment may end before a zero-padding gap when
+  every gap byte is zero without fixups, the next known boundary is exactly the end rounded up to 2/4/8/16
+  (minimal padding) and the candidate's last byte is non-zero (it cannot absorb padding). Controls:
+  tests/test_match.py::ObjectEndControls (positive DPMI_UnlockMemory; truncated segment and absorbed-padding
+  negatives). Turns the audiolib "terminal extent" CODE_BYTES_MATCH cases STRICT; no verifier check was removed.
 
 ## Audio library (audio worker 2026-11-26, integrated; details docs/AUDIOLIB.md)
 - PROVEN audio region 1:49c84-62d8d holds 56 code members in link order: Creative PAWE32 (MetaWare High C, 4),

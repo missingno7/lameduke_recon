@@ -6,41 +6,40 @@ Run `python tools/gate.py` then `python tools/status.py` for live numbers.
 | Unit | Functions | STRICT | STRICT bytes |
 |---|---:|---:|---:|
 | a_asm | 20 | 20 | 3,520 |
-| engine | 102 | 65 | 31,720 |
+| engine | 103 | 81 | 38,423 |
 | ass_adlibfx | 13 | 12 | 1,473 |
-| ass_al_midi | 26 | 22 | 2,948 |
-| ass_awe32 | 13 | 12 | 2,032 |
-| ass_blastold | 51 | 48 | 6,200 |
-| ass_dma | 7 | 5 | 752 |
-| ass_dpmi | 7 | 6 | 324 |
-| ass_fx_man | 15 | 12 | 2,184 |
-| ass_gmtimbre | 0 | 0 | 0 |
-| ass_gus | 4 | 3 | 406 |
+| ass_al_midi | 26 | 23 | 3,156 |
+| ass_awe32 | 13 | 13 | 2,263 |
+| ass_blastold | 51 | 49 | 6,441 |
+| ass_dma | 7 | 6 | 859 |
+| ass_dpmi | 7 | 7 | 410 |
+| ass_fx_man | 15 | 13 | 2,275 |
+| ass_gus | 4 | 4 | 509 |
 | ass_gusmidi | 14 | 11 | 598 |
-| ass_guswave | 18 | 13 | 1,240 |
-| ass_irq | 5 | 4 | 756 |
-| ass_ll_man | 5 | 4 | 156 |
-| ass_midi | 26 | 25 | 4,132 |
-| ass_mpu401 | 15 | 14 | 492 |
-| ass_multivoc | 36 | 31 | 6,115 |
+| ass_guswave | 18 | 14 | 1,366 |
+| ass_irq | 5 | 5 | 956 |
+| ass_ll_man | 5 | 5 | 185 |
+| ass_midi | 26 | 26 | 4,392 |
+| ass_mpu401 | 15 | 15 | 605 |
+| ass_multivoc | 36 | 34 | 7,122 |
 | ass_music | 22 | 21 | 1,649 |
-| ass_pas16 | 42 | 40 | 5,548 |
-| ass_pcfx | 14 | 12 | 1,040 |
-| ass_pitch | 5 | 4 | 348 |
-| ass_sndsrc | 17 | 13 | 1,032 |
-| ass_task_man | 18 | 14 | 1,576 |
-| ass_user | 2 | 1 | 92 |
+| ass_pas16 | 42 | 41 | 6,074 |
+| ass_pcfx | 14 | 13 | 1,311 |
+| ass_pitch | 5 | 5 | 461 |
+| ass_sndsrc | 17 | 14 | 1,354 |
+| ass_task_man | 18 | 15 | 1,785 |
+| ass_user | 2 | 2 | 188 |
 | game_sounds | 13 | 12 | 1,467 |
 | game_gamedef | 14 | 9 | 1,712 |
 | multi | 25 | 18 | 3,164 |
-| multi_data | 0 | 0 | 0 |
-| game_menues | 11 | 6 | 1,146 |
+| game_menues | 11 | 8 | 2,794 |
 | game_sector | 18 | 9 | 2,462 |
-| game_player | 8 | 1 | 304 |
-| game_game | 61 | 25 | 6,749 |
-| game_actors | 18 | 7 | 1,552 |
+| game_player | 8 | 2 | 704 |
+| game_game | 49 | 27 | 13,824 |
+| game_premap | 12 | 4 | 1,533 |
+| game_actors | 18 | 10 | 3,760 |
 
-Totals: 499 STRICT / 665 functions, 94,889 bytes; LameDuke 172 STRICT (53,796 bytes); Apogee Sound System 327 (41,093 bytes).
+Totals: 548 STRICT / 666 functions, 118,795 bytes; LameDuke 200 STRICT (73,363 bytes); Apogee Sound System 348 (45,432 bytes); CODE_BYTES_MATCH 14; verified data 10,530 bytes, verified _BSS layout 714,205 bytes.
 
 Identified, not reconstructed: Watcom 9.5b runtime (docs/RUNTIME_CENSUS.md), Creative AWE32 and Gravis GF1 vendor objects (docs/AUDIOLIB.md).
 
