@@ -356,9 +356,10 @@ class AllocatorTrace(Debugger):
 
 
 def worker_output(path):
+    # Any path under the ignored build/ tree is fine (workers write into build/workers/<name>/).
     path = Path(path).resolve()
-    if not path.is_relative_to(WORKER.resolve()):
-        raise ValueError(f"output must be under {WORKER}")
+    if not path.is_relative_to((ROOT / "build").resolve()):
+        raise ValueError(f"output must be under {ROOT / 'build'}")
     return path
 
 

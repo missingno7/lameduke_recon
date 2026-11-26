@@ -249,8 +249,10 @@ void activatewarpelevators(short i, short direction)
         spritesound(SOUND_LIFT_START, i);
 
     for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
-        if (sprite[j].lotag == 17 && sprite[j].hitag == sprite[i].hitag)
-            hittype[j][1] = hittype[j][0] = direction;
+        if (sprite[j].lotag == 17 && sprite[j].hitag == sprite[i].hitag) {
+            hittype[j][0] = direction;
+            hittype[j][1] = direction;
+        }
 }
 
 void operatesectors(short sn, short source)
@@ -566,7 +568,7 @@ elevator_up:
 
 void operateactivators(short lotag)
 {
-    short i, sn, source;
+    short i;
 
     i = headspritestat[8];
     while (i >= 0) {
@@ -574,9 +576,7 @@ void operateactivators(short lotag)
         if (sprite[i].picnum == 23) {
             sector[sprite[i].sectnum].lotag ^= 0x4000;
         } else {
-            sn = sprite[i].sectnum;
-            source = i;
-            operatesectors(sn, source);
+            operatesectors(sprite[i].sectnum, i);
         }
         }
         i = nextspritestat[i];
@@ -595,8 +595,6 @@ void operatemasterswitches(short lotag)
 void operateforcefields(short lotag)
 {
     short i, w;
-    long sn;
-    unsigned char pal;
 
     for (i = 0; i < numanimwalls; i++) {
         w = animwall[i].wallnum;
@@ -606,14 +604,13 @@ void operateforcefields(short lotag)
                 animwall[i].tag = 0;
                 if (wall[w].cstat) {
                     wall[w].cstat = 0;
-                    sn = wall[w].nextsector;
-                    pal = 0;
+                    sector[wall[w].nextsector].floorpal = 0;
+                    sector[wall[w].nextsector].ceilingpal = 0;
                 } else {
                     wall[w].cstat = 85;
-                    sn = wall[w].nextsector;
-                    pal = 2;
+                    sector[wall[w].nextsector].floorpal = 2;
+                    sector[wall[w].nextsector].ceilingpal = 2;
                 }
-                sector[sn].ceilingpal = sector[sn].floorpal = pal;
                 break;
             }
         }
@@ -744,8 +741,6 @@ void playerkeys(short p)
             ps[p].game_mode |= 1;
         }
     } else if (player_bits[p] & 0x800000) {
-        short i, w;
-
         FTA(11);
         for (sn = 0; sn < numsectors; sn++) {
             switch ((short)(sector[sn].lotag & 0xfff)) {
@@ -759,22 +754,7 @@ void playerkeys(short p)
                 break;
             }
         }
-        for (i = 0; i < numanimwalls; i++) {
-            w = animwall[i].wallnum;
-            switch (wall[w].overpicnum) {
-            case FORCEFIELD: case FORCEFIELD + 1: case FORCEFIELD + 2:
-                animwall[i].tag = 0;
-                if (wall[w].cstat) {
-                    wall[w].cstat = 0;
-                    sector[wall[w].nextsector].ceilingpal = 0;
-                    sector[wall[w].nextsector].floorpal = 0;
-                } else {
-                    wall[w].cstat = 85;
-                    sector[wall[w].nextsector].ceilingpal = sector[wall[w].nextsector].floorpal = 2;
-                }
-                break;
-            }
-        }
+        operateforcefields(-1);
     }
 }
 
@@ -782,6 +762,7 @@ void checkhitswitch(long w)
 {
 {
     short i, j, lotag;
+    walltype *wal;
 
     switch (wall[w].picnum) {
     case 395: case 396: case 405: case 406:
@@ -791,14 +772,14 @@ void checkhitswitch(long w)
     }
     lotag = wall[w].lotag;
     for (i = 0; i < numanimwalls; i++) {
-        j = animwall[i].wallnum;
-        if (lotag == wall[j].lotag)
-            switch (wall[j].picnum) {
+        wal = &wall[animwall[i].wallnum];
+        if (lotag == wal->lotag)
+            switch (wal->picnum) {
             case 395: case 405:
-                wall[j].picnum++;
+                wal->picnum++;
                 break;
             case 396: case 406:
-                wall[j].picnum--;
+                wal->picnum--;
                 break;
             }
     }
@@ -838,9 +819,8 @@ void checkhitswitch(long w)
 
 void checkhitwall(long w, long x, long y, long z, short weapon)
 {
-    short sn, i, j, k, end, next;
-    long shade;
-    signed char floor_shade, ceiling_shade;
+    short sn, i, j, k, startwall, endwall, nextj, shade;
+    signed char ceiling_shade, floor_shade;
 
     switch (wall[w].overpicnum) {
     case 179:
@@ -891,37 +871,36 @@ void checkhitwall(long w, long x, long y, long z, short weapon)
         if (wall[w].picnum == 212) wall[w].picnum = 671;
 
         sn = wall[w].nextsector;
-        j = sector[sn].wallptr;
-        end = j + sector[sn].wallnum;
+        startwall = sector[sn].wallptr;
+        endwall = startwall + sector[sn].wallnum;
         shade = 0;
-        for (; j < end; j++)
+        for (j = startwall; j < endwall; j++)
             if (wall[j].shade > shade)
                 shade = wall[j].shade;
         floor_shade = sector[sn].floorshade;
         ceiling_shade = sector[sn].ceilingshade;
         for (i = headspritestat[3]; i >= 0; i = nextspritestat[i])
-            if (wall[w].lotag == sprite[i].hitag && sprite[i].lotag == 3) {
+            if (sprite[i].hitag == wall[w].lotag && sprite[i].lotag == 3) {
                 hittype[i][3] = shade;
                 hittype[i][4] = 1;
             }
         for (i = 0; i < numsectors; i++)
-            if (i != sn && wall[w].lotag == sector[i].hitag) {
+            if (i != sn && sector[i].hitag == wall[w].lotag) {
                 sector[i].floorpal = 0;
                 sector[i].ceilingpal = 0;
-                for (j = headspritesect[i]; j >= 0; j = next) {
-                    next = nextspritesect[j];
+                for (j = headspritesect[i]; j >= 0; j = nextj) {
+                    nextj = nextspritesect[j];
                     if (sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 8 || sprite[j].lotag == 9))
                         deletesprite(j);
                 }
                 sector[i].floorshade = floor_shade;
                 sector[i].ceilingshade = ceiling_shade;
-                k = sector[i].wallptr;
-                end = k + sector[i].wallnum;
-                for (; k < end; k++) {
-                    next = wall[k].nextwall;
-                    wall[k].shade = (signed char)shade;
-                    if (next >= 0)
-                        wall[next].shade = (signed char)shade;
+                startwall = sector[i].wallptr;
+                endwall = startwall + sector[i].wallnum;
+                for (k = startwall; k < endwall; k++) {
+                    wall[k].shade = shade;
+                    if (wall[k].nextwall >= 0)
+                        wall[wall[k].nextwall].shade = shade;
                 }
             }
         break;
@@ -930,60 +909,54 @@ void checkhitwall(long w, long x, long y, long z, short weapon)
 
 char checkhitceiling(short sn)
 {
-    short i, j, end, next, shade, best, ceiling;
+    short best, ceiling, shade, i, j, startwall, endwall;
     signed char floor_shade, ceiling_shade;
 
     if (sector[sn].hitag == 0)
-        goto no_hit;
+        return 0;
     switch (sector[sn].ceilingpicnum) {
     case 35: case 36: case 26: case 212:
         if (sector[sn].ceilingpicnum == 35) sector[sn].ceilingpicnum = 664;
         if (sector[sn].ceilingpicnum == 36) sector[sn].ceilingpicnum = 665;
         if (sector[sn].ceilingpicnum == 26) sector[sn].ceilingpicnum = 670;
         if (sector[sn].ceilingpicnum == 212) sector[sn].ceilingpicnum = 671;
-        break;
-    default:
-        goto no_hit;
-    }
 
-    ceiling = sector[sn].ceilingshade;
-    for (i = headspritestat[3]; i >= 0; i = nextspritestat[i])
-        if (sprite[i].hitag == sector[sn].hitag && sprite[i].lotag == 3)
-            hittype[i][4] = 1;
-    /* The original assigns best only after finding a darker linked ceiling. */
-    for (i = 0; i < numsectors; i++)
-        if (i != sn && sector[i].hitag == sector[sn].hitag && ceiling < sector[i].ceilingshade) {
-            ceiling = sector[i].ceilingshade;
-            best = i;
-        }
-
-    floor_shade = sector[best].floorshade;
-    ceiling_shade = sector[best].ceilingshade;
-    j = sector[best].wallptr;
-    end = j + sector[best].wallnum;
-    shade = 0;
-    for (; j < end; j++)
-        if (shade < wall[j].shade)
-            shade = wall[j].shade;
-
-    for (i = 0; i < numsectors; i++)
-        if (i != best && sector[i].hitag == sector[sn].hitag) {
-            sector[i].floorshade = floor_shade;
-            sector[i].floorpal = 0;
-            sector[i].ceilingshade = ceiling_shade;
-            j = sector[i].wallptr;
-            end = j + sector[i].wallnum;
-            sector[i].ceilingpal = 0;
-            for (; j < end; j++) {
-                next = wall[j].nextwall;
-                wall[j].shade = (signed char)shade;
-                if (next >= 0)
-                    wall[next].shade = (signed char)shade;
+        ceiling = sector[sn].ceilingshade;
+        for (i = headspritestat[3]; i >= 0; i = nextspritestat[i])
+            if (sprite[i].hitag == sector[sn].hitag && sprite[i].lotag == 3)
+                hittype[i][4] = 1;
+        /* The original assigns best only after finding a darker linked ceiling. */
+        for (i = 0; i < numsectors; i++)
+            if (i != sn && sector[i].hitag == sector[sn].hitag && ceiling < sector[i].ceilingshade) {
+                ceiling = sector[i].ceilingshade;
+                best = i;
             }
-        }
-    return 1;
 
-no_hit:
+        floor_shade = sector[best].floorshade;
+        ceiling_shade = sector[best].ceilingshade;
+        startwall = sector[best].wallptr;
+        endwall = startwall + sector[best].wallnum;
+        shade = 0;
+        for (j = startwall; j < endwall; j++)
+            if (shade < wall[j].shade)
+                shade = wall[j].shade;
+
+        for (i = 0; i < numsectors; i++)
+            if (i != best && sector[i].hitag == sector[sn].hitag) {
+                sector[i].floorshade = floor_shade;
+                sector[i].floorpal = 0;
+                sector[i].ceilingshade = ceiling_shade;
+                sector[i].ceilingpal = 0;
+                startwall = sector[i].wallptr;
+                endwall = startwall + sector[i].wallnum;
+                for (j = startwall; j < endwall; j++) {
+                    wall[j].shade = shade;
+                    if (wall[j].nextwall >= 0)
+                        wall[wall[j].nextwall].shade = shade;
+                }
+            }
+        return 1;
+    }
     return 0;
 }
 
