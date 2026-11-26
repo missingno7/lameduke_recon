@@ -140,9 +140,8 @@ EXTERN char parallaxtype;
 EXTERN char visibility;
 EXTERN short pskyoff[MAXPSKYTILES], pskybits;
 EXTERN char *palookup[MAXPALOOKUPS];
-EXTERN char gotsector[MAXSECTORS>>3], show2dsector[MAXSECTORS>>3];
+EXTERN char gotsector[MAXSECTORS>>3];
 EXTERN char vidoption;
-EXTERN long xdim, ydim, ylookup[MAXYDIM+1], numpages, yxaspect, xyaspect;
 EXTERN long parallaxyoffs;
 
 EXTERN long scaredfallz;

@@ -5371,6 +5371,38 @@
    "OctavePitch": {
     "addr": "2:09d00",
     "evidence": "audio worker 2026-11-26: AL lock record for eight 32-bit octaves"
+   },
+   "enginetempbuf": {
+    "addr": "2:132d90",
+    "evidence": "engine worker 2026-11-26: drawrooms uses the byte array to mark processed bunches. screencapture passes its base to write at each 256-byte flush and for the final partial buffer. The byte stores reference base minus one after the index has advanced. 13 exact-address fixup sites (drawrooms 1:3419c, screencapture 1:3b7a8)."
+   },
+   "numhits": {
+    "addr": "2:1bde54",
+    "evidence": "engine worker 2026-11-26: drawrooms initializes this short to xdimen. drawalls decrements it for each closed column and tests for an exhausted span. 9 exact-address fixup sites (drawrooms 1:34144, drawalls 1:35f70)."
+   },
+   "rx1": {
+    "addr": "2:e8590",
+    "evidence": "engine worker 2026-11-26: addboxlinum stores the un-clipped left endpoint X. calcwalls reads this array in its left numerator and the endpoint delta. 9 exact-address fixup sites (calcwalls 1:34b4e, addboxlinum 1:36fcd, drawmaskwall 1:3c41d, wallmost 1:4662c)."
+   },
+   "rx2": {
+    "addr": "2:ec590",
+    "evidence": "engine worker 2026-11-26: addboxlinum stores the un-clipped right endpoint X. calcwalls subtracts this value from the left endpoint to derive the wall delta. 5 exact-address fixup sites (calcwalls 1:34b96, addboxlinum 1:36fde, drawmaskwall 1:3c474, wallmost 1:46644)."
+   },
+   "ry2": {
+    "addr": "2:f6590",
+    "evidence": "engine worker 2026-11-26: addboxlinum stores the un-clipped right endpoint depth in this dword array. calcwalls subtracts the left depth to form its wall interpolation step. 5 exact-address fixup sites (calcwalls 1:34b8b, addboxlinum 1:36fba, drawmaskwall 1:3c464, wallmost 1:46626)."
+   },
+   "smostcnt": {
+    "addr": "2:1bde76",
+    "evidence": "engine worker 2026-11-26: drawrooms clears the short. drawalls uses it as the offset into smost, checks capacity against 40960 entries, and increments it as each clip sample is written. 17 exact-address fixup sites (drawrooms 1:34175, drawalls 1:36083)."
+   },
+   "thesector": {
+    "addr": "2:f0590",
+    "evidence": "engine worker 2026-11-26: addboxlinum stores the sector argument in the short array for the projected wall. calcwalls, drawalls and drawmaskwall retrieve it by scan index. 4 exact-address fixup sites (calcwalls 1:34959, drawalls 1:35d24, addboxlinum 1:36fb1, drawmaskwall 1:3c342)."
+   },
+   "yb2": {
+    "addr": "2:e0590",
+    "evidence": "engine worker 2026-11-26: addboxlinum stores the right clipped depth. calcwalls divides its fixed-point scale by the same right-end depth. 14 exact-address fixup sites (calcwalls 1:34a0b, addboxlinum 1:36f0e, drawmaskwall 1:3c60d, drawsprite 1:3d055)."
    }
   }
  }

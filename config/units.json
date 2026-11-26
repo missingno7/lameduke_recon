@@ -101,7 +101,7 @@
      "status": "NEAR_MATCH"
     },
     "drawalls": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "addboxlinum": {
      "status": "NEAR_MATCH"
@@ -113,19 +113,19 @@
      "status": "STRICT"
     },
     "wallscan": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "maskwallscan": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "transmaskwallscan": {
      "status": "STRICT"
     },
     "loadboard": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "saveboard": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "loadtables": {
      "status": "STRICT"
@@ -143,19 +143,19 @@
      "status": "NEAR_MATCH"
     },
     "initengine": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "uninitengine": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "nextpage": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "initcache": {
      "status": "NEAR_MATCH"
     },
     "allocache": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "allocatepermanenttile": {
      "status": "STRICT"
@@ -179,7 +179,7 @@
      "status": "STRICT"
     },
     "getpixel16": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "screencapture": {
      "status": "NEAR_MATCH"
@@ -203,7 +203,7 @@
      "status": "STRICT"
     },
     "drawmasks": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "drawmaskwall": {
      "status": "NEAR_MATCH"
