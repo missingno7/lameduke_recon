@@ -1,0 +1,2 @@
+# Keep every byte exactly as written: compiler output can depend on source line endings.
+* -text
