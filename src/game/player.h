@@ -64,12 +64,12 @@ extern short sound_volume, disable_armor;
 extern long *actorscrptr[4096];
 
 extern int getangle(long x, long y);
-extern int getincangle_shift(short a, long b, short shift);
+extern int getincangle(short a, long b, short shift);
 extern long ksqrt(long square);
 extern long krand(void);
 extern long FX_SetVolume(long volume);
 extern void spritesound(short sound, short i);
-extern void draw_weapon_tile(long x, long y, long tile, short shade, long flags);
+extern void myos(long x, long y, long tile, short shade, long flags);
 extern void getmousevalues(short *x, short *y, short *buttons);
 extern void hitscan(long x, long y, long z, short sectnum, long xv, long yv, long zv,
     short *hitsect, short *hitwall, short *hitsprite, long *hitx, long *hity, long *hitz);
@@ -101,7 +101,7 @@ extern void addweapon(short p, short tile, short amount);
 void kickview(short p, short i);
 void spawn_pistol_tracer(short p);
 void shoot(short i, short tile, unsigned char move_to_hit);
-unsigned char displayraise(short shade, short p);
+unsigned char animateknuckles(short shade, short p);
 void displayweapon(short p);
 void getinput(short p);
 void update_air(short p);

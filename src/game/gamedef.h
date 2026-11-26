@@ -145,7 +145,7 @@ extern long klabs(long value);
 extern void fill_dwords(void *dest, unsigned long value, unsigned long count);
 #pragma aux fill_dwords "__STOSD" parm [eax] [edx] [ecx] modify exact [eax ecx edx];
 
-short getincangle_shift(short a, short na, short shift);
+short getincangle(short a, short na, short shift);
 char ispecial(char c);
 char isaltok(char c);
 void getlabel(void);

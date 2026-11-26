@@ -2390,10 +2390,6 @@
     "addr": "1:2c1bb",
     "evidence": "sounds worker 2026-11-26: Boundary after the oracle terminal ret at 2c1ba and before the five inter-object zero fill bytes."
    },
-   "getincangle_shift": {
-    "addr": "1:2e700",
-    "evidence": "gamedef worker 2026-11-26: Direct calls from projectile steering and execute. Both pass a shift in BX and consume the signed angle step."
-   },
    "ispecial": {
     "addr": "1:2e740",
     "evidence": "gamedef worker 2026-11-26: Whitespace and line counting body. Called by getlabel and inlined in parsecommand."
@@ -2890,10 +2886,6 @@
     "addr": "1:2c430",
     "evidence": "menues worker 2026-11-26: Independent prologue following initmenus return and instruction fill. Draws 32 segments with tiles 678/679 and edits a short through the third argument."
    },
-   "drawmenu": {
-    "addr": "1:2c590",
-    "evidence": "menues worker 2026-11-26: Direct calls from ten menus branches. Renders descriptor text with selection-specific shade."
-   },
    "probe": {
     "addr": "1:2c6f0",
     "evidence": "menues worker 2026-11-26: Direct calls from ten menus branches; consumes a packed 15-byte descriptor and returns menu actions."
@@ -2905,10 +2897,6 @@
    "menus": {
     "addr": "1:2ccf0",
     "evidence": "menues worker 2026-11-26: Main and demo calls 1:5fbe, 7461, 8da8; dispatches menu state."
-   },
-   "draw_fade_transition": {
-    "addr": "1:2e060",
-    "evidence": "menues worker 2026-11-26: Title sequence call from 1:64a3; rotates tile 1139 using transition state."
    },
    "vscrn": {
     "addr": "1:2e0d0",
@@ -3030,10 +3018,6 @@
     "addr": "1:02630",
     "evidence": "sector worker 2026-11-26: Schedules a quote by its first argument and computes display duration from the 32-byte quote table. The routine selects screenpeek internally. Its callers include the secret-sector and shot-switch paths."
    },
-   "playerkeys": {
-    "addr": "1:19720",
-    "evidence": "sector worker 2026-11-26: Per-player input dispatch tests the independent player_bits array and handles view resize, pause, inventory toggles and menu selection. The input mode calls and data-field behavior distinguish this from checksectors."
-   },
    "displayrooms": {
     "addr": "1:04050",
     "evidence": "sector worker 2026-11-26: The GAME frame invokes this entry, which calls the bound engine room renderer, projects sprites and draws the player overlay."
@@ -3058,10 +3042,6 @@
     "addr": "1:1f410",
     "evidence": "player worker 2026-11-26: Starts after kickview return and compiler fill. Repeated hitscan and EGS tile 214 block in processinput independently identifies the body."
    },
-   "displayraise": {
-    "addr": "1:1fd20",
-    "evidence": "player worker 2026-11-26: Direct call at 1ff10 with shade and player. Uses the eleven-short frame initializer and draws tile 681 plus the frame."
-   },
    "displayweapon": {
     "addr": "1:1fe40",
     "evidence": "player worker 2026-11-26: GAME render call, aligned entry after the knee pull switch table, and six weapon-tile drawing cases."
@@ -3082,10 +3062,6 @@
     "addr": "1:2515c",
     "evidence": "player worker 2026-11-26: Return at 2515b, four zero bytes preceding the ACTORS initializer prefix."
    },
-   "draw_weapon_tile": {
-    "addr": "1:026c0",
-    "evidence": "player worker 2026-11-26: Callee forwards x, y, tile, shade and flags to bound overwritesprite, selecting a palette from current sector or screen player. GAME and PLAYER callers."
-   },
    "inittimer": {
     "addr": "1:00020",
     "evidence": "game2 worker 2026-11-26: Entry after GAME's private _TEXT constants and padding. Programs PIT and installs 1:002a0, with equivalent sequence in main."
@@ -3102,18 +3078,6 @@
     "addr": "1:00290",
     "evidence": "game2 worker 2026-11-26: Two direct calls from enterlevel bracket loadboard. Single ret, followed by compiler alignment."
    },
-   "update_timer_input": {
-    "addr": "1:000d0",
-    "evidence": "game2 worker 2026-11-26: Save set begins after ret and compiler fill at uninittimer end. Repeated keyboard and axis processing in 1:002a0. Descriptive, provisional name."
-   },
-   "findlocator": {
-    "addr": "1:02e40",
-    "evidence": "game2 worker 2026-11-26: Four calls in moveeffectors use the locator index (sites 0c2a8, 0c7ef, 0c879 and 0c8a4). The callee follows status 7 by the canonical list base plus 14, and checks sprite sectnum and lotag."
-   },
-   "loadlookup": {
-    "addr": "1:03760",
-    "evidence": "game2 worker 2026-11-26: Direct calls from main and level preparation. Reads the lookup count and 256-byte remap records, then calls canonical makepalookup."
-   },
    "draw_water_distortion": {
     "addr": "1:03f50",
     "evidence": "game2 worker 2026-11-26: Camera-view callers and inlined variant in displayrooms identify the 320-byte stride framebuffer reflection effect."
@@ -3129,14 +3093,6 @@
    "write_userdefs": {
     "addr": "1:0b5d0",
     "evidence": "game2 worker 2026-11-26: Main exit-path call at 1:0786a. Reopens the same path, and three writes mirror the reader's block sizes and addresses."
-   },
-   "read_demo": {
-    "addr": "1:0b810",
-    "evidence": "game2 worker 2026-11-26: Playback calls before enterlevel. The serial read order and sizes agree with the demo files and the independently identified demo I/O writer."
-   },
-   "write_demo": {
-    "addr": "1:0b920",
-    "evidence": "game2 worker 2026-11-26: Main calls after recording. Serial writes invert the reader and transfer all five record streams. Raynorpat address annotation agrees."
    },
    "strget": {
     "addr": "1:02a40",
@@ -3162,18 +3118,6 @@
     "addr": "1:256e0",
     "evidence": "actors worker 2026-11-26: Distinct complete prologue and epilogue following nuke and its alignment. EGS tile 488 and the same three random masks and argument shape recur in the gib updates at 294e0."
    },
-   "movesector": {
-    "addr": "1:25750",
-    "evidence": "actors worker 2026-11-26: GAME sector effectors call this routine to advance a sector sprite, rotate its saved wall offsets, drag walls, and update the sprite position."
-   },
-   "wakeactors": {
-    "addr": "1:258c0",
-    "evidence": "actors worker 2026-11-26: Called by the GAME tic loop. Traverses status 2, uses cansee with the nearest player, and promotes visible sprites to status 1."
-   },
-   "effectinsect": {
-    "addr": "1:25be0",
-    "evidence": "actors worker 2026-11-26: GAME effector updates use the first status 5 non-casing sprite in the given sprite's sector. The callee tests status list 5, equal sector, and tile 214."
-   },
    "moveactors": {
     "addr": "1:25f10",
     "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. It traverses status 1, handles hard-coded actor tiles and passes other tiles to execute."
@@ -3182,17 +3126,9 @@
     "addr": "1:28f30",
     "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. It traverses status 4, clips projectiles and applies player damage before calling execute."
    },
-   "moveeffects": {
-    "addr": "1:294e0",
-    "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. It traverses status 5 and advances effects including tile 488 and gib animation tiles."
-   },
    "moveplayers": {
     "addr": "1:2a470",
     "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. It traverses status 10 and synchronizes sprites with positions from ps."
-   },
-   "movemusic": {
-    "addr": "1:2a860",
-    "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. Callee walks status 11 and selects music or ambient sound based on lotag and distance."
    },
    "movestandables": {
     "addr": "1:2ab90",
@@ -3206,10 +3142,6 @@
     "addr": "1:02850",
     "evidence": "game2 worker 2026-11-26: Raynorpat view.c 0x12850 and direct calls in display and level entry. Uses the canonical tile-width table, a smaller stride and matching glyph dispatch."
    },
-   "numtext_relative": {
-    "addr": "1:02930",
-    "evidence": "game2 worker 2026-11-26: Prologue after minitext return and 14-byte alignment. Calls bound ltoa at 02946 and uses the large glyph rules and gametext epilogue at 02844. Descriptive name."
-   },
    "numtext": {
     "addr": "1:03800",
     "evidence": "game2 worker 2026-11-26: Raynorpat view.c 0x13800 and the pinned ltoa call at 03816. The following loop uses the minitext glyph mapping."
@@ -3217,10 +3149,6 @@
    "numtext_fixed": {
     "addr": "1:038f0",
     "evidence": "game2 worker 2026-11-26: Entered by direct calls from main and demo playback. Calls pinned ltoa, measures the result and draws digits in reverse at six-pixel intervals. Descriptive name."
-   },
-   "draw_meter": {
-    "addr": "1:03970",
-    "evidence": "game2 worker 2026-11-26: Entry after 03969 return and alignment. Uses five-unit groups, the bound tile blitter and width table, then returns at 039f8 before the animatesprites table. Descriptive name."
    },
    "newscore": {
     "addr": "1:14e80",
@@ -3233,10 +3161,6 @@
    "render_sprite_camera": {
     "addr": "1:116b0",
     "evidence": "gameC worker 2026-11-26: Own save frame at 116b0 after rendertile's return and alignment. Reads sprite coordinates, sector, tile and angle, followed by two 96x96 copies as in render_camera_tile and render_mirror."
-   },
-   "reset_player_motion": {
-    "addr": "1:11f30",
-    "evidence": "gameC worker 2026-11-26: Dedicated prologue after resetplayer's return and fill. Direct callers pass a player index. Position reset and actor-script health initialization recur at resetplayer."
    },
    "prelevel": {
     "addr": "1:12210",
@@ -3253,10 +3177,6 @@
    "displaystatus": {
     "addr": "1:07890",
     "evidence": "gameC worker 2026-11-26: Called by enterlevel with myconnectindex and by the view path. Uses player ammo/health/score fields and HUD blits. See docs/units/game.md."
-   },
-   "moveloop": {
-    "addr": "1:01120",
-    "evidence": "gameC worker 2026-11-26: Entered by the level-entry call at 14ba8 and listed in docs/units/game.md; consumes synchronized input and connection list."
    },
    "cacheit": {
     "addr": "1:02fb0",
@@ -3286,18 +3206,6 @@
     "addr": "1:454c7",
     "evidence": "engfix worker 2026-11-26: font dispatch, planar/chained VGA path and linear path, and strlen at 1:45632; June 1995 ENGINE.C"
    },
-   "domovethings_multiplayer": {
-    "addr": "1:00d10",
-    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: direct call targets from main at 1:05daa, 1:0704a, 1:073f0; prologue after gameexit's exit jump and fill at 1:00d05-00d10; name from docs/units/game.md inventory"
-   },
-   "network_move_loop": {
-    "addr": "1:018c0",
-    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: no inbound reference; entry recovered after moveloop's ret and instruction fill ending at 1:018c0 (docs/units/game.md, recovered start); full save-set prologue"
-   },
-   "displayquotes": {
-    "addr": "1:02400",
-    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: direct call target at 1:05f4c (main); Raynorpat view.c cites 0x12400 displayquotes"
-   },
    "domovethings": {
     "addr": "1:08ea0",
     "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: direct call target from moveloop packet type 2 at 1:01325 and 1:016c7 after the master sync decode; docs/units/game.md inventory and Raynorpat actors.c name 0x18EA0 domovethings | gameB2 worker 2026-11-26: Direct calls from seven tick loops (1:01325, 1:016c7, 1:01a45, 1:021ea, 1:0596f, 1:05eb0, 1:07245); body calls the bound move* simulation routines in Duke order."
@@ -3310,33 +3218,13 @@
     "addr": "1:05570",
     "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Single direct call from main at 1:05bc4 passing main's argc/argv registers; body parses '/' flags and prints the distribution's command-line help strings (2:00294..)."
    },
-   "show_help": {
-    "addr": "1:054f0",
-    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Direct calls from checkcommandline at 1:05679 and 1:0579e immediately before exit(0); body puts the help lines 2:0013c-002b0."
-   },
    "nonsharedkeys": {
     "addr": "1:04cd0",
     "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Direct calls from main at 1:05e4e, 1:06061 and from 1:08211 once per frame; begins after displayrooms' ret and alignment (docs/units/game.md)."
    },
-   "draw_monitor_overlay": {
-    "addr": "1:0a420",
-    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Single direct call from main at 1:05f1f; body draws tiles 275-279 with the HUD shade."
-   },
-   "move_status9": {
-    "addr": "1:0ae90",
-    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Direct calls from 1:00ec8, 1:01e66, 1:06faf, 1:082c4; walks headspritestat[9]."
-   },
    "wait_for_players": {
     "addr": "1:057c0",
     "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: No inbound reference; start recovered after the ret at 1:057b2 and instruction fill (docs/units/game.md); prologue and complete exit up to 1:05b60."
-   },
-   "playback_demo": {
-    "addr": "1:081c0",
-    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: No inbound reference; start follows displaystatus' exactly aligned ret at 1:081bf with its own prologue (docs/units/game.md)."
-   },
-   "spawn_random_effects": {
-    "addr": "1:0acb0",
-    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: No inbound reference; start recovered after displayhighscores' ret and fill (docs/units/game.md); prologue saves AX/DX arguments."
    },
    "initlava": {
     "addr": "1:2e120",
@@ -3345,6 +3233,118 @@
    "movelava": {
     "addr": "1:2e200",
     "evidence": "Ken-Build GAME.C movelava (Ken's text with 16 drops/base colour 64 is STRICT, 1,248 B); kengame worker 2026-11-26"
+   },
+   "keytimerstuff": {
+    "addr": "1:000d0",
+    "evidence": "game2 worker 2026-11-26: Save set begins after ret and compiler fill at uninittimer end. Repeated keyboard and axis processing in 1:002a0. Descriptive, provisional name. | renamed from update_timer_input (docs/RENAMES.md)"
+   },
+   "getpackets": {
+    "addr": "1:00d10",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: direct call targets from main at 1:05daa, 1:0704a, 1:073f0; prologue after gameexit's exit jump and fill at 1:00d05-00d10; name from docs/units/game.md inventory | renamed from domovethings_multiplayer (docs/RENAMES.md)"
+   },
+   "waitforeverybody": {
+    "addr": "1:01120",
+    "evidence": "gameC worker 2026-11-26: Entered by the level-entry call at 14ba8 and listed in docs/units/game.md; consumes synchronized input and connection list. | renamed from moveloop (docs/RENAMES.md)"
+   },
+   "sync": {
+    "addr": "1:018c0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: no inbound reference; entry recovered after moveloop's ret and instruction fill ending at 1:018c0 (docs/units/game.md, recovered start); full save-set prologue | renamed from network_move_loop (docs/RENAMES.md)"
+   },
+   "operatefta": {
+    "addr": "1:02400",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: direct call target at 1:05f4c (main); Raynorpat view.c cites 0x12400 displayquotes | renamed from displayquotes (docs/RENAMES.md)"
+   },
+   "myos": {
+    "addr": "1:026c0",
+    "evidence": "player worker 2026-11-26: Callee forwards x, y, tile, shade and flags to bound overwritesprite, selecting a palette from current sector or screen player. GAME and PLAYER callers. | renamed from draw_weapon_tile (docs/RENAMES.md)"
+   },
+   "gamenumber": {
+    "addr": "1:02930",
+    "evidence": "game2 worker 2026-11-26: Prologue after minitext return and 14-byte alignment. Calls bound ltoa at 02946 and uses the large glyph rules and gametext epilogue at 02844. Descriptive name. | renamed from numtext_relative (docs/RENAMES.md)"
+   },
+   "LocateTheLocator": {
+    "addr": "1:02e40",
+    "evidence": "game2 worker 2026-11-26: Four calls in moveeffectors use the locator index (sites 0c2a8, 0c7ef, 0c879 and 0c8a4). The callee follows status 7 by the canonical list base plus 14, and checks sprite sectnum and lotag. | renamed from findlocator (docs/RENAMES.md)"
+   },
+   "genspriteremaps": {
+    "addr": "1:03760",
+    "evidence": "game2 worker 2026-11-26: Direct calls from main and level preparation. Reads the lookup count and 256-byte remap records, then calls canonical makepalookup. | renamed from loadlookup (docs/RENAMES.md)"
+   },
+   "scratchmarks": {
+    "addr": "1:03970",
+    "evidence": "game2 worker 2026-11-26: Entry after 03969 return and alignment. Uses five-unit groups, the bound tile blitter and width table, then returns at 039f8 before the animatesprites table. Descriptive name. | renamed from draw_meter (docs/RENAMES.md)"
+   },
+   "comlinehelp": {
+    "addr": "1:054f0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Direct calls from checkcommandline at 1:05679 and 1:0579e immediately before exit(0); body puts the help lines 2:0013c-002b0. | renamed from show_help (docs/RENAMES.md)"
+   },
+   "playback": {
+    "addr": "1:081c0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: No inbound reference; start follows displaystatus' exactly aligned ret at 1:081bf with its own prologue (docs/units/game.md). | renamed from playback_demo (docs/RENAMES.md)"
+   },
+   "cameratext": {
+    "addr": "1:0a420",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Single direct call from main at 1:05f1f; body draws tiles 275-279 with the HUD shade. | renamed from draw_monitor_overlay (docs/RENAMES.md)"
+   },
+   "lotsofglass": {
+    "addr": "1:0acb0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: No inbound reference; start recovered after displayhighscores' ret and fill (docs/units/game.md); prologue saves AX/DX arguments. | renamed from spawn_random_effects (docs/RENAMES.md)"
+   },
+   "movetransports": {
+    "addr": "1:0ae90",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Direct calls from 1:00ec8, 1:01e66, 1:06faf, 1:082c4; walks headspritestat[9]. | renamed from move_status9 (docs/RENAMES.md)"
+   },
+   "opendemoread": {
+    "addr": "1:0b810",
+    "evidence": "game2 worker 2026-11-26: Playback calls before enterlevel. The serial read order and sizes agree with the demo files and the independently identified demo I/O writer. | renamed from read_demo (docs/RENAMES.md)"
+   },
+   "closedemowrite": {
+    "addr": "1:0b920",
+    "evidence": "game2 worker 2026-11-26: Main calls after recording. Serial writes invert the reader and transfer all five record streams. Raynorpat address annotation agrees. | renamed from write_demo (docs/RENAMES.md)"
+   },
+   "resetprestat": {
+    "addr": "1:11f30",
+    "evidence": "gameC worker 2026-11-26: Dedicated prologue after resetplayer's return and fill. Direct callers pass a player index. Position reset and actor-script health initialization recur at resetplayer. | renamed from reset_player_motion (docs/RENAMES.md)"
+   },
+   "cheatkeys": {
+    "addr": "1:19720",
+    "evidence": "sector worker 2026-11-26: Per-player input dispatch tests the independent player_bits array and handles view resize, pause, inventory toggles and menu selection. The input mode calls and data-field behavior distinguish this from checksectors. | renamed from playerkeys (docs/RENAMES.md)"
+   },
+   "animateknuckles": {
+    "addr": "1:1fd20",
+    "evidence": "player worker 2026-11-26: Direct call at 1ff10 with shade and player. Uses the eleven-short frame initializer and draws tile 681 plus the frame. | renamed from displayraise (docs/RENAMES.md)"
+   },
+   "ms": {
+    "addr": "1:25750",
+    "evidence": "actors worker 2026-11-26: GAME sector effectors call this routine to advance a sector sprite, rotate its saved wall offsets, drag walls, and update the sprite position. | renamed from movesector (docs/RENAMES.md)"
+   },
+   "movefta": {
+    "addr": "1:258c0",
+    "evidence": "actors worker 2026-11-26: Called by the GAME tic loop. Traverses status 2, uses cansee with the nearest player, and promotes visible sprites to status 1. | renamed from wakeactors (docs/RENAMES.md)"
+   },
+   "ifhitsectors": {
+    "addr": "1:25be0",
+    "evidence": "actors worker 2026-11-26: GAME effector updates use the first status 5 non-casing sprite in the given sprite's sector. The callee tests status list 5, equal sector, and tile 214. | renamed from effectinsect (docs/RENAMES.md)"
+   },
+   "moveexplosions": {
+    "addr": "1:294e0",
+    "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. It traverses status 5 and advances effects including tile 488 and gib animation tiles. | renamed from moveeffects (docs/RENAMES.md)"
+   },
+   "movefx": {
+    "addr": "1:2a860",
+    "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. Callee walks status 11 and selects music or ambient sound based on lotag and distance. | renamed from movemusic (docs/RENAMES.md)"
+   },
+   "menutext": {
+    "addr": "1:2c590",
+    "evidence": "menues worker 2026-11-26: Direct calls from ten menus branches. Renders descriptor text with selection-specific shade. | renamed from drawmenu (docs/RENAMES.md)"
+   },
+   "draw_pause_sign": {
+    "addr": "1:2e060",
+    "evidence": "menues worker 2026-11-26: Title sequence call from 1:64a3; rotates tile 1139 using transition state. | renamed from draw_fade_transition (docs/RENAMES.md)"
+   },
+   "getincangle": {
+    "addr": "1:2e700",
+    "evidence": "gamedef worker 2026-11-26: Direct calls from projectile steering and execute. Both pass a shift in BX and consume the signed angle step. | renamed from getincangle_shift (docs/RENAMES.md)"
    }
   },
   "data": {

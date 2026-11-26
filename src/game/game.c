@@ -126,7 +126,7 @@ extern char music_files[4][10][13];
 extern long krand(void);
 extern long ksqrt(long square);
 extern long getangle(long x, long y);
-extern long getincangle_shift(short angle, short target, short shift);
+extern long getincangle(short angle, short target, short shift);
 extern long setsprite(short i, long x, long y, long z);
 extern int deletesprite(short i);
 extern int changespritestat(short i, short stat);
@@ -136,8 +136,8 @@ extern short nextsectorneighborz(short sect, long z, short plane, short directio
 extern short findplayer(short i, long *distance);
 extern long ifhitbyweapon(short i);
 extern long getanimationgoal(long *goal);
-extern long effectinsect(short i);
-extern void movesector(short i);
+extern long ifhitsectors(short i);
+extern void ms(short i);
 extern void nuke(long x, long y, long z, short i);
 extern void operatesectors(short sect, short i);
 extern void activatewarpelevators(short i, short direction);
@@ -210,16 +210,16 @@ extern void sendpacket(long other, unsigned char *buffer, long length);
 extern long getoutputcirclesize(void);
 extern void getinput(short p);
 extern void doanimations(long tics);
-extern void moveeffects(void);
-extern void playerkeys(short p);
+extern void moveexplosions(void);
+extern void cheatkeys(short p);
 extern void processinput(short p);
 extern void checksectors(short p);
 extern void moveplayers(void);
 extern void moveweapons(void);
 extern void movestandables(void);
-extern void wakeactors(void);
+extern void movefta(void);
 extern void moveactors(void);
-extern void movemusic(void);
+extern void movefx(void);
 
 struct animwall_entry {
     short wallnum;
@@ -280,7 +280,7 @@ extern int FX_SetCallBack(void (*function)(unsigned long));
 extern void FX_SetVolume(int volume), MUSIC_SetVolume(int volume);
 extern int MUSIC_Init(int card, int address);
 extern void TestCallBack(unsigned long number);
-extern void draw_fade_transition(void);
+extern void draw_pause_sign(void);
 /* Bonus-screen tally marks, x/y pairs, eight per episode (2:02304, GAME _DATA). */
 short bonus_marks[3][16] = {
     { 9, 60, 61, 82, 84, 57, 85, 112, 300, 64, 261, 83, 223, 97, 0, 0 },
@@ -346,7 +346,7 @@ void uninittimer(void)
 #define held(binding, scan) \
     ((keystatus[keys[binding]] | keystatus[scan] | keystatus[(scan) + 128]) > 0)
 
-void update_timer_input(void)
+void keytimerstuff(void)
 {
     if (!keystatus[keys[5]]) {
         if (held(2, 0x4b)) {
@@ -426,14 +426,14 @@ void level_load_hook(void)
 void __interrupt __far timerhandler(void)
 {
     totalclock++;
-    update_timer_input();
+    keytimerstuff();
     if (option[2] != 0) {
         totalclock += 5;
-        update_timer_input();
-        update_timer_input();
-        update_timer_input();
-        update_timer_input();
-        update_timer_input();
+        keytimerstuff();
+        keytimerstuff();
+        keytimerstuff();
+        keytimerstuff();
+        keytimerstuff();
     }
     outp(0x20, 0x20);
 }
@@ -457,7 +457,7 @@ void gameexit(char *message)
     exit(0);
 }
 
-void domovethings_multiplayer(void)
+void getpackets(void)
 {
     short other, packbufleng, p;
     long i, j, k;
@@ -529,7 +529,7 @@ void domovethings_multiplayer(void)
     }
 }
 
-void moveloop(void)
+void waitforeverybody(void)
 {
     long i, j, clock;
 
@@ -548,7 +548,7 @@ void moveloop(void)
                     if (i != connecthead)
                         sendpacket(i, (unsigned char *)tempbuf, 1);
             }
-            domovethings_multiplayer();
+            getpackets();
             j = 0;
             for (i = connecthead; i >= 0; i = connectpoint2[i])
                 j += playerreadyflag[i];
@@ -560,19 +560,19 @@ void moveloop(void)
                 tempbuf[0] = 5;
                 sendpacket(connecthead, (unsigned char *)tempbuf, 1);
             }
-            domovethings_multiplayer();
+            getpackets();
         } while (playerreadyflag[connecthead] == 0);
     }
 }
 
-void network_move_loop(void)
+void sync(void)
 {
     long i, j, k;
     short p;
 
     if (myconnectindex == connecthead) {
         getinput(myconnectindex);
-        domovethings_multiplayer();
+        getpackets();
         if (synctics > 0 && getoutputcirclesize() < 16) {
             tempbuf[0] = 2;
             tempbuf[1] = synctics;
@@ -653,7 +653,7 @@ void network_move_loop(void)
             osyncbits[16] = syncbits[16];
             sendpacket(connecthead, (unsigned char *)tempbuf, j);
         }
-        domovethings_multiplayer();
+        getpackets();
     }
 }
 
@@ -669,7 +669,7 @@ long next_text_shade(void)
 extern unsigned char getscorename(short row);
 extern short newscore(void);
 
-void displayquotes(short p)
+void operatefta(short p)
 {
     long offset = 0;
 
@@ -693,7 +693,7 @@ void FTA(short q)
     }
 }
 
-void draw_weapon_tile(short x, short y, short tile, unsigned char shade,
+void myos(short x, short y, short tile, unsigned char shade,
                       unsigned char flags)
 {
     unsigned char palette;
@@ -780,7 +780,7 @@ long minitext(long x, long y, unsigned char *text, unsigned char shade)
     return x;
 }
 
-void numtext_relative(long sx, long sy, long value, unsigned char shade)
+void gamenumber(long sx, long sy, long value, unsigned char shade)
 {
     ltoa(value, tempbuf, 10);
     gametext(sx, sy - 1, (unsigned char *)tempbuf, shade);
@@ -847,15 +847,15 @@ int strget(long x, long y, long shade, long limit)
 
     if (drawshade < 128) {
         x = minitext(x, y, input_text, drawshade & 127);
-        draw_weapon_tile(x, y, 1023, drawshade, 0);
+        myos(x, y, 1023, drawshade, 0);
     } else {
         x = gametext(x, y, input_text, drawshade & 127);
-        draw_weapon_tile(x, y, 1022, drawshade, 0);
+        myos(x, y, 1022, drawshade, 0);
     }
     return (keystatus[KEY_ACCEPT] | keystatus[KEY_EXTENDED_ACCEPT]) != 0;
 }
 
-short findlocator(short tag, short sector)
+short LocateTheLocator(short tag, short sector)
 {
     short i = headspritestat[7];
 
@@ -1120,7 +1120,7 @@ void cacheit(void)
     }
 }
 
-void loadlookup(void)
+void genspriteremaps(void)
 {
     unsigned char count, palette;
     short i;
@@ -1161,7 +1161,7 @@ void numtext_fixed(long x, long y, long value, unsigned char shade)
     }
 }
 
-void draw_meter(long x, long y, long units, unsigned char shade)
+void scratchmarks(long x, long y, long units, unsigned char shade)
 {
     enum { FIRST_METER_TILE = 0x570, FULL_METER_TILE = FIRST_METER_TILE + 5 };
     long i, full_cells;
@@ -1358,7 +1358,7 @@ void displayrooms(short p)
     }
 }
 
-/* draw_weapon_tile's body, written out where the overlay draws. */
+/* myos's body, written out where the overlay draws. */
 
 /* minitext's small-font loop, written out for the score table. */
 
@@ -1448,8 +1448,8 @@ void nonsharedkeys(void)
             gametext(112, 50, warp_title, 0);
             gametext(100, 69, warp_episode, 0);
             gametext(100, 88, warp_level, 0);
-            numtext_relative(210, 68, ps[0].volume + 1, 0);
-            numtext_relative(210, 87, ps[0].level + 1, 0);
+            gamenumber(210, 68, ps[0].volume + 1, 0);
+            gamenumber(210, 87, ps[0].level + 1, 0);
             nextpage();
         }
         if (keystatus[1] == 0)
@@ -1458,7 +1458,7 @@ void nonsharedkeys(void)
     }
 }
 
-void show_help(char **argv)
+void comlinehelp(char **argv)
 {
     puts(help_banner);
     printf(help_usage, argv[0]);
@@ -1490,7 +1490,7 @@ void checkcommandline(int argc, char **argv)
             default:
                 printf(unknown_parameter, argv[i]);
             case '?':
-                show_help(argv);
+                comlinehelp(argv);
                 exit(0);
             case 'q':
             case 'Q':
@@ -1547,7 +1547,7 @@ void checkcommandline(int argc, char **argv)
             i++;
         } else {
             printf(unknown_parameter2, c);
-            show_help(argv);
+            comlinehelp(argv);
             exit(0);
         }
     }
@@ -1565,7 +1565,7 @@ void wait_for_players(void)
         numwanted = option[4] - 3;
     sendlogon();
     while (numplayers < numwanted && keystatus[1] == 0) {
-        domovethings_multiplayer();
+        getpackets();
     }
     keystatus[1] = 0;
 }
@@ -1603,7 +1603,7 @@ void main(int argc, char **argv)
     loadpics(main_tiles_file);
     puts(main_init_remaps);
     initlava();
-    loadlookup();
+    genspriteremaps();
     if (option[1]) {
         puts(main_init_fx);
         status = FX_SetupCard(sound_device_map[option[1]], &fx_device);
@@ -1636,7 +1636,7 @@ void main(int argc, char **argv)
 
 attract:
     if (level_warp == 0)
-        playback_demo();
+        playback();
     level_warp = 0;
 
 play:
@@ -1658,7 +1658,7 @@ play:
             }
         }
         if (userdefs.paused && ps[screenpeek].display_mode == 3)
-            draw_fade_transition();
+            draw_pause_sign();
         if ((ps[myconnectindex].gm & 4) &&
             (((ps[myconnectindex].gm & 1) == 0 && numplayers < 2) ||
              ((ps[myconnectindex].gm & 1) && numplayers >= 2))) {
@@ -1670,17 +1670,17 @@ play:
                 }
             }
             if (ps[screenpeek].newowner >= 0)
-                draw_monitor_overlay();
+                cameratext();
             else {
                 displayweapon(screenpeek);
                 displaystatus(screenpeek);
-                displayquotes(screenpeek);
+                operatefta(screenpeek);
             }
             if (numplayers < 2) {
                 getinput(0);
                 domovethings();
             } else
-                network_move_loop();
+                sync();
             if (ps[myconnectindex].gm & 8) {
                 ps[myconnectindex].level++;
                 enterlevel(4);
@@ -1712,7 +1712,7 @@ play:
             nextpage();
         } while (keystatus[1] == 0 && keystatus[0x39] == 0 && keystatus[0x1c] == 0);
     }
-    write_demo();
+    closedemowrite();
     write_userdefs();
     gameexit(main_game_over);
 }
@@ -1724,7 +1724,7 @@ void displaystatus(short snum)
     if (ps[snum].display_mode != 3)
         return;
     if ((sector[ps[snum].cursectnum].lotag & 0x7fff) == 15)
-        draw_weapon_tile(160, 120, 1136, 0, 1);
+        myos(160, 120, 1136, 0, 1);
     if (ps[snum].screen_size >= 0) {
         overwritesprite(0, 0, 1380, 0, 0, 0);
         overwritesprite(160, 189, 1381, 0, 1, 0);
@@ -1791,13 +1791,13 @@ void displaystatus(short snum)
     }
 }
 
-void playback_demo(void)
+void playback(void)
 {
     unsigned char which = 1;
     long i;
 
 restart:
-    read_demo(which);
+    opendemoread(which);
     which++;
     if (which == 8)
         which = 0;
@@ -1820,11 +1820,11 @@ restart:
         while (totalclock <= lockclock) {
             displayrooms(screenpeek);
             if (ps[screenpeek].newowner >= 0)
-                draw_monitor_overlay();
+                cameratext();
             else if (userdefs.camera == -1) {
                 displayweapon(screenpeek);
                 displaystatus(screenpeek);
-                displayquotes(screenpeek);
+                operatefta(screenpeek);
             }
             if (keystatus[1]) {
                 keystatus[1] = 0;
@@ -1877,11 +1877,11 @@ void domovethings(void)
     if (userdefs.paused == 0) {
         if (recstat == 1)
             record(0);
-        moveeffects();
-        move_status9();
+        moveexplosions();
+        movetransports();
     }
     for (p = connecthead; p >= 0; p = connectpoint2[p]) {
-        playerkeys(p);
+        cheatkeys(p);
         if (userdefs.paused == 0) {
             processinput(p);
             checksectors(p);
@@ -1892,9 +1892,9 @@ void domovethings(void)
         moveweapons();
         movestandables();
         moveeffectors();
-        wakeactors();
+        movefta();
         moveactors();
-        movemusic();
+        movefx();
     }
     synctics = 0;
 }
@@ -1964,16 +1964,16 @@ void dobonus(void)
     }
 }
 
-void draw_monitor_overlay(void)
+void cameratext(void)
 {
     short shade = (unsigned char)next_text_shade();
 
-    draw_weapon_tile(10, 10, 275, shade, 2);
-    draw_weapon_tile(274, 10, 276, shade, 2);
-    draw_weapon_tile(10, 160, 277, shade, 2);
-    draw_weapon_tile(274, 160, 278, shade, 2);
+    myos(10, 10, 275, shade, 2);
+    myos(274, 10, 276, shade, 2);
+    myos(10, 160, 277, shade, 2);
+    myos(274, 160, 278, shade, 2);
     if (totalclock & 16)
-        draw_weapon_tile(18, 20, 279, shade, 2);
+        myos(18, 20, 279, shade, 2);
 }
 
 void update_menu_cursor(short tile)
@@ -2004,7 +2004,7 @@ void update_menu_cursor(short tile)
             menu_y = 199;
     }
 
-    draw_weapon_tile(menu_x, menu_y, tile, shade, 1);
+    myos(menu_x, menu_y, tile, shade, 1);
 }
 
 void displayhighscores(void)
@@ -2026,7 +2026,7 @@ void displayhighscores(void)
 
 
 
-void spawn_random_effects(short i, short count)
+void lotsofglass(short i, short count)
 {
     short j;
     long z;
@@ -2040,7 +2040,7 @@ void spawn_random_effects(short i, short count)
     }
 }
 
-void move_status9(void)
+void movetransports(void)
 {
     short i, j, m, sect;
     long k, p;
@@ -2231,7 +2231,7 @@ void loadplayer(char slot)
     ps[myconnectindex].gm = 4;
 }
 
-void read_demo(unsigned char slot)
+void opendemoread(unsigned char slot)
 {
     int file;
 
@@ -2254,7 +2254,7 @@ void read_demo(unsigned char slot)
     }
 }
 
-void write_demo(void)
+void closedemowrite(void)
 {
     int file;
     char *filename = demo_filename;
@@ -2315,7 +2315,7 @@ void moveeffectors(void)
                 sprite[i].ang += l * q;
                 t[2] += l * q;
             }
-            movesector(i);
+            ms(i);
             break;
         case 2:
             if (t[4] > 0 && t[0] == 0) {
@@ -2345,7 +2345,7 @@ void moveeffectors(void)
                         sprite[j].y += (sprite[i].xvel * sintable[sprite[i].ang & 2047]) >> 14;
                         setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
                     }
-                movesector(i);
+                ms(i);
             }
             break;
         case 3:
@@ -2390,7 +2390,7 @@ void moveeffectors(void)
                 t[4] = 0;
                 l = 0x7fffffff;
                 while (1) {
-                    sprite[i].owner = findlocator(t[4], -1);
+                    sprite[i].owner = LocateTheLocator(t[4], -1);
                     if (sprite[i].owner == -1)
                         break;
                     if (klabs(sprite[ps[p].i].x - sprite[sprite[i].owner].x) + klabs(sprite[ps[p].i].y - sprite[sprite[i].owner].y) < l) {
@@ -2413,13 +2413,13 @@ void moveeffectors(void)
             }
             sprite[i].xvel = 256;
             x = getangle(sprite[sprite[i].owner].x - sprite[i].x, sprite[sprite[i].owner].y - sprite[i].y);
-            q = getincangle_shift(sprite[i].ang, x, 3);
+            q = getincangle(sprite[i].ang, x, 3);
             sprite[i].ang += q;
             if ((krand() >> 8) >= 223) {
                 t[2] += q;
                 sector[sect].ceilingshade = 127;
             } else {
-                t[2] += getincangle_shift(t[2] + 512, getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 2);
+                t[2] += getincangle(t[2] + 512, getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 2);
                 sector[sect].ceilingshade = 0;
             }
             if (ifhitbyweapon(i) >= 0) {
@@ -2434,7 +2434,7 @@ void moveeffectors(void)
             sprite[i].z += sprite[i].zvel;
             sector[sect].ceilingz += sprite[i].zvel;
             sector[t[0]].ceilingz += sprite[i].zvel;
-            movesector(i);
+            ms(i);
             break;
         case 6:
             if (t[4] > 0) {
@@ -2460,21 +2460,21 @@ void moveeffectors(void)
                 }
         case 14:
             if (sprite[i].owner == -1)
-                sprite[i].owner = findlocator(t[3], t[0]);
+                sprite[i].owner = LocateTheLocator(t[3], t[0]);
             d = klabs(sprite[sprite[i].owner].x - sprite[i].x) + klabs(sprite[sprite[i].owner].y - sprite[i].y);
             if (d < 1024) {
                 if (st == 6 && (sprite[sprite[i].owner].hitag & 1))
                     t[4] = 256;
                 t[3]++;
-                sprite[i].owner = findlocator(t[3], t[0]);
+                sprite[i].owner = LocateTheLocator(t[3], t[0]);
                 if (sprite[i].owner == -1) {
                     t[3] = 0;
-                    sprite[i].owner = findlocator(0, t[0]);
+                    sprite[i].owner = LocateTheLocator(0, t[0]);
                 }
             }
             if (sprite[i].xvel) {
                 x = getangle(sprite[sprite[i].owner].x - sprite[i].x, sprite[sprite[i].owner].y - sprite[i].y);
-                q = getincangle_shift(sprite[i].ang, x, 3);
+                q = getincangle(sprite[i].ang, x, 3);
                 t[2] += q;
                 sprite[i].ang += q;
                 if (sprite[i].xvel == 256 && sound_voices[32].active == 0) {
@@ -2503,7 +2503,7 @@ void moveeffectors(void)
                         sprite[j].ang += q;
                         setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
                     }
-                movesector(i);
+                ms(i);
             }
             break;
         case 8:
@@ -2569,18 +2569,18 @@ void moveeffectors(void)
                 step = (sprite[i].yvel >> 3) * t[3];
                 t[2] += step;
                 t[4] += step;
-                movesector(i);
+                ms(i);
                 for (j = sector[sect].wallptr; j < (short)(sector[sect].wallptr + sector[sect].wallnum); j++)
                     for (p = connecthead; p >= 0; p = connectpoint2[p])
                         if (clipinsidebox(ps[p].posx, ps[p].posy, j, 128) == 1) {
                             t[4] -= step;
                             t[2] -= step;
-                            movesector(i);
+                            ms(i);
                         }
                 if (t[4] <= -511 || t[4] >= 512) {
                     t[4] = 0;
                     t[2] &= 0xffffff00;
-                    movesector(i);
+                    ms(i);
                 }
             }
             break;
@@ -2702,7 +2702,7 @@ void moveeffectors(void)
                     if (t[3] < 1)
                         t[4] = 0;
                 }
-                movesector(i);
+                ms(i);
             }
             break;
         case 16:
@@ -2720,7 +2720,7 @@ void moveeffectors(void)
                 sector[sect].ceilingz += 1024;
             else
                 sector[sect].ceilingz -= 512;
-            movesector(i);
+            ms(i);
             break;
         case 17:
             q = t[0] * (sprite[i].yvel << 2);
@@ -2795,7 +2795,7 @@ void moveeffectors(void)
                     goto BOLT;
                 }
                 sector[sect].ceilingz += sprite[i].yvel;
-            } else if (effectinsect(i) >= 0) {
+            } else if (ifhitsectors(i) >= 0) {
                 FTA(8);
                 for (l = headspritestat[3]; l >= 0; l = nextspritestat[l])
                     if ((sprite[l].lotag & 0x7fff) == 19 && sprite[l].hitag == sprite[i].hitag && hittype[l][0] == 0)
@@ -2873,7 +2873,7 @@ void moveeffectors(void)
             break;
         case 23:
             if (sprite[i].shade == 0) {
-                if (effectinsect(i) >= 0)
+                if (ifhitsectors(i) >= 0)
                     sprite[i].shade = 1;
             } else if (sprite[i].shade == 1) {
                 /* The initial sector comes from the shared l slot. */
@@ -2935,7 +2935,7 @@ void moveeffectors(void)
         case 25:
             if (sprite[i].ang)
                 t[2] += 64;
-            if (effectinsect(i) >= 0) {
+            if (ifhitsectors(i) >= 0) {
                 t[3]++;
                 if (t[3] == 4) {
                     deletesprite(i);
@@ -2955,7 +2955,7 @@ void moveeffectors(void)
                 if (sector[sect].ceilingz < t[4])
                     sector[sect].ceilingz = t[4];
             }
-            movesector(i);
+            ms(i);
             break;
         case 26:
             sprite[i].xvel = 32;
@@ -2986,7 +2986,7 @@ void moveeffectors(void)
             for (j = sector[sect].wallptr; j < k; j++)
                 if (wall[j].lotag == 0)
                     wall[j].xpanning += 4;
-            movesector(i);
+            ms(i);
             break;
         case 27:
             p = findplayer(i, &x);
@@ -3028,7 +3028,7 @@ void moveeffectors(void)
             wall[t[2]].overpicnum++;
             wall[wall[t[2]].nextwall].overpicnum++;
             if (t[0] == 0)
-                spawn_random_effects(i, 15);
+                lotsofglass(i, 15);
             if (t[0] < t[1])
                 t[0]++;
             else {

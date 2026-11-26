@@ -1956,9 +1956,6 @@
    "kind": "c",
    "provenance": "BINARY_DERIVED with Duke3D 1.5 GAMEDEF.C semantics and the distribution's CON scripts; gamedef worker 2026-11-26",
    "functions": {
-    "getincangle_shift": {
-     "status": "STRICT"
-    },
     "ispecial": {
      "status": "STRICT"
     },
@@ -1997,6 +1994,9 @@
     },
     "execute": {
      "status": "NEAR_MATCH"
+    },
+    "getincangle": {
+     "status": "STRICT"
     }
    },
    "segments": {
@@ -2123,9 +2123,6 @@
     "draw_menu_slider": {
      "status": "STRICT"
     },
-    "drawmenu": {
-     "status": "STRICT"
-    },
     "probe": {
      "status": "STRICT"
     },
@@ -2134,9 +2131,6 @@
     },
     "menus": {
      "status": "NEAR_MATCH"
-    },
-    "draw_fade_transition": {
-     "status": "STRICT"
     },
     "vscrn": {
      "status": "STRICT"
@@ -2148,6 +2142,12 @@
      "status": "STRICT"
     },
     "movelava": {
+     "status": "STRICT"
+    },
+    "menutext": {
+     "status": "STRICT"
+    },
+    "draw_pause_sign": {
      "status": "STRICT"
     }
    },
@@ -2202,9 +2202,6 @@
     "operateforcefields": {
      "status": "NEAR_MATCH"
     },
-    "playerkeys": {
-     "status": "NEAR_MATCH"
-    },
     "checkhitswitch": {
      "status": "NEAR_MATCH"
     },
@@ -2219,6 +2216,9 @@
     },
     "allignwarpelevators": {
      "status": "STRICT"
+    },
+    "cheatkeys": {
+     "status": "NEAR_MATCH"
     }
    },
    "segments": {}
@@ -2241,9 +2241,6 @@
     "shoot": {
      "status": "NEAR_MATCH"
     },
-    "displayraise": {
-     "status": "NEAR_MATCH"
-    },
     "displayweapon": {
      "status": "NEAR_MATCH"
     },
@@ -2254,6 +2251,9 @@
      "status": "STRICT"
     },
     "processinput": {
+     "status": "NEAR_MATCH"
+    },
+    "animateknuckles": {
      "status": "NEAR_MATCH"
     }
    },
@@ -2276,19 +2276,10 @@
     "uninittimer": {
      "status": "STRICT"
     },
-    "update_timer_input": {
-     "status": "STRICT"
-    },
     "level_load_hook": {
      "status": "STRICT"
     },
     "next_text_shade": {
-     "status": "STRICT"
-    },
-    "findlocator": {
-     "status": "STRICT"
-    },
-    "loadlookup": {
      "status": "STRICT"
     },
     "draw_water_distortion": {
@@ -2303,31 +2294,16 @@
     "write_userdefs": {
      "status": "STRICT"
     },
-    "read_demo": {
-     "status": "STRICT"
-    },
-    "write_demo": {
-     "status": "NEAR_MATCH"
-    },
     "gametext": {
      "status": "NEAR_MATCH"
     },
     "minitext": {
      "status": "STRICT"
     },
-    "numtext_relative": {
-     "status": "NEAR_MATCH"
-    },
     "numtext": {
      "status": "STRICT"
     },
     "numtext_fixed": {
-     "status": "STRICT"
-    },
-    "draw_meter": {
-     "status": "STRICT"
-    },
-    "draw_weapon_tile": {
      "status": "STRICT"
     },
     "strget": {
@@ -2344,18 +2320,6 @@
     },
     "gameexit": {
      "status": "STRICT"
-    },
-    "domovethings_multiplayer": {
-     "status": "NEAR_MATCH"
-    },
-    "moveloop": {
-     "status": "NEAR_MATCH"
-    },
-    "network_move_loop": {
-     "status": "NEAR_MATCH"
-    },
-    "displayquotes": {
-     "status": "NEAR_MATCH"
     },
     "FTA": {
      "status": "STRICT"
@@ -2375,9 +2339,6 @@
     "nonsharedkeys": {
      "status": "NEAR_MATCH"
     },
-    "show_help": {
-     "status": "STRICT"
-    },
     "checkcommandline": {
      "status": "NEAR_MATCH"
     },
@@ -2390,25 +2351,13 @@
     "displaystatus": {
      "status": "STRICT"
     },
-    "playback_demo": {
-     "status": "NEAR_MATCH"
-    },
     "domovethings": {
      "status": "STRICT"
     },
     "dobonus": {
      "status": "NEAR_MATCH"
     },
-    "draw_monitor_overlay": {
-     "status": "NEAR_MATCH"
-    },
     "displayhighscores": {
-     "status": "NEAR_MATCH"
-    },
-    "spawn_random_effects": {
-     "status": "NEAR_MATCH"
-    },
-    "move_status9": {
      "status": "NEAR_MATCH"
     },
     "saveplayer": {
@@ -2416,6 +2365,57 @@
     },
     "loadplayer": {
      "status": "STRICT"
+    },
+    "keytimerstuff": {
+     "status": "STRICT"
+    },
+    "getpackets": {
+     "status": "NEAR_MATCH"
+    },
+    "waitforeverybody": {
+     "status": "NEAR_MATCH"
+    },
+    "sync": {
+     "status": "NEAR_MATCH"
+    },
+    "operatefta": {
+     "status": "NEAR_MATCH"
+    },
+    "myos": {
+     "status": "STRICT"
+    },
+    "gamenumber": {
+     "status": "NEAR_MATCH"
+    },
+    "LocateTheLocator": {
+     "status": "STRICT"
+    },
+    "genspriteremaps": {
+     "status": "STRICT"
+    },
+    "scratchmarks": {
+     "status": "STRICT"
+    },
+    "comlinehelp": {
+     "status": "STRICT"
+    },
+    "playback": {
+     "status": "NEAR_MATCH"
+    },
+    "cameratext": {
+     "status": "NEAR_MATCH"
+    },
+    "lotsofglass": {
+     "status": "NEAR_MATCH"
+    },
+    "movetransports": {
+     "status": "NEAR_MATCH"
+    },
+    "opendemoread": {
+     "status": "STRICT"
+    },
+    "closedemowrite": {
+     "status": "NEAR_MATCH"
     }
    },
    "segments": {
@@ -2454,9 +2454,6 @@
     "resetplayer": {
      "status": "NEAR_MATCH"
     },
-    "reset_player_motion": {
-     "status": "NEAR_MATCH"
-    },
     "prelevel": {
      "status": "NEAR_MATCH"
     },
@@ -2467,6 +2464,9 @@
      "status": "STRICT"
     },
     "spawn": {
+     "status": "NEAR_MATCH"
+    },
+    "resetprestat": {
      "status": "NEAR_MATCH"
     }
    },
@@ -2502,16 +2502,7 @@
     "spawn_blood": {
      "status": "STRICT"
     },
-    "movesector": {
-     "status": "NEAR_MATCH"
-    },
-    "wakeactors": {
-     "status": "NEAR_MATCH"
-    },
     "ifsquished": {
-     "status": "STRICT"
-    },
-    "effectinsect": {
      "status": "STRICT"
     },
     "ifhitbyweapon": {
@@ -2526,17 +2517,26 @@
     "moveweapons": {
      "status": "NEAR_MATCH"
     },
-    "moveeffects": {
-     "status": "NEAR_MATCH"
-    },
     "moveplayers": {
-     "status": "STRICT"
-    },
-    "movemusic": {
      "status": "STRICT"
     },
     "movestandables": {
      "status": "NEAR_MATCH"
+    },
+    "ms": {
+     "status": "NEAR_MATCH"
+    },
+    "movefta": {
+     "status": "NEAR_MATCH"
+    },
+    "ifhitsectors": {
+     "status": "STRICT"
+    },
+    "moveexplosions": {
+     "status": "NEAR_MATCH"
+    },
+    "movefx": {
+     "status": "STRICT"
     }
    },
    "segments": {},

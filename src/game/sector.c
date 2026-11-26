@@ -617,7 +617,7 @@ void operateforcefields(short lotag)
     }
 }
 
-void playerkeys(short p)
+void cheatkeys(short p)
 {
     short sn, source;
 

@@ -44,7 +44,7 @@ extern struct user_settings userdefs;
 #define disable_armor userdefs.debug
 #define facing_sprite userdefs.camera
 
-short getincangle_shift(short a, short na, short shift)
+short getincangle(short a, short na, short shift)
 {
     a &= 2047;
     na &= 2047;
@@ -702,7 +702,7 @@ if (flags & STICK_TO_FLOOR)
     sprite[i].z = sector[sprite[i].sectnum].floorz - 2048;
 if (flags & FACE_TO_PLAYER) {
     goal = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-    sprite[i].ang += getincangle_shift(sprite[i].ang, goal, 1);
+    sprite[i].ang += getincangle(sprite[i].ang, goal, 1);
 }
 if (sprite[i].xvel | sprite[i].zvel) {
     if (!ssp(i, 1) && (flags & RHR) && (sector[sprite[i].sectnum].lotag & 32767) != 1) {
@@ -751,7 +751,7 @@ case CON_IFRND:
 case CON_IFCANSEE:
     if (cached_cansee == -1) {
         angle = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-        difference = getincangle_shift(sprite[i].ang, angle, 0);
+        difference = getincangle(sprite[i].ang, angle, 0);
         if (difference > -128 && difference < 128)
             cached_cansee = cansee(sprite[i].x, sprite[i].y,
                 sprite[i].z - (sprite[i].yrepeat << 7), sprite[i].sectnum,

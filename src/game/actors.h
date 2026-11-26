@@ -74,7 +74,7 @@ extern void rotatepoint(long pivotx, long pivoty, long x, long y, long angle,
     long *outx, long *outy);
 extern void dragpoint(short w, long x, long y);
 extern short getangle(long x, long y);
-extern short getincangle_shift(short ang, short goal, short shift);
+extern short getincangle(short ang, short goal, short shift);
 extern long krand(void);
 extern short findplayer(short i, long *dist);
 extern short checkcursectnums(short sectnum);
@@ -88,7 +88,7 @@ extern void MUSIC_SetVolume(long volume);
 extern void shoot(short i, short tile, unsigned char trace);
 extern void kickview(short p, short i);
 extern void execute(short i, short p, long dist);
-extern void draw_weapon_tile(long x, long y, short tile, short shade, long flags);
+extern void myos(long x, long y, short tile, short shade, long flags);
 extern void operatesectors(short sect, short i);
 extern void operateactivators(short lotag);
 extern void operatemasterswitches(short lotag);

@@ -166,7 +166,7 @@ void draw_menu_slider(short x, short y, short *value, short shade)
 }
 
 
-long drawmenu(long x, long y, unsigned char *text, short shade0,
+long menutext(long x, long y, unsigned char *text, short shade0,
     short cursor)
 {
     unsigned char shade;
@@ -265,7 +265,7 @@ long draw_and_probe(struct menu item, unsigned char color)
         if (menu_zoom < 8192 - 348) menu_zoom += 348; else menu_zoom = 8192;
         rotatesprite(160L << 16, ((item).y - tilesizy[(item).tile] / 2L - 8) << 16,
             ((long)menu_zoom << 3) - 4096, menu_zoom, (item).tile);
-    drawmenu(item.x, item.y, item.text, color, menu_y);
+    menutext(item.x, item.y, item.text, color, menu_y);
     return probe(item);
 }
 
@@ -447,7 +447,7 @@ init_cursor:
     update_menu_cursor(614);
 }
 
-void draw_fade_transition(void)
+void draw_pause_sign(void)
 {
     if (transition_zoom < 8192 - 348)
         transition_zoom += 348;

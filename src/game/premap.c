@@ -126,7 +126,7 @@ extern char music_files[4][10][13];
 extern long krand(void);
 extern long ksqrt(long square);
 extern long getangle(long x, long y);
-extern long getincangle_shift(short angle, short target, short shift);
+extern long getincangle(short angle, short target, short shift);
 extern long setsprite(short i, long x, long y, long z);
 extern int deletesprite(short i);
 extern int changespritestat(short i, short stat);
@@ -136,8 +136,8 @@ extern short nextsectorneighborz(short sect, long z, short plane, short directio
 extern short findplayer(short i, long *distance);
 extern long ifhitbyweapon(short i);
 extern long getanimationgoal(long *goal);
-extern long effectinsect(short i);
-extern void movesector(short i);
+extern long ifhitsectors(short i);
+extern void ms(short i);
 extern void nuke(long x, long y, long z, short i);
 extern void operatesectors(short sect, short i);
 extern void activatewarpelevators(short i, short direction);
@@ -210,16 +210,16 @@ extern void sendpacket(long other, unsigned char *buffer, long length);
 extern long getoutputcirclesize(void);
 extern void getinput(short p);
 extern void doanimations(long tics);
-extern void moveeffects(void);
-extern void playerkeys(short p);
+extern void moveexplosions(void);
+extern void cheatkeys(short p);
 extern void processinput(short p);
 extern void checksectors(short p);
 extern void moveplayers(void);
 extern void moveweapons(void);
 extern void movestandables(void);
-extern void wakeactors(void);
+extern void movefta(void);
 extern void moveactors(void);
-extern void movemusic(void);
+extern void movefx(void);
 
 struct animwall_entry {
     short wallnum;
@@ -252,7 +252,7 @@ extern int FX_SetCallBack(void (*function)(unsigned long));
 extern void FX_SetVolume(int volume), MUSIC_SetVolume(int volume);
 extern int MUSIC_Init(int card, int address);
 extern void TestCallBack(unsigned long number);
-extern void draw_fade_transition(void);
+extern void draw_pause_sign(void);
 /* Bonus-screen tally marks, x/y pairs, eight per episode (2:02304, GAME _DATA). */
 extern short bonus_marks[3][16];
 extern char bonus_press_space[], bonus_title[], bonus_secrets[], bonus_percent[];
@@ -842,7 +842,7 @@ void resetplayer(short p)
     ps[p].mapzoom = 768;
 }
 
-void reset_player_motion(short p)
+void resetprestat(short p)
 {
     ps[p].statea2 = 0;
     ps[p].secret_rooms = 0;
@@ -883,7 +883,7 @@ void prelevel(void)
     long j;
     long *actor;
 
-    reset_player_motion(0);
+    resetprestat(0);
 
     for (i = 0; i < 13; i++)
         ps[0].quote_time[i] = 0;
@@ -1041,7 +1041,7 @@ void enterlevel(unsigned char mode)
         syncangvel[i] = osyncangvel[i] = 0;
         syncbits[i] = osyncbits[i] = 0;
     }
-    moveloop();
+    waitforeverybody();
     if (option[0] == 7)
         setview(0, 0, 639, 479);
     else

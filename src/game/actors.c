@@ -146,7 +146,7 @@ void spawn_blood(short i, short at, short ang, short speed)
         speed + (krand() & 31), -(krand() & 511), i, 5);
 }
 
-void movesector(short i)
+void ms(short i)
 {
     long ry, rx;
     short sn, w, end;
@@ -166,7 +166,7 @@ void movesector(short i)
     setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 }
 
-void wakeactors(void)
+void movefta(void)
 {
     short i, nexti, p;
     long dist, z;
@@ -234,7 +234,7 @@ short ifsquished(short i, short p)
     return -1;
 }
 
-short effectinsect(short i)
+short ifhitsectors(short i)
 {
     short j, sn = sprite[i].sectnum;
 
@@ -374,7 +374,7 @@ shark_steer:
                     turn = (signed char)(sintable[(16 * hittype[i][1]) & 2047] >> 8);
                     sprite[i].ang += turn;
                 } else
-                    sprite[i].ang += getincangle_shift(sprite[i].ang, getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y), 2);
+                    sprite[i].ang += getincangle(sprite[i].ang, getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y), 2);
                 if (turn >= -32 && turn <= 32) {
                     t[0] = frames[hittype[i][1] & 3];
                     if (sprite[i].xvel < 112)
@@ -390,7 +390,7 @@ shark_steer:
                     sprite[i].z -= 1024;
                 else if (pl->posz - 768 > sprite[i].z)
                     sprite[i].z += 1024;
-                sprite[i].ang += getincangle_shift(sprite[i].ang, getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y), 3);
+                sprite[i].ang += getincangle(sprite[i].ang, getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y), 3);
                 if (sprite[i].xvel >= 144)
                     t[0] = 0;
                 else {
@@ -563,7 +563,7 @@ shark_steer:
                     continue;
                 }
                 sprite[i].xvel = (short)(64 - (sintable[(hittype[i][1] + 128) & 2047] >> 9));
-                sprite[i].ang += getincangle_shift(sprite[i].ang, getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y), 3);
+                sprite[i].ang += getincangle(sprite[i].ang, getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y), 3);
                 sprite[i].xrepeat = (unsigned char)((sintable[(hittype[i][1] + 128) & 2047] >> 11) + 36);
                 sprite[i].yrepeat = (unsigned char)((sintable[hittype[i][1] & 2047] >> 13) + 16);
                 if ((krand() >> 8) >= 251 && klabs(sector[sect].floorz - sector[sect].ceilingz) < 49152) {
@@ -683,7 +683,7 @@ shark_steer:
                     }
                 }
                 if (t[0] == 1) {
-                    sprite[i].ang += 2 * getincangle_shift(sprite[i].ang, getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y), 1);
+                    sprite[i].ang += 2 * getincangle(sprite[i].ang, getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y), 1);
                     sprite[i].ang &= (short)0xFF80;
                     if (++hittype[i][1] >= 8) {
                         sprite[i].shade = 4;
@@ -856,7 +856,7 @@ shark_steer:
                 stopsound(26);
             } else {
                 t[0] += 128;
-                draw_weapon_tile(246, 18, 611, (sintable[t[0] & 2047] >> 11) + 8, 1);
+                myos(246, 18, 611, (sintable[t[0] & 2047] >> 11) + 8, 1);
                 if (hittype[i][3] == 0) {
                     spritesound(26, i);
                     hittype[i][3] = 1;
@@ -1051,7 +1051,7 @@ void moveweapons(void)
     }
 }
 
-void moveeffects(void)
+void moveexplosions(void)
 {
     short i, nexti;
 
@@ -1335,7 +1335,7 @@ void moveplayers(void)
     }
 }
 
-void movemusic(void)
+void movefx(void)
 {
     short i;
     long dist;

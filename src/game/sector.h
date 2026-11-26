@@ -149,7 +149,7 @@ void operatesectors(short sn, short source);
 void operateactivators(short lotag);
 void operatemasterswitches(short lotag);
 void operateforcefields(short lotag);
-void playerkeys(short p);
+void cheatkeys(short p);
 void checkhitswitch(long w);
 void checkhitwall(long w, long x, long y, long z, short weapon);
 char checkhitceiling(short sn);
