@@ -2530,10 +2530,10 @@
      "status": "NEAR_MATCH"
     },
     "moveplayers": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "movemusic": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "movestandables": {
      "status": "NEAR_MATCH"

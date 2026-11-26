@@ -90,8 +90,7 @@ extern void stopsound(short sound);
 extern short spawn(short i, short tile);
 extern void addweapon(short p, short tile, short amount);
 
-/* Original Build inline helper, from the June 1994 PRAGMAS.H. */
-extern long klabs(long value);
+/* Original Build inline helper, from the June 1994 PRAGMAS.H: pragma only, no prototype, as in Ken's header. */
 #pragma aux klabs = \
     "test eax,eax" \
     "jns skipnegate" \

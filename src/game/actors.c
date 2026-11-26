@@ -968,36 +968,36 @@ shark_steer:
 
 void moveweapons(void)
 {
-    short i, nexti, p, distance;
-    long dist;
+    /* dist is a short: the original compares and passes the low word of the
+       findplayer distance. */
+    short p, i, dist, nexti;
 
     for (i = headspritestat[4]; i >= 0; i = nexti) {
         nexti = nextspritestat[i];
-        p = findplayer(i, &dist);
-        distance = dist;
+        p = findplayer(i, (long *)&dist);
         if (sprite[i].picnum == BLUESPARK) {
-            execute(i, p, distance);
+            execute(i, p, dist);
             continue;
         }
         if (sprite[i].picnum == RADIUSEXPLOSION) {
             if (sprite[i].shade == -15) {
                 shoot(i, CLUB, 1);
-                if (distance < 512 && sprite[i].owner != ps[p].i) {
+                if (dist < 512 && sprite[i].owner != ps[p].i) {
                     kickview(p, i);
                     HURT(p, sprite[i].extra);
                 }
             } else
                 sprite[i].shade = -15;
-            execute(i, p, distance);
+            execute(i, p, dist);
             continue;
         }
         if (sprite[i].picnum == BOUNCEMINE) {
-            execute(i, p, distance);
+            execute(i, p, dist);
             continue;
         }
         if (sprite[i].picnum == RPG) {
             if (sprite[i].extra >= 0) {
-                if (sprite[i].owner != ps[p].i && distance < 768
+                if (sprite[i].owner != ps[p].i && dist < 768
                     && klabs((ps[p].posz - sprite[i].z) >> 8) <= 48) {
                     spritesound(13, ps[p].i);
                     kickview(p, i);
@@ -1009,12 +1009,12 @@ void moveweapons(void)
                     sprite[i].extra = -1;
                 }
             }
-            execute(i, p, distance);
+            execute(i, p, dist);
             continue;
         }
         if (sprite[i].picnum == BULLET) {
             if (sprite[i].extra >= 0) {
-                if (distance < 768 && sprite[i].owner != ps[p].i
+                if (dist < 768 && sprite[i].owner != ps[p].i
                     && klabs((ps[p].posz - sprite[i].z) >> 8) <= 48) {
                     HURT(p, sprite[i].extra);
                     kickview(p, i);
@@ -1027,18 +1027,18 @@ void moveweapons(void)
                     sprite[i].extra = -1;
                 }
             }
-            execute(i, p, distance);
+            execute(i, p, dist);
         }
         if (sprite[i].picnum == SHOTSPARK1) {
-            if (distance < 512)
+            if (dist < 512)
                 kickview(p, i);
             if (sprite[i].shade == -15)
                 shoot(i, 191, 1);
             else
                 sprite[i].shade = -15;
-            execute(i, p, distance);
+            execute(i, p, dist);
         } else if (sprite[i].picnum == OTHERSHOTSPARK) {
-            if (distance < 512)
+            if (dist < 512)
                 kickview(p, i);
             if (sprite[i].shade == -15) {
                 shoot(i, OTHERSHOTSPARK, 1);
@@ -1046,7 +1046,7 @@ void moveweapons(void)
                     spritesound(30, i);
             } else
                 sprite[i].shade = -15;
-            execute(i, p, distance);
+            execute(i, p, dist);
         }
     }
 }
@@ -1078,7 +1078,7 @@ void moveeffects(void)
             continue;
         }
         if (sprite[i].picnum == SHELL) {
-            if (MOVE_ALONG(i, sprite[i].zvel, 0) == 0) {
+            if (ssp(i, 0)) {
                 if (sprite[i].zvel < 512)
                     sprite[i].zvel += 64;
                 if (sprite[i].xvel > 0) {
@@ -1109,7 +1109,7 @@ void moveeffects(void)
         }
         if (sprite[i].picnum >= 970 && sprite[i].picnum <= 973) {
             FALL(&sprite[i]);
-            MOVE_ALONG(i, sprite[i].zvel, 0);
+            ssp(i, 0);
             if (klabs(sprite[i].z - sector[sect].floorz) < 2048) {
                 sprite[i].zvel = -1024;
                 sprite[i].xrepeat >>= 1;
@@ -1265,7 +1265,7 @@ void moveeffects(void)
             sprite[i].picnum = old == 238 ? 235 : old == 242 ? 239 : old == 246 ? 243 : (short)(old + 1);
             if (klabs(sector[sect].ceilingz - sector[sect].floorz) < 7680)
                 sprite[i].xvel = 64;
-            if (MOVE_ALONG(i, sprite[i].zvel, 1) == 0 && sprite[i].z < sector[sect].floorz) {
+            if (ssp(i, 1) && sprite[i].z < sector[sect].floorz) {
                 if ((sprite[i].zvel >> 2) < 1024)
                     sprite[i].zvel += 128;
                 sprite[i].z += sprite[i].zvel;
@@ -1374,7 +1374,7 @@ void movemusic(void)
                 hittype[i][0]++;
                 if (song != ps[screenpeek].music) {
                     ps[screenpeek].music = song;
-                    playmusic(song);
+                    playmusic(ps[screenpeek].music);
                     MUSIC_SetVolume(music_volume);
                 }
                 break;
@@ -1441,7 +1441,7 @@ void movestandables(void)
                     sprite[i].picnum = 1176;
                     sprite[i].xvel += 8;
                 }
-                MOVE_ALONG(i, sprite[i].zvel, 0);
+                ssp(i, 0);
                 if (sect == hittype[i][1])
                     t[0]++;
             } else if (t[0] == 2 || t[0] == 7) {

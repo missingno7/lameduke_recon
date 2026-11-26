@@ -308,3 +308,9 @@ Each entry names the command or artefact that supports it.
   STRICT matches (consistent with Ken's makefiles). Engine plateau at 81/103: remaining NEAR are allocation ties
   (scansector 7 B, hline 8 B confirmed by cg95), rotatesprite 35 bytes long (three shared returns), and the VESA buffer
   binding (naming it moves it in BSS). 8 dated snapshots and 30 historical objects compared; no closer December form.
+
+## Allocator lever: use counts (plactfix 2026-11-26)
+- PROVEN reducing the number of uses of a variable lowers its allocator "savings", changing the register assignment order
+  and flipping ties elsewhere in the function (movemusic STRICT via playmusic(ps[screenpeek].music) instead of a song
+  local; moveplayers followed). Prefer use-count changes over expression respellings for allocation ties.
+- klabs is declared only by #pragma aux (no prototype), as in Ken's PRAGMAS.H -> oracle's `mov ax; cwde`.

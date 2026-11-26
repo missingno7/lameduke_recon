@@ -77,17 +77,19 @@ void spawn_pistol_tracer(short p)
 
 void shoot(short i, short tile, unsigned char move_to_hit)
 {
-    long zvel;
+    /* COMPILER_STEERED: declaration order (stack homes); p is long (the oracle
+       uses the sign-extended yvel directly). */
     long y;
-    short sect;
     long z;
+    long p;
+    long zvel;
     long x;
-    long distance;
-    short p;
-    short angle;
     short hitsprite;
-    short j;
     short hitwall;
+    short sect;
+    long distance;
+    short angle;
+    short j;
 
     if (move_to_hit) {
         hitscan(sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum,
@@ -185,15 +187,14 @@ void shoot(short i, short tile, unsigned char move_to_hit)
 unsigned char displayraise(short shade, short p)
 {
     short frames[11] = { 0, 1, 2, 2, 3, 3, 3, 2, 2, 1, 0 };
-    short bob, tile;
+    short bob;
 
     if (!ps[p].raise_frame || ps[p].health <= 0)
         return 0;
 
-    tile = frames[ps[p].raise_frame - 1];
     bob = klabs(ps[p].lookang) / 9;
     draw_weapon_tile((player_avel[p] >> 4) + 160 - (ps[p].lookang >> 1),
-        bob + 180 - (ps[p].horiz >> 4), tile + 681, shade, 3);
+        bob + 180 - (ps[p].horiz >> 4), frames[ps[p].raise_frame - 1] + 681, shade, 3);
     if (ps[p].raise_frame == 5)
         spritesound(7, ps[p].i);
     return 1;
@@ -219,7 +220,9 @@ void displayweapon(short p)
         return;
     visibility = user_visibility;
     bob = klabs(ps[p].lookang) / 9;
-    xvel = (player_bits[p] & 32) ? player_avel[p] >> 3 : 0;
+    xvel = 0;
+    if (player_bits[p] & 32)
+        xvel = player_avel[p] >> 3;
     shade = sector[ps[p].cursectnum].floorshade;
     if (shade < 0)
         shade = 0;
@@ -245,7 +248,7 @@ void displayweapon(short p)
         case 2: x -= 10; break;
         case 3: x -= 20; break;
         case 4: x -= 30; break;
-        case 5:
+        case 5: x -= 40; break;
         case 6: x -= 40; break;
         case 7: x -= 60; break;
         case 8: x -= 80; break;
