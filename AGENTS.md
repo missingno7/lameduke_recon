@@ -55,6 +55,12 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
 - `tools/match.py [--profile P] [--symbols OVERLAY.json] [-i=DIR] SRC.c [FUNC...]` or `--obj OBJ` — strict verifier
   with first-difference diagnostics. Bindings: `config/symbols.json` + overlay + library bindings.
 - `tools/omf.py FILE.OBJ` — JSON summary of an OMF object/library.
+- `tools/decomp/decomp.py` — Ghidra headless drafts of every function (~45 s) into build/decomp/out/<TU>/, using our
+  names, LE relocations and the Watcom register convention. Seeds for reading only, never matching evidence.
+- `tools/bssrule.py` — predicts Watcom 9.5b _BSS/_DATA offsets from declaration order and names (docs/BSS_LAYOUT.md).
+- `tools/gate.py` — integration gate (tests + fresh rebuild of every unit); run before every commit.
+- C compiles are staged by tools/wcc.py into build/cc (fixed paths/timestamps) because Watcom 9.5 CONST padding
+  residue depends on the compile environment; never bypass the wrapper.
 
 ## Worker final answer
 First line `STATUS: done | partial | blocked | failed`, then <=15 lines: scope, hypotheses tested, results

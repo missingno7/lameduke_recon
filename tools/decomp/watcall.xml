@@ -1,0 +1,32 @@
+<prototype name="__watcall" extrapop="unknown" stackshift="4">
+  <input>
+    <pentry minsize="1" maxsize="4"><register name="EAX"/></pentry>
+    <pentry minsize="1" maxsize="4"><register name="EDX"/></pentry>
+    <pentry minsize="1" maxsize="4"><register name="EBX"/></pentry>
+    <pentry minsize="1" maxsize="4"><register name="ECX"/></pentry>
+    <pentry minsize="1" maxsize="500" align="4"><addr space="stack" offset="4"/></pentry>
+  </input>
+  <output killedbycall="true">
+    <pentry minsize="4" maxsize="10" metatype="float" extension="float">
+      <register name="ST0"/>
+    </pentry>
+    <pentry minsize="1" maxsize="4"><register name="EAX"/></pentry>
+    <pentry minsize="5" maxsize="8">
+      <addr space="join" piece1="EDX" piece2="EAX"/>
+    </pentry>
+  </output>
+  <unaffected>
+    <register name="ESP"/>
+    <register name="EBP"/>
+    <register name="ESI"/>
+    <register name="EDI"/>
+    <register name="EBX"/>
+    <register name="ECX"/>
+    <register name="EDX"/>
+  </unaffected>
+  <killedbycall>
+    <register name="ST0"/>
+    <register name="ST1"/>
+  </killedbycall>
+  <likelytrash><register name="EAX"/></likelytrash>
+</prototype>
