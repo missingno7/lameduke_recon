@@ -377,6 +377,35 @@ def verify_object(img, mod, only=None, seg_report=None):
         s_ = mod.segments[si_]
         return (s_.size > 0 and s_.cls.upper() != "BSS" and data_covered(s_) and
                 img.obj[base_[0]][base_[1]:base_[1] + s_.size] == bytes(s_.data))
+    # Prepass (2026-11-26, gamemerge): an own initialised data segment referenced from several bound functions may
+    # receive conflicting implied bases when some referencing function is still NEAR (its reference can land on an
+    # unrelated oracle fixup). Placement must not depend on which function is examined first, so when the implied
+    # bases disagree, the unique base whose complete segment contents equal the oracle is preset. Every reference is
+    # still checked against that base below; references implying another base remain problems.
+    implied = {}
+    for si in code_si:
+        for o, n in sorted((o, n) for n, s, o, _ in mod.publics if s == si):
+            place, _src = binds.lookup(n)
+            if not place:
+                continue
+            for f in mod.fixups:
+                if f.seg != si or f.self_rel or f.size() != 4 or (f.target[0] & 3) != 0 or f.off < o:
+                    continue
+                tseg = f.target[1]
+                ts = mod.segments[tseg]
+                if not ts or ts.cls.upper() in ("CODE", "BSS"):
+                    continue
+                ofx = img.fixups.get((place[0], place[1] + f.off - o))
+                if not ofx:
+                    continue
+                field = struct.unpack_from("<i", mod.segments[si].data, f.off)[0]
+                implied.setdefault(tseg, set()).add((ofx[1], ofx[2] - f.disp - field))
+    for tseg, bases in implied.items():
+        if len(bases) > 1:
+            ok = [b for b in bases if segment_contents_ok(tseg, b)]
+            if len(ok) == 1:
+                seg_base[tseg] = ok[0]
+
     for si in code_si:
         seg = mod.segments[si]
         pubs = sorted((o, n) for n, s, o, _ in mod.publics if s == si)

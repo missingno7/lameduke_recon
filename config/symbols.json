@@ -3297,6 +3297,58 @@
    "printext256": {
     "addr": "1:454c7",
     "evidence": "engfix worker 2026-11-26: font dispatch, planar/chained VGA path and linear path, and strlen at 1:45632; June 1995 ENGINE.C"
+   },
+   "domovethings_multiplayer": {
+    "addr": "1:00d10",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: direct call targets from main at 1:05daa, 1:0704a, 1:073f0; prologue after gameexit's exit jump and fill at 1:00d05-00d10; name from docs/units/game.md inventory"
+   },
+   "network_move_loop": {
+    "addr": "1:018c0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: no inbound reference; entry recovered after moveloop's ret and instruction fill ending at 1:018c0 (docs/units/game.md, recovered start); full save-set prologue"
+   },
+   "displayquotes": {
+    "addr": "1:02400",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: direct call target at 1:05f4c (main); Raynorpat view.c cites 0x12400 displayquotes"
+   },
+   "domovethings": {
+    "addr": "1:08ea0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: direct call target from moveloop packet type 2 at 1:01325 and 1:016c7 after the master sync decode; docs/units/game.md inventory and Raynorpat actors.c name 0x18EA0 domovethings | gameB2 worker 2026-11-26: Direct calls from seven tick loops (1:01325, 1:016c7, 1:01a45, 1:021ea, 1:0596f, 1:05eb0, 1:07245); body calls the bound move* simulation routines in Duke order."
+   },
+   "main": {
+    "addr": "1:05b60",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Watcom CRT __CMain calls this entry directly at 1:6477d with register argc/argv (runtime census)."
+   },
+   "checkcommandline": {
+    "addr": "1:05570",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Single direct call from main at 1:05bc4 passing main's argc/argv registers; body parses '/' flags and prints the distribution's command-line help strings (2:00294..)."
+   },
+   "show_help": {
+    "addr": "1:054f0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Direct calls from checkcommandline at 1:05679 and 1:0579e immediately before exit(0); body puts the help lines 2:0013c-002b0."
+   },
+   "nonsharedkeys": {
+    "addr": "1:04cd0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Direct calls from main at 1:05e4e, 1:06061 and from 1:08211 once per frame; begins after displayrooms' ret and alignment (docs/units/game.md)."
+   },
+   "draw_monitor_overlay": {
+    "addr": "1:0a420",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Single direct call from main at 1:05f1f; body draws tiles 275-279 with the HUD shade."
+   },
+   "move_status9": {
+    "addr": "1:0ae90",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: Direct calls from 1:00ec8, 1:01e66, 1:06faf, 1:082c4; walks headspritestat[9]."
+   },
+   "wait_for_players": {
+    "addr": "1:057c0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: No inbound reference; start recovered after the ret at 1:057b2 and instruction fill (docs/units/game.md); prologue and complete exit up to 1:05b60."
+   },
+   "playback_demo": {
+    "addr": "1:081c0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: No inbound reference; start follows displaystatus' exactly aligned ret at 1:081bf with its own prologue (docs/units/game.md)."
+   },
+   "spawn_random_effects": {
+    "addr": "1:0acb0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: No inbound reference; start recovered after displayhighscores' ret and fill (docs/units/game.md); prologue saves AX/DX arguments."
    }
   },
   "data": {
@@ -6215,6 +6267,238 @@
    "pending_bits": {
     "addr": "2:a525c",
     "evidence": "gameC worker 2026-11-26: The packet paths at 1:01d3e and 1:0716d use this dword array with the corresponding bound player_bits array. Level entry clears both arrays per player at 1:14b8b."
+   },
+   "msgtime": {
+    "addr": "2:a538e",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: displayquotes tests, decrements and stores this short at 1:02412/0244e/0245f before drawing the message line; Raynorpat view.h word_12538E | gameB2 worker 2026-11-26: short set to input_text_length<<4 in wait_for_players (1:05af9), tested and decremented before the message is drawn (1:06e9b, 1:08c7d)"
+   },
+   "msgtext": {
+    "addr": "2:a5248",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: displayquotes loads this dword pointer at 1:02438 as the drawn message text; Raynorpat view.h dword_125248 | gameB2 worker 2026-11-26: dword pointer set to input_text by the packet-4 case of wait_for_players (1:05aee) and passed to minitext at 1:06ea8/1:08c9d"
+   },
+   "playerreadyflag": {
+    "addr": "2:1d6c8",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: 16-byte per-connection flag array (next referenced object at 2:1d6d8); moveloop clears it over the connection list (1:01144), sets the master's entry (1:01178) and sums it against numplayers (1:0150e); packet type 5 stores 1 at [other] in three packet loops (1:010d9, 1:014cb, 1:0186a); Ken's Nov-94 GAME.C getpackets/waitforeverybody playerreadyflag | gameB2 worker 2026-11-26: byte array indexed by the sender in the packet-5 case of wait_for_players (1:05b0e)"
+   },
+   "exit_banner": {
+    "addr": "2:00004",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: gameexit passes this address to puts at 1:00cee before printing the caller's message; it is the first literal of the GAME CONST pool (240-byte DUKE DUKEM 3D Beta version 1.3.95 banner, NUL at 2:000f4)"
+   },
+   "help_banner": {
+    "addr": "2:0013c",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal \"\\n *  Here's a little...line help...\" (42 bytes incl. NUL) referenced at 1:54f5; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "help_usage": {
+    "addr": "2:00168",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '    %s [flags...]\\n' (19 bytes incl. NUL) referenced at 1:5502; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "help_help": {
+    "addr": "2:0017c",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '\\t/?        This help message.\\n' (31 bytes incl. NUL) referenced at 1:550f; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "help_level": {
+    "addr": "2:0019c",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '\\t/l#       Go to level #.' (26 bytes incl. NUL) referenced at 1:5519; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "help_volume": {
+    "addr": "2:001b8",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '\\t/v#       Go to volume #.' (27 bytes incl. NUL) referenced at 1:5523; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "help_skill": {
+    "addr": "2:001d4",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '\\t/s#       Skill # (0-3)' (25 bytes incl. NUL) referenced at 1:552d; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "help_quotes": {
+    "addr": "2:001f0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '\\t/q        Turn on help quotes.' (32 bytes incl. NUL) referenced at 1:5537; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "help_debug": {
+    "addr": "2:00210",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '\\t/d        Activate DEBUG MODEs.' (33 bytes incl. NUL) referenced at 1:5541; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "help_record": {
+    "addr": "2:00234",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '\\t/r        Record a demo.' (26 bytes incl. NUL) referenced at 1:554b; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "help_output": {
+    "addr": "2:00250",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '\\t/oDIR     Reroute game output to DIR.' (39 bytes incl. NUL) referenced at 1:5555; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "help_encode": {
+    "addr": "2:00278",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '\\t/e        Encode maps...' (26 bytes incl. NUL) referenced at 1:555f; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "unknown_parameter": {
+    "addr": "2:00294",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal \"Unknown command line paramater '%s'\\n\" (37 bytes incl. NUL) referenced at 1:566b; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "demorec_on": {
+    "addr": "2:002bc",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Demorec mode on...' (19 bytes incl. NUL) referenced at 1:5697; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "output_rerouted": {
+    "addr": "2:002d0",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'I/O path rerouted to %s.\\n' (26 bytes incl. NUL) referenced at 1:56e0; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "encode_mapname": {
+    "addr": "2:002ec",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'L?.MAP' (7 bytes incl. NUL) referenced at 1:5599; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "encode_message": {
+    "addr": "2:002f4",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Encoding %s\\n' (13 bytes incl. NUL) referenced at 1:5760; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "unknown_parameter2": {
+    "addr": "2:00304",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal \"Unknown command line paramater '%s'\\n\" (37 bytes incl. NUL) referenced at 1:5790; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_banner": {
+    "addr": "2:0032c",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '\u00de\u00df\u00df\u00df\u00df\u00df\u00df\u00df\u00df\u00df\u00df\u00df\u00df\u00df\u00df\u00df\u00df\u00df\u00df\u00df...\u00dc\u00dc\u00dc\u00dc\u00dc\u00dc\u00dc\u00dc\u00dc\u00dc\u00dc\u00dd' (241 bytes incl. NUL) referenced at 1:5b72; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_loading_stats": {
+    "addr": "2:00420",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Loading user stats...' (22 bytes incl. NUL) referenced at 1:5b7c; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_init_cache": {
+    "addr": "2:00438",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Init BootLeg CacheMaster...' (28 bytes incl. NUL) referenced at 1:5b8b; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_checking": {
+    "addr": "2:00454",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Checking program integrety...' (30 bytes incl. NUL) referenced at 1:5b9a; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_no_good": {
+    "addr": "2:00474",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'No good.' (9 bytes incl. NUL) referenced at 1:5bad; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_init_engine": {
+    "addr": "2:00480",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Init engine...' (15 bytes incl. NUL) referenced at 1:5bcf; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_multiplayer": {
+    "addr": "2:00490",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Checking for multiplayer...' (28 bytes incl. NUL) referenced at 1:5c3a; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_loading_art": {
+    "addr": "2:004ac",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Loading art...' (15 bytes incl. NUL) referenced at 1:5c58; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_tiles_file": {
+    "addr": "2:004bc",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'tiles000.art' (13 bytes incl. NUL) referenced at 1:5c62; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_init_remaps": {
+    "addr": "2:004cc",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Init colorize/remaps...' (24 bytes incl. NUL) referenced at 1:5c6c; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_init_fx": {
+    "addr": "2:004e4",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Init sound FX...' (17 bytes incl. NUL) referenced at 1:5c8d; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_reading_sounds": {
+    "addr": "2:004f8",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Reading sounds...' (18 bytes incl. NUL) referenced at 1:5cbf; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_init_music": {
+    "addr": "2:0050c",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Init music...' (14 bytes incl. NUL) referenced at 1:5d24; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_locating": {
+    "addr": "2:0051c",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Locating other players...' (26 bytes incl. NUL) referenced at 1:5d68; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_master": {
+    "addr": "2:00538",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Master' (7 bytes incl. NUL) referenced at 1:657c; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_slave": {
+    "addr": "2:00540",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Slave' (6 bytes incl. NUL) referenced at 1:666e; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "main_game_over": {
+    "addr": "2:00548",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Game Over, or is it?' (21 bytes incl. NUL) referenced at 1:7870; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "bonus_press_space": {
+    "addr": "2:00560",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Press SPACE to continue' (24 bytes incl. NUL) referenced at 1:96bd; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "bonus_title": {
+    "addr": "2:00578",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'BONUS' (6 bytes incl. NUL) referenced at 1:986a; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "bonus_secrets": {
+    "addr": "2:00580",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Secret rooms Found' (19 bytes incl. NUL) referenced at 1:99c0 (+1 more); provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "bonus_percent": {
+    "addr": "2:00594",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '%, =' (5 bytes incl. NUL) referenced at 1:9ab8 (+5 more); provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "bonus_points": {
+    "addr": "2:0059c",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'points.' (8 bytes incl. NUL) referenced at 1:9bc4 (+5 more); provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "bonus_squashed": {
+    "addr": "2:005a4",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Bad guys squashed' (18 bytes incl. NUL) referenced at 1:9d13 (+1 more); provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "bonus_killed": {
+    "addr": "2:005b8",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Bad guys killed' (16 bytes incl. NUL) referenced at 1:a072 (+1 more); provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "score_rank_title": {
+    "addr": "2:005c8",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal '#' (2 bytes incl. NUL) referenced at 1:a928 (+1 more); provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "score_quote_title": {
+    "addr": "2:005cc",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal \"Hero's Quote\" (13 bytes incl. NUL) referenced at 1:a9e7 (+1 more); provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "score_score_title": {
+    "addr": "2:005dc",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Score' (6 bytes incl. NUL) referenced at 1:aaa5 (+1 more); provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "savegame_filename": {
+    "addr": "2:005f4",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'SAVE___0.SAV' (13 bytes incl. NUL) referenced at 1:b730 (+1 more); provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "saveboard_filename": {
+    "addr": "2:00604",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'SAVE_000.SAV' (13 bytes incl. NUL) referenced at 1:b705 (+1 more); provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "saveboard_missing": {
+    "addr": "2:00614",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Board not found.' (17 bytes incl. NUL) referenced at 1:b7d1; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "warp_title": {
+    "addr": "2:00120",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Warp Mode' (10 bytes incl. NUL) referenced at 1:5193; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "warp_episode": {
+    "addr": "2:0012c",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Episode' (8 bytes incl. NUL) referenced at 1:528c; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "warp_level": {
+    "addr": "2:00134",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: CONST pool literal 'Level' (6 bytes incl. NUL) referenced at 1:536d; provisional extern for the literal until the whole GAME pool is reconstructed"
+   },
+   "level_warp": {
+    "addr": "2:0ac56",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: byte cleared at checkcommandline entry (1:05589), set by the /l case (1:0571d) before ps[0].level is parsed, tested by main at 1:05dc5/05df4 to choose newgame+enterlevel(4) over the attract demos and cleared at 1:06030"
+   },
+   "output_path": {
+    "addr": "2:0ee78",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: byte buffer filled by checkcommandline /o from the argument tail (1:056bf), NUL-terminated (1:056e4) and passed to printf with the rerouted message (1:056d3)"
+   },
+   "bonus_marks": {
+    "addr": "2:02304",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: short (x,y) pairs, 32 bytes per episode: dobonus indexes +0/+2 with i*4 + episode*32 (1:097b4/097bc, 1:09804/0980c) for tiles 1133/1134; only dobonus references 2:02304/02306 (docs/units/game.md)"
+   },
+   "fx_device": {
+    "addr": "2:a52e4",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: address passed as the second FX_SetupCard argument at 1:05c9d (ASS fx_device *device)"
    }
   }
  }

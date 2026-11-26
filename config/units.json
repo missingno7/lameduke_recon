@@ -2229,7 +2229,7 @@
      "status": "STRICT"
     },
     "draw_meter": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "draw_weapon_tile": {
      "status": "STRICT"
@@ -2272,6 +2272,84 @@
     },
     "enterlevel": {
      "status": "NEAR_MATCH"
+    },
+    "timerhandler": {
+     "status": "NEAR_MATCH"
+    },
+    "gameexit": {
+     "status": "STRICT"
+    },
+    "domovethings_multiplayer": {
+     "status": "NEAR_MATCH"
+    },
+    "moveloop": {
+     "status": "NEAR_MATCH"
+    },
+    "network_move_loop": {
+     "status": "NEAR_MATCH"
+    },
+    "displayquotes": {
+     "status": "NEAR_MATCH"
+    },
+    "FTA": {
+     "status": "STRICT"
+    },
+    "EGS": {
+     "status": "STRICT"
+    },
+    "cacheit": {
+     "status": "STRICT"
+    },
+    "animatesprites": {
+     "status": "STRICT"
+    },
+    "displayrooms": {
+     "status": "NEAR_MATCH"
+    },
+    "nonsharedkeys": {
+     "status": "NEAR_MATCH"
+    },
+    "show_help": {
+     "status": "STRICT"
+    },
+    "checkcommandline": {
+     "status": "NEAR_MATCH"
+    },
+    "wait_for_players": {
+     "status": "NEAR_MATCH"
+    },
+    "main": {
+     "status": "NEAR_MATCH"
+    },
+    "displaystatus": {
+     "status": "NEAR_MATCH"
+    },
+    "playback_demo": {
+     "status": "NEAR_MATCH"
+    },
+    "domovethings": {
+     "status": "NEAR_MATCH"
+    },
+    "dobonus": {
+     "status": "NEAR_MATCH"
+    },
+    "draw_monitor_overlay": {
+     "status": "NEAR_MATCH"
+    },
+    "displayhighscores": {
+     "status": "NEAR_MATCH"
+    },
+    "spawn_random_effects": {
+     "status": "NEAR_MATCH"
+    },
+    "move_status9": {
+     "status": "NEAR_MATCH"
+    },
+    "saveplayer": {
+     "status": "STRICT"
+    },
+    "loadplayer": {
+     "status": "STRICT"
     }
    }
   },

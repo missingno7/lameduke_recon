@@ -4,23 +4,46 @@
 #include <io.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 
 #include "build_v5.h"
 #include "game.h"
 
-extern void __interrupt __far timerhandler(void);
 extern unsigned outp(unsigned port, unsigned value);
 extern void resetparallax(void);
-extern void gameexit(char *message);
 extern void makepalookup(long palnum, char *remap, signed char red,
                         signed char green, signed char blue);
 extern void bootleg_cache_pop(void);
-extern void newgame(unsigned char episode, unsigned char level, unsigned char skill);
 extern void overwritesprite(long x, long y, long tile, long shade,
                             long orientation, long palette);
 extern void getmousevalues(short *dx, short *dy, short *buttons);
+extern int MUSIC_Shutdown(void);
+extern int FX_Shutdown(void);
+extern void sendlogoff(void);
+extern void uninitmultiplayers(void);
+
+extern void setvmode(long mode);
+#pragma aux setvmode = \
+    "int 0x10" \
+    parm [eax];
+
+char quote_text[13][32] = {
+    "She's tougher than she looks!",
+    "Go get the gun.",
+    "The reactor must be destroyed!",
+    "Enemy ALERT!!!",
+    "The door is unlocked...",
+    "The door is locked...",
+    "Cola increases health.",
+    "It's CRASHINGING!!!!!",
+    "Shutting airlock bay doors.",
+    "You found a secret room..!",
+    "Pintched by the doors!",
+    "ALL DOORS UNLOCKED!!!",
+    "Falling to your bloody death."
+};
 
 /* US PC set-1 printable keys, with zero entries for non-text keys. */
 unsigned char scan_ascii[128] =
@@ -42,7 +65,8 @@ unsigned char scan_ascii_shift[128] =
 void (__interrupt __far *oldtimerhandler)(void);
 extern short hudpulse;
 extern short sintable[2048];
-extern unsigned char keys[17], keystatus[256];
+extern unsigned char keys[17];
+extern volatile unsigned char keystatus[256];
 extern long turn_velocity, strafe_velocity, forward_velocity;
 extern char tempbuf[];
 extern long frameplace;
@@ -64,6 +88,8 @@ extern char file_id_record[];
 /* These two literals belong to an earlier part of the shared GAME pool. */
 extern const char lookup_filename[];
 extern char lookup_missing[];
+/* The exit banner opens the shared GAME pool (2:00004); provisional like the two above. */
+extern char exit_banner[];
 
 #pragma pack(1)
 struct user_settings {
@@ -80,11 +106,13 @@ extern char score_names[12][33];
 extern long high_scores[12], demomode;
 extern const char userdefs_filename[];
 
-/* GAME uses the packed, 176-byte player record. */
+/* The packed, 176-byte player record. Field names follow src/game/player.h; GAME's own
+   names replace PLAYER's placeholders where GAME shows the meaning (mapzoom, quote_time and
+   quote_index, parallax_sector, music, palette and the end-of-level tallies). */
 #pragma pack(1)
 struct player_view {
-    short sprite_index;
-    long viewmode, mapzoom;
+    short i;
+    long display_mode, mapzoom;
     long posx, posy, posz, horiz;
     long previous_x, previous_y, previous_z, poszv;
     long oposx, oposy, oposz;
@@ -92,14 +120,17 @@ struct player_view {
     long bobcounter;
     short ang, oang, previous_ang, cursectnum, ocursectnum, lookang;
     short screen_size, ammo, batteryammo, remote_ammo, rocket_ammo, health;
-    short newowner, holoduke, jumping_counter, airleft, last_weapon;
-    short quote_time[13], quote_index, weapon_frame, curr_weapon;
-    short w80, w82, parallax_sector;
+    short newowner, flash_sprite, jumping_counter, airleft, last_weapon;
+    short quote_time[13];
+    short quote_index, kickback_pic, curr_weapon, state80, state82, parallax_sector;
     char *music;
-    unsigned char gm, b8b, skill, level, episode, on_ground;
-    unsigned char b90, b91, b92, b93, b94, b95, b96, b97, b98, b99, b9a, b9b;
-    unsigned char b9c, b9d, b9e, b9f, ba0, ba1, ba2, ba3, ba4, ba5, ba6;
-    unsigned char palette, ba8, ba9, baa, bab, bac, bad, bae, baf;
+    unsigned char gm, weapon_clock, skill, level, volume;
+    unsigned char on_ground, remote_active, knee_sequence, state92;
+    unsigned char scuba_on, jetpack_on, state95, armor;
+    unsigned char inventory[5], state9c[5];
+    unsigned char weapon_pos, statea2, raise_frame, knee_flash, footstep;
+    unsigned char statea6, palette, hard_landing, max_secret_rooms, secret_rooms;
+    unsigned char muzzle_flash, max_squashed, actors_squashed, max_actors_killed, actors_killed;
 };
 #pragma pack()
 
@@ -119,9 +150,6 @@ extern long animatecnt;
 extern short numanimwalls, tilesizy[4096];
 extern char music_files[4][10][13];
 
-extern short EGS(short sect, long x, long y, long z, unsigned char cstat,
-    short tile, signed char shade, unsigned char xrepeat, unsigned char yrepeat,
-    short ang, short xvel, short zvel, short owner, short statnum);
 extern long krand(void);
 extern long ksqrt(long square);
 extern long getangle(long x, long y);
@@ -129,7 +157,7 @@ extern long getincangle_shift(short angle, short target, short shift);
 extern long setsprite(short i, long x, long y, long z);
 extern int deletesprite(short i);
 extern int changespritestat(short i, short stat);
-extern short insertsprite(short sect, short stat);
+extern short insertsprite(long sect, long stat);
 extern void updatesector(long x, long y, short *sect);
 extern short nextsectorneighborz(short sect, long z, short plane, short direction);
 extern short findplayer(short i, long *distance);
@@ -152,31 +180,25 @@ extern void clipmove(long *x, long *y, long *z, short *sect,
 extern void dragpoint(short w, long x, long y);
 
 extern void setview(long left, long top, long right, long bottom);
-extern void drawrooms(long x, long y, long z, short ang, long horizon, short sect);
-extern void animatesprites(short ang);
+extern void drawrooms(long x, long y, long z, long ang, long horizon, long sect);
 extern void drawmasks(void);
 extern void rotatesprite(long x, long y, long zoom, short ang, short tile);
 extern void vscrn(short p);
 extern void setgamemode(void);
 extern void checkhitswitch(short w);
-extern void loadtile(short tile);
+extern void loadtile(long tile);
 extern void nextpage(void);
 extern void FX_StopAllSounds(void);
-extern short loadboard(char *name, long *x, long *y, long *z, short *ang, short *sect);
+extern int loadboard(char *name, long *x, long *y, long *z, short *ang, short *sect);
 extern void precache(void);
-extern void cacheit(void);
 extern void allignwarpelevators(void);
-extern void moveloop(void);
 extern void playmusic(char *name);
-extern void displaystatus(short p);
-extern void dobonus(void);
 extern void call_level_load_hook(char *name);
 #pragma aux call_level_load_hook "level_load_hook_"
 extern short disable_armor;
 extern unsigned char level_tick_state;
 extern signed char pending_svel[17], pending_vel[17], pending_avel[17];
 extern long pending_bits[17];
-extern char quote_text[13][32];
 struct game_sound_voice {
     long x, y, z;
     short sprite;
@@ -195,17 +217,172 @@ extern long klabs(long value);
 extern void copybuf(void *source, void *dest, long count);
 #pragma aux copybuf = "rep movsd" parm [esi] [edi] [ecx] modify exact [ecx esi edi];
 
-#define FTA_INLINE(quote) \
+#define FTA_INLINE(quote)                                                \
     if (userdefs.quotes == 1 && ps[screenpeek].quote_time[quote] == 0) { \
         ps[screenpeek].quote_time[quote] = (short)(strlen(quote_text[quote]) << 2); \
-        ps[screenpeek].quote_index = (quote); \
+        ps[screenpeek].quote_index = (quote);                            \
     }
+
+extern short msgtime;
+extern unsigned char *msgtext;
+extern short thesprite[], spritepicnum[];
+extern char spritepal[];
+extern long spritesortcnt;
+extern unsigned char gotpic[];
+extern short facing_sprite;
+extern char playerreadyflag[16];
+extern void draw2dscreen(long x, long y, long ang, long zoom, long grid);
+extern void permanentwritesprite(long x, long y, long tile, long shade,
+                                 long x1, long y1, long x2, long y2);
+extern void animatewalls(void);
+extern void animatecamsprite(short p);
+extern short getpacket(short *other, unsigned char *buffer);
+extern void sendpacket(short other, unsigned char *buffer, short length);
+extern long getoutputcirclesize(void);
+extern void getinput(short p);
+extern void doanimations(long tics);
+extern void moveeffects(void);
+extern void playerkeys(short p);
+extern void processinput(short p);
+extern void checksectors(short p);
+extern void moveplayers(void);
+extern void moveweapons(void);
+extern void movestandables(void);
+extern void wakeactors(void);
+extern void moveactors(void);
+extern void movemusic(void);
 
 struct animwall_entry {
     short wallnum;
     long tag;
 };
 extern struct animwall_entry animwall[256];
+
+/* Declarations used by the functions in 1:04cd0-0ba30. */
+extern char level_warp, output_path[];
+extern char savegame_filename[], saveboard_filename[], saveboard_missing[];
+extern char help_banner[], help_usage[], help_help[], help_level[], help_volume[];
+extern char help_skill[], help_quotes[], help_debug[], help_record[], help_output[];
+extern char help_encode[], unknown_parameter[], unknown_parameter2[];
+extern char demorec_on[], output_rerouted[], encode_mapname[], encode_message[];
+extern int saveboard(char *filename, long *x, long *y, long *z, short *ang, short *sectnum);
+extern char main_banner[], main_loading_stats[], main_init_cache[], main_checking[];
+extern char main_no_good[], main_init_engine[], main_multiplayer[], main_loading_art[];
+extern char main_tiles_file[], main_init_remaps[], main_init_fx[], main_reading_sounds[];
+extern char main_init_music[], main_locating[], main_master[], main_slave[], main_game_over[];
+extern void init_bootleg_cache(void), loadefs(void), initmenus(void), initengine(void);
+extern void initmultiplayers(unsigned char option, unsigned char rate);
+extern void loadpics(char *filename), init_water_ripples(void), loadsounds(void);
+extern int sound_device_map[];
+extern struct { long MaxVoices, MaxSampleBits, MaxChannels; } fx_device;
+extern char *FX_ErrorString(int error), *MUSIC_ErrorString(int error);
+extern int FX_SetupCard(int card, void *device);
+extern int FX_Init(int card, int voices, int channels, int bits, unsigned rate);
+extern int FX_SetCallBack(void (*function)(unsigned long));
+extern void FX_SetVolume(int volume), MUSIC_SetVolume(int volume);
+extern int MUSIC_Init(int card, int address);
+extern void TestCallBack(unsigned long number);
+extern void draw_fade_transition(void);
+extern short bonus_marks[][8][2];
+extern char bonus_press_space[], bonus_title[], bonus_secrets[], bonus_percent[];
+extern char bonus_points[], bonus_squashed[], bonus_killed[];
+extern long current_menu;
+extern void displayweapon(short p), menus(void), pan3dsound(void);
+extern void sendlogon(void);
+extern char warp_title[], warp_episode[], warp_level[];
+extern void screencapture(void);
+extern void setbrightness(unsigned char brightness);
+extern void MUSIC_Pause(void), MUSIC_Continue(void);
+extern void qsetmode640480(void);
+extern char score_rank_title[], score_quote_title[], score_score_title[];
+
+/* The status bar drawing, written out through the helper calls. */
+#define STATUS_BAR(P)                                                     \
+{                                                                         \
+    if (ps[P].display_mode == 3) {                                        \
+        if ((sector[ps[P].cursectnum].lotag & 0x7fff) == 15)              \
+            draw_weapon_tile(160, 120, 1136, 0, 1);                       \
+        if (ps[P].screen_size >= 0) {                                     \
+            overwritesprite(0, 0, 1380, 0, 0, 0);                         \
+            overwritesprite(160, 189, 1381, 0, 1, 0);                     \
+            numtext_fixed(82, 6, ps[P].score, 0);                         \
+            numtext_fixed(119, 186, ps[P].health, 0);                     \
+            for (j = 0; j < 25; j++)                                      \
+                if (j < ps[P].health >> 2)                                \
+                    overwritesprite(j * 3 + 30, 186, 1392, 0, 0, 0);      \
+            switch (ps[P].curr_weapon) {                                  \
+            case 389:                                                     \
+            case 1230:                                                    \
+                numtext_fixed(209, 186, ps[P].batteryammo, 0);            \
+                overwritesprite(160, 192, 1400, 0, 1, 0);                 \
+                for (j = 0; j < 25; j++)                                  \
+                    if (j < ps[P].batteryammo >> 2)                       \
+                        overwritesprite(j * 3 + 216, 186, 1392, 0, 0, 0); \
+                break;                                                    \
+            case 191:                                                     \
+                numtext_fixed(209, 186, ps[P].ammo, 0);                   \
+                overwritesprite(160, 192, 1401, 0, 1, 0);                 \
+                for (j = 0; j < 25; j++)                                  \
+                    if (j < ps[P].ammo >> 2)                              \
+                        overwritesprite(j * 3 + 216, 186, 1392, 0, 0, 0); \
+                break;                                                    \
+            case 721:                                                     \
+            case 1140:                                                    \
+                numtext_fixed(209, 186, ps[P].remote_ammo, 0);            \
+                overwritesprite(160, 192, 1402, 0, 1, 0);                 \
+                for (j = 0; j < 25; j++)                                  \
+                    if (j < ps[P].remote_ammo >> 2)                       \
+                        overwritesprite(j * 3 + 216, 186, 1392, 0, 0, 0); \
+                break;                                                    \
+            case 563:                                                     \
+                numtext_fixed(209, 186, ps[P].rocket_ammo, 0);            \
+                overwritesprite(160, 192, 1403, 0, 1, 0);                 \
+                for (j = 0; j < 25; j++)                                  \
+                    if (j < ps[P].rocket_ammo >> 2)                       \
+                        overwritesprite(j * 3 + 216, 186, 1392, 0, 0, 0); \
+                break;                                                    \
+            }                                                             \
+        }                                                                 \
+        if (ps[P].state92) {                                              \
+            overwritesprite(0, 28, 1398, 0, 0, 0);                        \
+            if (ps[P].state95)                                            \
+                overwritesprite(39, 41, 1399, 0, 0, 0);                   \
+            if (ps[P].armor)                                              \
+                overwritesprite(39, 66, 1399, 0, 0, 0);                   \
+            if (ps[P].scuba_on)                                           \
+                overwritesprite(39, 93, 1399, 0, 0, 0);                   \
+            if (ps[P].flash_sprite)                                       \
+                overwritesprite(39, 119, 1399, 0, 0, 0);                  \
+            if (ps[P].jetpack_on)                                         \
+                overwritesprite(39, 145, 1399, 0, 0, 0);                  \
+            if (ps[P].inventory[2])                                       \
+                overwritesprite(13, 39, 717, 0, 0, 0);                    \
+            if (ps[P].inventory[3])                                       \
+                overwritesprite(14, 64, 719, 0, 0, 0);                    \
+            if (ps[P].inventory[0])                                       \
+                overwritesprite(13, 90, 716, 0, 0, 0);                    \
+            if (ps[P].inventory[4])                                       \
+                overwritesprite(13, 117, 718, 0, 0, 0);                   \
+            if (ps[P].inventory[1])                                       \
+                overwritesprite(13, 141, 713, 0, 0, 0);                   \
+        }                                                                 \
+    }                                                                     \
+}
+/* The message and quote lines, written out through minitext. */
+#define SHOW_QUOTES(P)                                                                 \
+{                                                                                      \
+    offset = 0;                                                                        \
+    if (msgtime > 0) {                                                                 \
+        msgtime--;                                                                     \
+        minitext(8, 162, msgtext, 0);                                                  \
+    }                                                                                  \
+    if (ps[P].quote_time[ps[P].quote_index] > 0) {                                     \
+        ps[P].quote_time[ps[P].quote_index]--;                                         \
+        if (ps[P].screen_size >= 0)                                                    \
+            offset = -23;                                                              \
+        minitext(24, offset + 189, (unsigned char *)quote_text[ps[P].quote_index], 0); \
+    }                                                                                  \
+}
 
 void inittimer(void)
 {
@@ -309,6 +486,947 @@ void level_load_hook(void)
 {
 }
 
+#define held(binding, scan) \
+    ((keystatus[keys[binding]] | keystatus[scan] | keystatus[(scan) + 128]) > 0)
+
+void __interrupt __far timerhandler(void)
+{
+    ++totalclock;
+    {
+        if (!keystatus[keys[5]]) {
+            if (held(2, 0x4b)) {
+                turn_velocity -= 16;
+                if (turn_velocity < -128)
+                    turn_velocity = -128;
+            }
+            if (held(3, 0x4d)) {
+                turn_velocity += 16;
+                if (turn_velocity > 127)
+                    turn_velocity = 127;
+            }
+        } else {
+            if (held(2, 0x4b)) {
+                strafe_velocity += 8;
+                if (strafe_velocity > 127)
+                    strafe_velocity = 127;
+            }
+            if (held(3, 0x4d)) {
+                strafe_velocity -= 8;
+                if (strafe_velocity < -128)
+                    strafe_velocity = -128;
+            }
+        }
+        if (held(0, 0x48)) {
+            forward_velocity += 8;
+            if (forward_velocity > 127)
+                forward_velocity = 127;
+        }
+        if (held(1, 0x50)) {
+            forward_velocity -= 8;
+            if (forward_velocity < -128)
+                forward_velocity = -128;
+        }
+
+        if (turn_velocity < 0) {
+            turn_velocity += 10;
+            if (turn_velocity > 0)
+                turn_velocity = 0;
+        } else if (turn_velocity > 0) {
+            turn_velocity -= 10;
+            if (turn_velocity < 0)
+                turn_velocity = 0;
+        }
+        if (strafe_velocity < 0) {
+            strafe_velocity += 2;
+            if (strafe_velocity > 0)
+                strafe_velocity = 0;
+        } else if (strafe_velocity > 0) {
+            strafe_velocity -= 2;
+            if (strafe_velocity < 0)
+                strafe_velocity = 0;
+        }
+        if (forward_velocity < 0) {
+            forward_velocity += 2;
+            if (forward_velocity > 0)
+                forward_velocity = 0;
+        } else if (forward_velocity > 0) {
+            forward_velocity -= 2;
+            if (forward_velocity < 0)
+                forward_velocity = 0;
+        }
+    }
+    if (option[2] != 0) {
+        totalclock += 5;
+        {
+            if (!keystatus[keys[5]]) {
+                if (held(2, 0x4b)) {
+                    turn_velocity -= 16;
+                    if (turn_velocity < -128)
+                        turn_velocity = -128;
+                }
+                if (held(3, 0x4d)) {
+                    turn_velocity += 16;
+                    if (turn_velocity > 127)
+                        turn_velocity = 127;
+                }
+            } else {
+                if (held(2, 0x4b)) {
+                    strafe_velocity += 8;
+                    if (strafe_velocity > 127)
+                        strafe_velocity = 127;
+                }
+                if (held(3, 0x4d)) {
+                    strafe_velocity -= 8;
+                    if (strafe_velocity < -128)
+                        strafe_velocity = -128;
+                }
+            }
+            if (held(0, 0x48)) {
+                forward_velocity += 8;
+                if (forward_velocity > 127)
+                    forward_velocity = 127;
+            }
+            if (held(1, 0x50)) {
+                forward_velocity -= 8;
+                if (forward_velocity < -128)
+                    forward_velocity = -128;
+            }
+
+            if (turn_velocity < 0) {
+                turn_velocity += 10;
+                if (turn_velocity > 0)
+                    turn_velocity = 0;
+            } else if (turn_velocity > 0) {
+                turn_velocity -= 10;
+                if (turn_velocity < 0)
+                    turn_velocity = 0;
+            }
+            if (strafe_velocity < 0) {
+                strafe_velocity += 2;
+                if (strafe_velocity > 0)
+                    strafe_velocity = 0;
+            } else if (strafe_velocity > 0) {
+                strafe_velocity -= 2;
+                if (strafe_velocity < 0)
+                    strafe_velocity = 0;
+            }
+            if (forward_velocity < 0) {
+                forward_velocity += 2;
+                if (forward_velocity > 0)
+                    forward_velocity = 0;
+            } else if (forward_velocity > 0) {
+                forward_velocity -= 2;
+                if (forward_velocity < 0)
+                    forward_velocity = 0;
+            }
+        }
+        {
+            if (!keystatus[keys[5]]) {
+                if (held(2, 0x4b)) {
+                    turn_velocity -= 16;
+                    if (turn_velocity < -128)
+                        turn_velocity = -128;
+                }
+                if (held(3, 0x4d)) {
+                    turn_velocity += 16;
+                    if (turn_velocity > 127)
+                        turn_velocity = 127;
+                }
+            } else {
+                if (held(2, 0x4b)) {
+                    strafe_velocity += 8;
+                    if (strafe_velocity > 127)
+                        strafe_velocity = 127;
+                }
+                if (held(3, 0x4d)) {
+                    strafe_velocity -= 8;
+                    if (strafe_velocity < -128)
+                        strafe_velocity = -128;
+                }
+            }
+            if (held(0, 0x48)) {
+                forward_velocity += 8;
+                if (forward_velocity > 127)
+                    forward_velocity = 127;
+            }
+            if (held(1, 0x50)) {
+                forward_velocity -= 8;
+                if (forward_velocity < -128)
+                    forward_velocity = -128;
+            }
+
+            if (turn_velocity < 0) {
+                turn_velocity += 10;
+                if (turn_velocity > 0)
+                    turn_velocity = 0;
+            } else if (turn_velocity > 0) {
+                turn_velocity -= 10;
+                if (turn_velocity < 0)
+                    turn_velocity = 0;
+            }
+            if (strafe_velocity < 0) {
+                strafe_velocity += 2;
+                if (strafe_velocity > 0)
+                    strafe_velocity = 0;
+            } else if (strafe_velocity > 0) {
+                strafe_velocity -= 2;
+                if (strafe_velocity < 0)
+                    strafe_velocity = 0;
+            }
+            if (forward_velocity < 0) {
+                forward_velocity += 2;
+                if (forward_velocity > 0)
+                    forward_velocity = 0;
+            } else if (forward_velocity > 0) {
+                forward_velocity -= 2;
+                if (forward_velocity < 0)
+                    forward_velocity = 0;
+            }
+        }
+        {
+            if (!keystatus[keys[5]]) {
+                if (held(2, 0x4b)) {
+                    turn_velocity -= 16;
+                    if (turn_velocity < -128)
+                        turn_velocity = -128;
+                }
+                if (held(3, 0x4d)) {
+                    turn_velocity += 16;
+                    if (turn_velocity > 127)
+                        turn_velocity = 127;
+                }
+            } else {
+                if (held(2, 0x4b)) {
+                    strafe_velocity += 8;
+                    if (strafe_velocity > 127)
+                        strafe_velocity = 127;
+                }
+                if (held(3, 0x4d)) {
+                    strafe_velocity -= 8;
+                    if (strafe_velocity < -128)
+                        strafe_velocity = -128;
+                }
+            }
+            if (held(0, 0x48)) {
+                forward_velocity += 8;
+                if (forward_velocity > 127)
+                    forward_velocity = 127;
+            }
+            if (held(1, 0x50)) {
+                forward_velocity -= 8;
+                if (forward_velocity < -128)
+                    forward_velocity = -128;
+            }
+
+            if (turn_velocity < 0) {
+                turn_velocity += 10;
+                if (turn_velocity > 0)
+                    turn_velocity = 0;
+            } else if (turn_velocity > 0) {
+                turn_velocity -= 10;
+                if (turn_velocity < 0)
+                    turn_velocity = 0;
+            }
+            if (strafe_velocity < 0) {
+                strafe_velocity += 2;
+                if (strafe_velocity > 0)
+                    strafe_velocity = 0;
+            } else if (strafe_velocity > 0) {
+                strafe_velocity -= 2;
+                if (strafe_velocity < 0)
+                    strafe_velocity = 0;
+            }
+            if (forward_velocity < 0) {
+                forward_velocity += 2;
+                if (forward_velocity > 0)
+                    forward_velocity = 0;
+            } else if (forward_velocity > 0) {
+                forward_velocity -= 2;
+                if (forward_velocity < 0)
+                    forward_velocity = 0;
+            }
+        }
+        {
+            if (!keystatus[keys[5]]) {
+                if (held(2, 0x4b)) {
+                    turn_velocity -= 16;
+                    if (turn_velocity < -128)
+                        turn_velocity = -128;
+                }
+                if (held(3, 0x4d)) {
+                    turn_velocity += 16;
+                    if (turn_velocity > 127)
+                        turn_velocity = 127;
+                }
+            } else {
+                if (held(2, 0x4b)) {
+                    strafe_velocity += 8;
+                    if (strafe_velocity > 127)
+                        strafe_velocity = 127;
+                }
+                if (held(3, 0x4d)) {
+                    strafe_velocity -= 8;
+                    if (strafe_velocity < -128)
+                        strafe_velocity = -128;
+                }
+            }
+            if (held(0, 0x48)) {
+                forward_velocity += 8;
+                if (forward_velocity > 127)
+                    forward_velocity = 127;
+            }
+            if (held(1, 0x50)) {
+                forward_velocity -= 8;
+                if (forward_velocity < -128)
+                    forward_velocity = -128;
+            }
+
+            if (turn_velocity < 0) {
+                turn_velocity += 10;
+                if (turn_velocity > 0)
+                    turn_velocity = 0;
+            } else if (turn_velocity > 0) {
+                turn_velocity -= 10;
+                if (turn_velocity < 0)
+                    turn_velocity = 0;
+            }
+            if (strafe_velocity < 0) {
+                strafe_velocity += 2;
+                if (strafe_velocity > 0)
+                    strafe_velocity = 0;
+            } else if (strafe_velocity > 0) {
+                strafe_velocity -= 2;
+                if (strafe_velocity < 0)
+                    strafe_velocity = 0;
+            }
+            if (forward_velocity < 0) {
+                forward_velocity += 2;
+                if (forward_velocity > 0)
+                    forward_velocity = 0;
+            } else if (forward_velocity > 0) {
+                forward_velocity -= 2;
+                if (forward_velocity < 0)
+                    forward_velocity = 0;
+            }
+        }
+        {
+            if (!keystatus[keys[5]]) {
+                if (held(2, 0x4b)) {
+                    turn_velocity -= 16;
+                    if (turn_velocity < -128)
+                        turn_velocity = -128;
+                }
+                if (held(3, 0x4d)) {
+                    turn_velocity += 16;
+                    if (turn_velocity > 127)
+                        turn_velocity = 127;
+                }
+            } else {
+                if (held(2, 0x4b)) {
+                    strafe_velocity += 8;
+                    if (strafe_velocity > 127)
+                        strafe_velocity = 127;
+                }
+                if (held(3, 0x4d)) {
+                    strafe_velocity -= 8;
+                    if (strafe_velocity < -128)
+                        strafe_velocity = -128;
+                }
+            }
+            if (held(0, 0x48)) {
+                forward_velocity += 8;
+                if (forward_velocity > 127)
+                    forward_velocity = 127;
+            }
+            if (held(1, 0x50)) {
+                forward_velocity -= 8;
+                if (forward_velocity < -128)
+                    forward_velocity = -128;
+            }
+
+            if (turn_velocity < 0) {
+                turn_velocity += 10;
+                if (turn_velocity > 0)
+                    turn_velocity = 0;
+            } else if (turn_velocity > 0) {
+                turn_velocity -= 10;
+                if (turn_velocity < 0)
+                    turn_velocity = 0;
+            }
+            if (strafe_velocity < 0) {
+                strafe_velocity += 2;
+                if (strafe_velocity > 0)
+                    strafe_velocity = 0;
+            } else if (strafe_velocity > 0) {
+                strafe_velocity -= 2;
+                if (strafe_velocity < 0)
+                    strafe_velocity = 0;
+            }
+            if (forward_velocity < 0) {
+                forward_velocity += 2;
+                if (forward_velocity > 0)
+                    forward_velocity = 0;
+            } else if (forward_velocity > 0) {
+                forward_velocity -= 2;
+                if (forward_velocity < 0)
+                    forward_velocity = 0;
+            }
+        }
+    }
+    outp(0x20, 0x20);
+}
+
+#undef held
+
+void gameexit(char *message)
+{
+    if (option[2] != 0)
+        MUSIC_Shutdown();
+    if (option[1] != 0)
+        FX_Shutdown();
+    if (numplayers > 1 && option[4] != 0) {
+        sendlogoff();
+        uninitmultiplayers();
+    }
+    uninittimer();
+    setvmode(3);
+    puts(exit_banner);
+    puts(message);
+    exit(0);
+}
+
+void domovethings_multiplayer(void)
+{
+    short other, packbufleng, p;
+    long i, j, k;
+
+    while ((packbufleng = getpacket(&other, (unsigned char *)tempbuf)) > 0) {
+        switch (tempbuf[0]) {
+            case 2:
+                script_tics = tempbuf[1];
+                j = ((numplayers + 1) >> 1) + 2;
+                k = (2 << 3);
+                for (i = connecthead; i >= 0; i = connectpoint2[i]) {
+                    if (((1 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                        player_svel[i] = tempbuf[j++];
+                    if (((2 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                        player_vel[i] = tempbuf[j++];
+                    if ((tempbuf[k >> 3] & (4 << (k & 7))) > 0)
+                        player_avel[i] = tempbuf[j++];
+                    if (((8 << (k & 7)) & tempbuf[k >> 3]) > 0) {
+                        player_bits[i] = tempbuf[j] +
+                                         (tempbuf[j + 1] << 8) +
+                                         (tempbuf[j + 2] << 16) +
+                                         (tempbuf[j + 3] << 24);
+                        j += 4;
+                    }
+                    k += 4;
+                }
+                randomstash = krand();
+                facing_sprite = -1;
+                lockclock += script_tics;
+                doanimations(script_tics);
+                if (gamepaused == 0) {
+                    if (demomode == 1)
+                        record(0);
+                    moveeffects();
+                    move_status9();
+                }
+                for (p = connecthead; p >= 0; p = connectpoint2[p]) {
+                    playerkeys(p);
+                    if (gamepaused == 0) {
+                        processinput(p);
+                        checksectors(p);
+                    }
+                }
+                if (gamepaused == 0) {
+                    moveplayers();
+                    moveweapons();
+                    movestandables();
+                    moveeffectors();
+                    wakeactors();
+                    moveactors();
+                    movemusic();
+                }
+                script_tics = 0;
+                break;
+            case 3:
+                j = 2;
+                if ((tempbuf[1] & 1) > 0)
+                    player_svel[other] = tempbuf[j++];
+                if ((tempbuf[1] & 2) > 0)
+                    player_vel[other] = tempbuf[j++];
+                if ((tempbuf[1] & 4) > 0)
+                    player_avel[other] = tempbuf[j++];
+                if ((tempbuf[1] & 8) > 0) {
+                    player_bits[other] &= 0xffffff00;
+                    player_bits[other] |= tempbuf[j++];
+                }
+                if ((tempbuf[1] & 16) > 0) {
+                    player_bits[other] &= 0xffff00ff;
+                    player_bits[other] |= tempbuf[j++] << 8;
+                }
+                if ((tempbuf[1] & 32) > 0) {
+                    player_bits[other] &= 0xff00ffff;
+                    player_bits[other] |= tempbuf[j++] << 16;
+                }
+                if ((tempbuf[1] & 64) > 0) {
+                    player_bits[other] &= 0x00ffffff;
+                    player_bits[other] |= tempbuf[j++] << 24;
+                }
+                break;
+            case 4:
+                input_text_length = 0;
+                for (j = 1; j < packbufleng; j++)
+                    input_text[input_text_length++] = tempbuf[j];
+                msgtext = input_text;
+                msgtime = input_text_length << 4;
+                input_text[0] = 0;
+                break;
+            case 5:
+                playerreadyflag[other] = 1;
+                break;
+            case 255:
+                ps[myconnectindex].gm = 0x80;
+                break;
+        }
+    }
+}
+
+void moveloop(void)
+{
+    long i, j, clock;
+
+    if (numplayers < 2)
+        return;
+    for (j = connecthead; j >= 0; j = connectpoint2[j])
+        playerreadyflag[j] = 0;
+    clock = totalclock - 120;
+    if (myconnectindex == connecthead) {
+        playerreadyflag[connecthead] = 1;
+        do {
+            if (totalclock >= clock + 120) {
+                clock = totalclock;
+                tempbuf[0] = 5;
+                for (i = connecthead; i >= 0; i = connectpoint2[i])
+                    if (i != connecthead)
+                        sendpacket(i, (unsigned char *)tempbuf, 1);
+            }
+            /* Packet handling shared with domovethings_multiplayer. */
+            {
+                short other, packbufleng;
+                long i, j, k;
+
+                while ((packbufleng = getpacket(&other, (unsigned char *)tempbuf)) > 0) {
+                    switch (tempbuf[0]) {
+                        case 2:
+                            script_tics = tempbuf[1];
+                            j = ((numplayers + 1) >> 1) + 2;
+                            k = (2 << 3);
+                            for (i = connecthead; i >= 0; i = connectpoint2[i]) {
+                                if (((1 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                                    player_svel[i] = tempbuf[j++];
+                                if (((2 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                                    player_vel[i] = tempbuf[j++];
+                                if ((tempbuf[k >> 3] & (4 << (k & 7))) > 0)
+                                    player_avel[i] = tempbuf[j++];
+                                if (((8 << (k & 7)) & tempbuf[k >> 3]) > 0) {
+                                    player_bits[i] = tempbuf[j] +
+                                                     (tempbuf[j + 1] << 8) +
+                                                     (tempbuf[j + 2] << 16) +
+                                                     (tempbuf[j + 3] << 24);
+                                    j += 4;
+                                }
+                                k += 4;
+                            }
+                            domovethings();
+                            break;
+                        case 3:
+                            j = 2;
+                            if ((tempbuf[1] & 1) > 0)
+                                player_svel[other] = tempbuf[j++];
+                            if ((tempbuf[1] & 2) > 0)
+                                player_vel[other] = tempbuf[j++];
+                            if ((tempbuf[1] & 4) > 0)
+                                player_avel[other] = tempbuf[j++];
+                            if ((tempbuf[1] & 8) > 0) {
+                                player_bits[other] &= 0xffffff00;
+                                player_bits[other] |= tempbuf[j++];
+                            }
+                            if ((tempbuf[1] & 16) > 0) {
+                                player_bits[other] &= 0xffff00ff;
+                                player_bits[other] |= tempbuf[j++] << 8;
+                            }
+                            if ((tempbuf[1] & 32) > 0) {
+                                player_bits[other] &= 0xff00ffff;
+                                player_bits[other] |= tempbuf[j++] << 16;
+                            }
+                            if ((tempbuf[1] & 64) > 0) {
+                                player_bits[other] &= 0x00ffffff;
+                                player_bits[other] |= tempbuf[j++] << 24;
+                            }
+                            break;
+                        case 4:
+                            input_text_length = 0;
+                            for (j = 1; j < packbufleng; j++)
+                                input_text[input_text_length++] = tempbuf[j];
+                            msgtext = input_text;
+                            msgtime = input_text_length << 4;
+                            input_text[0] = 0;
+                            break;
+                        case 5:
+                            playerreadyflag[other] = 1;
+                            break;
+                        case 255:
+                            ps[myconnectindex].gm = 0x80;
+                            break;
+                    }
+                }
+            }
+            j = 0;
+            for (i = connecthead; i >= 0; i = connectpoint2[i])
+                j += playerreadyflag[i];
+        } while (j < numplayers);
+    } else {
+        do {
+            if (totalclock >= clock + 120) {
+                clock = totalclock;
+                tempbuf[0] = 5;
+                sendpacket(connecthead, (unsigned char *)tempbuf, 1);
+            }
+            /* Packet handling shared with domovethings_multiplayer. */
+            {
+                short other, packbufleng;
+                long i, j, k;
+
+                while ((packbufleng = getpacket(&other, (unsigned char *)tempbuf)) > 0) {
+                    switch (tempbuf[0]) {
+                        case 2:
+                            script_tics = tempbuf[1];
+                            j = ((numplayers + 1) >> 1) + 2;
+                            k = (2 << 3);
+                            for (i = connecthead; i >= 0; i = connectpoint2[i]) {
+                                if (((1 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                                    player_svel[i] = tempbuf[j++];
+                                if (((2 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                                    player_vel[i] = tempbuf[j++];
+                                if ((tempbuf[k >> 3] & (4 << (k & 7))) > 0)
+                                    player_avel[i] = tempbuf[j++];
+                                if (((8 << (k & 7)) & tempbuf[k >> 3]) > 0) {
+                                    player_bits[i] = tempbuf[j] +
+                                                     (tempbuf[j + 1] << 8) +
+                                                     (tempbuf[j + 2] << 16) +
+                                                     (tempbuf[j + 3] << 24);
+                                    j += 4;
+                                }
+                                k += 4;
+                            }
+                            domovethings();
+                            break;
+                        case 3:
+                            j = 2;
+                            if ((tempbuf[1] & 1) > 0)
+                                player_svel[other] = tempbuf[j++];
+                            if ((tempbuf[1] & 2) > 0)
+                                player_vel[other] = tempbuf[j++];
+                            if ((tempbuf[1] & 4) > 0)
+                                player_avel[other] = tempbuf[j++];
+                            if ((tempbuf[1] & 8) > 0) {
+                                player_bits[other] &= 0xffffff00;
+                                player_bits[other] |= tempbuf[j++];
+                            }
+                            if ((tempbuf[1] & 16) > 0) {
+                                player_bits[other] &= 0xffff00ff;
+                                player_bits[other] |= tempbuf[j++] << 8;
+                            }
+                            if ((tempbuf[1] & 32) > 0) {
+                                player_bits[other] &= 0xff00ffff;
+                                player_bits[other] |= tempbuf[j++] << 16;
+                            }
+                            if ((tempbuf[1] & 64) > 0) {
+                                player_bits[other] &= 0x00ffffff;
+                                player_bits[other] |= tempbuf[j++] << 24;
+                            }
+                            break;
+                        case 4:
+                            input_text_length = 0;
+                            for (j = 1; j < packbufleng; j++)
+                                input_text[input_text_length++] = tempbuf[j];
+                            msgtext = input_text;
+                            msgtime = input_text_length << 4;
+                            input_text[0] = 0;
+                            break;
+                        case 5:
+                            playerreadyflag[other] = 1;
+                            break;
+                        case 255:
+                            ps[myconnectindex].gm = 0x80;
+                            break;
+                    }
+                }
+            }
+        } while (playerreadyflag[connecthead] == 0);
+    }
+}
+
+void network_move_loop(void)
+{
+    long i, j, k;
+    short p;
+
+    if (myconnectindex == connecthead) {
+        getinput(myconnectindex);
+        /* Packet handling shared with domovethings_multiplayer. */
+        {
+            short other, packbufleng;
+            long i, j, k;
+
+            while ((packbufleng = getpacket(&other, (unsigned char *)tempbuf)) > 0) {
+                switch (tempbuf[0]) {
+                    case 2:
+                        script_tics = tempbuf[1];
+                        j = ((numplayers + 1) >> 1) + 2;
+                        k = (2 << 3);
+                        for (i = connecthead; i >= 0; i = connectpoint2[i]) {
+                            if (((1 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                                player_svel[i] = tempbuf[j++];
+                            if (((2 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                                player_vel[i] = tempbuf[j++];
+                            if ((tempbuf[k >> 3] & (4 << (k & 7))) > 0)
+                                player_avel[i] = tempbuf[j++];
+                            if (((8 << (k & 7)) & tempbuf[k >> 3]) > 0) {
+                                player_bits[i] = tempbuf[j] +
+                                                 (tempbuf[j + 1] << 8) +
+                                                 (tempbuf[j + 2] << 16) +
+                                                 (tempbuf[j + 3] << 24);
+                                j += 4;
+                            }
+                            k += 4;
+                        }
+                        domovethings();
+                        break;
+                    case 3:
+                        j = 2;
+                        if ((tempbuf[1] & 1) > 0)
+                            player_svel[other] = tempbuf[j++];
+                        if ((tempbuf[1] & 2) > 0)
+                            player_vel[other] = tempbuf[j++];
+                        if ((tempbuf[1] & 4) > 0)
+                            player_avel[other] = tempbuf[j++];
+                        if ((tempbuf[1] & 8) > 0) {
+                            player_bits[other] &= 0xffffff00;
+                            player_bits[other] |= tempbuf[j++];
+                        }
+                        if ((tempbuf[1] & 16) > 0) {
+                            player_bits[other] &= 0xffff00ff;
+                            player_bits[other] |= tempbuf[j++] << 8;
+                        }
+                        if ((tempbuf[1] & 32) > 0) {
+                            player_bits[other] &= 0xff00ffff;
+                            player_bits[other] |= tempbuf[j++] << 16;
+                        }
+                        if ((tempbuf[1] & 64) > 0) {
+                            player_bits[other] &= 0x00ffffff;
+                            player_bits[other] |= tempbuf[j++] << 24;
+                        }
+                        break;
+                    case 4:
+                        input_text_length = 0;
+                        for (j = 1; j < packbufleng; j++)
+                            input_text[input_text_length++] = tempbuf[j];
+                        msgtext = input_text;
+                        msgtime = input_text_length << 4;
+                        input_text[0] = 0;
+                        break;
+                    case 5:
+                        playerreadyflag[other] = 1;
+                        break;
+                    case 255:
+                        ps[myconnectindex].gm = 0x80;
+                        break;
+                }
+            }
+        }
+        if (script_tics > 0 && getoutputcirclesize() < 16) {
+            tempbuf[0] = 2;
+            tempbuf[1] = script_tics;
+            j = ((numplayers + 1) >> 1) + 2;
+            for (k = 2; k < j; k++)
+                tempbuf[k] = 0;
+            k = (2 << 3);
+            for (i = connecthead; i >= 0; i = connectpoint2[i]) {
+                if (player_svel[i] != pending_svel[i]) {
+                    tempbuf[j++] = player_svel[i];
+                    pending_svel[i] = player_svel[i];
+                    tempbuf[k >> 3] |= (1 << (k & 7));
+                }
+                if (player_vel[i] != pending_vel[i]) {
+                    tempbuf[j++] = player_vel[i];
+                    pending_vel[i] = player_vel[i];
+                    tempbuf[k >> 3] |= (2 << (k & 7));
+                }
+                if (player_avel[i] != pending_avel[i]) {
+                    tempbuf[j++] = player_avel[i];
+                    pending_avel[i] = player_avel[i];
+                    tempbuf[k >> 3] |= (4 << (k & 7));
+                }
+                if (player_bits[i] != pending_bits[i]) {
+                    tempbuf[j] = player_bits[i];
+                    tempbuf[j + 1] = (player_bits[i] >> 8) & 255;
+                    tempbuf[j + 2] = (player_bits[i] >> 16) & 255;
+                    tempbuf[j + 3] = (player_bits[i] >> 24) & 255;
+                    pending_bits[i] = player_bits[i];
+                    j += 4;
+                    tempbuf[k >> 3] |= (8 << (k & 7));
+                }
+                k += 4;
+            }
+            for (i = connecthead; i >= 0; i = connectpoint2[i])
+                if (i != myconnectindex)
+                    sendpacket(i, (unsigned char *)tempbuf, j);
+        randomstash = krand();
+        facing_sprite = -1;
+        lockclock += script_tics;
+        doanimations(script_tics);
+        if (gamepaused == 0) {
+            if (demomode == 1)
+                record(0);
+            moveeffects();
+            move_status9();
+        }
+        for (p = connecthead; p >= 0; p = connectpoint2[p]) {
+            playerkeys(p);
+            if (gamepaused == 0) {
+                processinput(p);
+                checksectors(p);
+            }
+        }
+        if (gamepaused == 0) {
+            moveplayers();
+            moveweapons();
+            movestandables();
+            moveeffectors();
+            wakeactors();
+            moveactors();
+            movemusic();
+        }
+        script_tics = 0;
+            script_tics = 0;
+        }
+    } else {
+        getinput(16);
+        if (getoutputcirclesize() < 16) {
+            tempbuf[0] = 3;
+            tempbuf[1] = 0;
+            j = 2;
+            if (player_svel[16] != pending_svel[16]) {
+                tempbuf[j++] = player_svel[16];
+                pending_svel[16] = player_svel[16];
+                tempbuf[1] |= 1;
+            }
+            if (player_vel[16] != pending_vel[16]) {
+                tempbuf[j++] = player_vel[16];
+                pending_vel[16] = player_vel[16];
+                tempbuf[1] |= 2;
+            }
+            if (player_avel[16] != pending_avel[16]) {
+                tempbuf[j++] = player_avel[16];
+                pending_avel[16] = player_avel[16];
+                tempbuf[1] |= 4;
+            }
+            if ((player_bits[16] & 0xff) != (pending_bits[16] & 0xff)) {
+                tempbuf[j++] = player_bits[16];
+                tempbuf[1] |= 8;
+            }
+            if ((player_bits[16] | 0xff) != (pending_bits[16] | 0xff)) {
+                tempbuf[j++] = (player_bits[16] >> 8) & 255;
+                tempbuf[1] |= 16;
+            }
+            if ((player_bits[16] & 0xff0000) != (pending_bits[16] & 0xff0000)) {
+                tempbuf[j++] = (player_bits[16] >> 16) & 255;
+                tempbuf[1] |= 32;
+            }
+            if ((player_bits[16] | 0xff0000) != (pending_bits[16] | 0xff0000)) {
+                tempbuf[j++] = (player_bits[16] >> 24) & 255;
+                tempbuf[1] |= 64;
+            }
+            pending_bits[16] = player_bits[16];
+            sendpacket(connecthead, (unsigned char *)tempbuf, j);
+        }
+        /* Packet handling shared with domovethings_multiplayer. */
+        {
+            short other, packbufleng;
+            long i, j, k;
+
+            while ((packbufleng = getpacket(&other, (unsigned char *)tempbuf)) > 0) {
+                switch (tempbuf[0]) {
+                    case 2:
+                        script_tics = tempbuf[1];
+                        j = ((numplayers + 1) >> 1) + 2;
+                        k = (2 << 3);
+                        for (i = connecthead; i >= 0; i = connectpoint2[i]) {
+                            if (((1 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                                player_svel[i] = tempbuf[j++];
+                            if (((2 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                                player_vel[i] = tempbuf[j++];
+                            if ((tempbuf[k >> 3] & (4 << (k & 7))) > 0)
+                                player_avel[i] = tempbuf[j++];
+                            if (((8 << (k & 7)) & tempbuf[k >> 3]) > 0) {
+                                player_bits[i] = tempbuf[j] +
+                                                 (tempbuf[j + 1] << 8) +
+                                                 (tempbuf[j + 2] << 16) +
+                                                 (tempbuf[j + 3] << 24);
+                                j += 4;
+                            }
+                            k += 4;
+                        }
+                        domovethings();
+                        break;
+                    case 3:
+                        j = 2;
+                        if ((tempbuf[1] & 1) > 0)
+                            player_svel[other] = tempbuf[j++];
+                        if ((tempbuf[1] & 2) > 0)
+                            player_vel[other] = tempbuf[j++];
+                        if ((tempbuf[1] & 4) > 0)
+                            player_avel[other] = tempbuf[j++];
+                        if ((tempbuf[1] & 8) > 0) {
+                            player_bits[other] &= 0xffffff00;
+                            player_bits[other] |= tempbuf[j++];
+                        }
+                        if ((tempbuf[1] & 16) > 0) {
+                            player_bits[other] &= 0xffff00ff;
+                            player_bits[other] |= tempbuf[j++] << 8;
+                        }
+                        if ((tempbuf[1] & 32) > 0) {
+                            player_bits[other] &= 0xff00ffff;
+                            player_bits[other] |= tempbuf[j++] << 16;
+                        }
+                        if ((tempbuf[1] & 64) > 0) {
+                            player_bits[other] &= 0x00ffffff;
+                            player_bits[other] |= tempbuf[j++] << 24;
+                        }
+                        break;
+                    case 4:
+                        input_text_length = 0;
+                        for (j = 1; j < packbufleng; j++)
+                            input_text[input_text_length++] = tempbuf[j];
+                        msgtext = input_text;
+                        msgtime = input_text_length << 4;
+                        input_text[0] = 0;
+                        break;
+                    case 5:
+                        playerreadyflag[other] = 1;
+                        break;
+                    case 255:
+                        ps[myconnectindex].gm = 0x80;
+                        break;
+                }
+            }
+        }
+    }
+}
+
 long next_text_shade(void)
 {
     short phase = hudpulse + 128;
@@ -318,12 +1436,104 @@ long next_text_shade(void)
     return shade + 16;
 }
 
+void displayquotes(short p)
+{
+    long ofs = 0;
+
+    if (msgtime > 0) {
+        long x = 8, y = 162;
+        unsigned char *text;
+
+        msgtime--;
+        text = (unsigned char *)msgtext;
+        if (ps[screenpeek].display_mode != 2) {
+#define TEXT_ROW y
+/* Small glyph rendering shared with the decimal printer. */
+{
+    short left = x;
+    short tile, descender;
+
+    while (*text) {
+        descender = 0;
+        if (*text == '\n') {
+            x = left;
+            TEXT_ROW += 8;
+            text++;
+            continue;
+        }
+        if (*text == ' ') {
+            x += 2;
+            text++;
+            continue;
+        }
+        tile = *text + 991;
+        if (*text >= 'a' && *text <= 'z')
+            descender = 2;
+        overwritesprite(x, TEXT_ROW + descender, tile, 0, 0, 0);
+        text++;
+        x += tilesizx[tile] + 1;
+    }
+}
+#undef TEXT_ROW
+        }
+    }
+
+    if (ps[p].quote_time[ps[p].quote_index] > 0) {
+        long x = 24, y;
+        unsigned char *text;
+
+        ps[p].quote_time[ps[p].quote_index]--;
+        if (ps[p].screen_size >= 0)
+            ofs -= 23;
+        y = ofs + 189;
+        text = (unsigned char *)quote_text[ps[p].quote_index];
+        if (ps[screenpeek].display_mode != 2) {
+#define TEXT_ROW y
+/* Small glyph rendering shared with the decimal printer. */
+{
+    short left = x;
+    short tile, descender;
+
+    while (*text) {
+        descender = 0;
+        if (*text == '\n') {
+            x = left;
+            TEXT_ROW += 8;
+            text++;
+            continue;
+        }
+        if (*text == ' ') {
+            x += 2;
+            text++;
+            continue;
+        }
+        tile = *text + 991;
+        if (*text >= 'a' && *text <= 'z')
+            descender = 2;
+        overwritesprite(x, TEXT_ROW + descender, tile, 0, 0, 0);
+        text++;
+        x += tilesizx[tile] + 1;
+    }
+}
+#undef TEXT_ROW
+        }
+    }
+}
+
+void FTA(short q)
+{
+    if (userdefs.quotes == 1 && ps[screenpeek].quote_time[q] == 0) {
+        ps[screenpeek].quote_time[q] = strlen(quote_text[q]) << 2;
+        ps[screenpeek].quote_index = q;
+    }
+}
+
 void draw_weapon_tile(short x, short y, short tile, unsigned char shade,
                       unsigned char flags)
 {
     unsigned char palette;
 
-    if (ps[screenpeek].viewmode == 3) {
+    if (ps[screenpeek].display_mode == 3) {
         palette = sector[ps[screenpeek].cursectnum].floorpal;
         if (palette)
             overwritesprite(x, y, tile, shade, flags, palette);
@@ -334,7 +1544,7 @@ void draw_weapon_tile(short x, short y, short tile, unsigned char shade,
 
 long gametext(long x, long y, unsigned char *text, unsigned char shade)
 {
-    if (ps[screenpeek].viewmode == 2)
+    if (ps[screenpeek].display_mode == 2)
         return 0;
 
 /* Large glyph rendering shared with the decimal printer. */
@@ -372,7 +1582,7 @@ long gametext(long x, long y, unsigned char *text, unsigned char shade)
 
 long minitext(long x, long y, unsigned char *text, unsigned char shade)
 {
-    if (ps[screenpeek].viewmode == 2)
+    if (ps[screenpeek].display_mode == 2)
         return 0;
 
 #define TEXT_ROW y
@@ -413,7 +1623,7 @@ void numtext_relative(long x, long y, long value, unsigned char shade)
     ltoa(value, tempbuf, 10);
     text = (unsigned char *)tempbuf;
     y--;
-    if (ps[screenpeek].viewmode != 2) {
+    if (ps[screenpeek].display_mode != 2) {
 /* Large glyph rendering shared with the decimal printer. */
 {
     long left = x;
@@ -501,7 +1711,7 @@ int strget(long x, long y, long shade, long limit)
 
     text = input_text;
     if (drawshade & LARGE_FONT_FLAG) {
-        if (ps[screenpeek].viewmode == 2) {
+        if (ps[screenpeek].display_mode == 2) {
             column = 0;
         } else {
             tile = -1;
@@ -529,7 +1739,7 @@ int strget(long x, long y, long shade, long limit)
                 text++;
             }
         }
-        if (ps[screenpeek].viewmode == 3) {
+        if (ps[screenpeek].display_mode == 3) {
             palette = sector[ps[screenpeek].cursectnum].floorpal;
             if (palette)
                 overwritesprite((short)column, top, 1022, drawshade, 0, palette);
@@ -537,7 +1747,7 @@ int strget(long x, long y, long shade, long limit)
                 overwritesprite((short)column, top, 1022, drawshade, 0, ps[screenpeek].palette);
         }
     } else {
-        if (ps[screenpeek].viewmode == 2) {
+        if (ps[screenpeek].display_mode == 2) {
             column = 0;
         } else {
             while (*text) {
@@ -557,7 +1767,7 @@ int strget(long x, long y, long shade, long limit)
                 text++;
             }
         }
-        if (ps[screenpeek].viewmode == 3) {
+        if (ps[screenpeek].display_mode == 3) {
             palette = sector[ps[screenpeek].cursectnum].floorpal;
             if (palette)
                 overwritesprite((short)column, top, 1023, drawshade, 0, palette);
@@ -578,6 +1788,259 @@ short findlocator(short tag, short sector)
         i = nextspritestat[i];
     }
     return -1;
+}
+
+short EGS(short sect, long x, long y, long z, unsigned char cstat, short picnum,
+          signed char shade, unsigned char xrepeat, unsigned char yrepeat,
+          short ang, short xvel, short zvel, short owner, signed char stat)
+{
+    short i;
+
+    i = insertsprite(sect, stat);
+    sprite[i].y = y;
+    sprite[i].cstat = cstat;
+    sprite[i].picnum = picnum;
+    sprite[i].shade = shade;
+    sprite[i].xrepeat = xrepeat;
+    sprite[i].yrepeat = yrepeat;
+    sprite[i].ang = ang;
+    sprite[i].xvel = xvel;
+    sprite[i].zvel = zvel;
+    sprite[i].owner = owner;
+    sprite[i].yvel = 0;
+    hittype[i][3] = 0;
+    hittype[i][2] = 0;
+    hittype[i][0] = 0;
+    sprite[i].z = z;
+    sprite[i].x = x;
+    if (actorscrptr[picnum]) {
+        sprite[i].extra = *actorscrptr[picnum];
+        hittype[i][4] = *(actorscrptr[picnum] + 1);
+        hittype[i][1] = *(actorscrptr[picnum] + 2);
+        if (picnum != 57)
+            sprite[i].hitag = *(actorscrptr[picnum] + 3);
+    } else {
+        hittype[i][4] = 0;
+        hittype[i][1] = 0;
+    }
+    return i;
+}
+
+void cacheit(void)
+{
+    short i, j, maxc;
+    long tile;
+
+    for (i = 0; i < 4096; i++) {
+        if (sprite[i].statnum >= 1024)
+            continue;
+        maxc = 0;
+        switch (sprite[i].picnum) {
+            case 0x460:
+                maxc = 1;
+                for (j = 0x46a; j < 0x46c; j++)
+                    if (waloff[j] == -1)
+                        loadtile(j);
+                break;
+            case 0x3c:
+            case 0x9f:
+            case 0x109:
+            case 0x3ac:
+                maxc = 5;
+                break;
+            case 0x131:
+            case 0x143:
+            case 0x147:
+            case 0x4b0:
+                maxc = 4;
+                break;
+            case 0x39:
+                for (j = 0x2e; j < 0x30; j++)
+                    if (waloff[j] == -1)
+                        loadtile(j);
+                maxc = 1;
+                break;
+            case 0x461:
+                for (j = 0x233; j < 0x238; j++)
+                    if (waloff[j] == -1)
+                        loadtile(j);
+                for (j = 0x283; j < 0x288; j++)
+                    if (waloff[j] == -1)
+                        loadtile(j);
+                maxc = 1;
+                break;
+            case 0x497:
+                for (j = 0x496; j < 0x499; j++)
+                    if (waloff[j] == -1)
+                        loadtile(j);
+                break;
+            case 0x389:
+                for (j = 0x3ce; j < 0x3d2; j++)
+                    if (waloff[j] == -1)
+                        loadtile(j);
+            case 0x274:
+            case 0x2e1:
+                maxc = 3;
+                break;
+            case 0x26:
+                if (waloff[0x26] == -1) {
+                    for (j = 0x372; j < 0x377; j++)
+                        if (waloff[j] == -1)
+                            loadtile(j);
+                    maxc = 1;
+                }
+                break;
+            case 0x465:
+                if (waloff[0x465] == -1) {
+                    for (j = 0x47e; j < 0x481; j++)
+                        if (waloff[j] == -1)
+                            loadtile(j);
+                    for (j = 0x488; j < 0x48d; j++)
+                        if (waloff[j] == -1)
+                            loadtile(j);
+                    if (waloff[0x48d] == -1)
+                        loadtile(0x48d);
+                    maxc = 1;
+                }
+                break;
+            case 0x273:
+                maxc = 1;
+                if (waloff[0x137] == -1)
+                    loadtile(j);
+                if (waloff[0x138] == -1)
+                    loadtile(j);
+                break;
+            case 0x71c:
+                if (waloff[0x71c] == -1)
+                    maxc = 38;
+                break;
+            case 0x243:
+                if (waloff[0x243] == -1) {
+                    maxc = 10;
+                    for (j = 0x39d; j < 0x3a2; j++)
+                        if (waloff[j] == -1)
+                            loadtile(j);
+                }
+                break;
+            case 0x198:
+                if (waloff[0x198] == -1)
+                    maxc = 69;
+                break;
+            case 0x600:
+                if (waloff[0x600] == -1)
+                    maxc = 69;
+                break;
+            case 0x690:
+                if (waloff[0x690] == -1)
+                    maxc = 50;
+                break;
+            case 0x500:
+                if (waloff[0x500] == -1)
+                    maxc = 15;
+                break;
+            case 0x3c1:
+                maxc = 7;
+                break;
+            case 0x26c:
+                maxc = 6;
+                break;
+            case 0xf7:
+                maxc = 10;
+                break;
+            default:
+                maxc = 1;
+                break;
+        }
+        for (j = 0; j < maxc; j++) {
+            tile = i + j;
+            if (waloff[tile] == -1)
+                loadtile(tile);
+        }
+    }
+
+    if (waloff[0x61] == -1)
+        for (j = 0x61; j < 0x9e; j++)
+            loadtile(j);
+    if (waloff[0x166] == -1)
+        for (j = 0x166; j < 0x16a; j++)
+            loadtile(j);
+    if (waloff[0xbf] == -1)
+        for (j = 0xbf; j < 0xc3; j++)
+            loadtile(j);
+    if (waloff[0x2ae] == -1)
+        for (j = 0x2ae; j < 0x2b2; j++)
+            loadtile(j);
+    if (waloff[0x4ba] == -1)
+        for (j = 0x4ba; j < 0x4bf; j++)
+            loadtile(j);
+    if (waloff[0x400] == -1)
+        for (j = 0x400; j < 0x460; j++)
+            loadtile(j);
+    if (waloff[0xeb] == -1)
+        for (j = 0xeb; j < 0xf7; j++)
+            loadtile(j);
+    if (waloff[0x55a] == -1)
+        for (j = 0x55a; j < 0x564; j++)
+            loadtile(j);
+    if (waloff[0x550] == -1)
+        for (j = 0x550; j < 0x55a; j++)
+            loadtile(j);
+    if (waloff[0x185] == -1)
+        for (j = 0x185; j < 0x187; j++)
+            loadtile(j);
+    if (waloff[0x366] == -1)
+        for (j = 0x366; j < 0x372; j++)
+            loadtile(j);
+    if (waloff[0x4ce] == -1)
+        for (j = 0x4ce; j < 0x4dd; j++)
+            loadtile(j);
+    if (waloff[0x23d] == -1)
+        for (j = 0x23d; j < 0x243; j++)
+            loadtile(j);
+    if (waloff[0x564] == -1)
+        for (j = 0x564; j < 0x57c; j++)
+            loadtile(j);
+    if (waloff[0x2a9] == -1)
+        for (j = 0x2a9; j < 0x2ad; j++)
+            loadtile(j);
+    if (waloff[0x528] == -1)
+        for (j = 0x528; j < 0x532; j++)
+            loadtile(j);
+    if (waloff[0x266] == -1)
+        loadtile(0x266);
+    if (waloff[0x473] == -1)
+        loadtile(0x473);
+    if (waloff[0x57c] == -1) {
+        loadtile(0x57c);
+        loadtile(0x57d);
+    }
+    if (waloff[0x298] == -1)
+        loadtile(0x298);
+    if (waloff[0x299] == -1)
+        loadtile(0x299);
+    if (waloff[0x29e] == -1)
+        loadtile(0x29e);
+    if (waloff[0x29f] == -1)
+        loadtile(0x29f);
+    if (waloff[0xae] == -1)
+        loadtile(0xae);
+    if (waloff[0xd6] == -1)
+        loadtile(0xd6);
+    if (waloff[0x470] == -1)
+        loadtile(0x470);
+    if (waloff[0x469] == -1)
+        loadtile(0x469);
+    if (waloff[0x11b] == -1) {
+        for (j = 0x11b; j < 0x120; j++)
+            if (waloff[j] == -1)
+                loadtile(j);
+        for (j = 0x58c; j < 0x5b4; j++)
+            if (waloff[j] == -1)
+                loadtile(j);
+        for (j = 0x6f4; j < 0x712; j++)
+            if (waloff[j] == -1)
+                loadtile(j);
+    }
 }
 
 void loadlookup(void)
@@ -609,7 +2072,7 @@ void numtext(long x, long y, long value, unsigned char shade)
     ltoa(value, tempbuf, 10);
     text = (unsigned char *)tempbuf;
     row = y;
-    if (ps[screenpeek].viewmode != 2) {
+    if (ps[screenpeek].display_mode != 2) {
 #define TEXT_ROW row
 /* Small glyph rendering shared with the decimal printer. */
 {
@@ -669,6 +2132,130 @@ void draw_meter(long x, long y, long units, unsigned char shade)
         overwritesprite(x, y, FIRST_METER_TILE + units % 5, shade, 0, 0);
 }
 
+void animatesprites(short ang)
+{
+    short i, j, k, sect;
+    long l;
+
+    for (j = 0; j < spritesortcnt; j++) {
+        i = thesprite[j];
+        if ((sprite[i].xrepeat | sprite[i].yrepeat) == 0)
+            continue;
+        sect = sprite[i].sectnum;
+        if (sprite[i].picnum == 389)
+            spritepal[j] = 0;
+
+        if (actorscrptr[sprite[i].picnum] != 0 && hittype[i][4] != 0) {
+            l = ((long *)hittype[i][4])[2];
+            if (l < 0) {
+                sprite[i].cstat |= 16;
+                l = -l;
+            } else {
+                sprite[i].cstat &= ~16;
+            }
+            switch (l) {
+                case 2:
+                    k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 1;
+                    break;
+                case 3:
+                    k = (((sprite[i].ang + 3200 - ang) & 2047) / 192) % 5;
+                    if (k > 2) {
+                        sprite[i].cstat |= 4;
+                        k = 4 - k;
+                    } else {
+                        sprite[i].cstat &= ~4;
+                    }
+                    break;
+                case 5:
+                    k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                    if (k > 4) {
+                        k = 8 - k;
+                        sprite[i].cstat |= 4;
+                    } else {
+                        sprite[i].cstat &= ~4;
+                    }
+                    break;
+                case 7:
+                    k = ((sprite[i].ang + 3200 - ang) & 2047) / 170;
+                    if (k > 6) {
+                        k = 12 - k;
+                        sprite[i].cstat |= 4;
+                    } else {
+                        sprite[i].cstat &= ~4;
+                    }
+                    break;
+                case 8:
+                    k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                    break;
+                default:
+                    k = 0;
+                    break;
+            }
+            spritepicnum[j] += k + *(long *)hittype[i][4] + l * hittype[i][3];
+            continue;
+        }
+
+        if (sprite[i].picnum == 1165) {
+            spritepicnum[j] = 1165 + (hittype[i][0] & 1);
+            hittype[i][0]++;
+            hittype[i][0] &= 3;
+            sprite[i].cstat |= 12;
+            if (hittype[i][0] > 1)
+                sprite[i].cstat &= ~4;
+            if (hittype[i][0] > 2)
+                sprite[i].cstat &= ~12;
+        } else if (sprite[i].picnum == 1280) {
+            spritepicnum[j] = 1280;
+            k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+            l = hittype[i][0];
+            if (k > 4) {
+                if (l == 2)
+                    l--;
+                else if (l == 1)
+                    l++;
+                k = 8 - k;
+                sprite[i].cstat |= 4;
+            } else {
+                sprite[i].cstat &= ~4;
+            }
+            spritepicnum[j] += k + l * 5;
+        } else if (sprite[i].picnum == 283) {
+            if (sector[sect].floorpal != 2) {
+                if (sprite[i].owner >= 0)
+                    spritepal[j] = ps[sprite[i].yvel].palette;
+                else
+                    spritepal[j] = 0;
+            }
+        } else if (sprite[i].picnum == 263 || sprite[i].picnum == 264) {
+            if (hittype[i][0] != 0) {
+                k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                if (k > 4) {
+                    k = 8 - k;
+                    sprite[i].cstat |= 4;
+                } else {
+                    sprite[i].cstat &= ~4;
+                }
+                if (sprite[i].zvel < 0)
+                    k += (hittype[i][1] & 1) * 5;
+                spritepicnum[j] = k + 247;
+            }
+        } else if (sprite[i].picnum >= 930 && sprite[i].picnum <= 931) {
+            k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+            if (k > 4) {
+                k = 8 - k;
+                sprite[i].cstat |= 4;
+            } else {
+                sprite[i].cstat &= ~4;
+            }
+            if (sprite[i].picnum == 931)
+                k--;
+            if (hittype[i][4] == 1)
+                k += 5;
+            spritepicnum[j] = k + sprite[i].picnum;
+        }
+    }
+}
+
 void draw_water_distortion(void)
 {
     long column, row, depth = 0;
@@ -682,7 +2269,8 @@ void draw_water_distortion(void)
                     depth = 1;
                     reflection = pixel - 320;
                 }
-                shade = 96 + (*reflection & 31) - (depth >> 1);
+                shade = *reflection & 31;
+                shade = shade + 96 - (depth >> 1);
                 if (depth > 63 || shade < 96 || shade > 128)
                     shade = 96;
                 reflection -= 320;
@@ -695,6 +2283,1232 @@ void draw_water_distortion(void)
     }
 }
 
+void displayrooms(short p)
+{
+    short s;
+
+    if (ps[p].display_mode == 2) {
+        draw2dscreen(ps[p].posx, ps[p].posy, ps[p].ang + ps[p].lookang, ps[p].mapzoom, 0);
+        return;
+    }
+    if ((player_bits[p] & 0x80000) || (player_bits[p] & 0x100000) || (player_bits[p] & 0x400000))
+        permanentwritesprite(0, 0, 0x492, 0, 0, 0, 319, 199);
+    animatewalls();
+    animatecamsprite(p);
+    if (facing_sprite >= 0) {
+        s = facing_sprite;
+        if (sprite[s].yvel < 0)
+            sprite[s].yvel = 0;
+        else if (sprite[s].yvel > 199)
+            sprite[s].yvel = 199;
+        drawrooms(sprite[s].x, sprite[s].y, sprite[s].z, sprite[s].ang,
+                  sprite[s].yvel, sprite[s].sectnum);
+        /* Sprite frame selection shared with animatesprites. */
+        {
+            short ang = sprite[s].ang;
+            short i, j, k, sect;
+            long l;
+
+            for (j = 0; j < spritesortcnt; j++) {
+                i = thesprite[j];
+                if ((sprite[i].xrepeat | sprite[i].yrepeat) == 0)
+                    continue;
+                sect = sprite[i].sectnum;
+                if (sprite[i].picnum == 389)
+                    spritepal[j] = 0;
+
+                if (actorscrptr[sprite[i].picnum] != 0 && hittype[i][4] != 0) {
+                    l = ((long *)hittype[i][4])[2];
+                    if (l < 0) {
+                        sprite[i].cstat |= 16;
+                        l = -l;
+                    } else {
+                        sprite[i].cstat &= ~16;
+                    }
+                    switch (l) {
+                        case 2:
+                            k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 1;
+                            break;
+                        case 3:
+                            k = (((sprite[i].ang + 3200 - ang) & 2047) / 192) % 5;
+                            if (k > 2) {
+                                sprite[i].cstat |= 4;
+                                k = 4 - k;
+                            } else {
+                                sprite[i].cstat &= ~4;
+                            }
+                            break;
+                        case 5:
+                            k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                            if (k > 4) {
+                                k = 8 - k;
+                                sprite[i].cstat |= 4;
+                            } else {
+                                sprite[i].cstat &= ~4;
+                            }
+                            break;
+                        case 7:
+                            k = ((sprite[i].ang + 3200 - ang) & 2047) / 170;
+                            if (k > 6) {
+                                k = 12 - k;
+                                sprite[i].cstat |= 4;
+                            } else {
+                                sprite[i].cstat &= ~4;
+                            }
+                            break;
+                        case 8:
+                            k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                            break;
+                        default:
+                            k = 0;
+                            break;
+                    }
+                    spritepicnum[j] += k + *(long *)hittype[i][4] + l * hittype[i][3];
+                    continue;
+                }
+
+                if (sprite[i].picnum == 1165) {
+                    spritepicnum[j] = 1165 + (hittype[i][0] & 1);
+                    hittype[i][0]++;
+                    hittype[i][0] &= 3;
+                    sprite[i].cstat |= 12;
+                    if (hittype[i][0] > 1)
+                        sprite[i].cstat &= ~4;
+                    if (hittype[i][0] > 2)
+                        sprite[i].cstat &= ~12;
+                } else if (sprite[i].picnum == 1280) {
+                    spritepicnum[j] = 1280;
+                    k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                    l = hittype[i][0];
+                    if (k > 4) {
+                        if (l == 2)
+                            l--;
+                        else if (l == 1)
+                            l++;
+                        k = 8 - k;
+                        sprite[i].cstat |= 4;
+                    } else {
+                        sprite[i].cstat &= ~4;
+                    }
+                    spritepicnum[j] += k + l * 5;
+                } else if (sprite[i].picnum == 283) {
+                    if (sector[sect].floorpal != 2) {
+                        if (sprite[i].owner >= 0)
+                            spritepal[j] = ps[sprite[i].yvel].palette;
+                        else
+                            spritepal[j] = 0;
+                    }
+                } else if (sprite[i].picnum == 263 || sprite[i].picnum == 264) {
+                    if (hittype[i][0] != 0) {
+                        k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                        if (k > 4) {
+                            k = 8 - k;
+                            sprite[i].cstat |= 4;
+                        } else {
+                            sprite[i].cstat &= ~4;
+                        }
+                        if (sprite[i].zvel < 0)
+                            k += (hittype[i][1] & 1) * 5;
+                        spritepicnum[j] = k + 247;
+                    }
+                } else if (sprite[i].picnum >= 930 && sprite[i].picnum <= 931) {
+                    k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                    if (k > 4) {
+                        k = 8 - k;
+                        sprite[i].cstat |= 4;
+                    } else {
+                        sprite[i].cstat &= ~4;
+                    }
+                    if (sprite[i].picnum == 931)
+                        k--;
+                    if (hittype[i][4] == 1)
+                        k += 5;
+                    spritepicnum[j] = k + sprite[i].picnum;
+                }
+            }
+        }
+    } else {
+        drawrooms(ps[p].posx, ps[p].posy, ps[p].posz, ps[p].ang + ps[p].lookang,
+                  ps[p].horiz, ps[p].cursectnum);
+        /* Sprite frame selection shared with animatesprites. */
+        {
+            short ang = ps[p].ang + ps[p].lookang;
+            short i, j, k, sect;
+            long l;
+
+            for (j = 0; j < spritesortcnt; j++) {
+                i = thesprite[j];
+                if ((sprite[i].xrepeat | sprite[i].yrepeat) == 0)
+                    continue;
+                sect = sprite[i].sectnum;
+                if (sprite[i].picnum == 389)
+                    spritepal[j] = 0;
+
+                if (actorscrptr[sprite[i].picnum] != 0 && hittype[i][4] != 0) {
+                    l = ((long *)hittype[i][4])[2];
+                    if (l < 0) {
+                        sprite[i].cstat |= 16;
+                        l = -l;
+                    } else {
+                        sprite[i].cstat &= ~16;
+                    }
+                    switch (l) {
+                        case 2:
+                            k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 1;
+                            break;
+                        case 3:
+                            k = (((sprite[i].ang + 3200 - ang) & 2047) / 192) % 5;
+                            if (k > 2) {
+                                sprite[i].cstat |= 4;
+                                k = 4 - k;
+                            } else {
+                                sprite[i].cstat &= ~4;
+                            }
+                            break;
+                        case 5:
+                            k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                            if (k > 4) {
+                                k = 8 - k;
+                                sprite[i].cstat |= 4;
+                            } else {
+                                sprite[i].cstat &= ~4;
+                            }
+                            break;
+                        case 7:
+                            k = ((sprite[i].ang + 3200 - ang) & 2047) / 170;
+                            if (k > 6) {
+                                k = 12 - k;
+                                sprite[i].cstat |= 4;
+                            } else {
+                                sprite[i].cstat &= ~4;
+                            }
+                            break;
+                        case 8:
+                            k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                            break;
+                        default:
+                            k = 0;
+                            break;
+                    }
+                    spritepicnum[j] += k + *(long *)hittype[i][4] + l * hittype[i][3];
+                    continue;
+                }
+
+                if (sprite[i].picnum == 1165) {
+                    spritepicnum[j] = 1165 + (hittype[i][0] & 1);
+                    hittype[i][0]++;
+                    hittype[i][0] &= 3;
+                    sprite[i].cstat |= 12;
+                    if (hittype[i][0] > 1)
+                        sprite[i].cstat &= ~4;
+                    if (hittype[i][0] > 2)
+                        sprite[i].cstat &= ~12;
+                } else if (sprite[i].picnum == 1280) {
+                    spritepicnum[j] = 1280;
+                    k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                    l = hittype[i][0];
+                    if (k > 4) {
+                        if (l == 2)
+                            l--;
+                        else if (l == 1)
+                            l++;
+                        k = 8 - k;
+                        sprite[i].cstat |= 4;
+                    } else {
+                        sprite[i].cstat &= ~4;
+                    }
+                    spritepicnum[j] += k + l * 5;
+                } else if (sprite[i].picnum == 283) {
+                    if (sector[sect].floorpal != 2) {
+                        if (sprite[i].owner >= 0)
+                            spritepal[j] = ps[sprite[i].yvel].palette;
+                        else
+                            spritepal[j] = 0;
+                    }
+                } else if (sprite[i].picnum == 263 || sprite[i].picnum == 264) {
+                    if (hittype[i][0] != 0) {
+                        k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                        if (k > 4) {
+                            k = 8 - k;
+                            sprite[i].cstat |= 4;
+                        } else {
+                            sprite[i].cstat &= ~4;
+                        }
+                        if (sprite[i].zvel < 0)
+                            k += (hittype[i][1] & 1) * 5;
+                        spritepicnum[j] = k + 247;
+                    }
+                } else if (sprite[i].picnum >= 930 && sprite[i].picnum <= 931) {
+                    k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                    if (k > 4) {
+                        k = 8 - k;
+                        sprite[i].cstat |= 4;
+                    } else {
+                        sprite[i].cstat &= ~4;
+                    }
+                    if (sprite[i].picnum == 931)
+                        k--;
+                    if (hittype[i][4] == 1)
+                        k += 5;
+                    spritepicnum[j] = k + sprite[i].picnum;
+                }
+            }
+        }
+    }
+    drawmasks();
+    if ((gotpic[572 >> 3] & (1 << (572 & 7))) > 0 && waloff[572] != -1) {
+        /* Floor reflection shared with draw_water_distortion. */
+        {
+            long column, row, depth = 0;
+            unsigned char shade, *pixel, *reflection;
+
+            for (column = 0; column < 320; column++) {
+                pixel = (unsigned char *)frameplace + column + 99 * 320;
+                for (row = 99; row < 200; row++, pixel += 320) {
+                    if (*pixel == 255) {
+                        if (depth == 0) {
+                            depth = 1;
+                            reflection = pixel - 320;
+                        }
+                        shade = *reflection & 31;
+                        shade = shade + 96 - (depth >> 1);
+                        if (depth > 63 || shade < 96 || shade > 128)
+                            shade = 96;
+                        reflection -= 320;
+                        depth++;
+                        *pixel = shade;
+                    } else {
+                        depth = 0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* draw_weapon_tile's body, written out where the overlay draws. */
+#define WEAPON_TILE(X, Y, TILE, SHADE, FLAGS)                                       \
+{                                                                                   \
+    short x_ = (X), y_ = (Y), tile_ = (TILE);                                       \
+    unsigned char shade_ = (SHADE), flags_ = (FLAGS), palette_;                     \
+                                                                                    \
+    if (ps[screenpeek].display_mode == 3) {                                         \
+        palette_ = sector[ps[screenpeek].cursectnum].floorpal;                      \
+        if (palette_)                                                               \
+            overwritesprite(x_, y_, tile_, shade_, flags_, palette_);               \
+        else                                                                        \
+            overwritesprite(x_, y_, tile_, shade_, flags_, ps[screenpeek].palette); \
+    }                                                                               \
+}
+
+/* minitext's small-font loop, written out for the score table. */
+#define SMALL_TEXT(X, Y, TEXT, SHADE) \
+{                       \
+    long x = (X), y = (Y); \
+    unsigned char *text = (unsigned char *)(TEXT); \
+    unsigned char shade_ = (SHADE); \
+    short left, tile, descender; \
+\
+    if (ps[screenpeek].display_mode != 2) { \
+        left = x;       \
+        while (*text) { \
+            descender = 0; \
+            if (*text == '\n') { \
+                x = left; \
+                y += 8; \
+                text++; \
+                continue; \
+            }           \
+            if (*text == ' ') { \
+                x += 2; \
+                text++; \
+                continue; \
+            }           \
+            tile = *text + 991; \
+            if (*text >= 'a' && *text <= 'z') \
+                descender = 2; \
+            overwritesprite(x, y + descender, tile, shade_, 0, 0); \
+            text++;     \
+            x += tilesizx[tile] + 1; \
+        }               \
+    }                   \
+}
+
+/* The view drawing of displayrooms, written out where a loop redraws the view. */
+#define DRAW_VIEW(P)                                                                         \
+{                                                                                            \
+    if (ps[P].display_mode == 2)                                                             \
+        draw2dscreen(ps[P].posx, ps[P].posy, ps[P].ang + ps[P].lookang, ps[P].mapzoom, 0);   \
+    else {                                                                                   \
+        if ((player_bits[P] & 0x80000) || (player_bits[P] & 0x100000) ||                     \
+            (player_bits[P] & 0x400000))                                                     \
+            permanentwritesprite(0, 0, 1170, 0, 0, 0, 319, 199);                             \
+        animatewalls();                                                                      \
+        animatecamsprite(P);                                                                 \
+        if (userdefs.camera >= 0) {                                                          \
+            if (sprite[userdefs.camera].yvel < 0)                                            \
+                sprite[userdefs.camera].yvel = 0;                                            \
+            else if (sprite[userdefs.camera].yvel > 199)                                     \
+                sprite[userdefs.camera].yvel = 199;                                          \
+            drawrooms(sprite[userdefs.camera].x, sprite[userdefs.camera].y,                  \
+                      sprite[userdefs.camera].z, sprite[userdefs.camera].ang,                \
+                      sprite[userdefs.camera].yvel, sprite[userdefs.camera].sectnum);        \
+            animatesprites(sprite[userdefs.camera].ang);                                     \
+        } else {                                                                             \
+            drawrooms(ps[P].posx, ps[P].posy, ps[P].posz, ps[P].ang + ps[P].lookang,         \
+                      ps[P].horiz, ps[P].cursectnum);                                        \
+            animatesprites(ps[P].ang + ps[P].lookang);                                       \
+        }                                                                                    \
+        drawmasks();                                                                         \
+        if ((gotpic[0x47] & 16) > 0 && waloff[572] != -1)                                    \
+            draw_water_distortion();                                                         \
+    }                                                                                        \
+}
+/* gametext's large-font loop, written out where screens draw fixed captions. */
+#define BIG_TEXT(X, Y, TEXT, SHADE)                                                         \
+{                                                                                           \
+    long x = (X), y = (Y);                                                                  \
+    unsigned char *text = (unsigned char *)(TEXT);                                          \
+    unsigned char shade_ = (SHADE);                                                         \
+    short left, tile, descender;                                                            \
+                                                                                            \
+    if (ps[screenpeek].display_mode != 2) {                                                 \
+        left = x;                                                                           \
+        while (*text) {                                                                     \
+            descender = 2;                                                                  \
+            if (*text == '\n') {                                                            \
+                x = left;                                                                   \
+                y += 16;                                                                    \
+                text++;                                                                     \
+                continue;                                                                   \
+            }                                                                               \
+            if (*text == ' ') {                                                             \
+                x += 5;                                                                     \
+                text++;                                                                     \
+                continue;                                                                   \
+            }                                                                               \
+            if (*text >= '0' && *text <= '9')                                               \
+                tile = *text + 101;                                                         \
+            if (*text >= 'a' && *text <= 'z')                                               \
+                tile = *text + 26;                                                          \
+            if (*text >= 'A' && *text <= 'Z') {                                             \
+                tile = *text + 32;                                                          \
+                descender = 0;                                                              \
+            }                                                                               \
+            overwritesprite(x, y + descender, tile, shade_, 0, 0);                          \
+            text++;                                                                         \
+            x += tilesizx[tile] + 1;                                                        \
+        }                                                                                   \
+    }                                                                                       \
+}
+
+void nonsharedkeys(void)
+{
+    if (keystatus[0x58]) {
+        keystatus[0x58] = 0;
+        screencapture();
+    }
+    if (keystatus[0x44]) {
+        keystatus[0x44] = 0;
+        userdefs.brightness++;
+        if (userdefs.brightness > 4)
+            userdefs.brightness = 0;
+        setbrightness(userdefs.brightness);
+    }
+    if (keystatus[0x14] > 0) {
+        keystatus[0x14] = 0;
+        ps[myconnectindex].gm |= 16;
+    }
+    if (keystatus[0x20]) {
+        keystatus[0x20] = 0;
+        userdefs.debug ^= 1;
+    }
+    if (option[2] && keystatus[0x32]) {
+        keystatus[0x32] = 0;
+        userdefs.music ^= 1;
+        if (userdefs.music == 0)
+            MUSIC_Pause();
+        else
+            MUSIC_Continue();
+    }
+    if (option[1] && keystatus[0x1f]) {
+        keystatus[0x1f] = 0;
+        userdefs.sound ^= 1;
+        if (userdefs.sound == 0)
+            FX_StopAllSounds();
+    }
+    if (keystatus[0x2f]) {
+        keystatus[0x2f] = 0;
+        userdefs.visibility--;
+        if (userdefs.visibility < 7)
+            userdefs.visibility = 16;
+    }
+    if (keystatus[0x25]) {
+        screenpeek = connectpoint2[screenpeek];
+        if (screenpeek == -1)
+            screenpeek = connecthead;
+        if (ps[screenpeek].display_mode == 3) {
+            overwritesprite(0, 0, 1170, 0, 0, 0);
+            nextpage();
+            overwritesprite(0, 0, 1170, 0, 0, 0);
+            nextpage();
+            setgamemode();
+        } else
+            qsetmode640480();
+        vscrn(screenpeek);
+        keystatus[0x25] = 0;
+    }
+    if (keystatus[0x11] && userdefs.debug && (ps[myconnectindex].gm & 16) == 0) {
+        keystatus[0x11] = 0;
+        while ((keystatus[0x1c] | keystatus[0x9c] | keystatus[0x39] | keystatus[1]) == 0) {
+            DRAW_VIEW(screenpeek);
+            if (keystatus[0xc9]) {
+                ps[0].volume++;
+                keystatus[0xc9] = 0;
+            }
+            if (keystatus[0xd1]) {
+                ps[0].volume--;
+                keystatus[0xd1] = 0;
+            }
+            if (keystatus[0x48] | keystatus[0xc8]) {
+                ps[0].level++;
+                keystatus[0x48] = keystatus[0xc8] = 0;
+            }
+            if (keystatus[0x50] | keystatus[0xd0]) {
+                ps[0].level--;
+                keystatus[0x50] = keystatus[0xd0] = 0;
+            }
+            ps[0].volume &= 3;
+            ps[0].level &= 15;
+            BIG_TEXT(112, 50, warp_title, 0);
+            BIG_TEXT(100, 69, warp_episode, 0);
+            BIG_TEXT(100, 88, warp_level, 0);
+            ltoa(ps[0].volume + 1, tempbuf, 10);
+            gametext(210, 67, (unsigned char *)tempbuf, 0);
+            ltoa(ps[0].level + 1, tempbuf, 10);
+            gametext(210, 86, (unsigned char *)tempbuf, 0);
+            nextpage();
+        }
+        if (keystatus[1] == 0)
+            enterlevel(4);
+        keystatus[0x1c] = keystatus[0x9c] = keystatus[0x39] = keystatus[1] = 0;
+    }
+}
+
+void show_help(char **argv)
+{
+    puts(help_banner);
+    printf(help_usage, argv[0]);
+    puts(help_help);
+    puts(help_level);
+    puts(help_volume);
+    puts(help_skill);
+    puts(help_quotes);
+    puts(help_debug);
+    puts(help_record);
+    puts(help_output);
+    puts(help_encode);
+}
+
+void checkcommandline(int argc, char **argv)
+{
+    short i, j;
+    char *c, *mapname;
+
+    userdefs.quotes = 0;
+    level_warp = 0;
+    i = 1;
+    if (argc > 1) {
+    mapname = encode_mapname;
+    while (i < argc) {
+        c = argv[i];
+        if (*c == '/') {
+            c++;
+            switch (*c) {
+            default:
+                printf(unknown_parameter, argv[i]);
+            case '?':
+                show_help(argv);
+                exit(0);
+            case 'q':
+            case 'Q':
+                userdefs.quotes = 1;
+                break;
+            case 'r':
+            case 'R':
+                demomode = 1;
+                puts(demorec_on);
+                break;
+            case 'o':
+            case 'O':
+                c++;
+                j = 0;
+                while (*c) {
+                    output_path[j] = *c;
+                    j++;
+                    c++;
+                }
+                output_path[j] = 0;
+                printf(output_rerouted, output_path);
+                break;
+            case 's':
+            case 'S':
+                c++;
+                ps[0].skill = atoi(c) - 1;
+                break;
+            case 'd':
+            case 'D':
+                userdefs.debug = 1;
+                break;
+            case 'l':
+            case 'L':
+                level_warp = 1;
+                c++;
+                ps[0].level = atoi(c) - 1;
+                break;
+            case 'v':
+            case 'V':
+                c++;
+                ps[0].volume = atoi(c) - 1;
+                break;
+            case 'e':
+            case 'E':
+                for (j = 0; j < 3; j++)
+                    for (i = 0; i < 9; i++) {
+                        mapname[0] = 'L' + j;
+                        mapname[1] = '1' + i;
+                        printf(encode_message, mapname);
+                    }
+                break;
+            }
+        } else {
+            printf(unknown_parameter2, c);
+            show_help(argv);
+            exit(0);
+        }
+        i++;
+    }
+    }
+}
+
+/* numtext_fixed's body, written out for the status bar. */
+#define NUMTEXT_FIXED(X, Y, VALUE, SHADE)                                        \
+{                                                                                \
+    short i_, offset_;                                                           \
+                                                                                 \
+    ltoa(VALUE, tempbuf, 10);                                                    \
+    i_ = strlen(tempbuf);                                                        \
+    offset_ = 0;                                                                 \
+    while (i_ != 0) {                                                            \
+        overwritesprite((X) - offset_, Y, tempbuf[i_ - 1] + 0x536, SHADE, 0, 0); \
+        offset_ += 6;                                                            \
+        i_--;                                                                    \
+    }                                                                            \
+}
+void wait_for_players(void)
+{
+    short other, packbufleng, numwanted;
+    long i, j, k;
+
+    if (option[4] >= 1 && option[4] <= 4)
+        numwanted = 2;
+    else
+        numwanted = option[4] - 3;
+    sendlogon();
+    while (numplayers < numwanted && keystatus[1] == 0) {
+        while ((packbufleng = getpacket(&other, (unsigned char *)tempbuf)) > 0) {
+        switch (tempbuf[0]) {
+        case 2:
+            script_tics = tempbuf[1];
+            j = ((numplayers + 1) >> 1) + 2;
+            k = 16;
+            for (i = connecthead; i >= 0; i = connectpoint2[i]) {
+                if ((tempbuf[k >> 3] & (1 << (k & 7))) > 0)
+                    player_svel[i] = tempbuf[j++];
+                if ((tempbuf[k >> 3] & (2 << (k & 7))) > 0)
+                    player_vel[i] = tempbuf[j++];
+                if ((tempbuf[k >> 3] & (4 << (k & 7))) > 0)
+                    player_avel[i] = tempbuf[j++];
+                if ((tempbuf[k >> 3] & (8 << (k & 7))) > 0) {
+                    player_bits[i] = tempbuf[j] + (tempbuf[j + 1] << 8) +
+                                     (tempbuf[j + 2] << 16) + (tempbuf[j + 3] << 24);
+                    j += 4;
+                }
+                k += 4;
+            }
+            domovethings();
+            break;
+        case 3:
+            j = 2;
+            if ((tempbuf[1] & 1) > 0)
+                player_svel[other] = tempbuf[j++];
+            if ((tempbuf[1] & 2) > 0)
+                player_vel[other] = tempbuf[j++];
+            if ((tempbuf[1] & 4) > 0)
+                player_avel[other] = tempbuf[j++];
+            if ((tempbuf[1] & 8) > 0)
+                player_bits[other] = (player_bits[other] & 0xffffff00) | tempbuf[j++];
+            if ((tempbuf[1] & 16) > 0)
+                player_bits[other] = (player_bits[other] & 0xffff00ff) | ((long)tempbuf[j++] << 8);
+            if ((tempbuf[1] & 32) > 0)
+                player_bits[other] = (player_bits[other] & 0xff00ffff) | ((long)tempbuf[j++] << 16);
+            if ((tempbuf[1] & 64) > 0)
+                player_bits[other] = (player_bits[other] & 0x00ffffff) | ((long)tempbuf[j++] << 24);
+            break;
+        case 4:
+            for (i = 1; i < packbufleng; i++)
+                input_text[input_text_length++] = tempbuf[i];
+            msgtext = input_text;
+            msgtime = input_text_length << 4;
+            input_text[0] = 0;
+            break;
+        case 5:
+            playerreadyflag[other] = 1;
+            break;
+        case 255:
+            ps[myconnectindex].gm = 128;
+            break;
+        }
+        }
+    }
+    keystatus[1] = 0;
+}
+
+void main(int argc, char **argv)
+{
+    unsigned char which;
+    short status;
+    long i, j, k;
+    short p, offset;
+    unsigned char shade;
+    short x, y;
+
+    setvmode(3);
+    puts(main_banner);
+    puts(main_loading_stats);
+    read_userdefs();
+    puts(main_init_cache);
+    init_bootleg_cache();
+    puts(main_checking);
+    if (check_file_id()) {
+        puts(main_no_good);
+        unlink(argv[0]);
+        return;
+    }
+    checkcommandline(argc, argv);
+    loadefs();
+    puts(main_init_engine);
+    initmenus();
+    initengine();
+    inittimer();
+    puts(main_multiplayer);
+    initmultiplayers(option[4], option[5]);
+    puts(main_loading_art);
+    loadpics(main_tiles_file);
+    puts(main_init_remaps);
+    init_water_ripples();
+    loadlookup();
+    if (option[1]) {
+        puts(main_init_fx);
+        status = FX_SetupCard(sound_device_map[option[1]], &fx_device);
+        if (status)
+            gameexit(FX_ErrorString(status));
+        puts(main_reading_sounds);
+        loadsounds();
+        status = FX_Init(sound_device_map[option[1]], 4, 2, 16, 11000);
+        if (status)
+            gameexit(FX_ErrorString(status));
+        FX_SetCallBack(TestCallBack);
+        FX_SetVolume(userdefs.sound_volume);
+    }
+    if (option[2]) {
+        puts(main_init_music);
+        status = MUSIC_Init(sound_device_map[option[1]], 0);
+        if (status)
+            gameexit(MUSIC_ErrorString(status));
+        MUSIC_SetVolume(userdefs.music_volume);
+    }
+    if (option[4]) {
+        puts(main_locating);
+        if (option[4] >= 1 && option[4] <= 4)
+            p = 2;
+        else
+            p = option[4] - 3;
+        sendlogon();
+        while (numplayers < p && keystatus[1] == 0)
+            domovethings_multiplayer();
+        keystatus[1] = 0;
+    }
+    setgamemode();
+    if (level_warp) {
+        newgame(ps[0].volume, ps[0].level, ps[0].skill);
+        enterlevel(4);
+    }
+
+attract:
+    if (level_warp == 0) {
+        which = 1;
+nextdemo:
+        read_demo(which++);
+        if (which == 8)
+            which = 0;
+        enterlevel(2);
+        demomode = 2;
+        reccnt--;
+        i = 0;
+        while (i < reccnt) {
+            nonsharedkeys();
+            while (totalclock > lockclock) {
+                player_svel[0] = demo_svel[i];
+                player_vel[0] = demo_vel[i];
+                player_avel[0] = demo_avel[i];
+                player_bits[0] = demo_bits[i];
+                script_tics = demo_tics[i];
+                player_bits[0] &= ~0x180000;
+                domovethings();
+                i++;
+            }
+            while (totalclock <= lockclock) {
+                displayrooms(screenpeek);
+                if (ps[screenpeek].newowner >= 0)
+                    draw_monitor_overlay();
+                else if (userdefs.camera == -1) {
+                    displayweapon(screenpeek);
+                    displaystatus(screenpeek);
+                    displayquotes(screenpeek);
+                }
+                if (keystatus[1]) {
+                    keystatus[1] = 0;
+                    current_menu = 0;
+                    ps[myconnectindex].gm |= 1;
+                }
+                if (ps[myconnectindex].gm & 1) {
+                    ps[myconnectindex].gm &= ~16;
+                    menus();
+                }
+                if (userdefs.camera >= 0)
+                    overwritesprite(268, 156, 481, 0, 4, 0);
+                pan3dsound();
+                nextpage();
+                if (ps[myconnectindex].gm == 128)
+                    goto play;
+                if (ps[myconnectindex].gm & 4) {
+                    if (ps[myconnectindex].gm & 2)
+                        goto nextdemo;
+                    demomode = 0;
+                    goto play;
+                }
+            }
+        }
+        goto nextdemo;
+    }
+    level_warp = 0;
+
+play:
+    for (;;) {
+        if (ps[myconnectindex].gm & 128) {
+            if (userdefs.debug == 0 && (ps[myconnectindex].gm & 2) == 0) {
+                p = newscore();
+                if (p >= 0) {
+                    while (getscorename(p) == 0) {
+                        nextpage();
+                        DRAW_VIEW(screenpeek);
+                        displayhighscores();
+                    }
+                    memcpy(score_names[p], input_text, 31);
+                }
+                do {
+                    DRAW_VIEW(screenpeek);
+                    displayhighscores();
+                    nextpage();
+                } while (keystatus[1] == 0 && keystatus[0x39] == 0 && keystatus[0x1c] == 0);
+            }
+            write_demo();
+            write_userdefs();
+            gameexit(main_game_over);
+            return;
+        }
+        nonsharedkeys();
+        DRAW_VIEW(screenpeek);
+        if (ps[myconnectindex].gm & 16) {
+            x = 10;
+            y = 140;
+            shade = next_text_shade();
+            for (p = 0; p < 128; p++) {
+                if (keystatus[p] > 0) {
+                    if (keystatus[0x2a] | keystatus[0x36]) {
+                        if (scan_ascii_shift[p]) {
+                            if (input_text_length < 79)
+                                input_text[input_text_length++] = scan_ascii_shift[p];
+                            keystatus[p] = 0;
+                        }
+                    } else if (scan_ascii[p]) {
+                        if (input_text_length < 159)
+                            input_text[input_text_length++] = scan_ascii[p];
+                        keystatus[p] = 0;
+                    }
+                    if (input_text_length > 79)
+                        input_text_length = 79;
+                    if (keystatus[0x0e] > 0) {
+                        if (keystatus[0x0e] == 1 || keystatus[0x0e] == 60) {
+                            if (input_text_length > 0)
+                                input_text_length--;
+                            else
+                                input_text_length = 0;
+                        }
+                        input_text[input_text_length] = 0;
+                        if (keystatus[0x0e] < 60) {
+                            keystatus[0x0e] += script_tics;
+                            if (keystatus[0x0e] > 60)
+                                keystatus[0x0e] = 60;
+                        }
+                    }
+                }
+            }
+            if (shade < 128) {
+                x = minitext(x, y, input_text, shade & 127);
+                draw_weapon_tile(x, y, 1023, shade, 0);
+            } else {
+                x = gametext(x, y, input_text, shade & 127);
+                draw_weapon_tile(x, y, 1022, shade, 0);
+            }
+            if (keystatus[0x1c] | keystatus[0x9c]) {
+                tempbuf[0] = 4;
+                j = 1;
+                for (p = 0; p < input_text_length; p++)
+                    tempbuf[j++] = input_text[p];
+                for (k = connecthead; k >= 0; k = connectpoint2[k])
+                    if (k != myconnectindex)
+                        sendpacket(k, (unsigned char *)tempbuf, p);
+                ps[myconnectindex].gm ^= 16;
+            }
+        }
+        if (userdefs.paused && ps[screenpeek].display_mode == 3)
+            draw_fade_transition();
+        if ((ps[myconnectindex].gm & 4) &&
+            (((ps[myconnectindex].gm & 1) == 0 && numplayers < 2) ||
+             ((ps[myconnectindex].gm & 1) && numplayers >= 2))) {
+            if (totalclock < 360 && numplayers > 1 && userdefs.debug) {
+                if (myconnectindex == connecthead) {
+                    BIG_TEXT(120, 48, main_master, 0);
+                } else {
+                    BIG_TEXT(130, 48, main_slave, 0);
+                }
+            }
+            if (ps[screenpeek].newowner >= 0) {
+                shade = next_text_shade();
+                draw_weapon_tile(10, 10, 275, shade, 2);
+                draw_weapon_tile(274, 10, 276, shade, 2);
+                draw_weapon_tile(10, 160, 277, shade, 2);
+                draw_weapon_tile(274, 160, 278, shade, 2);
+                if (totalclock & 16)
+                    draw_weapon_tile(18, 20, 279, shade, 2);
+            } else {
+                displayweapon(screenpeek);
+                p = screenpeek;
+                STATUS_BAR(p);
+                p = screenpeek;
+                SHOW_QUOTES(p);
+            }
+            if (numplayers < 2) {
+                getinput(0);
+                randomstash = krand();
+                userdefs.camera = -1;
+                lockclock += script_tics;
+                doanimations(script_tics);
+                if (userdefs.paused == 0) {
+                    if (demomode == 1)
+                        record(0);
+                    moveeffects();
+                    move_status9();
+                }
+                for (p = connecthead; p >= 0; p = connectpoint2[p]) {
+                    playerkeys(p);
+                    if (userdefs.paused == 0) {
+                        processinput(p);
+                        checksectors(p);
+                    }
+                }
+                if (userdefs.paused == 0) {
+                    moveplayers();
+                    moveweapons();
+                    movestandables();
+                    moveeffectors();
+                    wakeactors();
+                    moveactors();
+                    movemusic();
+                }
+                script_tics = 0;
+            } else if (myconnectindex == connecthead) {
+                getinput(myconnectindex);
+                domovethings_multiplayer();
+                if (script_tics > 0 && getoutputcirclesize() < 16) {
+                    tempbuf[0] = 2;
+                    tempbuf[1] = script_tics;
+                    j = ((numplayers + 1) >> 1) + 2;
+                    for (k = 2; k < j; k++)
+                        tempbuf[k] = 0;
+                    k = 16;
+                    for (i = connecthead; i >= 0; i = connectpoint2[i]) {
+                        if (player_svel[i] != pending_svel[i]) {
+                            tempbuf[j++] = player_svel[i];
+                            pending_svel[i] = player_svel[i];
+                            tempbuf[k >> 3] |= 1 << (k & 7);
+                        }
+                        if (player_vel[i] != pending_vel[i]) {
+                            tempbuf[j++] = player_vel[i];
+                            pending_vel[i] = player_vel[i];
+                            tempbuf[k >> 3] |= 2 << (k & 7);
+                        }
+                        if (player_avel[i] != pending_avel[i]) {
+                            tempbuf[j++] = player_avel[i];
+                            pending_avel[i] = player_avel[i];
+                            tempbuf[k >> 3] |= 4 << (k & 7);
+                        }
+                        if (player_bits[i] != pending_bits[i]) {
+                            tempbuf[j++] = player_bits[i] & 255;
+                            tempbuf[j++] = (player_bits[i] >> 8) & 255;
+                            tempbuf[j++] = (player_bits[i] >> 16) & 255;
+                            tempbuf[j++] = (player_bits[i] >> 24) & 255;
+                            pending_bits[i] = player_bits[i];
+                            tempbuf[k >> 3] |= 8 << (k & 7);
+                        }
+                        k += 4;
+                    }
+                    for (i = connecthead; i >= 0; i = connectpoint2[i])
+                        if (i != myconnectindex)
+                            sendpacket(i, (unsigned char *)tempbuf, j);
+                    domovethings();
+                }
+            } else {
+                getinput(16);
+                if (getoutputcirclesize() < 16) {
+                    tempbuf[0] = 3;
+                    tempbuf[1] = 0;
+                    j = 2;
+                    if (player_svel[16] != pending_svel[16]) {
+                        tempbuf[j++] = player_svel[16];
+                        pending_svel[16] = player_svel[16];
+                        tempbuf[1] |= 1;
+                    }
+                    if (player_vel[16] != pending_vel[16]) {
+                        tempbuf[j++] = player_vel[16];
+                        pending_vel[16] = player_vel[16];
+                        tempbuf[1] |= 2;
+                    }
+                    if (player_avel[16] != pending_avel[16]) {
+                        tempbuf[j++] = player_avel[16];
+                        pending_avel[16] = player_avel[16];
+                        tempbuf[1] |= 4;
+                    }
+                    if ((player_bits[16] & 0xff) != (pending_bits[16] & 0xff)) {
+                        tempbuf[j++] = player_bits[16] & 255;
+                        tempbuf[1] |= 8;
+                    }
+                    if ((player_bits[16] | 0xff) != (pending_bits[16] | 0xff)) {
+                        tempbuf[j++] = (player_bits[16] >> 8) & 255;
+                        tempbuf[1] |= 16;
+                    }
+                    if ((player_bits[16] & 0xff0000) != (pending_bits[16] & 0xff0000)) {
+                        tempbuf[j++] = (player_bits[16] >> 16) & 255;
+                        tempbuf[1] |= 32;
+                    }
+                    if ((player_bits[16] | 0xff0000) != (pending_bits[16] | 0xff0000)) {
+                        tempbuf[j++] = (player_bits[16] >> 24) & 255;
+                        tempbuf[1] |= 64;
+                    }
+                    pending_bits[16] = player_bits[16];
+                    sendpacket(connecthead, (unsigned char *)tempbuf, j);
+                }
+                domovethings_multiplayer();
+            }
+            if (ps[myconnectindex].gm & 8) {
+                ps[myconnectindex].level++;
+                enterlevel(4);
+                continue;
+            }
+        }
+        if (ps[myconnectindex].gm & 1) {
+            ps[myconnectindex].gm &= ~16;
+            menus();
+            if (ps[myconnectindex].gm & 2)
+                goto attract;
+        }
+        nextpage();
+        pan3dsound();
+    }
+}
+
+void displaystatus(short snum)
+{
+    short i;
+
+    if (ps[snum].display_mode != 3)
+        return;
+    if ((sector[ps[snum].cursectnum].lotag & 0x7fff) == 15)
+        WEAPON_TILE(160, 120, 1136, 0, 1);
+    if (ps[snum].screen_size >= 0) {
+        overwritesprite(0, 0, 1380, 0, 0, 0);
+        overwritesprite(160, 189, 1381, 0, 1, 0);
+        NUMTEXT_FIXED(82, 6, ps[snum].score, 0);
+        NUMTEXT_FIXED(119, 186, ps[snum].health, 0);
+        for (i = 0; i < 25; i++)
+            if (i < ps[snum].health >> 2)
+                overwritesprite(i * 3 + 30, 186, 1392, 0, 0, 0);
+        switch (ps[snum].curr_weapon) {
+        case 389:
+        case 1230:
+            NUMTEXT_FIXED(209, 186, ps[snum].batteryammo, 0);
+            overwritesprite(160, 192, 1400, 0, 1, 0);
+            for (i = 0; i < 25; i++)
+                if (i < ps[snum].batteryammo >> 2)
+                    overwritesprite(i * 3 + 216, 186, 1392, 0, 0, 0);
+            break;
+        case 191:
+            NUMTEXT_FIXED(209, 186, ps[snum].ammo, 0);
+            overwritesprite(160, 192, 1401, 0, 1, 0);
+            for (i = 0; i < 25; i++)
+                if (i < ps[snum].ammo >> 2)
+                    overwritesprite(i * 3 + 216, 186, 1392, 0, 0, 0);
+            break;
+        case 721:
+        case 1140:
+            NUMTEXT_FIXED(209, 186, ps[snum].remote_ammo, 0);
+            overwritesprite(160, 192, 1402, 0, 1, 0);
+            for (i = 0; i < 25; i++)
+                if (i < ps[snum].remote_ammo >> 2)
+                    overwritesprite(i * 3 + 216, 186, 1392, 0, 0, 0);
+            break;
+        case 563:
+            NUMTEXT_FIXED(209, 186, ps[snum].rocket_ammo, 0);
+            overwritesprite(160, 192, 1403, 0, 1, 0);
+            for (i = 0; i < 25; i++)
+                if (i < ps[snum].rocket_ammo >> 2)
+                    overwritesprite(i * 3 + 216, 186, 1392, 0, 0, 0);
+            break;
+        }
+    }
+    if (ps[snum].state92) {
+        overwritesprite(0, 28, 1398, 0, 0, 0);
+        if (ps[snum].state95)
+            overwritesprite(39, 41, 1399, 0, 0, 0);
+        if (ps[snum].armor)
+            overwritesprite(39, 66, 1399, 0, 0, 0);
+        if (ps[snum].scuba_on)
+            overwritesprite(39, 93, 1399, 0, 0, 0);
+        if (ps[snum].flash_sprite)
+            overwritesprite(39, 119, 1399, 0, 0, 0);
+        if (ps[snum].jetpack_on)
+            overwritesprite(39, 145, 1399, 0, 0, 0);
+        if (ps[snum].inventory[2])
+            overwritesprite(13, 39, 717, 0, 0, 0);
+        if (ps[snum].inventory[3])
+            overwritesprite(14, 64, 719, 0, 0, 0);
+        if (ps[snum].inventory[0])
+            overwritesprite(13, 90, 716, 0, 0, 0);
+        if (ps[snum].inventory[4])
+            overwritesprite(13, 117, 718, 0, 0, 0);
+        if (ps[snum].inventory[1])
+            overwritesprite(13, 141, 713, 0, 0, 0);
+    }
+}
+
+void playback_demo(void)
+{
+    unsigned char which = 1;
+    long i;
+    short p, j, offset;
+    unsigned char shade;
+
+restart:
+    read_demo(which++);
+    if (which == 8)
+        which = 0;
+    enterlevel(2);
+    demomode = 2;
+    reccnt--;
+    i = 0;
+    while (i < reccnt) {
+        nonsharedkeys();
+        while (totalclock > lockclock) {
+            player_svel[0] = demo_svel[i];
+            player_vel[0] = demo_vel[i];
+            player_avel[0] = demo_avel[i];
+            player_bits[0] = demo_bits[i];
+            script_tics = demo_tics[i];
+            player_bits[0] &= ~0x180000;
+            randomstash = krand();
+            userdefs.camera = -1;
+            lockclock += script_tics;
+            doanimations(script_tics);
+            if (userdefs.paused == 0) {
+                if (demomode == 1)
+                    record(0);
+                moveeffects();
+                move_status9();
+            }
+            for (p = connecthead; p >= 0; p = connectpoint2[p]) {
+                playerkeys(p);
+                if (userdefs.paused == 0) {
+                    processinput(p);
+                    checksectors(p);
+                }
+            }
+            if (userdefs.paused == 0) {
+                moveplayers();
+                moveweapons();
+                movestandables();
+                moveeffectors();
+                wakeactors();
+                moveactors();
+                movemusic();
+            }
+            script_tics = 0;
+            i++;
+        }
+        while (totalclock <= lockclock) {
+            DRAW_VIEW(screenpeek);
+            if (ps[screenpeek].newowner >= 0) {
+                shade = next_text_shade();
+                draw_weapon_tile(10, 10, 275, shade, 2);
+                draw_weapon_tile(274, 10, 276, shade, 2);
+                draw_weapon_tile(10, 160, 277, shade, 2);
+                draw_weapon_tile(274, 160, 278, shade, 2);
+                if (totalclock & 16)
+                    draw_weapon_tile(18, 20, 279, shade, 2);
+            } else if (userdefs.camera == -1) {
+                displayweapon(screenpeek);
+                p = screenpeek;
+                STATUS_BAR(p);
+                p = screenpeek;
+                SHOW_QUOTES(p);
+            }
+            if (keystatus[1]) {
+                keystatus[1] = 0;
+                ps[myconnectindex].gm |= 1;
+                current_menu = 0;
+            }
+            if (ps[myconnectindex].gm & 1) {
+                ps[myconnectindex].gm &= ~16;
+                menus();
+            }
+            if (userdefs.camera >= 0)
+                overwritesprite(268, 156, 481, 0, 4, 0);
+            pan3dsound();
+            nextpage();
+            if (ps[myconnectindex].gm == 128)
+                return;
+            if (ps[myconnectindex].gm & 4) {
+                if (ps[myconnectindex].gm & 2)
+                    goto restart;
+                demomode = 0;
+                return;
+            }
+        }
+    }
+    goto restart;
+}
+
 void record(short player)
 {
     demo_svel[reccnt] = player_svel[player];
@@ -704,6 +3518,228 @@ void record(short player)
     demo_tics[reccnt] = script_tics;
     if (++reccnt > 16383)
         reccnt = 16383;
+}
+
+/* Water and teleporter pairs (status 9); domovethings writes the same walk out. */
+#define MOVE_STATUS9()                                                                      \
+{                                                                                           \
+    i = headspritestat[9];                                                                  \
+    while (i >= 0) {                                                                        \
+        sect = sprite[i].sectnum;                                                           \
+        if (sprite[i].z > sector[sect].floorz)                                              \
+            sprite[i].z = sector[sect].floorz;                                              \
+        if (sector[sect].lotag == 0 && sector[sect].floorz == sprite[i].z) {                \
+            j = headspritesect[sect];                                                       \
+            while (j >= 0) {                                                                \
+                if (hittype[i][1]) {                                                        \
+                    hittype[i][1]--;                                                        \
+                    break;                                                                  \
+                }                                                                           \
+                if (sprite[j].statnum != 3 && sprite[j].statnum != 9 &&                     \
+                    sprite[j].picnum != 215 && sprite[j].picnum != 283) {                   \
+                    k = headspritestat[9];                                                  \
+                    while (k >= 0) {                                                        \
+                        if (k != i && sprite[i].hitag == sprite[k].hitag) {                 \
+                            sprite[j].x = sprite[k].x;                                      \
+                            sprite[j].y = sprite[k].y;                                      \
+                            sprite[j].z = sprite[k].z;                                      \
+                            setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);            \
+                            hittype[k][1] = 10;                                             \
+                            hittype[i][1] = 10;                                             \
+                        }                                                                   \
+                        k = nextspritestat[k];                                              \
+                    }                                                                       \
+                }                                                                           \
+                j = nextspritesect[j];                                                      \
+            }                                                                               \
+        }                                                                                   \
+                                                                                            \
+        p = connecthead;                                                                    \
+        while (p >= 0) {                                                                    \
+            if (sect == ps[p].cursectnum) {                                                 \
+                lotag = sector[sect].lotag & 0x7fff;                                        \
+                if (lotag == 0) {                                                           \
+                    if (klabs(sprite[i].z - ps[p].posz) > 4096 &&                           \
+                        sprite[i].z != sector[sect].floorz)                                 \
+                        goto nextplayer;                                                    \
+                } else if (lotag == 2) {                                                    \
+                    if (sector[sect].ceilingz + 0x500 < ps[p].posz)                         \
+                        goto nextplayer;                                                    \
+                } else if (lotag == 1) {                                                    \
+                    if (sector[sect].floorz - 0x500 > ps[p].posz)                           \
+                        goto nextplayer;                                                    \
+                }                                                                           \
+                if (hittype[i][0]) {                                                        \
+                    hittype[i][0]--;                                                        \
+                    goto nextplayer;                                                        \
+                }                                                                           \
+                m = headspritestat[9];                                                      \
+                while (m >= 0) {                                                            \
+                    if (m != i && sprite[i].hitag == sprite[m].hitag) {                     \
+                        otherlotag = lotag;                                                 \
+                        lotag = sector[sprite[m].sectnum].lotag;                            \
+                        if (!(otherlotag == 1 && lotag == 0) &&                             \
+                            !(otherlotag == 1 && lotag == 1) &&                             \
+                            !(otherlotag == 2 && lotag == 2)) {                             \
+                            if (lotag == 0) {                                               \
+                                ps[p].posx = sprite[m].x;                                   \
+                                ps[p].posy = sprite[m].y;                                   \
+                                if (sprite[m].z != sprite[i].z)                             \
+                                    ps[p].posz = sprite[m].z;                               \
+                                else                                                        \
+                                    ps[p].posz = sector[sprite[m].sectnum].floorz - 0x2400; \
+                                hittype[m][0] = 20;                                         \
+                                hittype[i][0] = 20;                                         \
+                            }                                                               \
+                            if (lotag == 1) {                                               \
+                                if (ps[p].on_ground)                                        \
+                                    spritesound(28, ps[p].i);                               \
+                                ps[p].posx += sprite[m].x - sprite[i].x;                    \
+                                ps[p].posy += sprite[m].y - sprite[i].y;                    \
+                                ps[p].posz = sprite[m].z - 0x600;                           \
+                                hittype[m][0] = 1;                                          \
+                                hittype[i][0] = 1;                                          \
+                            }                                                               \
+                            if (lotag == 2) {                                               \
+                                spritesound(10, ps[p].i);                                   \
+                                ps[p].posx += sprite[m].x - sprite[i].x;                    \
+                                ps[p].posy += sprite[m].y - sprite[i].y;                    \
+                                ps[p].posz = sector[sprite[m].sectnum].ceilingz + 0x600;    \
+                                hittype[m][0] = 1;                                          \
+                                hittype[i][0] = 1;                                          \
+                            }                                                               \
+                            ps[p].cursectnum = sprite[m].sectnum;                           \
+                            if (sector[ps[p].cursectnum].lotag & 0x7fff) {                  \
+                                for (k = 0; k < 20; k++)                                    \
+                                    spawn(ps[p].i, 215);                                    \
+                                spawn(ps[p].i, 1190);                                       \
+                            }                                                               \
+                            break;                                                          \
+                        }                                                                   \
+                    }                                                                       \
+                    m = nextspritestat[m];                                                  \
+                }                                                                           \
+            }                                                                               \
+    nextplayer:                                                                             \
+            p = connectpoint2[p];                                                           \
+        }                                                                                   \
+        i = nextspritestat[i];                                                              \
+    }                                                                                       \
+}
+
+
+void domovethings(void)
+{
+    short i, j, m, p, sect;
+    long k;
+    long lotag, otherlotag;
+
+    randomstash = krand();
+    userdefs.camera = -1;
+    lockclock += script_tics;
+    doanimations(script_tics);
+    if (userdefs.paused == 0) {
+        if (demomode == 1)
+            record(0);
+        moveeffects();
+        MOVE_STATUS9();
+    }
+    for (p = connecthead; p >= 0; p = connectpoint2[p]) {
+        playerkeys(p);
+        if (userdefs.paused == 0) {
+            processinput(p);
+            checksectors(p);
+        }
+    }
+    if (userdefs.paused == 0) {
+        moveplayers();
+        moveweapons();
+        movestandables();
+        moveeffectors();
+        wakeactors();
+        moveactors();
+        movemusic();
+    }
+    script_tics = 0;
+}
+
+
+void dobonus(void)
+{
+    short i, start, shade;
+    long pct;
+
+    start = totalclock;
+    menu_drag = 0;
+    while (menu_drag == 0 &&
+           (keystatus[0x1c] | keystatus[0x9c] | keystatus[0x39] | keystatus[1]) == 0 &&
+           start + 2048 > totalclock) {
+        shade = (unsigned char)next_text_shade();
+        if (keystatus[0x39])
+            start = totalclock - 2400;
+        if (ps[0].volume == 0)
+            overwritesprite(0, 0, 1132, 0, 0, 0);
+        else if (ps[0].volume == 1)
+            overwritesprite(0, 0, 1135, 0, 0, 0);
+        BIG_TEXT(36, 160, bonus_press_space, shade);
+        for (i = 0; i < ps[0].level; i++)
+            overwritesprite(bonus_marks[ps[0].volume][i][0], bonus_marks[ps[0].volume][i][1],
+                            1133, shade, 0, 0);
+        overwritesprite(bonus_marks[ps[0].volume][i][0], bonus_marks[ps[0].volume][i][1],
+                        1134, shade, 0, 0);
+        if (ps[myconnectindex].gm == 8) {
+            BIG_TEXT(32, 10, bonus_title, 0);
+            if (start + 240 < totalclock) {
+                if (ps[0].max_secret_rooms)
+                    pct = (ps[0].secret_rooms * 100) / ps[0].max_secret_rooms;
+                SMALL_TEXT(60, 50, bonus_secrets, shade);
+                ltoa((short)pct, tempbuf, 10);
+                minitext(60, 60, (unsigned char *)tempbuf, shade);
+                SMALL_TEXT(72, 60, bonus_percent, shade);
+                ltoa((short)pct * 10000, tempbuf, 10);
+                minitext(100, 60, (unsigned char *)tempbuf, shade);
+                SMALL_TEXT(140, 60, bonus_points, 0);
+                ps[screenpeek].score += (short)pct * 10000;
+            }
+            if (start + 480 < totalclock) {
+                if (ps[0].max_squashed)
+                    pct = (ps[0].actors_squashed * 100) / ps[0].max_squashed;
+                SMALL_TEXT(60, 80, bonus_squashed, shade);
+                ltoa((short)pct, tempbuf, 10);
+                minitext(60, 90, (unsigned char *)tempbuf, shade);
+                SMALL_TEXT(72, 90, bonus_percent, shade);
+                ltoa((short)pct * 1000, tempbuf, 10);
+                minitext(100, 90, (unsigned char *)tempbuf, shade);
+                SMALL_TEXT(140, 90, bonus_points, shade);
+                ps[screenpeek].score += (short)pct * 1000;
+            }
+            if (start + 720 < totalclock) {
+                if (ps[0].max_actors_killed)
+                    pct = (ps[0].actors_killed * 100) / ps[0].max_actors_killed;
+                SMALL_TEXT(60, 110, bonus_killed, shade);
+                ltoa((short)pct, tempbuf, 10);
+                minitext(60, 120, (unsigned char *)tempbuf, shade);
+                SMALL_TEXT(72, 120, bonus_percent, shade);
+                ltoa((short)pct * 1000, tempbuf, 10);
+                minitext(100, 120, (unsigned char *)tempbuf, shade);
+                SMALL_TEXT(140, 120, bonus_points, shade);
+                ps[screenpeek].score += (short)pct * 1000;
+            }
+        }
+        nextpage();
+    }
+}
+
+void draw_monitor_overlay(void)
+{
+    short shade = (unsigned char)next_text_shade();
+
+    WEAPON_TILE(10, 10, 275, shade, 2);
+    WEAPON_TILE(274, 10, 276, shade, 2);
+    WEAPON_TILE(10, 160, 277, shade, 2);
+    WEAPON_TILE(274, 160, 278, shade, 2);
+    if (totalclock & 16)
+        WEAPON_TILE(18, 20, 279, shade, 2);
 }
 
 void update_menu_cursor(short tile)
@@ -739,13 +3775,88 @@ void update_menu_cursor(short tile)
 
     draw_y = menu_y;
     draw_x = menu_x;
-    if (ps[screenpeek].viewmode == 3) {
+    if (ps[screenpeek].display_mode == 3) {
         palette = sector[ps[screenpeek].cursectnum].floorpal;
         if (palette)
             overwritesprite(draw_x, draw_y, tile, shade, 1, palette);
         else
             overwritesprite(draw_x, draw_y, tile, shade, 1, ps[screenpeek].palette);
     }
+}
+
+void displayhighscores(void)
+{
+    short i;
+    short shade = (unsigned char)next_text_shade();
+
+    SMALL_TEXT(30, 36, score_rank_title, 0);
+    SMALL_TEXT(50, 36, score_quote_title, 0);
+    SMALL_TEXT(270, 36, score_score_title, 0);
+    for (i = 0; i < 12; i++) {
+        if (i)
+            shade = 0;
+        ltoa(i, tempbuf, 10);
+        minitext(30, i * 11 + 50, tempbuf, 0);
+        SMALL_TEXT(50, i * 11 + 50, score_names[i], shade);
+        ltoa(high_scores[i], tempbuf, 10);
+        minitext(270, i * 11 + 50, tempbuf, shade);
+    }
+}
+
+
+
+void spawn_random_effects(short i, short count)
+{
+    short j, k, sect, ang, zvel, owner;
+    long x, y, z;
+
+    for (j = 0; j < count; j++) {
+        z = sprite[i].z - (krand() & 4095);
+        if (z < sector[sprite[i].sectnum].ceilingz)
+            z = sprite[i].z;
+        sect = sprite[i].sectnum;
+        x = sprite[i].x;
+        y = sprite[i].y;
+        ang = sprite[i].ang - 256 + (krand() & 511);
+        zvel = 1024 - (krand() & 2047);
+        owner = sprite[i].owner;
+        k = insertsprite(sect, 5);
+        sprite[k].x = x;
+        sprite[k].y = y;
+        sprite[k].z = z;
+        sprite[k].cstat = 0;
+        sprite[k].picnum = 970 + (j & 3);
+        sprite[k].shade = -32;
+        sprite[k].xrepeat = 18;
+        sprite[k].yrepeat = 18;
+        sprite[k].ang = ang;
+        sprite[k].xvel = 64;
+        sprite[k].zvel = zvel;
+        sprite[k].owner = owner;
+        sprite[k].yvel = 0;
+        hittype[k][0] = 0;
+        hittype[k][2] = 0;
+        hittype[k][3] = 0;
+        if (actorscrptr[sprite[k].picnum]) {
+            sprite[k].extra = *actorscrptr[sprite[k].picnum];
+            hittype[k][4] = actorscrptr[sprite[k].picnum][1];
+            hittype[k][1] = actorscrptr[sprite[k].picnum][2];
+            if (sprite[k].picnum != 57)
+                sprite[k].hitag = actorscrptr[sprite[k].picnum][3];
+        } else {
+            hittype[k][4] = 0;
+            hittype[k][1] = 0;
+        }
+    }
+}
+
+void move_status9(void)
+{
+    short i, j, m, p, sect;
+    long k;
+    long lotag, otherlotag;
+
+    MOVE_STATUS9();
 }
 
 void read_userdefs(void)
@@ -782,6 +3893,52 @@ void write_userdefs(void)
     close(file);
 }
 
+void saveplayer(char slot)
+{
+    int file;
+    char *gamename = savegame_filename, *boardname = saveboard_filename;
+
+    slot += '1';
+    boardname[5] = '1' + ps[0].volume;
+    boardname[6] = '1' + ps[0].level;
+    boardname[7] = slot;
+    gamename[7] = slot;
+    file = open(gamename, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT | O_BINARY, 0xb0);
+    write(file, ps, sizeof(ps));
+    write(file, hittype, sizeof(hittype));
+    write(file, animwall, sizeof(animwall));
+    write(file, msx, sizeof(msx));
+    write(file, msy, sizeof(msy));
+    close(file);
+    saveboard(boardname, &ps[0].posx, &ps[0].posy, &ps[0].posz,
+              &ps[0].ang, &ps[0].cursectnum);
+}
+
+void loadplayer(char slot)
+{
+    int file;
+    char *gamename = savegame_filename, *boardname = saveboard_filename;
+
+    slot += '1';
+    boardname[5] = '1' + ps[0].volume;
+    boardname[6] = '1' + ps[0].level;
+    boardname[7] = slot;
+    gamename[7] = slot;
+    file = open(gamename, O_RDWR | O_BINARY, S_IREAD);
+    if (file != -1) {
+        read(file, ps, sizeof(ps));
+        read(file, hittype, sizeof(hittype));
+        read(file, animwall, sizeof(animwall));
+        read(file, msx, sizeof(msx));
+        read(file, msy, sizeof(msy));
+        close(file);
+    }
+    if (loadboard(boardname, &ps[0].posx, &ps[0].posy, &ps[0].posz,
+                  &ps[0].ang, &ps[0].cursectnum) == -1)
+        gameexit(saveboard_missing);
+    ps[myconnectindex].gm = 4;
+}
+
 void read_demo(unsigned char slot)
 {
     int file;
@@ -789,10 +3946,10 @@ void read_demo(unsigned char slot)
     demo_filename[7] = '0' + slot;
     file = open(demo_filename, O_RDWR | O_BINARY, S_IREAD);
     if (file != -1) {
-        read(file, &ps[0].episode, sizeof(ps[0].episode));
+        read(file, &ps[0].volume, sizeof(ps[0].volume));
         read(file, &ps[0].level, sizeof(ps[0].level));
         read(file, &ps[0].skill, sizeof(ps[0].skill));
-        newgame(ps[0].episode, ps[0].level, ps[0].skill);
+        newgame(ps[0].volume, ps[0].level, ps[0].skill);
         read(file, &reccnt, sizeof(reccnt));
         read(file, demo_svel, reccnt);
         read(file, demo_vel, reccnt);
@@ -814,11 +3971,11 @@ void write_demo(void)
         return;
 
     reccnt--;
-    filename[7] = '0' + (ps[0].level != 0 || ps[0].episode != 0);
+    filename[7] = '0' + (ps[0].level != 0 || ps[0].volume != 0);
 
     file = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT | O_BINARY, 0xb0);
     if (file != -1) {
-        write(file, &ps[0].episode, sizeof(ps[0].episode));
+        write(file, &ps[0].volume, sizeof(ps[0].volume));
         write(file, &ps[0].level, sizeof(ps[0].level));
         write(file, &ps[0].skill, sizeof(ps[0].skill));
         write(file, &reccnt, sizeof(reccnt));
@@ -940,7 +4097,7 @@ void moveeffectors(void)
                     sprite[i].owner = findlocator((short)t[4], -1);
                     if (sprite[i].owner == -1)
                         break;
-                    d = klabs(sprite[ps[p].sprite_index].x - sprite[sprite[i].owner].x) + klabs(sprite[ps[p].sprite_index].y - sprite[sprite[i].owner].y);
+                    d = klabs(sprite[ps[p].i].x - sprite[sprite[i].owner].x) + klabs(sprite[ps[p].i].y - sprite[sprite[i].owner].y);
                     if (d < scratch) {
                         speed = sprite[i].owner;
                         scratch = d;
@@ -1045,7 +4202,7 @@ void moveeffectors(void)
                 pl->posx += (sprite[i].xvel * sintable[(sprite[i].ang + 512) & 2047]) >> 14;
                 pl->posy += (sprite[i].xvel * sintable[sprite[i].ang & 2047]) >> 14;
                 pl->ang += dang;
-                setsprite(pl->sprite_index, pl->posx, pl->posy, pl->posz + 9216);
+                setsprite(pl->i, pl->posx, pl->posy, pl->posz + 9216);
             }
             for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j]) {
                 short pic = sprite[j].picnum;
@@ -1302,7 +4459,7 @@ void moveeffectors(void)
                         ps[p].posx += sprite[j].x - sprite[i].x;
                         ps[p].cursectnum = sprite[j].sectnum;
                         ps[p].posy += sprite[j].y - sprite[i].y;
-                        setsprite(ps[p].sprite_index, ps[p].posx, ps[p].posy, ps[p].posz + 9216);
+                        setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + 9216);
                     }
             }
             break;
@@ -1332,7 +4489,7 @@ void moveeffectors(void)
             for (player = connecthead; player >= 0; player = connectpoint2[player])
                 ;
             pl = &ps[player];
-            if (klabs(sprite[pl->sprite_index].x - sprite[i].x) + klabs(sprite[pl->sprite_index].y - sprite[i].y) < r) {
+            if (klabs(sprite[pl->i].x - sprite[i].x) + klabs(sprite[pl->i].y - sprite[i].y) < r) {
                 pl->posx += ksgn(sprite[i].x - pl->posx) << 8;
                 pl->posy += ksgn(sprite[i].y - pl->posy) << 8;
                 clipmove(&pl->posx, &pl->posy, &pl->posz, &pl->cursectnum, 0, 0, 192, 1024, 1024, 0);
@@ -1484,7 +4641,7 @@ void moveeffectors(void)
                     ps[p].posx += dx;
                     ps[p].posy += dy;
                     clipmove(&ps[p].posx, &ps[p].posy, &ps[p].posz, &ps[p].cursectnum, 0, 0, 192, 1024, 1024, 0);
-                    setsprite(ps[p].sprite_index, ps[p].posx, ps[p].posy, ps[p].posz);
+                    setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz);
                 }
             sector[sect].floorxpanning += dy >> 2;
             sector[sect].floorypanning += dx >> 2;
@@ -1537,7 +4694,7 @@ void moveeffectors(void)
                     ps[p].posx += dx;
                     ps[p].posy += dy;
                     ps[p].posz += sprite[i].zvel;
-                    setsprite(ps[p].sprite_index, ps[p].posx, ps[p].posy, ps[p].posz + 9216);
+                    setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + 9216);
                 }
             for (k = sector[sect].wallptr; k < sector[sect].wallptr + sector[sect].wallnum; k++)
                 if (wall[k].lotag == 0)
@@ -1911,8 +5068,8 @@ short spawn(long j, short pn)
         sprite[i].z = sector[sect].floorz - (sprite[i].yrepeat << 7);
         break;
     case 408: case 490: case 579: case 1536: case 1680: case 1820:
-        ps[0].bac++;
-        ps[0].bae++;
+        ps[0].max_squashed++;
+        ps[0].max_actors_killed++;
         /* fall through */
     case 631:
         sprite[i].shade = -24;
@@ -1947,7 +5104,7 @@ short spawn(long j, short pn)
         hittype[i][3] = sector[sect].floorz;
         sprite[i].z = hittype[i][3] + 3072;
         sprite[i].cstat |= 1;
-        ps[0].bae++;
+        ps[0].max_actors_killed++;
         changespritestat(i, 2);
         break;
     case 931:
@@ -1956,7 +5113,7 @@ short spawn(long j, short pn)
         hittype[i][3] = sector[sect].ceilingz;
         sprite[i].z = hittype[i][3] + 10752;
         sprite[i].cstat |= 9;
-        ps[0].bae++;
+        ps[0].max_actors_killed++;
         changespritestat(i, 2);
         break;
     case 940:
@@ -1964,7 +5121,7 @@ short spawn(long j, short pn)
         sprite[i].owner = i;
         sprite[i].xrepeat = sprite[i].yrepeat = 24;
         sprite[i].cstat |= 1;
-        ps[0].bae++;
+        ps[0].max_actors_killed++;
         changespritestat(i, 4);
         break;
     case 960:
@@ -2095,12 +5252,12 @@ short spawn(long j, short pn)
 /* The window is rendered into the framebuffer, copied to the tile, then
  * drawn back at 1:1 before a second copy establishes the tile's orientation. */
 /* Offsets advance by eight rows per iteration in each buffer. */
-#define COPY_CAMERA_WINDOW(tile, row, dest) \
-    for (; row < 320 * 95; row += 320 * 8, dest += 96 * 8) { \
-        copybuf((void *)(frameplace + row), (void *)(waloff[tile] + dest), 24); \
-        copybuf((void *)(frameplace + row + 320), (void *)(waloff[tile] + dest + 96), 24); \
-        copybuf((void *)(frameplace + row + 640), (void *)(waloff[tile] + dest + 192), 24); \
-        copybuf((void *)(frameplace + row + 960), (void *)(waloff[tile] + dest + 288), 24); \
+#define COPY_CAMERA_WINDOW(tile, row, dest)                                                  \
+    for (; row < 320 * 95; row += 320 * 8, dest += 96 * 8) {                                 \
+        copybuf((void *)(frameplace + row), (void *)(waloff[tile] + dest), 24);              \
+        copybuf((void *)(frameplace + row + 320), (void *)(waloff[tile] + dest + 96), 24);   \
+        copybuf((void *)(frameplace + row + 640), (void *)(waloff[tile] + dest + 192), 24);  \
+        copybuf((void *)(frameplace + row + 960), (void *)(waloff[tile] + dest + 288), 24);  \
         copybuf((void *)(frameplace + row + 1280), (void *)(waloff[tile] + dest + 384), 24); \
         copybuf((void *)(frameplace + row + 1600), (void *)(waloff[tile] + dest + 480), 24); \
         copybuf((void *)(frameplace + row + 1920), (void *)(waloff[tile] + dest + 576), 24); \
@@ -2184,25 +5341,25 @@ void resetplayer(short p)
     ps[p].posz = ps[p].oposz;
     ps[p].ang = ps[p].oang;
     ps[p].cursectnum = ps[p].ocursectnum;
-    ps[p].ba4 = 0;
+    ps[p].knee_flash = 0;
     ps[p].on_ground = 0;
     look = 256 - (krand() & 512);
     ps[p].poszv = ps[p].jumping_counter = 0;
-    ps[p].b8b = 0;
+    ps[p].weapon_clock = 0;
     ps[p].lookang = look;
-    ps[p].w80 = -1;
-    ps[p].holoduke = -1;
-    ps[p].ba8 = 0;
+    ps[p].state80 = -1;
+    ps[p].flash_sprite = -1;
+    ps[p].hard_landing = 0;
     ps[p].newowner = -1;
     if (actorscrptr[283] != NULL)
         ps[p].health = (short)*actorscrptr[283];
     else
         ps[p].health = 100;
-    ps[p].w82 = -1;
-    ps[p].b90 = 0;
-    ps[p].weapon_frame = 5;
-    ps[p].ba1 = 6;
-    ps[p].ba3 = 1;
+    ps[p].state82 = -1;
+    ps[p].remote_active = 0;
+    ps[p].kickback_pic = 5;
+    ps[p].weapon_pos = 6;
+    ps[p].raise_frame = 1;
     ps[p].mapzoom = 768;
 }
 
@@ -2210,18 +5367,18 @@ void reset_player_motion(short p)
 {
     short look;
 
-    ps[p].ba2 = 0;
-    ps[p].baa = 0;
-    ps[p].ba9 = 0;
-    ps[p].bad = 0;
-    ps[p].bac = 0;
-    ps[p].baf = 0;
-    ps[p].bae = 0;
-    ps[p].ba5 = 0;
-    if (ps[p].viewmode == 2)
+    ps[p].statea2 = 0;
+    ps[p].secret_rooms = 0;
+    ps[p].max_secret_rooms = 0;
+    ps[p].actors_squashed = 0;
+    ps[p].max_squashed = 0;
+    ps[p].actors_killed = 0;
+    ps[p].max_actors_killed = 0;
+    ps[p].footstep = 0;
+    if (ps[p].display_mode == 2)
         setgamemode();
     camerasprite = -1;
-    ps[p].viewmode = 3;
+    ps[p].display_mode = 3;
     mspos = 0;
     ps[p].parallax_sector = -1;
     ps[p].horiz = 100;
@@ -2235,7 +5392,7 @@ void reset_player_motion(short p)
     strafe_velocity = 0;
     ps[p].ocursectnum = ps[p].cursectnum;
     screenpeek = myconnectindex;
-    ps[p].ba4 = 0;
+    ps[p].knee_flash = 0;
     visibility = userdefs.visibility;
     parallaxtype = 0;
     ps[p].posx = ps[p].oposx;
@@ -2252,21 +5409,21 @@ void reset_player_motion(short p)
     look = 256 - (krand() & 512);
     ps[p].newowner = -1;
     ps[p].jumping_counter = 0;
-    ps[p].w80 = -1;
-    ps[p].holoduke = -1;
+    ps[p].state80 = -1;
+    ps[p].flash_sprite = -1;
     ps[p].lookang = look;
-    ps[p].ba8 = 0;
-    ps[p].b8b = 0;
+    ps[p].hard_landing = 0;
+    ps[p].weapon_clock = 0;
     ps[p].poszv = 0;
     if (actorscrptr[283] != NULL)
         ps[p].health = (short)*actorscrptr[283];
     else
         ps[p].health = 100;
-    ps[p].w82 = -1;
-    ps[p].b90 = 0;
-    ps[p].weapon_frame = 5;
-    ps[p].ba1 = 6;
-    ps[p].ba3 = 1;
+    ps[p].state82 = -1;
+    ps[p].remote_active = 0;
+    ps[p].kickback_pic = 5;
+    ps[p].weapon_pos = 6;
+    ps[p].raise_frame = 1;
     ps[p].mapzoom = 768;
 }
 
@@ -2276,17 +5433,17 @@ void prelevel(void)
     long j;
     long *actor;
 
-    ps[0].ba2 = 0;
-    ps[0].baa = 0;
-    ps[0].ba9 = 0;
-    ps[0].bad = 0;
-    ps[0].bac = 0;
-    ps[0].baf = 0;
-    ps[0].ba5 = 0;
-    ps[0].bae = 0;
-    if (ps[p].viewmode == 2)
+    ps[0].statea2 = 0;
+    ps[0].secret_rooms = 0;
+    ps[0].max_secret_rooms = 0;
+    ps[0].actors_squashed = 0;
+    ps[0].max_squashed = 0;
+    ps[0].actors_killed = 0;
+    ps[0].footstep = 0;
+    ps[0].max_actors_killed = 0;
+    if (ps[p].display_mode == 2)
         setgamemode();
-    ps[p].viewmode = 3;
+    ps[p].display_mode = 3;
     ps[p].oposx = ps[p].posx;
     forward_velocity = 0;
     strafe_velocity = 0;
@@ -2320,7 +5477,7 @@ void prelevel(void)
         if (ps[0].parallax_sector == -1 && (sector[i].ceilingstat & 1))
             ps[0].parallax_sector = i;
         if ((sector[i].lotag & 32767) == 32767)
-            ps[0].ba9++;
+            ps[0].max_secret_rooms++;
         else if (sector[i].lotag == 2)
             sector[i].ceilingpal = sector[i].floorpal = 1;
     }
@@ -2616,8 +5773,8 @@ void prelevel(void)
             sprite[i].z = sector[sect].floorz - (sprite[i].yrepeat << 7);
             break;
         case 408: case 490: case 579: case 1536: case 1680: case 1820:
-            ps[0].bac++;
-            ps[0].bae++;
+            ps[0].max_squashed++;
+            ps[0].max_actors_killed++;
             /* fall through */
         case 631:
             sprite[i].shade = -24;
@@ -2652,7 +5809,7 @@ void prelevel(void)
             hittype[i][3] = sector[sect].floorz;
             sprite[i].z = hittype[i][3] + 3072;
             sprite[i].cstat |= 1;
-            ps[0].bae++;
+            ps[0].max_actors_killed++;
             stat = 2;
             break;
         case 931:
@@ -2661,7 +5818,7 @@ void prelevel(void)
             hittype[i][3] = sector[sect].ceilingz;
             sprite[i].z = hittype[i][3] + 10752;
             sprite[i].cstat |= 9;
-            ps[0].bae++;
+            ps[0].max_actors_killed++;
             stat = 2;
             break;
         case 940:
@@ -2669,7 +5826,7 @@ void prelevel(void)
             sprite[i].owner = i;
             sprite[i].xrepeat = sprite[i].yrepeat = 24;
             sprite[i].cstat |= 1;
-            ps[0].bae++;
+            ps[0].max_actors_killed++;
             stat = 4;
             break;
         case 960:
@@ -2850,23 +6007,23 @@ void prelevel(void)
 void newgame(unsigned char episode, unsigned char level, unsigned char skill)
 {
     ps[0].level = level;
-    ps[0].episode = episode;
+    ps[0].volume = episode;
     ps[0].skill = skill;
-    ps[0].b93 = 0;
-    ps[0].b97 = 0;
-    ps[0].b94 = 0;
-    ps[0].b98 = 0;
-    ps[0].b95 = 0;
-    ps[0].b99 = 0;
-    ps[0].b96 = 0;
-    ps[0].b9a = 0;
-    ps[0].b92 = 0;
-    ps[0].b9c = 0;
-    ps[0].b9e = 0;
-    ps[0].b9f = 0;
-    ps[0].ba0 = 0;
+    ps[0].scuba_on = 0;
+    ps[0].inventory[0] = 0;
+    ps[0].jetpack_on = 0;
+    ps[0].inventory[1] = 0;
+    ps[0].state95 = 0;
+    ps[0].inventory[2] = 0;
+    ps[0].armor = 0;
+    ps[0].inventory[3] = 0;
+    ps[0].state92 = 0;
+    ps[0].state9c[0] = 0;
+    ps[0].state9c[2] = 0;
+    ps[0].state9c[3] = 0;
+    ps[0].state9c[4] = 0;
     ps[0].screen_size = -4;
-    ps[0].b9d = 1;
+    ps[0].state9c[1] = 1;
     ps[0].score = 0;
     if (disable_armor) {
         ps[0].rocket_ammo = 99;
@@ -2897,11 +6054,11 @@ void enterlevel(unsigned char mode)
         minitext(170, 50, (unsigned char *)"Entering...", 0);
         minitext(174, 62, (unsigned char *)"Episode", 0);
         minitext(174, 74, (unsigned char *)"Level", 0);
-        numtext(232, 62, ps[0].episode + 1, 0);
+        numtext(232, 62, ps[0].volume + 1, 0);
         numtext(232, 74, ps[0].level + 1, 0);
         nextpage();
     }
-    map_name[0] = 'L' + ps[0].episode;
+    map_name[0] = 'L' + ps[0].volume;
     map_name[1] = '1' + ps[0].level;
     FX_StopAllSounds();
     call_level_load_hook(map_name);
@@ -2943,7 +6100,7 @@ void enterlevel(unsigned char mode)
         else
             palette = 3;
         sprite[i].xrepeat = sprite[i].yrepeat = 42;
-        ps[p].sprite_index = i;
+        ps[p].i = i;
         if (numplayers > 1) {
             ps[p].oposx = ps[p].posx = sprite[i].x;
             ps[p].oposy = ps[p].posy = sprite[i].y;
@@ -2956,7 +6113,7 @@ void enterlevel(unsigned char mode)
     }
     {
         long local_player = myconnectindex;
-        char *music = music_files[ps[local_player].episode][0];
+        char *music = music_files[ps[local_player].volume][0];
 
         music += 13 * ps[local_player].level;
         ps[local_player].music = music;

@@ -161,3 +161,14 @@ Each entry names the command or artefact that supports it.
   constant, statement-order and local-width mutations report SOURCE at the right effect.
 - A 9.5b allocator tracing probe works on the NT compiler (identical code to DOS); full cgtrace/explain port estimated
   1-2 weeks; targeted hooks 2-4 days (start with wallfront).
+
+## GAME findings (range workers A/B + merge, 2026-11-26)
+- STRONG the original GAME source repeats several bodies written out in full rather than compiler-inlined:
+  update_timer_input (6 copies in timerhandler), minitext/gametext/numtext/draw_weapon_tile, the view drawing in
+  displayrooms, the status-9 walk inside domovethings, the network packet decoder (5 copies). Watcom 9.5b -oe=N does
+  not reproduce these (it inlines different callees at every threshold). Modelled as macros (likely the original
+  form, cf. Duke 1.5's macro-heavy style).
+- PROVEN saveplayer/loadplayer store order (board[5],[6],[7] then game[7]) is the only one of 12 orders that matches.
+- Dead code: wait_for_players, playback_demo and spawn_random_effects have no inbound reference in obj1.
+- Verifier fix: own data-segment placement could be locked by a reference from a still-NEAR function; match.py now
+  presets the unique content-verified base when references imply conflicting bases (all references still checked).
