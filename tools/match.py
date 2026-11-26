@@ -62,9 +62,16 @@ class Bindings:
     extra = None        # optional overlay file (worker hypotheses); same layout as config/symbols.json
 
     _cache = {}         # (oracle, files with mtime/size) -> (game, lib): parsed once per process per file state
+    registries = None   # tests: replace the canonical registry files (config/symbols.json, library_symbols.json)
+
+    @classmethod
+    def registry_files(cls):
+        if cls.registries is not None:
+            return list(cls.registries)
+        return [CONFIG / "symbols.json", CONFIG / "library_symbols.json"]
 
     def __init__(self, img):
-        files = [CONFIG / "symbols.json", CONFIG / "library_symbols.json"] + ([Path(self.extra)] if self.extra else []) +             [BUILD / "oracles" / img.name / "libsyms.json"]
+        files = self.registry_files() + ([Path(self.extra)] if self.extra else []) +             ([BUILD / "oracles" / img.name / "libsyms.json"] if self.registries is None else [])
         key = (img.name,) + tuple((str(p), p.stat().st_mtime_ns, p.stat().st_size) if p.exists() else (str(p),)
                                   for p in files)
         if key not in Bindings._cache:
@@ -75,7 +82,7 @@ class Bindings:
 
     def _load(self, img):
         self.game = {}
-        for p in [CONFIG / "symbols.json", CONFIG / "library_symbols.json"] + ([Path(self.extra)] if self.extra else []):
+        for p in self.registry_files() + ([Path(self.extra)] if self.extra else []):
             if not p.exists():
                 continue
             for kind in ("functions", "data"):
@@ -86,7 +93,7 @@ class Bindings:
                     self.game[name] = a
         self.lib = {}
         lp = BUILD / "oracles" / img.name / "libsyms.json"
-        if lp.exists():
+        if lp.exists() and self.registries is None:
             for name, ent in load_json(lp).items():
                 self.lib[name] = parse_addr(ent["addr"])
 

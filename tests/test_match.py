@@ -35,11 +35,13 @@ class MatchControls(unittest.TestCase):
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
             json.dump(ov, f)
         match.Bindings.extra = f.name
+        match.Bindings.registries = []          # isolate the controls from the canonical registries
         match.Bindings._cache.clear()
         try:
             res = match.verify_object(self.img, mod or self.mod, set(only))
         finally:
             match.Bindings.extra = None
+            match.Bindings.registries = None
             match.Bindings._cache.clear()
             Path(f.name).unlink()
         return {r["function"]: r for r in res}
