@@ -2355,7 +2355,8 @@
     "loadplayer": {
      "status": "STRICT"
     }
-   }
+   },
+   "quality": "COMPILER_STEERED in places: getscorename, next_text_shade, newscore and check_file_id are called through #pragma aux aliases so -oe does not inline them where the oracle keeps calls (docs/units/gamefix6.md); written-out macro copies model the original's expanded bodies"
   },
   "game_actors": {
    "source": "src/game/actors.c",

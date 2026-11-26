@@ -283,7 +283,7 @@ extern void FX_SetVolume(int volume), MUSIC_SetVolume(int volume);
 extern int MUSIC_Init(int card, int address);
 extern void TestCallBack(unsigned long number);
 extern void draw_fade_transition(void);
-extern short bonus_marks[][8][2];
+extern short bonus_marks[][16];
 extern char bonus_press_space[], bonus_title[], bonus_secrets[], bonus_percent[];
 extern char bonus_points[], bonus_squashed[], bonus_killed[];
 extern long current_menu;
@@ -299,75 +299,78 @@ extern char score_rank_title[], score_quote_title[], score_score_title[];
 /* The status bar drawing, written out through the helper calls. */
 #define STATUS_BAR(P)                                                     \
 {                                                                         \
-    if (ps[P].display_mode == 3) {                                        \
-        if ((sector[ps[P].cursectnum].lotag & 0x7fff) == 15)              \
+    short snum = (P);                                                     \
+    short j;                                                              \
+                                                                          \
+    if (ps[snum].display_mode == 3) {                                     \
+        if ((sector[ps[snum].cursectnum].lotag & 0x7fff) == 15)           \
             draw_weapon_tile(160, 120, 1136, 0, 1);                       \
-        if (ps[P].screen_size >= 0) {                                     \
+        if (ps[snum].screen_size >= 0) {                                  \
             overwritesprite(0, 0, 1380, 0, 0, 0);                         \
             overwritesprite(160, 189, 1381, 0, 1, 0);                     \
-            numtext_fixed(82, 6, ps[P].score, 0);                         \
-            numtext_fixed(119, 186, ps[P].health, 0);                     \
+            numtext_fixed(82, 6, ps[snum].score, 0);                      \
+            numtext_fixed(119, 186, ps[snum].health, 0);                  \
             for (j = 0; j < 25; j++)                                      \
-                if (j < ps[P].health >> 2)                                \
+                if (j < ps[snum].health >> 2)                             \
                     overwritesprite(j * 3 + 30, 186, 1392, 0, 0, 0);      \
-            switch (ps[P].curr_weapon) {                                  \
+            switch (ps[snum].curr_weapon) {                               \
             case 389:                                                     \
             case 1230:                                                    \
-                numtext_fixed(209, 186, ps[P].batteryammo, 0);            \
+                numtext_fixed(209, 186, ps[snum].batteryammo, 0);         \
                 overwritesprite(160, 192, 1400, 0, 1, 0);                 \
                 for (j = 0; j < 25; j++)                                  \
-                    if (j < ps[P].batteryammo >> 2)                       \
+                    if (j < ps[snum].batteryammo >> 2)                    \
                         overwritesprite(j * 3 + 216, 186, 1392, 0, 0, 0); \
                 break;                                                    \
             case 191:                                                     \
-                numtext_fixed(209, 186, ps[P].ammo, 0);                   \
+                numtext_fixed(209, 186, ps[snum].ammo, 0);                \
                 overwritesprite(160, 192, 1401, 0, 1, 0);                 \
                 for (j = 0; j < 25; j++)                                  \
-                    if (j < ps[P].ammo >> 2)                              \
+                    if (j < ps[snum].ammo >> 2)                           \
                         overwritesprite(j * 3 + 216, 186, 1392, 0, 0, 0); \
                 break;                                                    \
             case 721:                                                     \
             case 1140:                                                    \
-                numtext_fixed(209, 186, ps[P].remote_ammo, 0);            \
+                numtext_fixed(209, 186, ps[snum].remote_ammo, 0);         \
                 overwritesprite(160, 192, 1402, 0, 1, 0);                 \
                 for (j = 0; j < 25; j++)                                  \
-                    if (j < ps[P].remote_ammo >> 2)                       \
+                    if (j < ps[snum].remote_ammo >> 2)                    \
                         overwritesprite(j * 3 + 216, 186, 1392, 0, 0, 0); \
                 break;                                                    \
             case 563:                                                     \
-                numtext_fixed(209, 186, ps[P].rocket_ammo, 0);            \
+                numtext_fixed(209, 186, ps[snum].rocket_ammo, 0);         \
                 overwritesprite(160, 192, 1403, 0, 1, 0);                 \
                 for (j = 0; j < 25; j++)                                  \
-                    if (j < ps[P].rocket_ammo >> 2)                       \
+                    if (j < ps[snum].rocket_ammo >> 2)                    \
                         overwritesprite(j * 3 + 216, 186, 1392, 0, 0, 0); \
                 break;                                                    \
             }                                                             \
         }                                                                 \
-        if (ps[P].state92) {                                              \
+        if (ps[snum].state92) {                                           \
             overwritesprite(0, 28, 1398, 0, 0, 0);                        \
-            if (ps[P].state95)                                            \
+            if (ps[snum].state95)                                         \
                 overwritesprite(39, 41, 1399, 0, 0, 0);                   \
-            if (ps[P].armor)                                              \
+            if (ps[snum].armor)                                           \
                 overwritesprite(39, 66, 1399, 0, 0, 0);                   \
-            if (ps[P].scuba_on)                                           \
+            if (ps[snum].scuba_on)                                        \
                 overwritesprite(39, 93, 1399, 0, 0, 0);                   \
-            if (ps[P].flash_sprite)                                       \
+            if (ps[snum].flash_sprite)                                    \
                 overwritesprite(39, 119, 1399, 0, 0, 0);                  \
-            if (ps[P].jetpack_on)                                         \
+            if (ps[snum].jetpack_on)                                      \
                 overwritesprite(39, 145, 1399, 0, 0, 0);                  \
-            if (ps[P].inventory[2])                                       \
+            if (ps[snum].inventory[2])                                    \
                 overwritesprite(13, 39, 717, 0, 0, 0);                    \
-            if (ps[P].inventory[3])                                       \
+            if (ps[snum].inventory[3])                                    \
                 overwritesprite(14, 64, 719, 0, 0, 0);                    \
-            if (ps[P].inventory[0])                                       \
+            if (ps[snum].inventory[0])                                    \
                 overwritesprite(13, 90, 716, 0, 0, 0);                    \
-            if (ps[P].inventory[4])                                       \
+            if (ps[snum].inventory[4])                                    \
                 overwritesprite(13, 117, 718, 0, 0, 0);                   \
-            if (ps[P].inventory[1])                                       \
+            if (ps[snum].inventory[1])                                    \
                 overwritesprite(13, 141, 713, 0, 0, 0);                   \
         }                                                                 \
     }                                                                     \
-}
+}                                                                         \
 /* The message and quote lines, written out through minitext. */
 #define SHOW_QUOTES(P)                                                                 \
 {                                                                                      \
@@ -379,7 +382,7 @@ extern char score_rank_title[], score_quote_title[], score_score_title[];
     if (ps[P].quote_time[ps[P].quote_index] > 0) {                                     \
         ps[P].quote_time[ps[P].quote_index]--;                                         \
         if (ps[P].screen_size >= 0)                                                    \
-            offset = -23;                                                              \
+            offset -= 23;                                                              \
         minitext(24, offset + 189, (unsigned char *)quote_text[ps[P].quote_index], 0); \
     }                                                                                  \
 }
@@ -1450,6 +1453,15 @@ long next_text_shade(void)
     return shade + 16;
 }
 
+/* The same routine where the original calls it instead of expanding it in place. */
+extern long score_text_shade(void);
+#pragma aux score_text_shade "next_text_shade_"
+extern unsigned char enter_score_name(short row);
+#pragma aux enter_score_name "getscorename_"
+/* main tests the file check as a full int result. */
+extern long file_id_check(void);
+#pragma aux file_id_check "check_file_id_"
+
 void displayquotes(short p)
 {
     long ofs = 0;
@@ -2305,8 +2317,8 @@ void displayrooms(short p)
         /* Sprite frame selection shared with animatesprites. */
         {
             short ang = sprite[s].ang;
-            short i, j, k, sect;
             long l;
+            short i, j, k, sect;
 
             for (j = 0; j < spritesortcnt; j++) {
                 i = thesprite[j];
@@ -2432,8 +2444,8 @@ void displayrooms(short p)
         /* Sprite frame selection shared with animatesprites. */
         {
             short ang = ps[p].ang + ps[p].lookang;
-            short i, j, k, sect;
             long l;
+            short i, j, k, sect;
 
             for (j = 0; j < spritesortcnt; j++) {
                 i = thesprite[j];
@@ -2604,8 +2616,9 @@ void displayrooms(short p)
 #define SMALL_TEXT(X, Y, TEXT, SHADE) \
 {                       \
     long x = (X), y = (Y); \
-    unsigned char *text = (unsigned char *)(TEXT); \
+    unsigned char *t_ = (unsigned char *)(TEXT); \
     unsigned char shade_ = (SHADE); \
+    unsigned char *text = t_; \
     short left, tile, descender; \
 \
     if (ps[screenpeek].display_mode != 2) { \
@@ -2636,7 +2649,8 @@ void displayrooms(short p)
 /* The view drawing of displayrooms, written out where a loop redraws the view. */
 #define DRAW_VIEW(P)                                                                         \
 {                                                                                            \
-    short p = (P);                                                                           \
+    short p_ = (P);                                                                          \
+    short p = p_;                                                                            \
                                                                                              \
     if (ps[p].display_mode == 2)                                                             \
         draw2dscreen(ps[p].posx, ps[p].posy, ps[p].ang + ps[p].lookang, ps[p].mapzoom, 0);   \
@@ -2774,14 +2788,16 @@ void nonsharedkeys(void)
             }
             if (keystatus[0x48] | keystatus[0xc8]) {
                 ps[0].level++;
-                keystatus[0x48] = keystatus[0xc8] = 0;
+                keystatus[0x48] = 0;
+                keystatus[0xc8] = 0;
             }
             if (keystatus[0x50] | keystatus[0xd0]) {
                 ps[0].level--;
-                keystatus[0x50] = keystatus[0xd0] = 0;
+                keystatus[0x50] = 0;
+                keystatus[0xd0] = 0;
             }
-            ps[0].volume &= 3;
             ps[0].level &= 15;
+            ps[0].volume &= 3;
             BIG_TEXT(112, 50, warp_title, 0);
             BIG_TEXT(100, 69, warp_episode, 0);
             BIG_TEXT(100, 88, warp_level, 0);
@@ -2948,14 +2964,22 @@ void wait_for_players(void)
                 player_vel[other] = tempbuf[j++];
             if ((tempbuf[1] & 4) > 0)
                 player_avel[other] = tempbuf[j++];
-            if ((tempbuf[1] & 8) > 0)
-                player_bits[other] = (player_bits[other] & 0xffffff00) | tempbuf[j++];
-            if ((tempbuf[1] & 16) > 0)
-                player_bits[other] = (player_bits[other] & 0xffff00ff) | ((long)tempbuf[j++] << 8);
-            if ((tempbuf[1] & 32) > 0)
-                player_bits[other] = (player_bits[other] & 0xff00ffff) | ((long)tempbuf[j++] << 16);
-            if ((tempbuf[1] & 64) > 0)
-                player_bits[other] = (player_bits[other] & 0x00ffffff) | ((long)tempbuf[j++] << 24);
+            if ((tempbuf[1] & 8) > 0) {
+                player_bits[other] &= 0xffffff00;
+                player_bits[other] |= tempbuf[j++];
+            }
+            if ((tempbuf[1] & 16) > 0) {
+                player_bits[other] &= 0xffff00ff;
+                player_bits[other] |= ((long)tempbuf[j++] << 8);
+            }
+            if ((tempbuf[1] & 32) > 0) {
+                player_bits[other] &= 0xff00ffff;
+                player_bits[other] |= ((long)tempbuf[j++] << 16);
+            }
+            if ((tempbuf[1] & 64) > 0) {
+                player_bits[other] &= 0x00ffffff;
+                player_bits[other] |= ((long)tempbuf[j++] << 24);
+            }
             break;
         case 4:
             for (i = 1; i < packbufleng; i++)
@@ -2992,7 +3016,7 @@ void main(int argc, char **argv)
     puts(main_init_cache);
     init_bootleg_cache();
     puts(main_checking);
-    if (check_file_id()) {
+    if (file_id_check()) {
         puts(main_no_good);
         unlink(argv[0]);
         return;
@@ -3113,29 +3137,7 @@ nextdemo:
     level_warp = 0;
 
 play:
-    for (;;) {
-        if (ps[myconnectindex].gm & 128) {
-            if (userdefs.debug == 0 && (ps[myconnectindex].gm & 2) == 0) {
-                p = newscore();
-                if (p >= 0) {
-                    while (getscorename(p) == 0) {
-                        nextpage();
-                        DRAW_VIEW(screenpeek);
-                        displayhighscores();
-                    }
-                    memcpy(score_names[p], input_text, 31);
-                }
-                do {
-                    DRAW_VIEW(screenpeek);
-                    displayhighscores();
-                    nextpage();
-                } while (keystatus[1] == 0 && keystatus[0x39] == 0 && keystatus[0x1c] == 0);
-            }
-            write_demo();
-            write_userdefs();
-            gameexit(main_game_over);
-            return;
-        }
+    while ((ps[myconnectindex].gm & 128) == 0) {
         nonsharedkeys();
         DRAW_VIEW(screenpeek);
         if (ps[myconnectindex].gm & 16) {
@@ -3181,6 +3183,8 @@ play:
                 draw_weapon_tile(x, y, 1022, shade, 0);
             }
             if (keystatus[0x1c] | keystatus[0x9c]) {
+                short k;
+
                 tempbuf[0] = 4;
                 j = 1;
                 for (p = 0; p < input_text_length; p++)
@@ -3204,7 +3208,7 @@ play:
                 }
             }
             if (ps[screenpeek].newowner >= 0) {
-                shade = next_text_shade();
+                shade = score_text_shade();
                 draw_weapon_tile(10, 10, 275, shade, 2);
                 draw_weapon_tile(274, 10, 276, shade, 2);
                 draw_weapon_tile(10, 160, 277, shade, 2);
@@ -3345,6 +3349,25 @@ play:
         nextpage();
         pan3dsound();
     }
+    if (userdefs.debug == 0 && (ps[myconnectindex].gm & 2) == 0) {
+        p = newscore();
+        if (p >= 0) {
+            while (enter_score_name(p) == 0) {
+                nextpage();
+                DRAW_VIEW(screenpeek);
+                displayhighscores();
+            }
+            memcpy(score_names[p], input_text, 31);
+        }
+        do {
+            DRAW_VIEW(screenpeek);
+            displayhighscores();
+            nextpage();
+        } while (keystatus[1] == 0 && keystatus[0x39] == 0 && keystatus[0x1c] == 0);
+    }
+    write_demo();
+    write_userdefs();
+    gameexit(main_game_over);
 }
 
 void displaystatus(short snum)
@@ -3429,7 +3452,8 @@ void playback_demo(void)
     unsigned char shade;
 
 restart:
-    read_demo(which++);
+    read_demo(which);
+    which++;
     if (which == 8)
         which = 0;
     enterlevel(2);
@@ -3477,7 +3501,7 @@ restart:
         while (totalclock <= lockclock) {
             DRAW_VIEW(screenpeek);
             if (ps[screenpeek].newowner >= 0) {
-                shade = next_text_shade();
+                shade = score_text_shade();
                 draw_weapon_tile(10, 10, 275, shade, 2);
                 draw_weapon_tile(274, 10, 276, shade, 2);
                 draw_weapon_tile(10, 160, 277, shade, 2);
@@ -3691,15 +3715,19 @@ void dobonus(void)
         shade = (unsigned char)next_text_shade();
         if (keystatus[0x39])
             start = totalclock - 2400;
-        if (ps[0].volume == 0)
+        switch (ps[0].volume) {
+        case 0:
             overwritesprite(0, 0, 1132, 0, 0, 0);
-        else if (ps[0].volume == 1)
+            break;
+        case 1:
             overwritesprite(0, 0, 1135, 0, 0, 0);
+            break;
+        }
         BIG_TEXT(36, 160, bonus_press_space, shade);
         for (i = 0; i < ps[0].level; i++)
-            overwritesprite(bonus_marks[ps[0].volume][i][0], bonus_marks[ps[0].volume][i][1],
+            overwritesprite(bonus_marks[ps[0].volume][i * 2], bonus_marks[ps[0].volume][i * 2 + 1],
                             1133, shade, 0, 0);
-        overwritesprite(bonus_marks[ps[0].volume][i][0], bonus_marks[ps[0].volume][i][1],
+        overwritesprite(bonus_marks[ps[0].volume][i * 2], bonus_marks[ps[0].volume][i * 2 + 1],
                         1134, shade, 0, 0);
         if (ps[myconnectindex].gm == 8) {
             BIG_TEXT(32, 10, bonus_title, 0);
@@ -3812,8 +3840,13 @@ void displayhighscores(void)
         ltoa(i, tempbuf, 10);
         minitext(30, i * 11 + 50, tempbuf, 0);
         SMALL_TEXT(50, i * 11 + 50, score_names[i], shade);
-        ltoa(high_scores[i], tempbuf, 10);
-        minitext(270, i * 11 + 50, tempbuf, shade);
+        {
+            long y = i * 11 + 50;
+            unsigned char s = shade;
+
+            ltoa(high_scores[i], tempbuf, 10);
+            minitext(270, y, tempbuf, s);
+        }
     }
 }
 
@@ -5065,6 +5098,98 @@ void spawn(long j, short pn)
         sprite[i].xrepeat = 0;
         sprite[i].yrepeat = 0;
         switch (sprite[i].lotag) {
+        case 27:
+            if (demomode == 1) {
+                sprite[i].xrepeat = 64;
+                sprite[i].yrepeat = 64;
+            }
+            break;
+        case 12:
+            hittype[i][1] = sector[sect].floorshade;
+            hittype[i][2] = sector[sect].ceilingshade;
+            break;
+        case 13:
+            hittype[i][0] = sector[sect].ceilingz;
+            hittype[i][1] = sector[sect].floorz;
+            sprite[i].owner = klabs(hittype[i][0] - sprite[i].z) < klabs(hittype[i][1] - sprite[i].z);
+            if (sprite[i].ang == 512) {
+                if (sprite[i].owner)
+                    sector[sect].ceilingz = sprite[i].z;
+                else
+                    sector[sect].floorz = sprite[i].z;
+            } else {
+                sector[sect].floorz = sprite[i].z;
+                sector[sect].ceilingz = sprite[i].z;
+            }
+            if (!(sector[sect].ceilingstat & 1))
+                break;
+            sector[sect].ceilingstat ^= 1;
+            hittype[i][3] = 1;
+            if (sprite[i].owner == 0 && sprite[i].ang == 512) {
+                sector[sect].ceilingstat ^= 1;
+                hittype[i][3] = 0;
+            }
+            sector[sect].ceilingshade = sector[sect].floorshade;
+            if (sprite[i].ang == 512) {
+                wall_end = sector[sect].wallptr + sector[sect].wallnum;
+                for (k = sector[sect].wallptr; k < wall_end; k++) {
+                    short ns = wall[k].nextsector;
+
+                    if (ns >= 0 && !(sector[ns].ceilingstat & 1)) {
+                        sector[sect].ceilingpicnum = sector[ns].ceilingpicnum;
+                        sector[sect].ceilingshade = sector[ns].ceilingshade;
+                        break;
+                    }
+                }
+            }
+            break;
+        case 17:
+            hittype[i][2] = sector[sect].floorz;
+            hittype[i][3] = sector[nextsectorneighborz(sect, sector[sect].floorz, -1, -1)].ceilingz;
+            hittype[i][4] = sector[nextsectorneighborz(sect, sector[sect].ceilingz, 1, 1)].floorz;
+            break;
+        case 24:
+            sprite[i].yvel *= 2;
+            sector[sect].floorstat |= 0x40;
+            break;
+        case 23:
+            sprite[i].xrepeat = 64;
+            sprite[i].yrepeat = 64;
+            sprite[i].shade = 0;
+            hittype[i][1] = mspos;
+            for (k = 0; k < numsectors; k++) {
+                if (sector[k].hitag == sprite[i].hitag) {
+                    msx[mspos++] = k;
+                    hittype[i][0]++;
+                }
+            }
+            break;
+        case 20: {
+            long best = 0x7FFFFFFF, w0 = -1;
+
+            wall_end = sector[sect].wallptr + sector[sect].wallnum;
+            for (k = sector[sect].wallptr; k < wall_end; k++) {
+                long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
+
+                if (d < best) {
+                    best = d;
+                    w0 = k;
+                }
+            }
+            hittype[i][1] = w0;
+            best = 0x7FFFFFFF;
+            wall_end = sector[sect].wallptr + sector[sect].wallnum;
+            for (k = sector[sect].wallptr; k < wall_end; k++) {
+                long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
+
+                if (d < best && k != hittype[i][1]) {
+                    best = d;
+                    w0 = k;
+                }
+            }
+            hittype[i][2] = w0;
+            break;
+        }
         case 3:
             hittype[i][3] = sector[sect].floorshade;
             sector[sect].floorshade = sprite[i].shade;
@@ -5150,98 +5275,6 @@ void spawn(long j, short pn)
             }
             break;
         }
-        case 12:
-            hittype[i][1] = sector[sect].floorshade;
-            hittype[i][2] = sector[sect].ceilingshade;
-            break;
-        case 13:
-            hittype[i][0] = sector[sect].ceilingz;
-            hittype[i][1] = sector[sect].floorz;
-            sprite[i].owner = klabs(hittype[i][0] - sprite[i].z) < klabs(hittype[i][1] - sprite[i].z);
-            if (sprite[i].ang == 512) {
-                if (sprite[i].owner)
-                    sector[sect].ceilingz = sprite[i].z;
-                else
-                    sector[sect].floorz = sprite[i].z;
-            } else {
-                sector[sect].floorz = sprite[i].z;
-                sector[sect].ceilingz = sprite[i].z;
-            }
-            if (!(sector[sect].ceilingstat & 1))
-                break;
-            sector[sect].ceilingstat ^= 1;
-            hittype[i][3] = 1;
-            if (sprite[i].owner == 0 && sprite[i].ang == 512) {
-                sector[sect].ceilingstat ^= 1;
-                hittype[i][3] = 0;
-            }
-            sector[sect].ceilingshade = sector[sect].floorshade;
-            if (sprite[i].ang == 512) {
-                wall_end = sector[sect].wallptr + sector[sect].wallnum;
-                for (k = sector[sect].wallptr; k < wall_end; k++) {
-                    short ns = wall[k].nextsector;
-
-                    if (ns >= 0 && !(sector[ns].ceilingstat & 1)) {
-                        sector[sect].ceilingpicnum = sector[ns].ceilingpicnum;
-                        sector[sect].ceilingshade = sector[ns].ceilingshade;
-                        break;
-                    }
-                }
-            }
-            break;
-        case 17:
-            hittype[i][2] = sector[sect].floorz;
-            hittype[i][3] = sector[nextsectorneighborz(sect, sector[sect].floorz, -1, -1)].ceilingz;
-            hittype[i][4] = sector[nextsectorneighborz(sect, sector[sect].ceilingz, 1, 1)].floorz;
-            break;
-        case 20: {
-            long best = 0x7FFFFFFF, w0 = -1;
-
-            wall_end = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < wall_end; k++) {
-                long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
-
-                if (d < best) {
-                    best = d;
-                    w0 = k;
-                }
-            }
-            hittype[i][1] = w0;
-            best = 0x7FFFFFFF;
-            wall_end = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < wall_end; k++) {
-                long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
-
-                if (d < best && k != hittype[i][1]) {
-                    best = d;
-                    w0 = k;
-                }
-            }
-            hittype[i][2] = w0;
-            break;
-        }
-        case 23:
-            sprite[i].xrepeat = 64;
-            sprite[i].yrepeat = 64;
-            sprite[i].shade = 0;
-            hittype[i][1] = mspos;
-            for (k = 0; k < numsectors; k++) {
-                if (sector[k].hitag == sprite[i].hitag) {
-                    msx[mspos++] = k;
-                    hittype[i][0]++;
-                }
-            }
-            break;
-        case 24:
-            sprite[i].yvel *= 2;
-            sector[sect].floorstat |= 0x40;
-            break;
-        case 27:
-            if (demomode == 1) {
-                sprite[i].xrepeat = 64;
-                sprite[i].yrepeat = 64;
-            }
-            break;
         }
         changespritestat(i, sprite[i].lotag == 7 ? 9 : 3);
         break;
@@ -5508,7 +5541,7 @@ void prelevel(void)
 
     /* Initialize the map sprites in index order. */
     for (map_sprite = 0; map_sprite < 4096; map_sprite++) {
-        short i = map_sprite, stat = -1;
+        short i = map_sprite;
 
         if (sprite[i].statnum >= 1024)
             continue;
@@ -5534,7 +5567,7 @@ void prelevel(void)
         switch (sprite[i].picnum) {
         case 1408:
             sprite[i].owner = -1;
-            stat = 1;
+            changespritestat(i, 1);
             break;
         case 1165:
             if (j >= 0) {
@@ -5560,7 +5593,7 @@ void prelevel(void)
                 sprite[i].zvel = -192;
                 sprite[i].xvel = 48;
                 sprite[i].xrepeat = sprite[i].yrepeat = 5;
-                stat = 5;
+                changespritestat(i, 5);
             }
             break;
         case 1406:
@@ -5573,12 +5606,12 @@ void prelevel(void)
                 sprite[i].zvel = sprite[j].zvel;
                 sprite[i].owner = j;
                 sprite[i].z -= 0x2000;
-                stat = 4;
+                changespritestat(i, 4);
             }
             break;
         case 5:
             sprite[i].xrepeat = sprite[i].yrepeat = 0;
-            stat = 11;
+            changespritestat(i, 11);
             break;
         case 1404:
             if (j >= 0) {
@@ -5587,7 +5620,7 @@ void prelevel(void)
                 sprite[i].yrepeat = (unsigned char)(tilesizy[sprite[j].picnum] / 3);
                 sprite[i].shade = -127;
             }
-            stat = 5;
+            changespritestat(i, 5);
             break;
         case 1359:
             sprite[i].xrepeat = sprite[i].yrepeat = 32;
@@ -5595,7 +5628,7 @@ void prelevel(void)
             sprite[i].ang = (short)(krand() & 2047);
             sprite[i].shade = 0;
             sprite[i].z = sector[sect].floorz;
-            stat = 5;
+            changespritestat(i, 5);
             break;
         case 1360:
             if (j >= 0 && sprite[j].statnum == 10)
@@ -5609,23 +5642,23 @@ void prelevel(void)
             sprite[i].cstat = (unsigned char)(krand() & 0xC);
             sprite[i].shade = -127;
             sprite[i].ang = sprite[j].ang;
-            stat = 5;
+            changespritestat(i, 5);
             break;
         case 283:
             sprite[i].xrepeat = sprite[i].yrepeat = 0;
             sprite[i].shade = -32;
-            stat = 10;
+            changespritestat(i, 10);
             break;
         case 215:
             sprite[i].xrepeat = sprite[i].yrepeat = 10;
             sprite[i].shade = -16;
-            stat = 5;
+            changespritestat(i, 5);
             break;
         case 1280:
             sprite[i].xrepeat = sprite[i].yrepeat = 64;
             sprite[i].shade = -127;
             sprite[i].cstat |= 1;
-            stat = 2;
+            changespritestat(i, 2);
             break;
         case 1175: {
             short k;
@@ -5656,20 +5689,20 @@ void prelevel(void)
             }
             sprite[i].owner = -1;
             mspos += 3;
-            stat = 6;
+            changespritestat(i, 6);
             break;
         }
         case 1190:
             sprite[i].xrepeat = sprite[i].yrepeat = 20;
             sprite[i].shade = -16;
-            stat = 5;
+            changespritestat(i, 5);
             break;
         case 960:
             sprite[i].xrepeat = 16;
             sprite[i].yrepeat = 0;
             hittype[i][1] = krand() & 0x1F;
             sprite[i].z = sector[sect].ceilingz + 2048;
-            stat = 2;
+            changespritestat(i, 2);
             break;
         case 962:
             sprite[i].z = sector[sect].ceilingz + 6144;
@@ -5681,7 +5714,7 @@ void prelevel(void)
             sprite[i].xrepeat = 32;
             sprite[i].yrepeat = 16;
             sprite[i].cstat |= 1;
-            stat = 2;
+            changespritestat(i, 2);
             break;
         case 305:
             hittype[i][0] = sprite[i].xrepeat;
@@ -5690,7 +5723,7 @@ void prelevel(void)
         case 32: case 51: case 216:
             sprite[i].xrepeat = sprite[i].yrepeat = 0;
             sprite[i].yvel = 0;
-            stat = 1;
+            changespritestat(i, 1);
             break;
         case 408: case 490: case 579: case 1536: case 1680: case 1820:
             ps[0].max_squashed++;
@@ -5714,7 +5747,7 @@ void prelevel(void)
             sprite[i].xrepeat = sprite[i].yrepeat = 0;
             if (sprite[i].picnum == 23)
                 sector[sect].lotag ^= 0x4000;
-            stat = 8;
+            changespritestat(i, 8);
             break;
         case 30: case 313: case 314: case 1123:
             sprite[i].cstat |= 1;
@@ -5722,7 +5755,7 @@ void prelevel(void)
         case 1122:
             sprite[i].shade = -12;
             show2dsprite[i >> 3] |= 1 << (i & 7);
-            stat = 1;
+            changespritestat(i, 1);
             break;
         case 38: case 60: case 70: case 80: case 159: case 263: case 315: case 316: case 381: case 620:
         case 677: case 720: case 721: case 722: case 723: case 724: case 726: case 727: case 728:
@@ -5730,7 +5763,7 @@ void prelevel(void)
             sprite[i].shade = -17;
             show2dsprite[i >> 3] |= 1 << (i & 7);
             sprite[i].cstat |= 1;
-            stat = 2;
+            changespritestat(i, 2);
             break;
         case 931:
             show2dsprite[i >> 3] |= 1 << (i & 7);
@@ -5739,7 +5772,7 @@ void prelevel(void)
             sprite[i].z = hittype[i][3] + 10752;
             sprite[i].cstat |= 9;
             ps[0].max_actors_killed++;
-            stat = 2;
+            changespritestat(i, 2);
             break;
         case 930:
             show2dsprite[i >> 3] |= 1 << (i & 7);
@@ -5748,7 +5781,7 @@ void prelevel(void)
             sprite[i].z = hittype[i][3] + 3072;
             sprite[i].cstat |= 1;
             ps[0].max_actors_killed++;
-            stat = 2;
+            changespritestat(i, 2);
             break;
         case 940:
             show2dsprite[i >> 3] |= 1 << (i & 7);
@@ -5756,7 +5789,7 @@ void prelevel(void)
             sprite[i].xrepeat = sprite[i].yrepeat = 24;
             sprite[i].cstat |= 1;
             ps[0].max_actors_killed++;
-            stat = 4;
+            changespritestat(i, 4);
             break;
         case 323:
             sprite[i].z = sector[sect].floorz - (sprite[i].yrepeat << 7);
@@ -5767,7 +5800,7 @@ void prelevel(void)
         case 327:
             show2dsprite[i >> 3] |= 1 << (i & 7);
             sprite[i].shade = -16;
-            stat = 1;
+            changespritestat(i, 1);
             break;
         case 175: {
             short k, wall_end;
@@ -5776,6 +5809,98 @@ void prelevel(void)
             sprite[i].xrepeat = 0;
             sprite[i].yrepeat = 0;
             switch (sprite[i].lotag) {
+            case 27:
+                if (demomode == 1) {
+                    sprite[i].xrepeat = 64;
+                    sprite[i].yrepeat = 64;
+                }
+                break;
+            case 12:
+                hittype[i][1] = sector[sect].floorshade;
+                hittype[i][2] = sector[sect].ceilingshade;
+                break;
+            case 13:
+                hittype[i][0] = sector[sect].ceilingz;
+                hittype[i][1] = sector[sect].floorz;
+                sprite[i].owner = klabs(hittype[i][0] - sprite[i].z) < klabs(hittype[i][1] - sprite[i].z);
+                if (sprite[i].ang == 512) {
+                    if (sprite[i].owner)
+                        sector[sect].ceilingz = sprite[i].z;
+                    else
+                        sector[sect].floorz = sprite[i].z;
+                } else {
+                    sector[sect].floorz = sprite[i].z;
+                    sector[sect].ceilingz = sprite[i].z;
+                }
+                if (!(sector[sect].ceilingstat & 1))
+                    break;
+                sector[sect].ceilingstat ^= 1;
+                hittype[i][3] = 1;
+                if (sprite[i].owner == 0 && sprite[i].ang == 512) {
+                    sector[sect].ceilingstat ^= 1;
+                    hittype[i][3] = 0;
+                }
+                sector[sect].ceilingshade = sector[sect].floorshade;
+                if (sprite[i].ang == 512) {
+                    wall_end = sector[sect].wallptr + sector[sect].wallnum;
+                    for (k = sector[sect].wallptr; k < wall_end; k++) {
+                        short ns = wall[k].nextsector;
+
+                        if (ns >= 0 && !(sector[ns].ceilingstat & 1)) {
+                            sector[sect].ceilingpicnum = sector[ns].ceilingpicnum;
+                            sector[sect].ceilingshade = sector[ns].ceilingshade;
+                            break;
+                        }
+                    }
+                }
+                break;
+            case 17:
+                hittype[i][2] = sector[sect].floorz;
+                hittype[i][3] = sector[nextsectorneighborz(sect, sector[sect].floorz, -1, -1)].ceilingz;
+                hittype[i][4] = sector[nextsectorneighborz(sect, sector[sect].ceilingz, 1, 1)].floorz;
+                break;
+            case 24:
+                sprite[i].yvel *= 2;
+                sector[sect].floorstat |= 0x40;
+                break;
+            case 23:
+                sprite[i].xrepeat = 64;
+                sprite[i].yrepeat = 64;
+                sprite[i].shade = 0;
+                hittype[i][1] = mspos;
+                for (k = 0; k < numsectors; k++) {
+                    if (sector[k].hitag == sprite[i].hitag) {
+                        msx[mspos++] = k;
+                        hittype[i][0]++;
+                    }
+                }
+                break;
+            case 20: {
+                long best = 0x7FFFFFFF, w0 = -1;
+
+                wall_end = sector[sect].wallptr + sector[sect].wallnum;
+                for (k = sector[sect].wallptr; k < wall_end; k++) {
+                    long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
+
+                    if (d < best) {
+                        best = d;
+                        w0 = k;
+                    }
+                }
+                hittype[i][1] = w0;
+                best = 0x7FFFFFFF;
+                wall_end = sector[sect].wallptr + sector[sect].wallnum;
+                for (k = sector[sect].wallptr; k < wall_end; k++) {
+                    long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
+
+                    if (d < best && k != hittype[i][1]) {
+                        best = d;
+                        w0 = k;
+                    }
+                }
+                hittype[i][2] = w0;
+                break;
+            }
             case 3:
                 hittype[i][3] = sector[sect].floorshade;
                 sector[sect].floorshade = sprite[i].shade;
@@ -5861,100 +5986,8 @@ void prelevel(void)
                 }
                 break;
             }
-            case 12:
-                hittype[i][1] = sector[sect].floorshade;
-                hittype[i][2] = sector[sect].ceilingshade;
-                break;
-            case 13:
-                hittype[i][0] = sector[sect].ceilingz;
-                hittype[i][1] = sector[sect].floorz;
-                sprite[i].owner = klabs(hittype[i][0] - sprite[i].z) < klabs(hittype[i][1] - sprite[i].z);
-                if (sprite[i].ang == 512) {
-                    if (sprite[i].owner)
-                        sector[sect].ceilingz = sprite[i].z;
-                    else
-                        sector[sect].floorz = sprite[i].z;
-                } else {
-                    sector[sect].floorz = sprite[i].z;
-                    sector[sect].ceilingz = sprite[i].z;
-                }
-                if (!(sector[sect].ceilingstat & 1))
-                    break;
-                sector[sect].ceilingstat ^= 1;
-                hittype[i][3] = 1;
-                if (sprite[i].owner == 0 && sprite[i].ang == 512) {
-                    sector[sect].ceilingstat ^= 1;
-                    hittype[i][3] = 0;
-                }
-                sector[sect].ceilingshade = sector[sect].floorshade;
-                if (sprite[i].ang == 512) {
-                    wall_end = sector[sect].wallptr + sector[sect].wallnum;
-                    for (k = sector[sect].wallptr; k < wall_end; k++) {
-                        short ns = wall[k].nextsector;
-
-                        if (ns >= 0 && !(sector[ns].ceilingstat & 1)) {
-                            sector[sect].ceilingpicnum = sector[ns].ceilingpicnum;
-                            sector[sect].ceilingshade = sector[ns].ceilingshade;
-                            break;
-                        }
-                    }
-                }
-                break;
-            case 17:
-                hittype[i][2] = sector[sect].floorz;
-                hittype[i][3] = sector[nextsectorneighborz(sect, sector[sect].floorz, -1, -1)].ceilingz;
-                hittype[i][4] = sector[nextsectorneighborz(sect, sector[sect].ceilingz, 1, 1)].floorz;
-                break;
-            case 20: {
-                long best = 0x7FFFFFFF, w0 = -1;
-
-                wall_end = sector[sect].wallptr + sector[sect].wallnum;
-                for (k = sector[sect].wallptr; k < wall_end; k++) {
-                    long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
-
-                    if (d < best) {
-                        best = d;
-                        w0 = k;
-                    }
-                }
-                hittype[i][1] = w0;
-                best = 0x7FFFFFFF;
-                wall_end = sector[sect].wallptr + sector[sect].wallnum;
-                for (k = sector[sect].wallptr; k < wall_end; k++) {
-                    long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
-
-                    if (d < best && k != hittype[i][1]) {
-                        best = d;
-                        w0 = k;
-                    }
-                }
-                hittype[i][2] = w0;
-                break;
             }
-            case 23:
-                sprite[i].xrepeat = 64;
-                sprite[i].yrepeat = 64;
-                sprite[i].shade = 0;
-                hittype[i][1] = mspos;
-                for (k = 0; k < numsectors; k++) {
-                    if (sector[k].hitag == sprite[i].hitag) {
-                        msx[mspos++] = k;
-                        hittype[i][0]++;
-                    }
-                }
-                break;
-            case 24:
-                sprite[i].yvel *= 2;
-                sector[sect].floorstat |= 0x40;
-                break;
-            case 27:
-                if (demomode == 1) {
-                    sprite[i].xrepeat = 64;
-                    sprite[i].yrepeat = 64;
-                }
-                break;
-            }
-            stat = sprite[i].lotag == 7 ? 9 : 3;
+            changespritestat(i, sprite[i].lotag == 7 ? 9 : 3);
             break;
         }
         case 57:
@@ -5964,7 +5997,7 @@ void prelevel(void)
                 sprite[i].xrepeat = sprite[i].yrepeat = 0;
             show2dsprite[i >> 3] |= 1 << (i & 7);
             sprite[i].cstat |= 1;
-            stat = 6;
+            changespritestat(i, 6);
             break;
         case 606: case 627: case 905: case 1200:
             sprite[i].owner = i;
@@ -5972,11 +6005,9 @@ void prelevel(void)
             show2dsprite[i >> 3] |= 1 << (i & 7);
             sprite[i].yrepeat = sprite[i].xrepeat = 38;
             sprite[i].cstat |= 1;
-            stat = 6;
+            changespritestat(i, 6);
             break;
         }
-        if (stat != -1)
-            changespritestat(i, stat);
     }
 
     for (i = 0; i < numwalls; i++) {
@@ -5997,12 +6028,12 @@ void prelevel(void)
             continue;
         }
         switch (wall[i].picnum) {
-        case 406:
-            wall[i].picnum = 405;
-            checkhitswitch(wall[i].lotag);
+        case 819: case 823: case 860: case 864:
+            if (waloff[wall[i].picnum] == -1)
+                for (k = 0; k < 4; k++)
+                    loadtile(wall[i].picnum + k);
             /* fall through */
-        case 395: case 396: case 405:
-            animwall[numanimwalls].tag = 0;
+        case 570:
             animwall[numanimwalls++].wallnum = i;
             break;
         case 761:
@@ -6012,15 +6043,19 @@ void prelevel(void)
             /* fall through */
         case 764: case 765: case 766: case 767:
             animwall[numanimwalls].wallnum = i;
-            animwall[numanimwalls++].tag = wall[i].picnum;
+            animwall[numanimwalls].tag = wall[i].picnum;
+            numanimwalls++;
             break;
-        case 819: case 823: case 860: case 864:
-            if (waloff[wall[i].picnum] == -1)
-                for (k = 0; k < 4; k++)
-                    loadtile(wall[i].picnum + k);
-            /* fall through */
-        case 570:
+        case 406:
+            wall[i].picnum = 405;
+            checkhitswitch(wall[i].lotag);
+            animwall[numanimwalls].tag = 0;
             animwall[numanimwalls++].wallnum = i;
+            break;
+        case 395: case 396: case 405:
+            animwall[numanimwalls].tag = 0;
+            animwall[numanimwalls].wallnum = i;
+            numanimwalls++;
             break;
         }
     }
@@ -6167,9 +6202,6 @@ unsigned char check_file_id(void)
     return 0;
 }
 
-/* Keep the local shade update as a call in this routine. */
-extern long score_text_shade(void);
-#pragma aux score_text_shade "next_text_shade_"
 
 short newscore(void)
 {
