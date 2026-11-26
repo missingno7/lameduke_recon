@@ -237,7 +237,7 @@ extern void permanentwritesprite(long x, long y, long tile, long shade,
 extern void animatewalls(void);
 extern void animatecamsprite(short p);
 extern short getpacket(short *other, unsigned char *buffer);
-extern void sendpacket(short other, unsigned char *buffer, short length);
+extern void sendpacket(long other, unsigned char *buffer, long length);
 extern long getoutputcirclesize(void);
 extern void getinput(short p);
 extern void doanimations(long tics);
@@ -487,7 +487,7 @@ void level_load_hook(void)
 
 void __interrupt __far timerhandler(void)
 {
-    ++totalclock;
+    totalclock++;
     {
         if (!keystatus[keys[5]]) {
             if (held(2, 0x4b)) {
@@ -1040,11 +1040,11 @@ void moveloop(void)
                             for (i = connecthead; i >= 0; i = connectpoint2[i]) {
                                 if (((1 << (k & 7)) & tempbuf[k >> 3]) > 0)
                                     player_svel[i] = tempbuf[j++];
-                                if (((2 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                                if ((tempbuf[k >> 3] & (2 << (k & 7))) > 0)
                                     player_vel[i] = tempbuf[j++];
-                                if ((tempbuf[k >> 3] & (4 << (k & 7))) > 0)
+                                if (((4 << (k & 7)) & tempbuf[k >> 3]) > 0)
                                     player_avel[i] = tempbuf[j++];
-                                if (((8 << (k & 7)) & tempbuf[k >> 3]) > 0) {
+                                if ((tempbuf[k >> 3] & (8 << (k & 7))) > 0) {
                                     player_bits[i] = tempbuf[j] +
                                                      (tempbuf[j + 1] << 8) +
                                                      (tempbuf[j + 2] << 16) +
