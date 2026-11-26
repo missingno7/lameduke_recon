@@ -822,13 +822,14 @@ void resetplayer(short p)
     ps[p].knee_flash = 0;
     ps[p].on_ground = 0;
     look = 256 - (krand() & 512);
-    ps[p].poszv = ps[p].jumping_counter = 0;
+    ps[p].jumping_counter = 0;
+    ps[p].poszv = 0;
     ps[p].weapon_clock = 0;
     ps[p].lookang = look;
     ps[p].state80 = -1;
     ps[p].flash_sprite = -1;
-    ps[p].hard_landing = 0;
     ps[p].newowner = -1;
+    ps[p].hard_landing = 0;
     if (actorscrptr[283] != NULL)
         ps[p].health = (short)*actorscrptr[283];
     else

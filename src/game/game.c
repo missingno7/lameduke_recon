@@ -303,7 +303,7 @@ extern void sendlogon(void);
 extern void screencapture(void);
 extern void setbrightness(unsigned char brightness);
 extern void MUSIC_Pause(void), MUSIC_Continue(void);
-extern void qsetmode640480(void);
+extern void qsetmode640350(void);
 #define score_rank_title "#"
 #define score_quote_title "Hero's Quote"
 #define score_score_title "Score"
@@ -667,7 +667,6 @@ long next_text_shade(void)
 }
 
 extern unsigned char getscorename(short row);
-extern unsigned char check_file_id(void);
 extern short newscore(void);
 
 void displayquotes(short p)
@@ -802,38 +801,49 @@ int strget(long x, long y, long shade, long limit)
     unsigned char ch;
     short scan;
 
-    for (scan = 0; scan < 128; scan++) {
-        if (keystatus[scan] != 0) {
-            if (keystatus[KEY_LEFT_SHIFT] | keystatus[KEY_RIGHT_SHIFT]) {
-                ch = scan_ascii_shift[scan];
-                if (ch != 0) {
+    for (scan = 0; scan < 128; scan++)
+        if (keystatus[scan] > 0)
+        {
+            if ((keystatus[0x2a] | keystatus[0x36]) != 0)
+            {
+                if (scan_ascii_shift[scan] != 0)
+                {
                     if (input_text_length < 79)
-                        input_text[input_text_length++] = ch;
+                        input_text[input_text_length++] = scan_ascii_shift[scan];
                     keystatus[scan] = 0;
                 }
-            } else if (scan_ascii[scan] != 0) {
-                if (input_text_length < 159)
-                    input_text[input_text_length++] = scan_ascii[scan];
-                keystatus[scan] = 0;
+            }
+            else
+            {
+                if (scan_ascii[scan] != 0)
+                {
+                    if (input_text_length < 159)
+                        input_text[input_text_length++] = scan_ascii[scan];
+                    keystatus[scan] = 0;
+                }
             }
 
             if (input_text_length > maxlen)
                 input_text_length = maxlen;
-            if (keystatus[KEY_BACKSPACE] != 0) {
-                if (keystatus[KEY_BACKSPACE] == 1 ||
-                    keystatus[KEY_BACKSPACE] == REPEAT_THRESHOLD) {
-                    if (input_text_length != 0)
+
+            if (keystatus[0xe] > 0)   /* Backspace */
+            {
+                    /* Here's a trick of making key repeat after a 1/2 second */
+                if ((keystatus[0xe] == 1) || (keystatus[0xe] == 60))
+                {
+                    if (input_text_length > 0)
                         input_text_length--;
+                    else
+                        input_text_length = 0;
                 }
                 input_text[input_text_length] = 0;
-                if (keystatus[KEY_BACKSPACE] < REPEAT_THRESHOLD) {
-                    keystatus[KEY_BACKSPACE] += script_tics;
-                    if (keystatus[KEY_BACKSPACE] > REPEAT_THRESHOLD)
-                        keystatus[KEY_BACKSPACE] = REPEAT_THRESHOLD;
+                if (keystatus[0xe] < 60)
+                {
+                    keystatus[0xe] += script_tics;
+                    if (keystatus[0xe] > 60) keystatus[0xe] = 60;
                 }
             }
         }
-    }
 
     if (drawshade < 128) {
         x = minitext(x, y, input_text, drawshade & 127);
@@ -1407,7 +1417,7 @@ void nonsharedkeys(void)
             nextpage();
             setgamemode();
         } else
-            qsetmode640480();
+            qsetmode640350();
         vscrn(screenpeek);
         keystatus[0x25] = 0;
     }
@@ -1534,12 +1544,12 @@ void checkcommandline(int argc, char **argv)
                     }
                 break;
             }
+            i++;
         } else {
             printf(unknown_parameter2, c);
             show_help(argv);
             exit(0);
         }
-        i++;
     }
     }
 }
@@ -1858,7 +1868,7 @@ void record(short player)
 
 void domovethings(void)
 {
-    long p;
+    short p;
 
     randomstash = krand();
     userdefs.camera = -1;
@@ -2042,7 +2052,7 @@ void move_status9(void)
             sect = sprite[i].sectnum;
             if (sprite[i].z > sector[sect].floorz)
                 sprite[i].z = sector[sect].floorz;
-            if (sector[sect].lotag == 0 && sector[sect].floorz == sprite[i].z) {
+            if (sector[sect].lotag == 0 && sprite[i].z == sector[sect].floorz) {
                 j = headspritesect[sect];
                 while (j >= 0) {
                     if (hittype[i][1]) {

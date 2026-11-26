@@ -2394,7 +2394,7 @@
      "status": "NEAR_MATCH"
     },
     "domovethings": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "dobonus": {
      "status": "NEAR_MATCH"
