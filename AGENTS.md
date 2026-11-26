@@ -67,6 +67,9 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
 - `tools/link/link.py` — natural-link experiment: builds every unit, links with Watcom 9.5 WLINK (DOSBox-X,
   tools/link/game.lnk), compares with D3D.EXE (build/link/run/comparison.json; docs/LINK_REPORT.md). Exit 0 = resolved
   link, 2 = diagnostic image with undefined symbols. Evidence only.
+- `tools/xscan/xscan.py` — cross-source donor scan (Ken's snapshots, Build archives, Duke3D 1.3D/1.5 compiled with
+  Watcom 9.5): nearest compiled donor functions per LameDuke function; results docs/DONORS.md, config/donors.json.
+- docs/ANCESTRY.md — Ken-Build GAME.C counterparts (names, locals, comments) for game functions.
 - `tools/gate.py` — integration gate (tests + fresh rebuild of every unit); run before every commit.
 - Watcom 9.5b compiles run on the canonical DOS host (tools/doshost.py: the original DOS compiler under DOSBox-X,
   ~1.7 s per compile) because CONST padding residue depends on the host; LAMEDUKE_HOST=nt gives the same code
