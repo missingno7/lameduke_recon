@@ -2329,6 +2329,66 @@
    "uart_init": {
     "addr": "1:4ed90",
     "evidence": "audio worker 2026-11-26: ASS 1.04 gf1uart; unique whole segment code and fixup sites at 1:4ed90"
+   },
+   "init_bootleg_cache": {
+    "addr": "1:2bb30",
+    "evidence": "sounds worker 2026-11-26: Called by main immediately after Init BootLeg CacheMaster; initializes base, capacity and depth."
+   },
+   "USRHOOKS_GetMem": {
+    "addr": "1:2bb60",
+    "evidence": "sounds worker 2026-11-26: ASS calls at 56129, 5ab5e, 5be60 and 5d916 supply an output pointer and size. Corresponding 1.04 members task_man, multivoc, midi and gusmidi reference USRHOOKS_GetMem_."
+   },
+   "USRHOOKS_FreeMem": {
+    "addr": "1:2bb90",
+    "evidence": "sounds worker 2026-11-26: ASS cleanup calls at 56147, 5ab9b, 5be90 and 5d985 invoke this pop-and-return-zero hook, corresponding to USRHOOKS_FreeMem_ references in the 1.04 members."
+   },
+   "TestCallBack": {
+    "addr": "1:2c190",
+    "evidence": "sounds worker 2026-11-26: main registers this public with FX_SetCallBack at 1:05d09. Its only write decrements an active-voice count for the callback ID."
+   },
+   "bootleg_cache_alloc": {
+    "addr": "1:2ba30",
+    "evidence": "sounds worker 2026-11-26: Clog Error and Out of memory diagnostics, top-of-stack pointer advance, returns start of allocation. RELOCATION_VOTES 2 sites in 2 byte-matching functions: USRHOOKS_GetMem, loadsounds."
+   },
+   "gameexit": {
+    "addr": "1:00c60",
+    "evidence": "sounds worker 2026-11-26: Sole common fatal-exit path, receives error text and shuts down sound, video, networking and timer before exit. RELOCATION_VOTES 3 sites in 2 byte-matching functions: USRHOOKS_GetMem, bootleg_cache_alloc."
+   },
+   "bootleg_cache_pop": {
+    "addr": "1:2baa0",
+    "evidence": "sounds worker 2026-11-26: Drops the last allocation and restores cursor and free count. Three consecutive calls free compiler workspace after parsing."
+   },
+   "bootleg_cache_reset": {
+    "addr": "1:2bae0",
+    "evidence": "sounds worker 2026-11-26: Unreached routine after bootleg_cache_pop and its padding, walks the outstanding size stack to unwind all allocations."
+   },
+   "loadsounds": {
+    "addr": "1:2bbd0",
+    "evidence": "sounds worker 2026-11-26: Main calls after Reading sounds. Iterates 39 VOC names, opens and reads each into the arena."
+   },
+   "playmusic": {
+    "addr": "1:2bc40",
+    "evidence": "sounds worker 2026-11-26: Loads a passed filename into a fixed buffer and calls MUSIC_PlaySong. Used on level transition and in movefx."
+   },
+   "xyzsound": {
+    "addr": "1:2bcb0",
+    "evidence": "sounds worker 2026-11-26: Uses explicit x/y arguments, calculates bearing and attenuation and calls FX_PlayVOC3D."
+   },
+   "spritesound": {
+    "addr": "1:2be70",
+    "evidence": "sounds worker 2026-11-26: Fetches x/y/z from a passed sprite index, calculates bearing and attenuation and calls FX_PlayVOC3D."
+   },
+   "stopsound": {
+    "addr": "1:2c040",
+    "evidence": "sounds worker 2026-11-26: Stops the stored ASS voice handle and decrements the corresponding active count."
+   },
+   "pan3dsound": {
+    "addr": "1:2c090",
+    "evidence": "sounds worker 2026-11-26: Recomputes active sound bearing and attenuation and passes the handle to the audio panning API."
+   },
+   "sounds_text_end": {
+    "addr": "1:2c1bb",
+    "evidence": "sounds worker 2026-11-26: Boundary after the oracle terminal ret at 2c1ba and before the five inter-object zero fill bytes."
    }
   },
   "data": {
@@ -3867,6 +3927,70 @@
    "wSBCBaseAddx": {
     "addr": "2:1c8888",
     "evidence": "audio worker 2026-11-26: two independent byte/site-matched 1.04 callers: awe32/AWE32_Shutdown_ at 1:62692, awe32/InitMPU_ at 1:622a4"
+   },
+   "bootleg_cache": {
+    "addr": "2:3f450",
+    "evidence": "sounds worker 2026-11-26: The independently established ps base 88830 less the cache capacity of 300000 bytes gives 3f450. Cache initialization binds the base to its cursor and sets the capacity."
+   },
+   "cache_cursor": {
+    "addr": "2:a59d8",
+    "evidence": "sounds worker 2026-11-26: Allocator returns previous cursor and advances this pointer by the requested size; pop reverses it. RELOCATION_VOTES 10 sites in 5 byte-matching functions: USRHOOKS_FreeMem, bootleg_cache_alloc, bootleg_cache_pop, bootleg_cache_reset, init_bootleg_cache."
+   },
+   "cache_remaining": {
+    "addr": "2:a59d4",
+    "evidence": "sounds worker 2026-11-26: Allocator subtracts requested bytes from this word and reports exhaustion at zero; pop adds size back. RELOCATION_VOTES 9 sites in 5 byte-matching functions: USRHOOKS_FreeMem, bootleg_cache_alloc, bootleg_cache_pop, bootleg_cache_reset, init_bootleg_cache."
+   },
+   "cache_depth": {
+    "addr": "2:a59d0",
+    "evidence": "sounds worker 2026-11-26: Allocator uses this counter to index its 128-slot size stack; pop decreases it. RELOCATION_VOTES 10 sites in 5 byte-matching functions: USRHOOKS_FreeMem, bootleg_cache_alloc, bootleg_cache_pop, bootleg_cache_reset, init_bootleg_cache."
+   },
+   "cache_sizes": {
+    "addr": "2:a57d0",
+    "evidence": "sounds worker 2026-11-26: Allocator stores allocation sizes here by previous stack depth, and pop reads one slot below current depth. RELOCATION_VOTES 4 sites in 4 byte-matching functions: USRHOOKS_FreeMem, bootleg_cache_alloc, bootleg_cache_pop, bootleg_cache_reset."
+   },
+   "sound_voices": {
+    "addr": "2:a5420",
+    "evidence": "sounds worker 2026-11-26: xyzsound and spritesound populate x/y at +0/+4, emitter at +12 and ASS handle at +14. Both update the active count at +18 and use a 19-byte stride. RELOCATION_VOTES 17 sites in 4 byte-matching functions: TestCallBack, pan3dsound, stopsound, xyzsound."
+   },
+   "sound_device_names": {
+    "addr": "2:028d4",
+    "evidence": "sounds worker 2026-11-26: Nine device-name pointers into the pool at 08a4-0928."
+   },
+   "sound_device_map": {
+    "addr": "2:028f8",
+    "evidence": "sounds worker 2026-11-26: Nine dwords translating setup device selection to ASS device IDs during startup."
+   },
+   "sound_file_table": {
+    "addr": "2:356d8",
+    "evidence": "sounds worker 2026-11-26: 39 eight-byte entries initialized by loadsounds. First dword points to cached VOC payload and is passed to FX_PlayVOC3D. RELOCATION_VOTES 2 sites in 2 byte-matching functions: loadsounds, xyzsound."
+   },
+   "music_buffer": {
+    "addr": "2:35810",
+    "evidence": "sounds worker 2026-11-26: Placed immediately after the independently sized 39 by 8 byte VOC table. fread and MUSIC_PlaySong both use 35810. The next established base is the cache arena."
+   },
+   "ps": {
+    "addr": "2:88830",
+    "evidence": "sounds worker 2026-11-26: 17 slots at 176 bytes each up to 893e0. Indexes connected players and holds sprite IDs, positions, sectors and inventory. RELOCATION_VOTES 9 sites in 2 byte-matching functions: pan3dsound, xyzsound."
+   },
+   "screenpeek": {
+    "addr": "2:a538c",
+    "evidence": "sounds worker 2026-11-26: Display and panning routines select the viewed player slot with this index. RELOCATION_VOTES 2 sites in 2 byte-matching functions: pan3dsound, xyzsound."
+   },
+   "sound_names": {
+    "addr": "2:02838",
+    "evidence": "sounds worker 2026-11-26: 39 consecutive initialized VOC pointers, independently indexed by loadsounds and the CON compiler at 2ed60."
+   },
+   "camerasprite": {
+    "addr": "2:a57b5",
+    "evidence": "sounds worker 2026-11-26: GAME main initializes this word to -1 and display code at ba30 uses the alternate sprite viewpoint. RELOCATION_VOTES 2 sites in 2 byte-matching functions: pan3dsound, xyzsound."
+   },
+   "SoundToggle": {
+    "addr": "2:a57ab",
+    "evidence": "sounds worker 2026-11-26: GAME audio shutdown/restart helper 4cd0 controls the effects path based on this byte."
+   },
+   "MusicToggle": {
+    "addr": "2:1bde42",
+    "evidence": "sounds worker 2026-11-26: GAME 4cd0 and gameexit separately test this byte before calling the music stop/shutdown path."
    }
   }
  }

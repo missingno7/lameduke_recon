@@ -844,7 +844,7 @@
      "status": "CODE_BYTES_MATCH"
     },
     "GUSMIDI_UnloadPatch": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "GUSMIDI_LoadPatch": {
      "status": "CODE_BYTES_MATCH"
@@ -1581,6 +1581,57 @@
     },
     "USER_GetText": {
      "status": "CODE_BYTES_MATCH"
+    }
+   }
+  },
+  "game_sounds": {
+   "source": "src/game/sounds.c",
+   "profile": "game",
+   "include": [
+    "src/game"
+   ],
+   "kind": "c",
+   "provenance": "BINARY_DERIVED with Duke3D 1.5 SOUNDS.C semantics; names partly INVENTED (bootleg_cache_*); sounds worker 2026-11-26",
+   "quality": "COMPILER_STEERED: explicit trailing NULs in three string literals reproduce CONST padding",
+   "functions": {
+    "bootleg_cache_alloc": {
+     "status": "STRICT"
+    },
+    "bootleg_cache_pop": {
+     "status": "STRICT"
+    },
+    "bootleg_cache_reset": {
+     "status": "STRICT"
+    },
+    "init_bootleg_cache": {
+     "status": "STRICT"
+    },
+    "USRHOOKS_GetMem": {
+     "status": "STRICT"
+    },
+    "USRHOOKS_FreeMem": {
+     "status": "STRICT"
+    },
+    "loadsounds": {
+     "status": "STRICT"
+    },
+    "playmusic": {
+     "status": "STRICT"
+    },
+    "xyzsound": {
+     "status": "STRICT"
+    },
+    "spritesound": {
+     "status": "NEAR_MATCH"
+    },
+    "stopsound": {
+     "status": "STRICT"
+    },
+    "pan3dsound": {
+     "status": "STRICT"
+    },
+    "TestCallBack": {
+     "status": "STRICT"
     }
    }
   }
