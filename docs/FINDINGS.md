@@ -121,3 +121,16 @@ Each entry names the command or artefact that supports it.
   22-slot declaration page first, then ascending 12-bit identifier hash modulo 211; -ot adds type-based alignment
   (6 bytes for far pointers). Predicts all 293 _BSS and 12 _DATA publics of three BUIL0422 objects. Differs from
   the 10.x rule (25-slot pages, % 241).
+
+## CONST residue model (sounds worker 2026-11-26, docs/CONST_RESIDUE.md)
+- PROVEN all 226 covered CONST padding bytes of the five integrated 9.5b units are explained: 143 by earlier LEDATA
+  writes in the same reused packet buffer, 83 by the initial contents ("seed") of freshly allocated compiler memory.
+  The target has 0 in every seed position. The NT-hosted 9.5b compiler leaves heap garbage there, so its output
+  depends on the environment (path lengths etc.). Only a path-tuned NT stage reproduces all five pools (not adopted:
+  fragile). HYPOTHESIS: the original ran the DOS-hosted compiler (zero fresh memory) -> worker doshost tests BINB
+  under DOSBox-X.
+- PROVEN residue cannot uniquely identify the December environment (three different environments reproduce every
+  pool). Ken's Apr/Aug-94 ENGINE.OBJs record THEADR engine.c, D:\engine.c and c:\watcom\h.
+- PROVEN SOUNDS' explicit NUL extensions are still required under every tested environment (removing them changes
+  CONST at +27f.. under the reproducing stage): they model real source content of unknown spelling (OPEN).
+- Watcom 9.5b BINNT hangs on stage path components of ~69 characters (keep stage paths short).
