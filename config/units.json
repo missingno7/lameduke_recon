@@ -2175,7 +2175,7 @@
      "status": "STRICT"
     },
     "update_timer_input": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "level_load_hook": {
      "status": "STRICT"
@@ -2223,7 +2223,7 @@
      "status": "NEAR_MATCH"
     },
     "numtext": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "numtext_fixed": {
      "status": "STRICT"

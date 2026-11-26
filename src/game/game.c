@@ -406,78 +406,74 @@ void uninittimer(void)
 }
 
 #define held(binding, scan) \
-    ((keystatus[keys[binding]] | keystatus[scan] | keystatus[(scan) + 128]) != 0)
+    ((keystatus[keys[binding]] | keystatus[scan] | keystatus[(scan) + 128]) > 0)
 
 void update_timer_input(void)
 {
-    long forward = forward_velocity;
-    long turn = turn_velocity;
-    long strafe = strafe_velocity;
-
     if (!keystatus[keys[5]]) {
         if (held(2, 0x4b)) {
-            turn -= 16;
-            if (turn < -128)
-                turn = -128;
+            turn_velocity -= 16;
+            if (turn_velocity < -128)
+                turn_velocity = -128;
         }
         if (held(3, 0x4d)) {
-            turn += 16;
-            if (turn > 127)
-                turn = 127;
+            turn_velocity += 16;
+            if (turn_velocity > 127)
+                turn_velocity = 127;
         }
     } else {
         if (held(2, 0x4b)) {
-            strafe += 8;
-            if (strafe > 127)
-                strafe = 127;
+            strafe_velocity += 8;
+            if (strafe_velocity > 127)
+                strafe_velocity = 127;
         }
         if (held(3, 0x4d)) {
-            strafe -= 8;
-            if (strafe < -128)
-                strafe = -128;
+            strafe_velocity -= 8;
+            if (strafe_velocity < -128)
+                strafe_velocity = -128;
         }
     }
     if (held(0, 0x48)) {
-        forward += 8;
-        if (forward > 127)
-            forward = 127;
+        forward_velocity += 8;
+        if (forward_velocity > 127)
+            forward_velocity = 127;
     }
     if (held(1, 0x50)) {
-        forward -= 8;
-        if (forward < -128)
-            forward = -128;
+        forward_velocity -= 8;
+        if (forward_velocity < -128)
+            forward_velocity = -128;
     }
 
-    if (turn < 0) {
-        turn += 10;
-        if (turn > 0)
-            turn = 0;
-    } else if (turn > 0) {
-        turn -= 10;
-        if (turn < 0)
-            turn = 0;
+    if (turn_velocity < 0) {
+        turn_velocity += 10;
+        if (turn_velocity > 0)
+            turn_velocity = 0;
     }
-    if (strafe < 0) {
-        strafe += 2;
-        if (strafe > 0)
-            strafe = 0;
-    } else if (strafe > 0) {
-        strafe -= 2;
-        if (strafe < 0)
-            strafe = 0;
+    if (turn_velocity > 0) {
+        turn_velocity -= 10;
+        if (turn_velocity < 0)
+            turn_velocity = 0;
     }
-    if (forward < 0) {
-        forward += 2;
-        if (forward > 0)
-            forward = 0;
-    } else if (forward > 0) {
-        forward -= 2;
-        if (forward < 0)
-            forward = 0;
+    if (strafe_velocity < 0) {
+        strafe_velocity += 2;
+        if (strafe_velocity > 0)
+            strafe_velocity = 0;
     }
-    strafe_velocity = strafe;
-    turn_velocity = turn;
-    forward_velocity = forward;
+    if (strafe_velocity > 0) {
+        strafe_velocity -= 2;
+        if (strafe_velocity < 0)
+            strafe_velocity = 0;
+    }
+    if (forward_velocity < 0) {
+        forward_velocity += 2;
+        if (forward_velocity > 0)
+            forward_velocity = 0;
+    }
+    if (forward_velocity > 0) {
+        forward_velocity -= 2;
+        if (forward_velocity < 0)
+            forward_velocity = 0;
+    }
 }
 
 #undef held
@@ -531,7 +527,8 @@ void __interrupt __far timerhandler(void)
             turn_velocity += 10;
             if (turn_velocity > 0)
                 turn_velocity = 0;
-        } else if (turn_velocity > 0) {
+        }
+        if (turn_velocity > 0) {
             turn_velocity -= 10;
             if (turn_velocity < 0)
                 turn_velocity = 0;
@@ -540,7 +537,8 @@ void __interrupt __far timerhandler(void)
             strafe_velocity += 2;
             if (strafe_velocity > 0)
                 strafe_velocity = 0;
-        } else if (strafe_velocity > 0) {
+        }
+        if (strafe_velocity > 0) {
             strafe_velocity -= 2;
             if (strafe_velocity < 0)
                 strafe_velocity = 0;
@@ -549,7 +547,8 @@ void __interrupt __far timerhandler(void)
             forward_velocity += 2;
             if (forward_velocity > 0)
                 forward_velocity = 0;
-        } else if (forward_velocity > 0) {
+        }
+        if (forward_velocity > 0) {
             forward_velocity -= 2;
             if (forward_velocity < 0)
                 forward_velocity = 0;
@@ -596,7 +595,8 @@ void __interrupt __far timerhandler(void)
                 turn_velocity += 10;
                 if (turn_velocity > 0)
                     turn_velocity = 0;
-            } else if (turn_velocity > 0) {
+            }
+            if (turn_velocity > 0) {
                 turn_velocity -= 10;
                 if (turn_velocity < 0)
                     turn_velocity = 0;
@@ -605,7 +605,8 @@ void __interrupt __far timerhandler(void)
                 strafe_velocity += 2;
                 if (strafe_velocity > 0)
                     strafe_velocity = 0;
-            } else if (strafe_velocity > 0) {
+            }
+            if (strafe_velocity > 0) {
                 strafe_velocity -= 2;
                 if (strafe_velocity < 0)
                     strafe_velocity = 0;
@@ -614,7 +615,8 @@ void __interrupt __far timerhandler(void)
                 forward_velocity += 2;
                 if (forward_velocity > 0)
                     forward_velocity = 0;
-            } else if (forward_velocity > 0) {
+            }
+            if (forward_velocity > 0) {
                 forward_velocity -= 2;
                 if (forward_velocity < 0)
                     forward_velocity = 0;
@@ -659,7 +661,8 @@ void __interrupt __far timerhandler(void)
                 turn_velocity += 10;
                 if (turn_velocity > 0)
                     turn_velocity = 0;
-            } else if (turn_velocity > 0) {
+            }
+            if (turn_velocity > 0) {
                 turn_velocity -= 10;
                 if (turn_velocity < 0)
                     turn_velocity = 0;
@@ -668,7 +671,8 @@ void __interrupt __far timerhandler(void)
                 strafe_velocity += 2;
                 if (strafe_velocity > 0)
                     strafe_velocity = 0;
-            } else if (strafe_velocity > 0) {
+            }
+            if (strafe_velocity > 0) {
                 strafe_velocity -= 2;
                 if (strafe_velocity < 0)
                     strafe_velocity = 0;
@@ -677,7 +681,8 @@ void __interrupt __far timerhandler(void)
                 forward_velocity += 2;
                 if (forward_velocity > 0)
                     forward_velocity = 0;
-            } else if (forward_velocity > 0) {
+            }
+            if (forward_velocity > 0) {
                 forward_velocity -= 2;
                 if (forward_velocity < 0)
                     forward_velocity = 0;
@@ -722,7 +727,8 @@ void __interrupt __far timerhandler(void)
                 turn_velocity += 10;
                 if (turn_velocity > 0)
                     turn_velocity = 0;
-            } else if (turn_velocity > 0) {
+            }
+            if (turn_velocity > 0) {
                 turn_velocity -= 10;
                 if (turn_velocity < 0)
                     turn_velocity = 0;
@@ -731,7 +737,8 @@ void __interrupt __far timerhandler(void)
                 strafe_velocity += 2;
                 if (strafe_velocity > 0)
                     strafe_velocity = 0;
-            } else if (strafe_velocity > 0) {
+            }
+            if (strafe_velocity > 0) {
                 strafe_velocity -= 2;
                 if (strafe_velocity < 0)
                     strafe_velocity = 0;
@@ -740,7 +747,8 @@ void __interrupt __far timerhandler(void)
                 forward_velocity += 2;
                 if (forward_velocity > 0)
                     forward_velocity = 0;
-            } else if (forward_velocity > 0) {
+            }
+            if (forward_velocity > 0) {
                 forward_velocity -= 2;
                 if (forward_velocity < 0)
                     forward_velocity = 0;
@@ -785,7 +793,8 @@ void __interrupt __far timerhandler(void)
                 turn_velocity += 10;
                 if (turn_velocity > 0)
                     turn_velocity = 0;
-            } else if (turn_velocity > 0) {
+            }
+            if (turn_velocity > 0) {
                 turn_velocity -= 10;
                 if (turn_velocity < 0)
                     turn_velocity = 0;
@@ -794,7 +803,8 @@ void __interrupt __far timerhandler(void)
                 strafe_velocity += 2;
                 if (strafe_velocity > 0)
                     strafe_velocity = 0;
-            } else if (strafe_velocity > 0) {
+            }
+            if (strafe_velocity > 0) {
                 strafe_velocity -= 2;
                 if (strafe_velocity < 0)
                     strafe_velocity = 0;
@@ -803,7 +813,8 @@ void __interrupt __far timerhandler(void)
                 forward_velocity += 2;
                 if (forward_velocity > 0)
                     forward_velocity = 0;
-            } else if (forward_velocity > 0) {
+            }
+            if (forward_velocity > 0) {
                 forward_velocity -= 2;
                 if (forward_velocity < 0)
                     forward_velocity = 0;
@@ -848,7 +859,8 @@ void __interrupt __far timerhandler(void)
                 turn_velocity += 10;
                 if (turn_velocity > 0)
                     turn_velocity = 0;
-            } else if (turn_velocity > 0) {
+            }
+            if (turn_velocity > 0) {
                 turn_velocity -= 10;
                 if (turn_velocity < 0)
                     turn_velocity = 0;
@@ -857,7 +869,8 @@ void __interrupt __far timerhandler(void)
                 strafe_velocity += 2;
                 if (strafe_velocity > 0)
                     strafe_velocity = 0;
-            } else if (strafe_velocity > 0) {
+            }
+            if (strafe_velocity > 0) {
                 strafe_velocity -= 2;
                 if (strafe_velocity < 0)
                     strafe_velocity = 0;
@@ -866,7 +879,8 @@ void __interrupt __far timerhandler(void)
                 forward_velocity += 2;
                 if (forward_velocity > 0)
                     forward_velocity = 0;
-            } else if (forward_velocity > 0) {
+            }
+            if (forward_velocity > 0) {
                 forward_velocity -= 2;
                 if (forward_velocity < 0)
                     forward_velocity = 0;
@@ -1441,81 +1455,73 @@ void displayquotes(short p)
     long ofs = 0;
 
     if (msgtime > 0) {
-        long x = 8, y = 162;
-        unsigned char *text;
-
         msgtime--;
-        text = (unsigned char *)msgtext;
-        if (ps[screenpeek].display_mode != 2) {
-#define TEXT_ROW y
-/* Small glyph rendering shared with the decimal printer. */
-{
-    short left = x;
-    short tile, descender;
+        {
+        char *m = msgtext;
+        long x = 8, y = 162;
+        unsigned char *text = (unsigned char *)m;
+        unsigned char shade_ = 0;
+        short left, tile, descender;
 
-    while (*text) {
-        descender = 0;
-        if (*text == '\n') {
-            x = left;
-            TEXT_ROW += 8;
-            text++;
-            continue;
+        if (ps[screenpeek].display_mode != 2) {
+            left = x;
+            while (*text) {
+                descender = 0;
+                if (*text == '\n') {
+                    x = left;
+                    y += 8;
+                    text++;
+                    continue;
+                }
+                if (*text == ' ') {
+                    x += 2;
+                    text++;
+                    continue;
+                }
+                tile = *text + 991;
+                if (*text >= 'a' && *text <= 'z')
+                    descender = 2;
+                overwritesprite(x, y + descender, tile, shade_, 0, 0);
+                text++;
+                x += tilesizx[tile] + 1;
+            }
         }
-        if (*text == ' ') {
-            x += 2;
-            text++;
-            continue;
-        }
-        tile = *text + 991;
-        if (*text >= 'a' && *text <= 'z')
-            descender = 2;
-        overwritesprite(x, TEXT_ROW + descender, tile, 0, 0, 0);
-        text++;
-        x += tilesizx[tile] + 1;
-    }
-}
-#undef TEXT_ROW
         }
     }
 
     if (ps[p].quote_time[ps[p].quote_index] > 0) {
-        long x = 24, y;
-        unsigned char *text;
-
         ps[p].quote_time[ps[p].quote_index]--;
         if (ps[p].screen_size >= 0)
             ofs -= 23;
-        y = ofs + 189;
-        text = (unsigned char *)quote_text[ps[p].quote_index];
-        if (ps[screenpeek].display_mode != 2) {
-#define TEXT_ROW y
-/* Small glyph rendering shared with the decimal printer. */
-{
-    short left = x;
-    short tile, descender;
+        {
+        long x = 24, y = ofs + 189;
+        unsigned char *text = (unsigned char *)quote_text[ps[p].quote_index];
+        unsigned char shade_ = 0;
+        short left, tile, descender;
 
-    while (*text) {
-        descender = 0;
-        if (*text == '\n') {
-            x = left;
-            TEXT_ROW += 8;
-            text++;
-            continue;
+        if (ps[screenpeek].display_mode != 2) {
+            left = x;
+            while (*text) {
+                descender = 0;
+                if (*text == '\n') {
+                    x = left;
+                    y += 8;
+                    text++;
+                    continue;
+                }
+                if (*text == ' ') {
+                    x += 2;
+                    text++;
+                    continue;
+                }
+                tile = *text + 991;
+                if (*text >= 'a' && *text <= 'z')
+                    descender = 2;
+                overwritesprite(x, y + descender, tile, shade_, 0, 0);
+                text++;
+                x += tilesizx[tile] + 1;
+            }
         }
-        if (*text == ' ') {
-            x += 2;
-            text++;
-            continue;
-        }
-        tile = *text + 991;
-        if (*text >= 'a' && *text <= 'z')
-            descender = 2;
-        overwritesprite(x, TEXT_ROW + descender, tile, 0, 0, 0);
-        text++;
-        x += tilesizx[tile] + 1;
-    }
-}
-#undef TEXT_ROW
         }
     }
 }
@@ -1542,41 +1548,40 @@ void draw_weapon_tile(short x, short y, short tile, unsigned char shade,
     }
 }
 
-long gametext(long x, long y, unsigned char *text, unsigned char shade)
+long gametext(long sx, long y, unsigned char *text, unsigned char shade)
 {
+    long x = sx;
+    short left;
+    short tile, descender;
+
+    left = x;
     if (ps[screenpeek].display_mode == 2)
         return 0;
-
-/* Large glyph rendering shared with the decimal printer. */
-{
-    long left = x;
-    short tile = -1;
-    short descender;
-
     while (*text) {
         descender = 2;
         if (*text == '\n') {
-            x = (short)left;
+            x = left;
             y += 16;
-        } else if (*text == ' ') {
-            x += 5;
-        } else {
-            if (*text >= '0' && *text <= '9')
-                tile = *text + 101;
-            if (*text >= 'a' && *text <= 'z')
-                tile = *text + 26;
-            if (*text >= 'A' && *text <= 'Z') {
-                tile = *text + 32;
-                descender = 0;
-            }
-            if (tile >= 0) {
-                overwritesprite(x, y + descender, tile, shade, 0, 0);
-                x += tilesizx[tile] + 1;
-            }
+            text++;
+            continue;
         }
+        if (*text == ' ') {
+            x += 5;
+            text++;
+            continue;
+        }
+        if (*text >= '0' && *text <= '9')
+            tile = *text + 101;
+        if (*text >= 'a' && *text <= 'z')
+            tile = *text + 26;
+        if (*text >= 'A' && *text <= 'Z') {
+            tile = *text + 32;
+            descender = 0;
+        }
+        overwritesprite(x, y + descender, tile, shade, 0, 0);
+        x += tilesizx[tile] + 1;
         text++;
     }
-}
     return x;
 }
 
@@ -1616,28 +1621,30 @@ long minitext(long x, long y, unsigned char *text, unsigned char shade)
     return x;
 }
 
-void numtext_relative(long x, long y, long value, unsigned char shade)
+void numtext_relative(long sx, long sy, long value, unsigned char shade)
 {
-    unsigned char *text;
-
     ltoa(value, tempbuf, 10);
-    text = (unsigned char *)tempbuf;
-    y--;
-    if (ps[screenpeek].display_mode != 2) {
-/* Large glyph rendering shared with the decimal printer. */
-{
-    long left = x;
-    short tile = -1;
-    short descender;
+    {
+    long x = sx, y = sy - 1;
+    unsigned char *text = (unsigned char *)tempbuf;
+    unsigned char shade_ = shade;
+    short left, tile, descender;
 
-    while (*text) {
-        descender = 2;
-        if (*text == '\n') {
-            x = (short)left;
-            y += 16;
-        } else if (*text == ' ') {
-            x += 5;
-        } else {
+    left = x;
+    if (ps[screenpeek].display_mode != 2) {
+        while (*text) {
+            descender = 2;
+            if (*text == '\n') {
+                x = left;
+                y += 16;
+                text++;
+                continue;
+            }
+            if (*text == ' ') {
+                x += 5;
+                text++;
+                continue;
+            }
             if (*text >= '0' && *text <= '9')
                 tile = *text + 101;
             if (*text >= 'a' && *text <= 'z')
@@ -1646,14 +1653,11 @@ void numtext_relative(long x, long y, long value, unsigned char shade)
                 tile = *text + 32;
                 descender = 0;
             }
-            if (tile >= 0) {
-                overwritesprite(x, y + descender, tile, shade, 0, 0);
-                x += tilesizx[tile] + 1;
-            }
+            overwritesprite(x, y + descender, tile, shade_, 0, 0);
+            text++;
+            x += tilesizx[tile] + 1;
         }
-        text++;
     }
-}
     }
 }
 
@@ -2064,43 +2068,38 @@ void loadlookup(void)
     close(file);
 }
 
-void numtext(long x, long y, long value, unsigned char shade)
+void numtext(long sx, long sy, long value, unsigned char shade)
 {
-    unsigned char *text;
-    long row;
-
     ltoa(value, tempbuf, 10);
-    text = (unsigned char *)tempbuf;
-    row = y;
-    if (ps[screenpeek].display_mode != 2) {
-#define TEXT_ROW row
-/* Small glyph rendering shared with the decimal printer. */
-{
-    short left = x;
-    short tile, descender;
+    {
+    long x = sx, y = sy;
+    unsigned char *text = (unsigned char *)tempbuf;
+    unsigned char shade_ = shade;
+    short left, tile, descender;
 
-    while (*text) {
-        descender = 0;
-        if (*text == '\n') {
-            x = left;
-            TEXT_ROW += 8;
+    if (ps[screenpeek].display_mode != 2) {
+        left = x;
+        while (*text) {
+            descender = 0;
+            if (*text == '\n') {
+                x = left;
+                y += 8;
+                text++;
+                continue;
+            }
+            if (*text == ' ') {
+                x += 2;
+                text++;
+                continue;
+            }
+            tile = *text + 991;
+            if (*text >= 'a' && *text <= 'z')
+                descender = 2;
+            overwritesprite(x, y + descender, tile, shade_, 0, 0);
             text++;
-            continue;
+            x += tilesizx[tile] + 1;
         }
-        if (*text == ' ') {
-            x += 2;
-            text++;
-            continue;
-        }
-        tile = *text + 991;
-        if (*text >= 'a' && *text <= 'z')
-            descender = 2;
-        overwritesprite(x, TEXT_ROW + descender, tile, shade, 0, 0);
-        text++;
-        x += tilesizx[tile] + 1;
     }
-}
-#undef TEXT_ROW
     }
 }
 
@@ -6075,10 +6074,10 @@ void enterlevel(unsigned char mode)
     allignwarpelevators();
     for (i = 0; i < 17; i++) {
         memcpy(&ps[i], &ps[0], sizeof(ps[0]));
-        pending_svel[i] = player_svel[i] = 0;
-        pending_vel[i] = player_vel[i] = 0;
-        pending_avel[i] = player_avel[i] = 0;
-        pending_bits[i] = player_bits[i] = 0;
+        player_svel[i] = pending_svel[i] = 0;
+        player_vel[i] = pending_vel[i] = 0;
+        player_avel[i] = pending_avel[i] = 0;
+        player_bits[i] = pending_bits[i] = 0;
     }
     moveloop();
     if (option[0] == 7)
@@ -6111,14 +6110,8 @@ void enterlevel(unsigned char mode)
         updatesector(sprite[i].x, sprite[i].y, &ps[p].cursectnum);
         i = nextspritestat[i];
     }
-    {
-        long local_player = myconnectindex;
-        char *music = music_files[ps[local_player].volume][0];
-
-        music += 13 * ps[local_player].level;
-        ps[local_player].music = music;
-        playmusic(music);
-    }
+    ps[myconnectindex].music = music_files[ps[myconnectindex].volume][0] + 13 * ps[myconnectindex].level;
+    playmusic(ps[myconnectindex].music);
     displaystatus(myconnectindex);
     lockclock = totalclock = 0;
     level_tick_state = script_tics = 0;
