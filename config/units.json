@@ -1916,7 +1916,8 @@
     "execute": {
      "status": "NEAR_MATCH"
     }
-   }
+   },
+   "quality": "COMPILER_STEERED: parsecommand calls ispecial/isaltok through #pragma aux aliases so the written-out GET_LABEL/KEYWORD copies keep them as calls (as the original does) under -oe; see docs/units/gamefix5.md"
   },
   "multi": {
    "source": "src/multi/multi.c",

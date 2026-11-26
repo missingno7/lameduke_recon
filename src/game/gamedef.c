@@ -178,6 +178,53 @@ void transnum(void)
 
 #define CURRENT_LABEL (label + (labelcnt << 6))
 
+
+
+/* The parsecommand copies call the character classifiers out of line. */
+extern char special_char(char c);
+extern char token_char(char c);
+#pragma aux special_char "ispecial_";
+#pragma aux token_char "isaltok_";
+/* getlabel written out at each parsecommand site */
+#define GET_LABEL(done) do { \
+    long n; \
+    while (!isalnum(*textptr)) { \
+        if (*textptr == '\n') \
+            line_number++; \
+        textptr++; \
+        if (*textptr == 0) \
+            goto done; \
+    } \
+    n = 0; \
+    while (!special_char(*textptr)) \
+        label[(labelcnt << 6) + n++] = *textptr++; \
+    label[(labelcnt << 6) + n] = 0; \
+done: ; \
+} while (0)
+
+
+/* keyword lookahead written out at each parsecommand site: result in k_, done_ ends the copy */
+#define KEYWORD(k_, done_) do { \
+    char *p = textptr; \
+    long n; \
+    while (!token_char(*p)) { \
+        p++; \
+        if (*p == 0) { \
+            (k_) = 0; \
+            goto done_; \
+        } \
+    } \
+    n = 0; \
+    while (token_char(*p)) \
+        tempbuf[n++] = *p++; \
+    tempbuf[n] = 0; \
+    for ((k_) = 0; (k_) < NUMKEYWORDS; (k_)++) \
+        if (strcmp(tempbuf, keyw[(k_)]) == 0) \
+            goto done_; \
+    (k_) = -1; \
+done_: ; \
+} while (0)
+
 char parsecommand(void)
 {
     long i, j, k, *branch;
@@ -210,12 +257,12 @@ char parsecommand(void)
 
     case CON_STATE:
         if (!actor_header && !parsing_state) {
-            getlabel();
+            GET_LABEL(label_done1);
             parsing_state = 1;
             labelcode[labelcnt++] = (long)--scriptptr;
             return 0;
         }
-        getlabel();
+        GET_LABEL(label_done2);
         for (i = 0; i < labelcnt; i++) {
             if (!strcmp(CURRENT_LABEL, label + (i << 6))) {
                 *scriptptr = labelcode[i];
@@ -230,7 +277,7 @@ char parsecommand(void)
         return 0;
 
     case CON_SOUND:
-        getlabel();
+        GET_LABEL(label_done3);
         for (i = 0; i < 39; i++) {
             if (!strcmp(sound_names[i], CURRENT_LABEL)) {
                 *scriptptr++ = i;
@@ -253,7 +300,7 @@ char parsecommand(void)
         return 0;
 
     case CON_DEFINE:
-        getlabel();
+        GET_LABEL(label_done4);
         for (i = 0; i < labelcnt; i++) {
             if (!strcmp(CURRENT_LABEL, label + (i << 6))) {
                 warning++;
@@ -277,7 +324,10 @@ char parsecommand(void)
         if (actor_header || parsing_state) {
             transnum();
             j = 0;
-            while (keyword() == -1) {
+            for (;;) {
+                KEYWORD(k, move_flags);
+                if (k != -1)
+                    break;
                 transnum();
                 j |= *--scriptptr;
             }
@@ -285,7 +335,7 @@ char parsecommand(void)
             return 0;
         }
         scriptptr--;
-        getlabel();
+        GET_LABEL(label_done5);
         for (i = 0; i < labelcnt; i++) {
             if (!strcmp(CURRENT_LABEL, label + (i << 6))) {
                 warning++;
@@ -296,8 +346,12 @@ char parsecommand(void)
         }
         if (i == labelcnt)
             labelcode[labelcnt++] = (long)scriptptr;
-        for (i = 0; i < 2 && keyword() < 0; i++)
+        for (i = 0; i < 2; i++) {
+            KEYWORD(k, move_args);
+            if (k >= 0)
+                break;
             transnum();
+        }
         for (; i < 2; i++)
             *scriptptr++ = 0;
         return 0;
@@ -307,7 +361,10 @@ char parsecommand(void)
         transnum();
         k = *--scriptptr - 1;
         if (k >= 0) {
-            for (j = 0; j < 10 && keyword() == -1; j++) {
+            for (j = 0; j < 10; j++) {
+                KEYWORD(i, music_level);
+                if (i != -1)
+                    break;
                 while (!(c = *textptr, TOKEN_CHAR(c))) {
                     if (*textptr == '\n')
                         line_number++;
@@ -325,7 +382,10 @@ char parsecommand(void)
             for (i = 9; i > j; i--)
                 strcpy(music_files[k][i], music_files[k][j]);
         } else {
-            for (j = 0; j < 10 && keyword() == -1; j++) {
+            for (j = 0; j < 10; j++) {
+                KEYWORD(i, music_env);
+                if (i != -1)
+                    break;
                 while (!(c = *textptr, TOKEN_CHAR(c))) {
                     if (*textptr == '\n')
                         line_number++;
@@ -386,7 +446,7 @@ char parsecommand(void)
             return 0;
         }
         scriptptr--;
-        getlabel();
+        GET_LABEL(label_done6);
         for (i = 0; i < labelcnt; i++) {
             if (!strcmp(CURRENT_LABEL, label + (i << 6))) {
                 warning++;
@@ -397,8 +457,12 @@ char parsecommand(void)
         }
         if (i == labelcnt)
             labelcode[labelcnt++] = (long)scriptptr;
-        for (i = 0; i < 5 && keyword() < 0; i++)
+        for (i = 0; i < 5; i++) {
+            KEYWORD(k, action_args);
+            if (k >= 0)
+                break;
             transnum();
+        }
         for (; i < 5; i++)
             *scriptptr++ = 0;
         return 0;
@@ -421,14 +485,18 @@ char parsecommand(void)
         for (i = 0; i < 4; i++) {
             if (i == 3) {
                 j = 0;
-                while (keyword() == -1) {
+                for (;;) {
+                    KEYWORD(k, actor_flags);
+                    if (k != -1)
+                        break;
                     transnum();
                     j |= *--scriptptr;
                 }
                 *scriptptr++ = j;
                 break;
             }
-            if (keyword() >= 0) {
+            KEYWORD(k, actor_args);
+            if (k >= 0) {
                 scriptptr += 4 - i;
                 break;
             }
@@ -471,7 +539,10 @@ char parsecommand(void)
     case CON_IFONWATER: case CON_IFINWATER: case CON_IFP:
         if (tw == CON_IFP) {
             j = 0;
-            while (keyword() == -1) {
+            for (;;) {
+                KEYWORD(k, ifp_flags);
+                if (k != -1)
+                    break;
                 transnum();
                 j |= *--scriptptr;
             }
@@ -479,7 +550,7 @@ char parsecommand(void)
         }
         branch = scriptptr++;
         do {
-            k = keyword();
+            KEYWORD(k, if_comment);
             if (k == CON_LINECOMMENT || k == CON_BLOCKCOMMENT)
                 parsecommand();
         } while (k == CON_LINECOMMENT || k == CON_BLOCKCOMMENT);
@@ -1062,12 +1133,14 @@ void execute(short i, short p, long x)
     }
 
     {
-    short i2 = i, p2 = p;
-    long x2 = x;
-
-    while (!killit_flag) {
+    for (;;) {
+        short i2 = i, p2 = p;
+        long x2 = x;
         long j, flags, speed, *resume;
         short angle, difference;
+
+        if (killit_flag)
+            break;
 
 #define PARSE_ARGS i2, p2, x2
 #define CON_NEXT() continue

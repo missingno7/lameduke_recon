@@ -308,7 +308,7 @@ void guts(short i)
 } while (0)
 
 #define HURT(p, damage) do { \
-    if (disable_armor == 0 && ps[(p)].armor) \
+    if (disable_armor == 0 && ps[(p)].armor > 0) \
         ps[(p)].armor -= 4; \
     else if (ps[(p)].health > 0) \
         ps[(p)].health -= (damage); \
@@ -1189,7 +1189,7 @@ void moveeffects(void)
                 sprite[i].picnum++;
             if (sprite[i].picnum == HEADPIECE)
                 sprite[i].picnum = ARMPIECE;
-            sprite[i].xvel = sprite[i].xvel <= 0 ? 0 : (short)(sprite[i].xvel - 1);
+            sprite[i].xvel = sprite[i].xvel > 0 ? (short)(sprite[i].xvel - 1) : 0;
             sprite[i].zvel = (short)(sprite[i].zvel + 192);
             if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
                 t[1]++;
@@ -1220,7 +1220,7 @@ void moveeffects(void)
                 sprite[i].picnum++;
             if (sprite[i].picnum == LEGPIECE)
                 sprite[i].picnum = HEADPIECE;
-            sprite[i].xvel = sprite[i].xvel <= 0 ? 0 : (short)(sprite[i].xvel - 1);
+            sprite[i].xvel = sprite[i].xvel > 0 ? (short)(sprite[i].xvel - 1) : 0;
             sprite[i].zvel = (short)(sprite[i].zvel + 128);
             if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
                 t[1]++;
@@ -1251,7 +1251,7 @@ void moveeffects(void)
                 sprite[i].picnum++;
             if (sprite[i].picnum == 882)
                 sprite[i].picnum = LEGPIECE;
-            sprite[i].xvel = sprite[i].xvel <= 0 ? 0 : (short)(sprite[i].xvel - 1);
+            sprite[i].xvel = sprite[i].xvel > 0 ? (short)(sprite[i].xvel - 1) : 0;
             sprite[i].zvel = (short)(sprite[i].zvel + 192);
             if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
                 t[1]++;

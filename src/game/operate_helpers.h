@@ -35,11 +35,14 @@
         short lift_sprite = (effector_); \
         short lift_dir = (direction_); \
         short e; \
-        for (e = headspritestat[3]; e >= 0; e = nextspritestat[e]) \
+        e = headspritestat[3]; \
+        while (e >= 0) { \
             if (sprite[e].lotag == 17 && sprite[e].hitag == sprite[lift_sprite].hitag) \
                 if (klabs(sector[sprite[lift_sprite].sectnum].floorz - hittype[lift_sprite][2]) > sprite[e].yvel || \
                     sector[sprite[e].sectnum].hitag == sector[sprite[lift_sprite].sectnum].hitag - lift_dir) \
                     break; \
+            e = nextspritestat[e]; \
+        } \
         if (e == -1) \
             lift_dir = 0; \
         else if (lift_dir == 0) \
