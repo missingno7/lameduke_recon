@@ -56,9 +56,6 @@ void TextMode( void );
     "int    10h"        \
     modify [ ax ];
 
-int MUSIC_SoundDevice = -1;
-int MUSIC_ErrorCode = MUSIC_Ok;
-
 static midifuncs MUSIC_MidiFunctions;
 
 static int       MUSIC_FadeLength;
@@ -66,6 +63,9 @@ static int       MUSIC_FadeRate;
 static unsigned  MUSIC_CurrentFadeVolume;
 static unsigned  MUSIC_LastFadeVolume;
 static int       MUSIC_EndingFadeVolume;
+
+int MUSIC_SoundDevice = -1;
+int MUSIC_ErrorCode = MUSIC_Ok;
 static task     *MUSIC_FadeTask = NULL;
 
 int MUSIC_InitAWE32( midifuncs *Funcs );

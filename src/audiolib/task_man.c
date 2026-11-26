@@ -267,17 +267,13 @@ static void TS_SetTimerToMaxTaskRate
    MaxServiceRate = 0x10000L;
 
    ptr = TaskList.start;
-   if ( ptr )
+   while ( ptr != NULL )
       {
-      do
+      if ( ptr->rate < MaxServiceRate )
          {
-         if ( ptr->rate < MaxServiceRate )
-            {
-            MaxServiceRate = ptr->rate;
-            }
-         ptr = ptr->next;
+         MaxServiceRate = ptr->rate;
          }
-      while ( ptr );
+      ptr = ptr->next;
       }
 
    if ( TaskServiceRate != MaxServiceRate )

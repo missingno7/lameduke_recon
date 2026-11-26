@@ -524,7 +524,7 @@
      "status": "STRICT"
     },
     "AL_NoteOn": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "AL_DetectFM": {
      "status": "STRICT"
@@ -540,7 +540,8 @@
     }
    },
    "segments": {
-    "CONST": "VERIFIED"
+    "CONST": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   },
   "ass_awe32": {
@@ -761,7 +762,9 @@
      "status": "STRICT"
     }
    },
-   "segments": {}
+   "segments": {
+    "_BSS": "VERIFIED"
+   }
   },
   "ass_dma": {
    "source": "src/audiolib/dma.c",
@@ -1107,7 +1110,9 @@
      "status": "STRICT"
     }
    },
-   "segments": {}
+   "segments": {
+    "_BSS": "VERIFIED"
+   }
   },
   "ass_ll_man": {
    "source": "src/audiolib/ll_man.c",
@@ -1227,7 +1232,8 @@
     }
    },
    "segments": {
-    "_DATA": "VERIFIED"
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   },
   "ass_mpu401": {
@@ -1323,7 +1329,7 @@
      "status": "STRICT"
     },
     "MV_CalcVolume": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_SetVolume": {
      "status": "STRICT"
@@ -1404,7 +1410,7 @@
      "status": "STRICT"
     },
     "MV_CalcPanTable": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_SetCallBack": {
      "status": "STRICT"
@@ -1421,7 +1427,8 @@
    ],
    "segments": {
     "CONST": "VERIFIED",
-    "_DATA": "VERIFIED"
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   },
   "ass_music": {
@@ -1502,7 +1509,8 @@
     }
    },
    "segments": {
-    "_DATA": "VERIFIED"
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   },
   "ass_pas16": {
@@ -1642,7 +1650,9 @@
      "status": "STRICT"
     }
    },
-   "segments": {}
+   "segments": {
+    "_BSS": "VERIFIED"
+   }
   },
   "ass_pcfx": {
    "source": "src/audiolib/pcfx.c",
@@ -1698,7 +1708,8 @@
     }
    },
    "segments": {
-    "_DATA": "VERIFIED"
+    "_DATA": "VERIFIED",
+    "_BSS": "VERIFIED"
    }
   },
   "ass_pitch": {

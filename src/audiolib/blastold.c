@@ -29,6 +29,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
    (c) Copyright 1994 James R. Dose.  All Rights Reserved.
 **********************************************************************/
 
+static int BLASTER_Version;
+static char   *BLASTER_DMABufferEnd;
+static char   *BLASTER_DMABuffer;
+
 #include <dos.h>
 #include <conio.h>
 #include <stdlib.h>
@@ -38,6 +42,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "dpmi.h"
 #include "dma.h"
 #include "irq.h"
+
+static unsigned long  BLASTER_OldStackPointer;
+static int     BLASTER_TotalDMABufferSize;
+
 #include "blaster.h"
 #include "_blaster.h"
 #if (LIBVER_ASSREV < 20011231L) // *** VERSIONS RESTORATION ***
@@ -78,13 +86,16 @@ BLASTER_CONFIG BLASTER_Config =
    UNDEFINED, UNDEFINED, UNDEFINED, UNDEFINED, UNDEFINED, UNDEFINED
    };
 
-static int BLASTER_Installed = FALSE;
-static int BLASTER_Version;
-
-static char   *BLASTER_DMABuffer;
-static char   *BLASTER_DMABufferEnd;
+volatile int   BLASTER_SoundPlaying;
+void ( *BLASTER_CallBack )( void );
+// The interrupt handler cannot use a local across a stack switch.
+static int GlobalStatus;
 static char   *BLASTER_CurrentDMABuffer;
-static int     BLASTER_TotalDMABufferSize;
+volatile int   BLASTER_SoundRecording;
+static int  BLASTER_IntController1Mask;
+static int  BLASTER_IntController2Mask;
+
+static int BLASTER_Installed = FALSE;
 
 static int      BLASTER_TransferLength   = 0;
 static int      BLASTER_MixMode          = BLASTER_DefaultMixMode;
@@ -92,14 +103,6 @@ static int      BLASTER_SamplePacketSize = MONO_16BIT_SAMPLE_SIZE;
 static unsigned BLASTER_SampleRate       = BLASTER_DefaultSampleRate;
 
 static unsigned BLASTER_HaltTransferCommand = DSP_Halt8bitTransfer;
-
-volatile int   BLASTER_SoundPlaying;
-volatile int   BLASTER_SoundRecording;
-
-void ( *BLASTER_CallBack )( void );
-
-static int  BLASTER_IntController1Mask;
-static int  BLASTER_IntController2Mask;
 
 static int BLASTER_MixerAddress = UNDEFINED;
 static int BLASTER_MixerType    = 0;
@@ -114,14 +117,8 @@ static int BLASTER_WaveBlasterState = 0x0F;
 #define kStackSize 1024
 
 static unsigned short BLASTER_StackSelector = NULL;
-static unsigned long  BLASTER_StackPointer;
 
 static unsigned short BLASTER_OldStackSelector;
-static unsigned long  BLASTER_OldStackPointer;
-
-// This is defined because we can't create local variables in a
-// function that switches stacks.
-static int GlobalStatus;
 
 // These declarations are necessary to use the inline assembly pragmas.
 
@@ -144,6 +141,8 @@ extern void SetStack(unsigned short selector,unsigned long stackptr);
    "mov  esp,edx"       \
    parm [ax] [edx]      \
    modify [eax edx];
+
+static unsigned long  BLASTER_StackPointer;
 
 int BLASTER_ErrorCode = BLASTER_Ok;
 

@@ -55,7 +55,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 static unsigned NoteMod12[ MAX_NOTE + 1 ];
-static unsigned NoteDiv12[ MAX_NOTE + 1 ];
 
 // Slot numbers as a function of the voice and the operator.
 // ( melodic only)
@@ -98,6 +97,7 @@ static unsigned NotePitch[ FINETUNE_MAX + 1 ][ 12 ] =
       { C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B },
    };
 
+static unsigned NoteDiv12[ MAX_NOTE + 1 ];
 static unsigned OctavePitch[ MAX_OCTAVE + 1 ] =
    {
    OCTAVE_0, OCTAVE_1, OCTAVE_2, OCTAVE_3,
@@ -1179,6 +1179,7 @@ void AL_NoteOff
    Plays a note on the specified MIDI channel.
 ---------------------------------------------------------------------*/
 
+#pragma aux AL_NoteOn frame;
 void AL_NoteOn
    (
    int channel,

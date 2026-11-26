@@ -46,6 +46,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "music.h"
 #include "_midi.h"
 #include "midi.h"
+
+#if (LIBVER_ASSREV < 19950821L)
+static struct
+   {
+   track *start;
+   track *end;
+   } _MIDI_TrackList;
+#endif
+
 #include "debugio.h"
 #if (LIBVER_ASSREV < 20011231L) // *** VERSIONS RESTORATION ***
 #include "memcheck.h"
@@ -68,13 +77,7 @@ static int cdecl ( *_MIDI_RerouteFunctions[ NUM_MIDI_CHANNELS ] )
 
 static track *_MIDI_TrackPtr = NULL;
 static int    _MIDI_TrackMemSize;
-#if (LIBVER_ASSREV < 19950821L)
-static struct
-   {
-   track *start;
-   track *end;
-   } _MIDI_TrackList;
-#else
+#if (LIBVER_ASSREV >= 19950821L)
 static int _MIDI_NumTracks;
 #endif
 

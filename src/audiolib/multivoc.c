@@ -52,18 +52,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static int MV_StartPlayback( void );
 
-static int MV_BufferEmpty[ NumberOfBuffers ];
-static char *MV_MixBuffer[ NumberOfBuffers ];
 static Pan MV_PanTable[ MV_NumPanPositions ][ MV_MaxVolume + 1 ];
 static signed char MV_VolumeTable[ sizeof( VOLUME_TABLE_16BIT ) ];
+
+static VOLUME_TABLE_8BIT  *MV_8BitVolumeTable  = ( void * )&MV_VolumeTable[ 0 ];
+static VOLUME_TABLE_16BIT *MV_16BitVolumeTable = ( void * )&MV_VolumeTable[ 0 ];
+
+static int MV_BufferEmpty[ NumberOfBuffers ];
+static char *MV_MixBuffer[ NumberOfBuffers ];
 static int MV_BufferDescriptor;
 static int MV_TotalMemory;
 static int MV_RequestedMixRate;
 static char *HarshClipTable;
 static int MV_MixRate;
-
-static VOLUME_TABLE_8BIT  *MV_8BitVolumeTable  = ( void * )&MV_VolumeTable[ 0 ];
-static VOLUME_TABLE_16BIT *MV_16BitVolumeTable = ( void * )&MV_VolumeTable[ 0 ];
 
 static int MV_Installed   = FALSE;
 static int MV_SoundCard   = SoundBlaster;
@@ -1648,6 +1649,8 @@ int MV_PlayVOC
    int         buffer;
    unsigned    offset;
    unsigned    flags;
+   register int volume = vol;
+   int rightVolume = right;
 
    if ( !MV_Installed )
       {
@@ -1681,18 +1684,19 @@ int MV_PlayVOC
       voice->Active[ buffer ] = TRUE;
       }
 
-   voice->Volume      = MIX_VOLUME( vol );
+   voice->Volume      = MIX_VOLUME( volume );
 
    if ( MV_SwapLeftRight )
       {
       // SBPro uses reversed panning
-      voice->LeftVolume  = MIX_VOLUME( right );
+      rightVolume = max( 0, min( rightVolume, 255 ) );
+      voice->LeftVolume = rightVolume >> 4;
       voice->RightVolume = MIX_VOLUME( left );
       }
    else
       {
       voice->LeftVolume  = MIX_VOLUME( left );
-      voice->RightVolume = MIX_VOLUME( right );
+      voice->RightVolume = MIX_VOLUME( rightVolume );
       }
 
    voice->priority = priority;

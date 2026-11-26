@@ -323,3 +323,9 @@ Each entry names the command or artefact that supports it.
   needs signed loads (oracle mov+cwde); records.h keeps unsigned and moveeffectors has (short) casts (COMPILER_STEERED).
 - OPEN prototypes still differ between units (spritesound, getincangle, getangle, spawn, myos, EGS ...): changing them
   changes code; the original may have had per-unit declarations or a shared header with different types.
+
+## Watcom 10.0 GA _BSS rule differs from 9.5 (audfix worker 2026-11-26)
+- PROVEN a calibrated 10.0 GA BSS order rule predicts 163/163 fixture symbols vs 38/163 for the 9.5 rule; with
+  declaration reordering all 18 Apogee _BSS layouts verify (build/workers/audfix/calibrate_bss.py; docs/units/audfix.md).
+- Audio library 330/375 STRICT; 32 CODE_BYTES_MATCH held by 18 terminal extents (module-last functions whose end is not
+  a confirmed boundary) and 14 CONST references; remaining data mismatches are compiler padding.

@@ -63,17 +63,17 @@ typedef struct
 static DPMI_REGS rmregs = { 0 };
 static void ( __interrupt __far *IRQ_Callback )( void ) = NULL;
 
-static char *IRQ_RealModeCode = NULL;
-
 static unsigned short IRQ_CallBackSegment;
 static unsigned short IRQ_CallBackOffset;
+static unsigned long  IRQ_ProtectedModeOffset;
 static unsigned short IRQ_RealModeSegment;
 static unsigned short IRQ_RealModeOffset;
-static unsigned long  IRQ_ProtectedModeOffset;
 static unsigned short IRQ_ProtectedModeSelector;
 
 static union  REGS  IRQ_Regs;
 static struct SREGS IRQ_SegRegs;
+
+static char *IRQ_RealModeCode = NULL;
 
 static void *IRQ_D32DosMemAlloc
    (

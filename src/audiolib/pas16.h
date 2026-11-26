@@ -55,7 +55,10 @@ enum PAS_ERRORS
 #define PAS_MinSamplingRate   4000
 #define PAS_MaxSamplingRate   44000
 
+/* PAS16.C declares this object at its definition. */
+#ifndef PAS16_SOURCE
 extern unsigned int PAS_DMAChannel;
+#endif
 
 char *PAS_ErrorString( int ErrorNumber );
 void  PAS_SetPlaybackRate( unsigned rate );

@@ -29,6 +29,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
    (c) Copyright 1994 James R. Dose.  All Rights Reserved.
 **********************************************************************/
 
+static int PAS_IntController1Mask;
+static int PAS_IntController2Mask;
+
 #include <dos.h>
 #include <conio.h>
 #include <stdlib.h>
@@ -42,7 +45,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "interrup.h"
 #endif
 #include "irq.h"
+#define PAS16_SOURCE
 #include "pas16.h"
+#undef PAS16_SOURCE
 #include "_pas16.h"
 #if (LIBVER_ASSREV < 20011231L) // *** VERSIONS RESTORATION ***
 #include "memcheck.h"
@@ -60,8 +65,15 @@ static const int PAS_Interrupts[ PAS_MaxIrq + 1 ]  =
 
 static void    ( interrupt far *PAS_OldInt )( void );
 
-static int PAS_IntController1Mask;
-static int PAS_IntController2Mask;
+static int     PAS_TotalDMABufferSize;
+static char   *PAS_CurrentDMABuffer;
+static MVState PAS_OriginalState;
+static char   *PAS_DMABufferEnd;
+static char   *PAS_DMABuffer;
+static int     PAS_SampleSizeConfig;
+void ( *PAS_CallBack )( void );
+static unsigned PAS_Irq;
+volatile int   PAS_SoundPlaying;
 
 static int PAS_Installed = FALSE;
 static int PAS_TranslateCode = DEFAULT_BASE;
@@ -72,41 +84,20 @@ static int PAS_OriginalPCMRightVolume = 75;
 static int PAS_OriginalFMLeftVolume  = 75;
 static int PAS_OriginalFMRightVolume = 75;
 
-unsigned int PAS_DMAChannel;
-static unsigned PAS_Irq;
-
 static MVState *PAS_State = NULL;
 static MVFunc  *PAS_Func  = NULL;
-
-static MVState PAS_OriginalState;
-static int     PAS_SampleSizeConfig;
-
-static char   *PAS_DMABuffer;
-static char   *PAS_DMABufferEnd;
-static char   *PAS_CurrentDMABuffer;
-static int     PAS_TotalDMABufferSize;
 
 static int      PAS_TransferLength   = 0;
 static int      PAS_MixMode          = PAS_DefaultMixMode;
 static unsigned PAS_SampleRate       = PAS_DefaultSampleRate;
 static int      PAS_TimeInterval     = 0;
 
-volatile int   PAS_SoundPlaying;
-
-void ( *PAS_CallBack )( void );
-
 // adequate stack size
 #define kStackSize 1024
 
 static unsigned short PAS_StackSelector = NULL;
-static unsigned long  PAS_StackPointer;
 
 static unsigned short PAS_OldStackSelector;
-static unsigned long  PAS_OldStackPointer;
-
-// This is defined because we can't create local variables in a
-// function that switches stacks.
-static int irqstatus;
 
 // These declarations are necessary to use the inline assembly pragmas.
 
@@ -129,6 +120,9 @@ extern void SetStack(unsigned short selector,unsigned long stackptr);
    "mov  esp,edx"       \
    parm [ax] [edx]      \
    modify [eax edx];
+
+unsigned int PAS_DMAChannel;
+static unsigned long  PAS_StackPointer;
 
 int PAS_ErrorCode = PAS_Ok;
 
@@ -339,6 +333,10 @@ MVFunc *PAS_GetFunctionTable
    return( ptr );
    }
 
+
+static unsigned long PAS_OldStackPointer;
+// The interrupt handler cannot use a local across a stack switch.
+static int irqstatus;
 
 /*---------------------------------------------------------------------
    Function: PAS_GetCardSettings
