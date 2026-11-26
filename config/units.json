@@ -1864,7 +1864,7 @@
      "status": "STRICT"
     },
     "TS_AddTask": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "TS_LockEnd": {
      "status": "STRICT"

@@ -456,3 +456,19 @@ Each entry names the command or artefact that supports it.
 - NEGATIVE dropping -oa gives spawn the exact size but breaks enterlevel (STRICT): -oa is right for PREMAP;
   strget return respellings; newgame orders; main's early constant load; moveeffectors frame 0x58 vs 0x60 (two
   stack slots missing, cause not found).
+
+## ROTT 1.0 shareware and the Apogee Sound System lineage (assrott, Codex, 2026-11-27; build/workers/assrott/NOTES.md)
+- PROVEN ROTT 1.0 shareware (1994-12-21; ROTT1BBS._1-._3 = one PKSFX 2.04g stream, 17 ZIP entries) ROTT.EXE is
+  DOS/4GW Professional + LE (module `rott`, 4 objects, entry 1:5bf58); its banner names **Apogee Sound System
+  1.01**; runtime STRONG Watcom 10.0a family (10.0a-only members cstrt386, grownear, scnf, timeutil present).
+- PROVEN LameDuke and ROTT share the early ASS lineage but not the same build: D3D has no version banner, a
+  different PAS message ("No sound playing."), ULTRASND.INI vs GUSMIDI.INI, a different OPL port-delay loop and
+  timbre data; ROTT has stack-checked GUSMIDI. Of LameDuke's 27 non-STRICT ASS functions, 6 are byte+target equal
+  in ROTT (ADLIBFX/DMA/PCFX/SS_ErrorString, TS_SetTimerToMaxTaskRate, TS_AddTask), 3 equal bodies with different
+  referenced content, 18 differ. Equal December bodies prove the remaining differences of those 6 are ours.
+- PROVEN TS_AddTask STRICT (156 B): read `ptr->prev` directly (no local copy), as both December binaries do; the
+  later 1.04 source uses a circular list. ASS now 349/375.
+- PROVEN LameDuke SETUP.EXE shares D3D's DOS/4GW stub and Watcom 9.5 GA runtime fingerprint; SETUP.DAT holds six
+  option bytes and 17 scancodes; no ASS code in SETUP.
+- NEGATIVE 50 TS_SetTimerToMaxTaskRate variants (best 7 bytes), 33 AL_SetVoiceTimbre forms, released and al_104
+  donor rebuilds: no further STRICT gains; ErrorString bodies stay held by whole-CONST verification.

@@ -27,7 +27,7 @@ Run `python tools/gate.py` then `python tools/status.py` for live numbers.
 | ass_pcfx | 14 | 13 | 1,311 |
 | ass_pitch | 5 | 5 | 461 |
 | ass_sndsrc | 17 | 14 | 1,354 |
-| ass_task_man | 18 | 15 | 1,785 |
+| ass_task_man | 18 | 16 | 1,941 |
 | ass_user | 2 | 2 | 188 |
 | game_sounds | 13 | 12 | 1,467 |
 | game_gamedef | 14 | 9 | 1,712 |
@@ -39,7 +39,7 @@ Run `python tools/gate.py` then `python tools/status.py` for live numbers.
 | game_premap | 12 | 5 | 1,869 |
 | game_actors | 18 | 10 | 3,760 |
 
-Totals: 559 STRICT / 666 functions, 130,739 bytes; LameDuke 211 STRICT (85,307 bytes); Apogee Sound System 348 (45,432 bytes); CODE_BYTES_MATCH 15; verified data 10,530 bytes, verified _BSS layout 714,205 bytes.
+Totals: 560 STRICT / 666 functions, 130,895 bytes; LameDuke 211 STRICT (85,307 bytes); Apogee Sound System 349 (45,588 bytes); CODE_BYTES_MATCH 15; verified data 10,530 bytes, verified _BSS layout 714,205 bytes.
 
 Identified, not reconstructed: Watcom 9.5 runtime (docs/RUNTIME_CENSUS.md), Creative AWE32 and Gravis GF1 vendor objects (docs/AUDIOLIB.md).
 

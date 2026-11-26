@@ -693,7 +693,6 @@ static void TS_AddTask
 
    {
    task *ptr;
-   task *prev;
 
    if ( TaskList.start == NULL )
       {
@@ -713,14 +712,13 @@ static void TS_AddTask
          {
          ptr = ptr->next;
          }
-      prev = ptr->prev;
-      if ( prev == NULL )
+      if ( ptr->prev == NULL )
          {
          LL_AddToHead( task, &TaskList, node );
          return;
          }
 
-      node->prev = prev;
+      node->prev = ptr->prev;
       node->next = ptr;
       ptr->prev = node;
       node->prev->next = node;
