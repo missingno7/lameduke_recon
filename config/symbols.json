@@ -2389,6 +2389,106 @@
    "sounds_text_end": {
     "addr": "1:2c1bb",
     "evidence": "sounds worker 2026-11-26: Boundary after the oracle terminal ret at 2c1ba and before the five inter-object zero fill bytes."
+   },
+   "getincangle_shift": {
+    "addr": "1:2e700",
+    "evidence": "gamedef worker 2026-11-26: Direct calls from projectile steering and execute. Both pass a shift in BX and consume the signed angle step."
+   },
+   "ispecial": {
+    "addr": "1:2e740",
+    "evidence": "gamedef worker 2026-11-26: Whitespace and line counting body. Called by getlabel and inlined in parsecommand."
+   },
+   "isaltok": {
+    "addr": "1:2e770",
+    "evidence": "gamedef worker 2026-11-26: Identical token predicate appears inline in keyword, transword and transnum. External call sites in parsecommand use AL."
+   },
+   "getlabel": {
+    "addr": "1:2e7b0",
+    "evidence": "gamedef worker 2026-11-26: Aligned prologue after isaltok return and padding. Scan/copy body and table stride agree with inline label handling in parsecommand."
+   },
+   "keyword": {
+    "addr": "1:2e850",
+    "evidence": "gamedef worker 2026-11-26: Aligned prologue after getlabel return and padding. Keyword-table scan with private input cursor appears inline throughout parsecommand."
+   },
+   "transword": {
+    "addr": "1:2e920",
+    "evidence": "gamedef worker 2026-11-26: Called from parsecommand before opcode dispatch and inline label-resolution behavior agrees with transnum. The symbol diagnostic identifies its role."
+   },
+   "transnum": {
+    "addr": "1:2eae0",
+    "evidence": "gamedef worker 2026-11-26: Repeated parsecommand calls at numeric operand positions. Signed decimal fallback and label lookup; its parameter diagnostic differs from transword."
+   },
+   "parsecommand": {
+    "addr": "1:2ed60",
+    "evidence": "gamedef worker 2026-11-26: Entry after the 61-entry compiler switch table. Called by include handling, loadefs and conditional compilation."
+   },
+   "passone": {
+    "addr": "1:301d0",
+    "evidence": "gamedef worker 2026-11-26: Own aligned entry and return after parsecommand. Only loops on parsecommand's char result; the loop also appears in loadefs and include handling."
+   },
+   "loadefs": {
+    "addr": "1:301e0",
+    "evidence": "gamedef worker 2026-11-26: Game startup calls this entry. It opens game.con, invokes the recursive parser, and reports code size and line count."
+   },
+   "furthestangle": {
+    "addr": "1:303b0",
+    "evidence": "gamedef worker 2026-11-26: Aligned after loadefs; ray samples at 2048 divided by the second argument. Called by actor movement code and duplicated in the later helper."
+   },
+   "move_actor": {
+    "addr": "1:304a0",
+    "evidence": "gamedef worker 2026-11-26: Aligned prologue after the furthestangle return. Updates actor move flags, velocity and angle, and calls the sprite mover. Its body also appears inline in execute."
+   },
+   "parse": {
+    "addr": "1:308b0",
+    "evidence": "gamedef worker 2026-11-26: Switch for 58 runtime opcodes. Self calls and execute calls coincide with state, conditional and brace recursion."
+   },
+   "execute": {
+    "addr": "1:32260",
+    "evidence": "gamedef worker 2026-11-26: Tile-indexed actor-script lookup and runtime dispatch. Called by the game's actor-list traversals."
+   },
+   "ssp": {
+    "addr": "1:25600",
+    "evidence": "gamedef worker 2026-11-26: Sprite angle/velocity to Cartesian motion via sintable and movesprite. Consumed by projectile movement and the CON run loop."
+   },
+   "ifhitbyweapon": {
+    "addr": "1:25c30",
+    "evidence": "gamedef worker 2026-11-26: Scans status-5 non-owned projectiles, evaluates distance and hit height, returns the hit sprite or -1. The scripts use the resulting index in ifwasweapon."
+   },
+   "ifsquished": {
+    "addr": "1:25a60",
+    "evidence": "gamedef worker 2026-11-26: Four-way sector gap/tag tests and squish diagnostics identify the helper in the ACTORS unit. Also reached from actor and player paths."
+   },
+   "shoot": {
+    "addr": "1:1f660",
+    "evidence": "gamedef worker 2026-11-26: Actor/tile inputs and projectile/hitscan dispatch in PLAYER. Gameplay and sprite routines call this independently."
+   },
+   "nuke": {
+    "addr": "1:25690",
+    "evidence": "gamedef worker 2026-11-26: Takes XYZ and sprite index and creates an explosion sprite. This behavior and the neighboring effect routines independently corroborate the nuke opcode role."
+   },
+   "addweapon": {
+    "addr": "1:25180",
+    "evidence": "gamedef worker 2026-11-26: Player and weapon tile inputs, weapon ownership and ammo writes in ACTORS. Also called when collecting weapon sprites."
+   },
+   "spawn": {
+    "addr": "1:0f160",
+    "evidence": "gamedef worker 2026-11-26: allocates with EGS, then initializes new or existing sprites by tile ID using actorscrptr. Repeated game-side callers supply a sprite index and tile."
+   },
+   "resetplayer": {
+    "addr": "1:11de0",
+    "evidence": "gamedef worker 2026-11-26: Initializes packed player and sprite state. Same player index call appears during level setup."
+   },
+   "hitradius": {
+    "addr": "1:25480",
+    "evidence": "gamedef worker 2026-11-26: Walks sprite status lists, checks squared radius and applies damage. Explosion and projectile paths independently call it."
+   },
+   "guts": {
+    "addr": "1:25d50",
+    "evidence": "gamedef worker 2026-11-26: Takes a sprite index and emits status-5 effects using EGS. The tile, owner and z-velocity arguments corroborate the CON guts command."
+   },
+   "EGS": {
+    "addr": "1:02e90",
+    "evidence": "gamedef worker 2026-11-26: Calls insertsprite and sets the packed engine fields for many independently identified game spawn callers."
    }
   },
   "data": {
@@ -3991,6 +4091,126 @@
    "MusicToggle": {
     "addr": "2:1bde42",
     "evidence": "sounds worker 2026-11-26: GAME 4cd0 and gameexit separately test this byte before calling the music stop/shutdown path."
+   },
+   "tempbuf": {
+    "addr": "2:a4830",
+    "evidence": "gamedef worker 2026-11-26: Shared scratch passed to strcmp by keyword/transword/transnum, also used by game startup and file-ID checks."
+   },
+   "textptr": {
+    "addr": "2:a5230",
+    "evidence": "gamedef worker 2026-11-26: Assigned a file buffer by loadefs; advanced in lexer routines, preserved across recursive includes."
+   },
+   "label": {
+    "addr": "2:a523c",
+    "evidence": "gamedef worker 2026-11-26: loadefs allocates 32768 bytes; getlabel writes across 64-byte slots and both translation routines compare them."
+   },
+   "labelcnt": {
+    "addr": "2:a5238",
+    "evidence": "gamedef worker 2026-11-26: Initialized by loadefs, incremented by label declarations and bounds both lexer lookups."
+   },
+   "labelcode": {
+    "addr": "2:a5244",
+    "evidence": "gamedef worker 2026-11-26: loadefs allocates 2048 bytes and assigns the pointer. transword and transnum resolve labels by dword index."
+   },
+   "scriptptr": {
+    "addr": "2:a524c",
+    "evidence": "gamedef worker 2026-11-26: loadefs initializes compile cursor, transword and transnum emit and advance it; parsecommand uses it for branch backpatches."
+   },
+   "script": {
+    "addr": "2:176c8",
+    "evidence": "gamedef worker 2026-11-26: loadefs writes end pointer followed by emitted dwords starting at +4; actor header pointers are allocated from that cursor and consumed by execute."
+   },
+   "actorscrptr": {
+    "addr": "2:0ae78",
+    "evidence": "gamedef worker 2026-11-26: Cleared for 4096 tiles by loadefs, assigned by parsecommand, indexed by execute and the game's spawn routine."
+   },
+   "line_number": {
+    "addr": "2:b1df6",
+    "evidence": "gamedef worker 2026-11-26: Independent LF counting in ispecial, getlabel, transword, and transnum; saved across recursive include and used in diagnostics."
+   },
+   "total_lines": {
+    "addr": "2:b1df8",
+    "evidence": "gamedef worker 2026-11-26: Compiler adds each include's line count at return and prints accumulated count in loadefs."
+   },
+   "warning": {
+    "addr": "2:a57bd",
+    "evidence": "gamedef worker 2026-11-26: Incremented in duplicate/misplaced compiler diagnostics and printed as unsigned count by loadefs."
+   },
+   "error": {
+    "addr": "2:a57be",
+    "evidence": "gamedef worker 2026-11-26: Incremented by transword, transnum and parsecommand on errors; printed by loadefs."
+   },
+   "keyw": {
+    "addr": "2:02b10",
+    "evidence": "gamedef worker 2026-11-26: Sixty consecutive LE fixups to complete keyword strings with end at index 0; scanned by keyword, transword and inlined keyword handling."
+   },
+   "actor_header": {
+    "addr": "2:a5240",
+    "evidence": "gamedef worker 2026-11-26: Start of the current four-dword actor header, assigned to actorscrptr. Execute and spawn independently consume that format."
+   },
+   "parsing_state": {
+    "addr": "2:b1dfe",
+    "evidence": "gamedef worker 2026-11-26: State definition sets the byte, ends clears it; actor and move declarations test it and use state-specific diagnostics."
+   },
+   "brace_depth": {
+    "addr": "2:b1dfd",
+    "evidence": "gamedef worker 2026-11-26: Opening and closing brace cases adjust this signed depth. Actor start clears it and enda checks both signs."
+   },
+   "checking_ifelse": {
+    "addr": "2:b1dfc",
+    "evidence": "gamedef worker 2026-11-26: If and else backpatch handlers increment/decrement it; include saves and restores it, actor initializes it."
+   },
+   "music_files": {
+    "addr": "2:0ac70",
+    "evidence": "gamedef worker 2026-11-26: Compiler writes 13-byte name slots with 130-byte group stride. Stage loading reads music track names using the same indexing."
+   },
+   "env_music": {
+    "addr": "2:a5308",
+    "evidence": "gamedef worker 2026-11-26: Volume-zero filenames have 13-byte slots. Game/environment music callers use this separate table."
+   },
+   "hittype": {
+    "addr": "2:893e0",
+    "evidence": "gamedef worker 2026-11-26: 20-byte actor metadata records initialized by spawn and consumed by movement and runtime CON action cases."
+   },
+   "insptr": {
+    "addr": "2:a5234",
+    "evidence": "gamedef worker 2026-11-26: Execute initializes from the tile-specific compiled script pointer. Parse uses the same runtime pointer for opcode and branch fetches."
+   },
+   "killit_flag": {
+    "addr": "2:a57bf",
+    "evidence": "gamedef worker 2026-11-26: Set by killit, checked by nested parse and by execute before deleting the sprite."
+   },
+   "cached_cansee": {
+    "addr": "2:b1df4",
+    "evidence": "gamedef worker 2026-11-26: Execute resets to -1, both runtime dispatches assign sight check result and reuse it for each ifcansee."
+   },
+   "hit_sprite": {
+    "addr": "2:b1dfa",
+    "evidence": "gamedef worker 2026-11-26: Execute resets to -1 and runtime ifhitweapon stores the returned sprite index. Ifwasweapon tests its tile."
+   },
+   "script_tics": {
+    "addr": "2:a57c1",
+    "evidence": "gamedef worker 2026-11-26: Game tick loop and player/actor routines use this 8-bit tick increment. Execute adds the same increment to the sprite animation counter."
+   },
+   "disable_armor": {
+    "addr": "2:a57ad",
+    "evidence": "gamedef worker 2026-11-26: Shared gameplay mode value set by newgame/level handling. The name here denotes its local role as the armor gate."
+   },
+   "facing_sprite": {
+    "addr": "2:a57b5",
+    "evidence": "gamedef worker 2026-11-26: Game camera and spritesound use this sprite index as view/listener reference. Runtime ifp compares its angle."
+   },
+   "player_vel": {
+    "addr": "2:a53dd",
+    "evidence": "gamedef worker 2026-11-26: Signed player movement byte shared by input and demo handling and read by the CON state predicate."
+   },
+   "player_svel": {
+    "addr": "2:a53ff",
+    "evidence": "gamedef worker 2026-11-26: Second signed player movement byte used by input and demo handling. CON player state uses their sum."
+   },
+   "player_bits": {
+    "addr": "2:a52a0",
+    "evidence": "gamedef worker 2026-11-26: Dword player input bits used by PLAYER, SECTOR, demo and menu code. Runtime ifp checks the duck/run flags."
    }
   }
  }

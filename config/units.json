@@ -1634,6 +1634,59 @@
      "status": "STRICT"
     }
    }
+  },
+  "game_gamedef": {
+   "source": "src/game/gamedef.c",
+   "profile": "game",
+   "include": [
+    "src/game"
+   ],
+   "kind": "c",
+   "provenance": "BINARY_DERIVED with Duke3D 1.5 GAMEDEF.C semantics and the distribution's CON scripts; gamedef worker 2026-11-26",
+   "functions": {
+    "getincangle_shift": {
+     "status": "STRICT"
+    },
+    "ispecial": {
+     "status": "STRICT"
+    },
+    "isaltok": {
+     "status": "STRICT"
+    },
+    "getlabel": {
+     "status": "STRICT"
+    },
+    "keyword": {
+     "status": "STRICT"
+    },
+    "transword": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "transnum": {
+     "status": "NEAR_MATCH"
+    },
+    "parsecommand": {
+     "status": "NEAR_MATCH"
+    },
+    "passone": {
+     "status": "STRICT"
+    },
+    "loadefs": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "furthestangle": {
+     "status": "STRICT"
+    },
+    "move_actor": {
+     "status": "NEAR_MATCH"
+    },
+    "parse": {
+     "status": "NEAR_MATCH"
+    },
+    "execute": {
+     "status": "NEAR_MATCH"
+    }
+   }
   }
  }
 }
