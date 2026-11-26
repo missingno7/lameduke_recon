@@ -3101,6 +3101,74 @@
    "draw_weapon_tile": {
     "addr": "1:026c0",
     "evidence": "player worker 2026-11-26: Callee forwards x, y, tile, shade and flags to bound overwritesprite, selecting a palette from current sector or screen player. GAME and PLAYER callers."
+   },
+   "inittimer": {
+    "addr": "1:00020",
+    "evidence": "game2 worker 2026-11-26: Entry after GAME's private _TEXT constants and padding. Programs PIT and installs 1:002a0, with equivalent sequence in main."
+   },
+   "uninittimer": {
+    "addr": "1:00080",
+    "evidence": "game2 worker 2026-11-26: Starts after inittimer return and instruction fill. Restores the PIT and saved vector as in gameexit."
+   },
+   "timerhandler": {
+    "addr": "1:002a0",
+    "evidence": "game2 worker 2026-11-26: IRQ0 address taken by main and inittimer. Interrupt register save and iretd at 1:00c51."
+   },
+   "level_load_hook": {
+    "addr": "1:00290",
+    "evidence": "game2 worker 2026-11-26: Two direct calls from enterlevel bracket loadboard. Single ret, followed by compiler alignment."
+   },
+   "update_timer_input": {
+    "addr": "1:000d0",
+    "evidence": "game2 worker 2026-11-26: Save set begins after ret and compiler fill at uninittimer end. Repeated keyboard and axis processing in 1:002a0. Descriptive, provisional name."
+   },
+   "findlocator": {
+    "addr": "1:02e40",
+    "evidence": "game2 worker 2026-11-26: Four calls in moveeffectors use the locator index (sites 0c2a8, 0c7ef, 0c879 and 0c8a4). The callee follows status 7 by the canonical list base plus 14, and checks sprite sectnum and lotag."
+   },
+   "loadlookup": {
+    "addr": "1:03760",
+    "evidence": "game2 worker 2026-11-26: Direct calls from main and level preparation. Reads the lookup count and 256-byte remap records, then calls canonical makepalookup."
+   },
+   "draw_water_distortion": {
+    "addr": "1:03f50",
+    "evidence": "game2 worker 2026-11-26: Camera-view callers and inlined variant in displayrooms identify the 320-byte stride framebuffer reflection effect."
+   },
+   "record": {
+    "addr": "1:08e30",
+    "evidence": "game2 worker 2026-11-26: Direct call from domovethings and demo playback. Writes all five streams consumed and emitted by demo file I/O."
+   },
+   "read_userdefs": {
+    "addr": "1:0b520",
+    "evidence": "game2 worker 2026-11-26: The main call after the user stats message. Three reads cover the settings, name and numeric score blocks, with fallback settings if open fails."
+   },
+   "write_userdefs": {
+    "addr": "1:0b5d0",
+    "evidence": "game2 worker 2026-11-26: Main exit-path call at 1:0786a. Reopens the same path, and three writes mirror the reader's block sizes and addresses."
+   },
+   "read_demo": {
+    "addr": "1:0b810",
+    "evidence": "game2 worker 2026-11-26: Playback calls before enterlevel. The serial read order and sizes agree with the demo files and the independently identified demo I/O writer."
+   },
+   "write_demo": {
+    "addr": "1:0b920",
+    "evidence": "game2 worker 2026-11-26: Main calls after recording. Serial writes invert the reader and transfer all five record streams. Raynorpat address annotation agrees."
+   },
+   "strget": {
+    "addr": "1:02a40",
+    "evidence": "game2 worker 2026-11-26: High-score and related screen callers set position and limit. Callee uses keyboard state and both initialized scancode maps."
+   },
+   "check_file_id": {
+    "addr": "1:14e00",
+    "evidence": "game2 worker 2026-11-26: Main calls it from the integrity-check path. It opens FILE_ID.DIZ, reads the file and compares with the record at 2:0291c."
+   },
+   "getscorename": {
+    "addr": "1:14f80",
+    "evidence": "game2 worker 2026-11-26: High-score path supplies row number. The callee computes the displayed row position and calls strget with a 31-character limit."
+   },
+   "game_text_end": {
+    "addr": "1:14fad",
+    "evidence": "game2 worker 2026-11-26: The final routine's ret at 1:14fac is followed by three zero bytes and the SECTOR entry at 1:14fb0. Boundary only."
    }
   },
   "data": {
@@ -5847,6 +5915,90 @@
    "knee_frames": {
     "addr": "2:02364",
     "evidence": "player worker 2026-11-26: Three display references and one processinput reference, each indexing 20 times the player's sequence byte plus the frame. The same 0xff-terminated sequences recover independently from the image."
+   },
+   "oldtimerhandler": {
+    "addr": "2:0ac50",
+    "evidence": "game2 worker 2026-11-26: Far pointer stored at main's _dos_getvect and reloaded in gameexit's _dos_setvect, split into offset at 0ac50 and selector at 0ac54."
+   },
+   "turn_velocity": {
+    "addr": "2:a52f8",
+    "evidence": "game2 worker 2026-11-26: Updated by the timer code for left/right without the strafe modifier. Read by getinput at 1:20e60."
+   },
+   "strafe_velocity": {
+    "addr": "2:a52fc",
+    "evidence": "game2 worker 2026-11-26: Updated by timer left/right with the strafe modifier and used for lateral motion by getinput."
+   },
+   "forward_velocity": {
+    "addr": "2:a5300",
+    "evidence": "game2 worker 2026-11-26: Updated by timer forward/back keys and used for longitudinal motion by getinput."
+   },
+   "hudpulse": {
+    "addr": "2:a5390",
+    "evidence": "game2 worker 2026-11-26: Word phase incremented by the shade helper and inline copies in main, bonus and score drawing."
+   },
+   "reccnt": {
+    "addr": "2:a5254",
+    "evidence": "game2 worker 2026-11-26: Shared recording count serialized by both demo file paths, reset at newgame and increased with a 16383 cap by record."
+   },
+   "demo_avel": {
+    "addr": "2:0f6c8",
+    "evidence": "game2 worker 2026-11-26: First motion stream independently transferred by both demo file routines and indexed by playback and record."
+   },
+   "demo_vel": {
+    "addr": "2:136c8",
+    "evidence": "game2 worker 2026-11-26: Second motion stream independently transferred by both demo file routines and indexed by playback and record."
+   },
+   "demo_bits": {
+    "addr": "2:1d6d8",
+    "evidence": "game2 worker 2026-11-26: Both demo file paths transfer this stream at four bytes per frame, as indexed by record and playback."
+   },
+   "demo_tics": {
+    "addr": "2:2d6d8",
+    "evidence": "game2 worker 2026-11-26: Both demo file paths transfer this byte stream, and playback reads it as its tick increment."
+   },
+   "demo_svel": {
+    "addr": "2:316d8",
+    "evidence": "game2 worker 2026-11-26: Third motion stream independently transferred by both demo file routines and indexed by playback and record."
+   },
+   "file_id_record": {
+    "addr": "2:0291c",
+    "evidence": "game2 worker 2026-11-26: The check's two indexed operands use this base. File-backed record begins with correctly positioned marker bytes at line boundaries consistent with the separate FILE_ID.DIZ asset."
+   },
+   "lookup_filename": {
+    "addr": "2:000f8",
+    "evidence": "game2 worker 2026-11-26: String contains the filename of the supplied LOOKUP.DAT. Offset passed as path to the bound Watcom open at 1:0377d."
+   },
+   "lookup_missing": {
+    "addr": "2:00104",
+    "evidence": "game2 worker 2026-11-26: Diagnostic text identifies palette remaps. Operand passed to bound gameexit on the branch taken when lookup open returns -1."
+   },
+   "userdefs_filename": {
+    "addr": "2:005e4",
+    "evidence": "game2 worker 2026-11-26: The open path is shared by both explicitly identified user stats routines. String matches the supplied USERDEFS.TMP filename."
+   },
+   "userdefs": {
+    "addr": "2:a57a8",
+    "evidence": "game2 worker 2026-11-26: Both user stats routines transfer exactly 21 bytes from this base. Visibility, brightness, audio and mouse references agree with the fields inside the block."
+   },
+   "score_names": {
+    "addr": "2:023dc",
+    "evidence": "game2 worker 2026-11-26: I/O transfers 396 bytes here. The display and insertion routines use 33-byte slots; bytes match the first score block in USERDEFS.TMP."
+   },
+   "high_scores": {
+    "addr": "2:02568",
+    "evidence": "game2 worker 2026-11-26: I/O transfers 48 bytes here. Newscore compares signed dword values; the initialized values match the second score block in USERDEFS.TMP."
+   },
+   "demo_filename": {
+    "addr": "2:00628",
+    "evidence": "game2 worker 2026-11-26: Demo open calls share a mutable path template. Both replace byte 7 and supplied demos have the resulting filename pattern."
+   },
+   "demo_missing": {
+    "addr": "2:00638",
+    "evidence": "game2 worker 2026-11-26: Demo-specific diagnostic reached from the open failure branch in read_demo, confirmed by its text and call to gameexit."
+   },
+   "demomode": {
+    "addr": "2:a5258",
+    "evidence": "game2 worker 2026-11-26: Loaded and initialized by main, adjusted by demo playback, tested by the game tick and cleared by demo write and user-stats read."
    }
   }
  }

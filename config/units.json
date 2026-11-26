@@ -2146,6 +2146,62 @@
      "status": "NEAR_MATCH"
     }
    }
+  },
+  "game_game": {
+   "source": "src/game/game.c",
+   "profile": "game",
+   "include": [
+    "src/game"
+   ],
+   "kind": "c",
+   "provenance": "BINARY_DERIVED with raynorpat/lameduke and Duke3D 1.5 semantics; game2 worker 2026-11-26 (partial: 15 of 61 functions written)",
+   "functions": {
+    "inittimer": {
+     "status": "STRICT"
+    },
+    "uninittimer": {
+     "status": "STRICT"
+    },
+    "update_timer_input": {
+     "status": "NEAR_MATCH"
+    },
+    "level_load_hook": {
+     "status": "STRICT"
+    },
+    "next_text_shade": {
+     "status": "STRICT"
+    },
+    "findlocator": {
+     "status": "STRICT"
+    },
+    "loadlookup": {
+     "status": "STRICT"
+    },
+    "draw_water_distortion": {
+     "status": "NEAR_MATCH"
+    },
+    "record": {
+     "status": "STRICT"
+    },
+    "read_userdefs": {
+     "status": "STRICT"
+    },
+    "write_userdefs": {
+     "status": "STRICT"
+    },
+    "read_demo": {
+     "status": "STRICT"
+    },
+    "write_demo": {
+     "status": "NEAR_MATCH"
+    },
+    "check_file_id": {
+     "status": "STRICT"
+    },
+    "getscorename": {
+     "status": "STRICT"
+    }
+   }
   }
  }
 }
