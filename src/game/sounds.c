@@ -23,10 +23,13 @@ char *sound_device_names[] = {
 
 int sound_device_map[] = { -1, 0, 1, 3, 4, 7, 9, 10, 12 };
 
-struct sound_file sound_file_table[NUM_SOUNDS];
-unsigned char music_buffer[40000];
-char bootleg_cache[300000];
-struct sound_voice sound_voices[NUM_SOUNDS];
+/* Shared storage in the game data region. */
+extern struct sound_file sound_file_table[NUM_SOUNDS];
+extern unsigned char music_buffer[40000];
+extern char bootleg_cache[300000];
+extern struct sound_voice sound_voices[NUM_SOUNDS];
+
+/* BootLeg CacheMaster bookkeeping owned by this module. */
 long cache_sizes[128], cache_depth, cache_remaining;
 char *cache_cursor;
 

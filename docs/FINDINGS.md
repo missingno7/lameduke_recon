@@ -110,3 +110,14 @@ Each entry names the command or artefact that supports it.
   CODE holes still rejected; control tests/test_match.py::test_data_hole_model). SOUNDS' explicit trailing NULs are
   probably unnecessary under this model (to re-check).
 - GAMEDEF private state: last_used_text = 2:b1df0 (STRONG, BSS group-layout controls).
+
+## Compile environment and BSS layout (2026-11-26)
+- PROVEN Watcom 9.5b CONST padding residue depends on the compile path: the same GAMEDEF source compiled from a
+  22-character-longer directory changes 4 covered padding bytes; from a short directory it is deterministic and
+  oracle-identical. tools/wcc.py therefore stages every C compile into one fixed directory (build/cc/s, fixed TMP
+  build/cc/t, fixed object name, lock file); override with LAMEDUKE_STAGE. Results are reproducible only for the
+  same stage path length; the original path is unknown (OPEN; the residue may constrain it).
+- PROVEN (sounds worker, docs/BSS_LAYOUT.md, tools/bssrule.py) Watcom 9.5b orders _BSS by size bucket, newest
+  22-slot declaration page first, then ascending 12-bit identifier hash modulo 211; -ot adds type-based alignment
+  (6 bytes for far pointers). Predicts all 293 _BSS and 12 _DATA publics of three BUIL0422 objects. Differs from
+  the 10.x rule (25-slot pages, % 241).

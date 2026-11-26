@@ -1595,7 +1595,8 @@
    "quality": "COMPILER_STEERED: explicit trailing NULs in three string literals reproduce CONST padding",
    "functions": {
     "bootleg_cache_alloc": {
-     "status": "STRICT"
+     "status": "CODE_BYTES_MATCH",
+     "note": "was STRICT under a worker-specific compile path; under canonical staging (2026-11-26) CONST padding byte +a7 differs (residue 0x04 vs 0x00), so CONST references are unverified"
     },
     "bootleg_cache_pop": {
      "status": "STRICT"
@@ -1607,7 +1608,8 @@
      "status": "STRICT"
     },
     "USRHOOKS_GetMem": {
-     "status": "STRICT"
+     "status": "CODE_BYTES_MATCH",
+     "note": "was STRICT under a worker-specific compile path; under canonical staging (2026-11-26) CONST padding byte +a7 differs (residue 0x04 vs 0x00), so CONST references are unverified"
     },
     "USRHOOKS_FreeMem": {
      "status": "STRICT"
@@ -1616,7 +1618,8 @@
      "status": "STRICT"
     },
     "playmusic": {
-     "status": "STRICT"
+     "status": "CODE_BYTES_MATCH",
+     "note": "was STRICT under a worker-specific compile path; under canonical staging (2026-11-26) CONST padding byte +a7 differs (residue 0x04 vs 0x00), so CONST references are unverified"
     },
     "xyzsound": {
      "status": "STRICT"
