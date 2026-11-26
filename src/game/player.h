@@ -69,7 +69,7 @@ extern long ksqrt(long square);
 extern long krand(void);
 extern long FX_SetVolume(long volume);
 extern void spritesound(short sound, short i);
-extern void draw_weapon_tile(long x, long y, short tile, short shade, long flags);
+extern void draw_weapon_tile(long x, long y, long tile, short shade, long flags);
 extern void getmousevalues(short *x, short *y, short *buttons);
 extern void hitscan(long x, long y, long z, short sectnum, long xv, long yv, long zv,
     short *hitsect, short *hitwall, short *hitsprite, long *hitx, long *hity, long *hitz);
