@@ -2,6 +2,8 @@
 #include <fcntl.h>
 #include <i86.h>
 #include <io.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 
 #include "build_v5.h"
@@ -16,6 +18,25 @@ extern void makepalookup(long palnum, char *remap, signed char red,
 extern void bootleg_cache_pop(void);
 extern int strget(long x, long y, long shade, long limit);
 extern void newgame(unsigned char episode, unsigned char level, unsigned char skill);
+extern void overwritesprite(long x, long y, long tile, long shade,
+                            long orientation, long palette);
+
+/* US PC set-1 printable keys, with zero entries for non-text keys. */
+unsigned char scan_ascii[128] =
+    "\0\0" "1234567890-=" "\0\0"                 /* 00-0f */
+    "qwertyuiop[]" "\0\0" "as"                    /* 10-1f */
+    "dfghjkl;'\x60" "\0" "\\zxcv"                  /* 20-2f */
+    "bnm,./\0*\0 " "\0\0\0\0\0\0"                  /* 30-3f */
+    "\0\0\0\0\0\0\0" "789-456+1"                   /* 40-4f */
+    "230.";                                       /* 50-53 */
+
+unsigned char scan_ascii_shift[128] =
+    "\0\0" "!@#$%^&*()_+" "\0\0"                 /* 00-0f */
+    "QWERTYUIOP{}" "\0\0" "AS"                    /* 10-1f */
+    "DFGHJKL:\"~" "\0" "|ZXCV"                     /* 20-2f */
+    "BNM<>?\0*\0 " "\0\0\0\0\0\0"                  /* 30-3f */
+    "\0\0\0\0\0\0\0" "789-456+1"                   /* 40-4f */
+    "230.";                                       /* 50-53 */
 
 void (__interrupt __far *oldtimerhandler)(void);
 extern short hudpulse;
@@ -24,6 +45,8 @@ extern unsigned char keys[17], keystatus[256];
 extern long turn_velocity, strafe_velocity, forward_velocity;
 extern char tempbuf[];
 extern long frameplace;
+extern short screenpeek;
+extern short tilesizx[4096];
 
 extern long reccnt;
 extern signed char player_avel[], player_vel[], player_svel[];
@@ -53,16 +76,20 @@ extern char score_names[12][33];
 extern long high_scores[12], demomode;
 extern const char userdefs_filename[];
 
-/* The demo I/O uses three fields from player zero's shared 176-byte record. */
-struct player_demo_view {
-    unsigned char before_demo_fields[0x8c];
+/* Fields used here from the shared 176-byte player record. */
+#pragma pack(1)
+struct player_view {
+    short sprite_index;
+    long viewmode;
+    unsigned char before_demo_fields[0x86];
     unsigned char skill, level, episode;
     unsigned char after_demo_fields[0x21];
 };
+#pragma pack()
 
-typedef char player_size_check[sizeof(struct player_demo_view) == 176 ? 1 : -1];
+typedef char player_size_check[sizeof(struct player_view) == 176 ? 1 : -1];
 
-extern struct player_demo_view ps[17];
+extern struct player_view ps[17];
 extern char demo_filename[], demo_missing[];
 
 void inittimer(void)
@@ -176,6 +203,121 @@ long next_text_shade(void)
     return shade + 16;
 }
 
+long gametext(long x, long y, unsigned char *text, unsigned char shade)
+{
+    if (ps[screenpeek].viewmode == 2)
+        return 0;
+
+/* Large glyph rendering shared with the decimal printer. */
+{
+    long left = x;
+    short tile = -1;
+    short descender;
+
+    while (*text) {
+        descender = 2;
+        if (*text == '\n') {
+            x = (short)left;
+            y += 16;
+        } else if (*text == ' ') {
+            x += 5;
+        } else {
+            if (*text >= '0' && *text <= '9')
+                tile = *text + 101;
+            if (*text >= 'a' && *text <= 'z')
+                tile = *text + 26;
+            if (*text >= 'A' && *text <= 'Z') {
+                tile = *text + 32;
+                descender = 0;
+            }
+            if (tile >= 0) {
+                overwritesprite(x, y + descender, tile, shade, 0, 0);
+                x += tilesizx[tile] + 1;
+            }
+        }
+        text++;
+    }
+}
+    return x;
+}
+
+long minitext(long x, long y, unsigned char *text, unsigned char shade)
+{
+    if (ps[screenpeek].viewmode == 2)
+        return 0;
+
+#define TEXT_ROW y
+/* Small glyph rendering shared with the decimal printer. */
+{
+    short left = x;
+    short tile, descender;
+
+    while (*text) {
+        descender = 0;
+        if (*text == '\n') {
+            x = left;
+            TEXT_ROW += 8;
+            text++;
+            continue;
+        }
+        if (*text == ' ') {
+            x += 2;
+            text++;
+            continue;
+        }
+        tile = *text + 991;
+        if (*text >= 'a' && *text <= 'z')
+            descender = 2;
+        overwritesprite(x, TEXT_ROW + descender, tile, shade, 0, 0);
+        text++;
+        x += tilesizx[tile] + 1;
+    }
+}
+#undef TEXT_ROW
+    return x;
+}
+
+void numtext_relative(long x, long y, long value, unsigned char shade)
+{
+    unsigned char *text;
+
+    ltoa(value, tempbuf, 10);
+    text = (unsigned char *)tempbuf;
+    y--;
+    if (ps[screenpeek].viewmode != 2) {
+/* Large glyph rendering shared with the decimal printer. */
+{
+    long left = x;
+    short tile = -1;
+    short descender;
+
+    while (*text) {
+        descender = 2;
+        if (*text == '\n') {
+            x = (short)left;
+            y += 16;
+        } else if (*text == ' ') {
+            x += 5;
+        } else {
+            if (*text >= '0' && *text <= '9')
+                tile = *text + 101;
+            if (*text >= 'a' && *text <= 'z')
+                tile = *text + 26;
+            if (*text >= 'A' && *text <= 'Z') {
+                tile = *text + 32;
+                descender = 0;
+            }
+            if (tile >= 0) {
+                overwritesprite(x, y + descender, tile, shade, 0, 0);
+                x += tilesizx[tile] + 1;
+            }
+        }
+        text++;
+    }
+}
+    }
+}
+
 short findlocator(short tag, short sector)
 {
     short i = headspritestat[7];
@@ -207,6 +349,74 @@ void loadlookup(void)
         makepalookup(palette, tempbuf, 0, 0, 0);
     }
     close(file);
+}
+
+void numtext(long x, long y, long value, unsigned char shade)
+{
+    unsigned char *text;
+    long row;
+
+    ltoa(value, tempbuf, 10);
+    text = (unsigned char *)tempbuf;
+    row = y;
+    if (ps[screenpeek].viewmode != 2) {
+#define TEXT_ROW row
+/* Small glyph rendering shared with the decimal printer. */
+{
+    short left = x;
+    short tile, descender;
+
+    while (*text) {
+        descender = 0;
+        if (*text == '\n') {
+            x = left;
+            TEXT_ROW += 8;
+            text++;
+            continue;
+        }
+        if (*text == ' ') {
+            x += 2;
+            text++;
+            continue;
+        }
+        tile = *text + 991;
+        if (*text >= 'a' && *text <= 'z')
+            descender = 2;
+        overwritesprite(x, TEXT_ROW + descender, tile, shade, 0, 0);
+        text++;
+        x += tilesizx[tile] + 1;
+    }
+}
+#undef TEXT_ROW
+    }
+}
+
+void numtext_fixed(long x, long y, long value, unsigned char shade)
+{
+    short i, offset;
+
+    ltoa(value, tempbuf, 10);
+    i = strlen(tempbuf);
+    offset = 0;
+    while (i != 0) {
+        overwritesprite(x - offset, y, tempbuf[i - 1] + 0x536, shade, 0, 0);
+        offset += 6;
+        i--;
+    }
+}
+
+void draw_meter(long x, long y, long units, unsigned char shade)
+{
+    enum { FIRST_METER_TILE = 0x570, FULL_METER_TILE = FIRST_METER_TILE + 5 };
+    long i, full_cells;
+
+    full_cells = units / 5;
+    for (i = 0; i < full_cells; i++) {
+        overwritesprite(x - 2, y, FULL_METER_TILE, shade, 0, 0);
+        x += tilesizx[FULL_METER_TILE] - 1;
+    }
+    if (units % 5)
+        overwritesprite(x, y, FIRST_METER_TILE + units % 5, shade, 0, 0);
 }
 
 void draw_water_distortion(void)

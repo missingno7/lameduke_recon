@@ -3217,6 +3217,26 @@
    "actors_text_end": {
     "addr": "1:2ba27",
     "evidence": "actors worker 2026-11-26: Return at 2ba26 followed by nine zero bytes and independently matched SOUNDS entry at 2ba30."
+   },
+   "minitext": {
+    "addr": "1:02850",
+    "evidence": "game2 worker 2026-11-26: Raynorpat view.c 0x12850 and direct calls in display and level entry. Uses the canonical tile-width table, a smaller stride and matching glyph dispatch."
+   },
+   "numtext_relative": {
+    "addr": "1:02930",
+    "evidence": "game2 worker 2026-11-26: Prologue after minitext return and 14-byte alignment. Calls bound ltoa at 02946 and uses the large glyph rules and gametext epilogue at 02844. Descriptive name."
+   },
+   "numtext": {
+    "addr": "1:03800",
+    "evidence": "game2 worker 2026-11-26: Raynorpat view.c 0x13800 and the pinned ltoa call at 03816. The following loop uses the minitext glyph mapping."
+   },
+   "numtext_fixed": {
+    "addr": "1:038f0",
+    "evidence": "game2 worker 2026-11-26: Entered by direct calls from main and demo playback. Calls pinned ltoa, measures the result and draws digits in reverse at six-pixel intervals. Descriptive name."
+   },
+   "draw_meter": {
+    "addr": "1:03970",
+    "evidence": "game2 worker 2026-11-26: Entry after 03969 return and alignment. Uses five-unit groups, the bound tile blitter and width table, then returns at 039f8 before the animatesprites table. Descriptive name."
    }
   },
   "data": {
@@ -6059,6 +6079,14 @@
    "randomstash": {
     "addr": "2:a53a0",
     "evidence": "actors worker 2026-11-26: GAME tic paths at 000d10 and 008ea0 store the low word from krand here. ACTORS reads this state for flicker, blood and attack angles, matching the same reuse in the prototype reference."
+   },
+   "scan_ascii": {
+    "addr": "2:02738",
+    "evidence": "game2 worker 2026-11-26: Indexed by event scan code along the unshifted branch in 1:02a40 and main's input path. Printable ASCII mappings follow the US PC set-1 key layout."
+   },
+   "scan_ascii_shift": {
+    "addr": "2:027b8",
+    "evidence": "game2 worker 2026-11-26: The corresponding input branches select this base when either shift key is held. Uppercase and punctuation entries independently identify the US shifted map."
    }
   }
  }

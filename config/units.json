@@ -2200,6 +2200,24 @@
     },
     "getscorename": {
      "status": "STRICT"
+    },
+    "gametext": {
+     "status": "NEAR_MATCH"
+    },
+    "minitext": {
+     "status": "STRICT"
+    },
+    "numtext_relative": {
+     "status": "NEAR_MATCH"
+    },
+    "numtext": {
+     "status": "NEAR_MATCH"
+    },
+    "numtext_fixed": {
+     "status": "STRICT"
+    },
+    "draw_meter": {
+     "status": "NEAR_MATCH"
     }
    }
   },
