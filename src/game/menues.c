@@ -109,7 +109,7 @@ void initmenus(void)
     menu_ordering.x = 100;
     menu_ordering.y = 40;
     menu_ordering.lines = 1;
-    menu_ordering.tile = 615;
+    menu_ordering.tile = 1127;
     menu_ordering.text = "Back";
     menu_ordering.flags = 4;
 

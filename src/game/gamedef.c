@@ -255,7 +255,7 @@ char parsecommand(void)
 
     case CON_SOUND:
         getlabel();
-        for (i = 0; i < 39; i++) {
+        for (i = 0; i < 38; i++) {
             if (!strcmp(sound_names[i], CURRENT_LABEL)) {
                 *scriptptr++ = i;
                 return 0;
