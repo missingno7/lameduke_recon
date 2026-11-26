@@ -18,7 +18,6 @@ void myos(short x, short y, short tile, unsigned char shade,
 long gametext(long x, long y, unsigned char *text, unsigned char shade);
 long minitext(long x, long y, unsigned char *text, unsigned char shade);
 void gamenumber(long x, long y, long value, unsigned char shade);
-int strget(long x, long y, long shade, long limit);
 short LocateTheLocator(short tag, short sector);
 short EGS(short sect, long x, long y, long z, unsigned char cstat, short picnum,
           signed char shade, unsigned char xrepeat, unsigned char yrepeat,

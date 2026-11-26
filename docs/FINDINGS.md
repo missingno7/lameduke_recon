@@ -436,3 +436,23 @@ Each entry names the command or artefact that supports it.
 - NEGATIVE `gm |= MODE_MENU` (oracle load/or/store only with `gm = gm | MODE_MENU`, OPEN), removing the extra
   block braces, case 21 animategoal reload forms, case 9 loop-variable splits and 150 local orders, case 15
   `p != -1`/`p < 0`, a `sectortype *sptr` pointer in case 29.
+
+## PREMAP/GAME round 3 (r3premap, 2026-11-27; build/workers/r3premap/NOTES.md, integrated)
+- PROVEN resetplayer STRICT (336 B) by swapping the targets of equal-valued stores (driven by match.py off32
+  problem lines; instruction-shape metrics hide such target differences).
+- STRONG spawn follows the Duke 1.5 text: Duke local names (one `s` for picnum, loop counters and the `&s`
+  updatesector hint), parameter `j` reused as a loop variable, Duke-order chained xrepeat/yrepeat, Duke 1.5
+  sector-effector code for lotags 13/20/3/4/8/9/11 (lotag 9 `labs`). Frame now 0x18 as in the oracle; byte diffs
+  6402 -> 4834; size 8752 vs 8736 (allocation side effects). Declaration order from an exhaustive 720-order search
+  (COMPILER_STEERED order, Duke names and types).
+- prelevel: wall-loop `switch (wall[i].overpicnum)` (cases 1184, 1185/1186), `case 406:` falling into `case 405:`;
+  inlined resetprestat in Duke 1.5 statement order (standalone resetprestat has 0 byte diffs but stays NEAR:
+  prelevel's jump table lies in its extent).
+- STRONG PREMAP and GAME call `strget` without a prototype (`extern int strget();` in premap.c; the prototype was
+  dropped from game.h): getscorename passes plain int arguments. strget is `unsigned char strget(short x, short y,
+  unsigned char shade, unsigned char dalen)` without local copies; main's frame now 0x28 as in the oracle.
+- PROVEN (cg95 trace) Watcom 9.5 moves an address-taken local to the end of the stack-slot assignment list, so the
+  address-taken variable decides the frame layout (spawn: `s` stays at [esp+0x14] in every declaration order).
+- NEGATIVE dropping -oa gives spawn the exact size but breaks enterlevel (STRICT): -oa is right for PREMAP;
+  strget return respellings; newgame orders; main's early constant load; moveeffectors frame 0x58 vs 0x60 (two
+  stack slots missing, cause not found).

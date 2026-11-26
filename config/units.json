@@ -2463,7 +2463,7 @@
      "status": "NEAR_MATCH"
     },
     "resetplayer": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "prelevel": {
      "status": "NEAR_MATCH"

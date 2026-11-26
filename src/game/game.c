@@ -757,7 +757,7 @@ void gamenumber(long x, long sy, long n, unsigned char s)
 }
 
 /* Line editor for chat and high-score names; returns nonzero on Enter. Typing loop after Ken Silverman's getinput typemode, Build GAME.C (1994). */
-int strget(long x, long y, long shade, long dalen)
+unsigned char strget(short x, short y, unsigned char shade, unsigned char dalen)
 {
     enum {
         KEY_BACKSPACE = 0x0e,
@@ -768,7 +768,6 @@ int strget(long x, long y, long shade, long dalen)
         REPEAT_THRESHOLD = 60,
         LARGE_FONT_FLAG = 128
     };
-    unsigned char maxlen = dalen, drawshade = shade;
     unsigned char ch;
     short i;
 
@@ -794,8 +793,8 @@ int strget(long x, long y, long shade, long dalen)
                 }
             }
 
-            if (typemessageleng > maxlen)
-                typemessageleng = maxlen;
+            if (typemessageleng > dalen)
+                typemessageleng = dalen;
 
             if (keystatus[0xe] > 0)   /* Backspace */
             {
@@ -816,12 +815,12 @@ int strget(long x, long y, long shade, long dalen)
             }
         }
 
-    if (drawshade < 128) {
-        x = minitext(x, y, typemessage, drawshade & 127);
-        myos(x, y, 1023, drawshade, 0);
+    if (shade < 128) {
+        x = minitext(x, y, typemessage, shade & 127);
+        myos(x, y, 1023, shade, 0);
     } else {
-        x = gametext(x, y, typemessage, drawshade & 127);
-        myos(x, y, 1022, drawshade, 0);
+        x = gametext(x, y, typemessage, shade & 127);
+        myos(x, y, 1022, shade, 0);
     }
     return (keystatus[KEY_ACCEPT] | keystatus[KEY_EXTENDED_ACCEPT]) != 0;
 }
@@ -1816,8 +1815,8 @@ restart:
             }
             if (keystatus[1]) {
                 keystatus[1] = 0;
-                ps[myconnectindex].gm |= MODE_MENU;
                 current_menu = 0;
+                ps[myconnectindex].gm |= MODE_MENU;
             }
             if (ps[myconnectindex].gm & MODE_MENU) {
                 ps[myconnectindex].gm &= ~MODE_TYPE;

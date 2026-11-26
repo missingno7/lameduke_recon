@@ -29,6 +29,9 @@ extern int FX_Shutdown(void);
 extern void sendlogoff(void);
 extern void uninitmultiplayers(void);
 
+/* PREMAP calls strget without a prototype (int arguments), as GAMEDEF does for its game calls. */
+extern int strget();
+
 extern void setvmode(long mode);
 #pragma aux setvmode = \
     "int 0x10" \
@@ -101,7 +104,7 @@ extern int deletesprite(short i);
 extern int changespritestat(short i, short stat);
 extern short insertsprite(long sect, long stat);
 extern void updatesector(long x, long y, short *sect);
-extern short nextsectorneighborz(short sect, long z, short plane, short direction);
+extern long nextsectorneighborz(short sect, long z, short plane, short direction);
 extern short findplayer(short i, long *distance);
 extern long ifhitbyweapon(short i);
 extern long getanimationgoal(long *goal);
@@ -238,27 +241,26 @@ extern long angvel, svel, vel;
 /* Set up map sprite pn (j < 0) or spawn tile pn at sprite j; per-picnum defaults and sector-effector setup. */
 void spawn(long j, short pn)
 {
-    short i, sect, k, endwall;
-    long *actor;
+    short sect, i, endwall, startwall, s, clostest;
+    long x, y, d;
 
     if (j >= 0) {
         i = EGS(sprite[j].sectnum, sprite[j].x, sprite[j].y, sprite[j].z,
                 0, pn, 0, 0, 0, 0, 0, 0, sprite[j].picnum, 0);
     } else {
         i = pn;
-        k = sprite[i].picnum;
+        s = sprite[i].picnum;
         hittype[i][3] = 0;
         hittype[i][2] = 0;
         hittype[i][0] = 0;
-        if (k >= 265 && k <= 269)
-            k = 265;
-        actor = actorscrptr[k];
-        if (actor != NULL) {
-            sprite[i].extra = (short)actor[0];
-            hittype[i][4] = actor[1];
-            hittype[i][1] = actor[2];
-            if (k != 57)
-                sprite[i].hitag = (short)actor[3];
+        if (s >= 265 && s <= 269)
+            s = 265;
+        if (actorscrptr[s]) {
+            sprite[i].extra = *(actorscrptr[s]);
+            hittype[i][4] = *(actorscrptr[s] + 1);
+            hittype[i][1] = *(actorscrptr[s] + 2);
+            if (s != 57)
+                sprite[i].hitag = *(actorscrptr[s] + 3);
         } else {
             hittype[i][4] = 0;
             hittype[i][1] = 0;
@@ -370,19 +372,19 @@ void spawn(long j, short pn)
         msx[tempwallptr] = sprite[i].x;
         msy[tempwallptr] = sprite[i].y;
         msx[tempwallptr + 2] = sprite[i].z;
-        for (k = headspritestat[STAT_DEFAULT]; k >= 0; k = nextspritestat[k]) {
-            if (sprite[k].picnum == 1174 && sprite[k].hitag == sprite[i].hitag) {
-                hittype[i][1] = sprite[k].sectnum;
-                sprite[k].xrepeat = 48;
-                sprite[k].yrepeat = 128;
-                msx[tempwallptr + 1] = sprite[k].x;
-                msy[tempwallptr + 1] = sprite[k].y;
-                sprite[k].x = sprite[i].x;
-                sprite[k].y = sprite[i].y;
-                sprite[k].z = sprite[i].z;
-                sprite[k].shade = sprite[i].shade;
-                msy[tempwallptr + 2] = k;
-                setsprite(k, sprite[k].x, sprite[k].y, sprite[k].z);
+        for (s = headspritestat[STAT_DEFAULT]; s >= 0; s = nextspritestat[s]) {
+            if (sprite[s].picnum == 1174 && sprite[s].hitag == sprite[i].hitag) {
+                hittype[i][1] = sprite[s].sectnum;
+                sprite[s].xrepeat = 48;
+                sprite[s].yrepeat = 128;
+                msx[tempwallptr + 1] = sprite[s].x;
+                msy[tempwallptr + 1] = sprite[s].y;
+                sprite[s].x = sprite[i].x;
+                sprite[s].y = sprite[i].y;
+                sprite[s].z = sprite[i].z;
+                sprite[s].shade = sprite[i].shade;
+                msy[tempwallptr + 2] = s;
+                setsprite(s, sprite[s].x, sprite[s].y, sprite[s].z);
                 break;
             }
         }
@@ -501,16 +503,13 @@ void spawn(long j, short pn)
         sprite[i].shade = -16;
         changespritestat(i, STAT_ACTOR);
         break;
-    case 175: {
+    case 175:
         sprite[i].yvel = sector[sect].extra;
-        sprite[i].xrepeat = 0;
-        sprite[i].yrepeat = 0;
+        sprite[i].xrepeat = sprite[i].yrepeat = 0;
         switch (sprite[i].lotag) {
         case 27:
-            if (recstat == 1) {
-                sprite[i].xrepeat = 64;
-                sprite[i].yrepeat = 64;
-            }
+            if (recstat == 1)
+                sprite[i].xrepeat = sprite[i].yrepeat = 64;
             break;
         case 12:
             hittype[i][1] = sector[sect].floorshade;
@@ -519,149 +518,159 @@ void spawn(long j, short pn)
         case 13:
             hittype[i][0] = sector[sect].ceilingz;
             hittype[i][1] = sector[sect].floorz;
-            sprite[i].owner = klabs(hittype[i][0] - sprite[i].z) < klabs(hittype[i][1] - sprite[i].z);
+            if (klabs(hittype[i][0] - sprite[i].z) < klabs(hittype[i][1] - sprite[i].z))
+                sprite[i].owner = 1;
+            else
+                sprite[i].owner = 0;
             if (sprite[i].ang == 512) {
                 if (sprite[i].owner)
                     sector[sect].ceilingz = sprite[i].z;
                 else
                     sector[sect].floorz = sprite[i].z;
-            } else {
-                sector[sect].floorz = sprite[i].z;
-                sector[sect].ceilingz = sprite[i].z;
-            }
-            if (!(sector[sect].ceilingstat & 1))
-                break;
-            sector[sect].ceilingstat ^= 1;
-            hittype[i][3] = 1;
-            if (sprite[i].owner == 0 && sprite[i].ang == 512) {
+            } else
+                sector[sect].ceilingz = sector[sect].floorz = sprite[i].z;
+            if (sector[sect].ceilingstat & 1) {
                 sector[sect].ceilingstat ^= 1;
-                hittype[i][3] = 0;
-            }
-            sector[sect].ceilingshade = sector[sect].floorshade;
-            if (sprite[i].ang == 512) {
-                endwall = sector[sect].wallptr + sector[sect].wallnum;
-                for (k = sector[sect].wallptr; k < endwall; k++) {
-                    short ns = wall[k].nextsector1;
-
-                    if (ns >= 0 && !(sector[ns].ceilingstat & 1)) {
-                        sector[sect].ceilingpicnum = sector[ns].ceilingpicnum;
-                        sector[sect].ceilingshade = sector[ns].ceilingshade;
-                        break;
+                hittype[i][3] = 1;
+                if (!sprite[i].owner && sprite[i].ang == 512) {
+                    sector[sect].ceilingstat ^= 1;
+                    hittype[i][3] = 0;
+                }
+                sector[sect].ceilingshade = sector[sect].floorshade;
+                if (sprite[i].ang == 512) {
+                    startwall = sector[sect].wallptr;
+                    endwall = startwall + sector[sect].wallnum;
+                    for (j = startwall; j < endwall; j++) {
+                        x = wall[j].nextsector1;
+                        if (x >= 0)
+                            if (!(sector[x].ceilingstat & 1)) {
+                                sector[sect].ceilingpicnum = sector[x].ceilingpicnum;
+                                sector[sect].ceilingshade = sector[x].ceilingshade;
+                                break;
+                            }
                     }
                 }
             }
             break;
         case 17:
             hittype[i][2] = sector[sect].floorz;
-            hittype[i][3] = sector[nextsectorneighborz(sect, sector[sect].floorz, -1, -1)].ceilingz;
-            hittype[i][4] = sector[nextsectorneighborz(sect, sector[sect].ceilingz, 1, 1)].floorz;
+            j = nextsectorneighborz(sect, sector[sect].floorz, -1, -1);
+            hittype[i][3] = sector[j].ceilingz;
+            j = nextsectorneighborz(sect, sector[sect].ceilingz, 1, 1);
+            hittype[i][4] = sector[j].floorz;
             break;
         case 24:
-            sprite[i].yvel *= 2;
-            sector[sect].floorstat |= 0x40;
+            sprite[i].yvel <<= 1;
+            sector[sect].floorstat |= 64;
             break;
         case 23:
-            sprite[i].xrepeat = 64;
-            sprite[i].yrepeat = 64;
+            sprite[i].xrepeat = sprite[i].yrepeat = 64;
             sprite[i].shade = 0;
             hittype[i][1] = tempwallptr;
-            for (k = 0; k < numsectors; k++) {
-                if (sector[k].hitag == sprite[i].hitag) {
-                    msx[tempwallptr++] = k;
+            for (s = 0; s < numsectors; s++)
+                if (sector[s].hitag == sprite[i].hitag) {
+                    msx[tempwallptr] = s;
+                    tempwallptr++;
                     hittype[i][0]++;
                 }
-            }
             break;
         case 20: {
-            long best = 0x7FFFFFFF, w0 = -1;
+            long q;
 
-            endwall = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < endwall; k++) {
-                long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
-
-                if (d < best) {
-                    best = d;
-                    w0 = k;
+            startwall = sector[sect].wallptr;
+            endwall = startwall + sector[sect].wallnum;
+            q = 0x7fffffff;
+            for (s = startwall; s < endwall; s++) {
+                x = wall[s].x;
+                y = wall[s].y;
+                d = ksqrt((sprite[i].y - y) * (sprite[i].y - y) + (sprite[i].x - x) * (sprite[i].x - x));
+                if (d < q) {
+                    q = d;
+                    clostest = s;
                 }
             }
-            hittype[i][1] = w0;
-            best = 0x7FFFFFFF;
-            endwall = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < endwall; k++) {
-                long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
-
-                if (d < best && k != hittype[i][1]) {
-                    best = d;
-                    w0 = k;
+            hittype[i][1] = clostest;
+            q = 0x7fffffff;
+            for (s = startwall; s < endwall; s++) {
+                x = wall[s].x;
+                y = wall[s].y;
+                d = ksqrt((sprite[i].y - y) * (sprite[i].y - y) + (sprite[i].x - x) * (sprite[i].x - x));
+                if (d < q && s != hittype[i][1]) {
+                    q = d;
+                    clostest = s;
                 }
             }
-            hittype[i][2] = w0;
-            break;
+            hittype[i][2] = clostest;
         }
+            break;
         case 3:
             hittype[i][3] = sector[sect].floorshade;
             sector[sect].floorshade = sprite[i].shade;
             sector[sect].ceilingshade = sprite[i].shade;
-            sprite[i].owner = (short)(sector[sect].ceilingpal << 8);
+            sprite[i].owner = sector[sect].ceilingpal << 8;
             sprite[i].owner |= sector[sect].floorpal;
-            endwall = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < endwall; k++)
-                if (!(wall[k].hitag & 1))
-                    wall[k].shade = sprite[i].shade;
+            startwall = sector[sect].wallptr;
+            endwall = startwall + sector[sect].wallnum;
+            for (s = startwall; s < endwall; s++)
+                if (!(wall[s].hitag & 1))
+                    wall[s].shade = sprite[i].shade;
             break;
         case 4:
             hittype[i][2] = sector[sect].floorshade;
-            sprite[i].owner = (short)(sector[sect].ceilingpal << 8);
+            startwall = sector[sect].wallptr;
+            endwall = startwall + sector[sect].wallnum;
+            sprite[i].owner = sector[sect].ceilingpal << 8;
             sprite[i].owner |= sector[sect].floorpal;
-            endwall = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < endwall; k++)
-                if (wall[k].shade > hittype[i][3])
-                    hittype[i][3] = wall[k].shade;
+            for (s = startwall; s < endwall; s++)
+                if (wall[s].shade > hittype[i][3])
+                    hittype[i][3] = wall[s].shade;
             break;
         case 9:
-            if ((sector[sect].lotag & 0x7FFF) && klabs(sector[sect].ceilingz - sprite[i].z) > 1024)
-                sector[sect].lotag |= 32768U;
+            if ((sector[sect].lotag & 32767) && labs(sector[sect].ceilingz - sprite[i].z) > 1024)
+                sector[sect].lotag |= 32768;
             /* fall through */
         case 8:
             hittype[i][0] = sector[sect].floorshade;
             hittype[i][1] = sector[sect].ceilingshade;
-            endwall = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < endwall; k++)
-                if (wall[k].shade > hittype[i][2])
-                    hittype[i][2] = wall[k].shade;
+            startwall = sector[sect].wallptr;
+            endwall = startwall + sector[sect].wallnum;
+            for (s = startwall; s < endwall; s++)
+                if (wall[s].shade > hittype[i][2])
+                    hittype[i][2] = wall[s].shade;
             hittype[i][3] = (sprite[i].yvel >> 8) + 2;
             if (hittype[i][3] < 8)
                 hittype[i][3] = 1;
             hittype[i][3] = 8; /* Final shade step in the executable. */
             break;
         case 11:
-            hittype[i][3] = sprite[i].ang <= 1024 ? -2 : 2;
+            if (sprite[i].ang > 1024)
+                hittype[i][3] = 2;
+            else
+                hittype[i][3] = -2;
             /* fall through */
-        case 0: case 2: case 5: case 6: case 14: case 15: case 16: case 25: case 26: {
-            short s;
-
+        case 0: case 2: case 5: case 6: case 14: case 15: case 16: case 25: case 26:
+            startwall = sector[sect].wallptr;
+            endwall = startwall + sector[sect].wallnum - 1;
             hittype[i][1] = tempwallptr;
-            endwall = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < endwall; k++) {
-                msx[tempwallptr] = wall[k].x - sprite[i].x;
-                msy[tempwallptr] = wall[k].y - sprite[i].y;
+            for (s = startwall; s <= endwall; s++) {
+                msx[tempwallptr] = wall[s].x - sprite[i].x;
+                msy[tempwallptr] = wall[s].y - sprite[i].y;
                 tempwallptr++;
             }
             if (sprite[i].lotag == 6 || sprite[i].lotag == 14 || sprite[i].lotag == 5) {
                 if (sector[sprite[i].sectnum].hitag != -1) {
-                    sector[sect].floorstat |= 0x40;
-                    sector[sect].ceilingstat |= 0x40;
+                    sector[sect].floorstat |= 64;
+                    sector[sect].ceilingstat |= 64;
                 }
-                /* The exe passes the wall loop's end index as the first sector hint. */
-                s = k;
-                for (k = 0; k < 10; k++) {
-                    updatesector(k * (sintable[(sprite[i].ang + 512) & 2047] >> 5) + sprite[i].x,
-                        sprite[i].y + k * (sintable[sprite[i].ang & 2047] >> 5), &s);
+                /* s still holds the wall loop's end index: the first sector hint. */
+                for (j = 0; j < 10; j++) {
+                    updatesector(sprite[i].x + j * (sintable[(sprite[i].ang + 512) & 2047] >> 5),
+                        sprite[i].y + j * (sintable[sprite[i].ang & 2047] >> 5), &s);
                     if (sector[s].hitag == 0)
                         break;
                     if (sector[s].hitag != -1) {
-                        sector[s].ceilingstat |= 0x40;
-                        sector[s].floorstat |= 0x40;
+                        sector[s].ceilingstat |= 64;
+                        sector[s].floorstat |= 64;
                     }
                 }
                 sprite[i].owner = -1;
@@ -677,16 +686,20 @@ void spawn(long j, short pn)
             if (sprite[i].lotag == 26) {
                 hittype[i][3] = sprite[i].x;
                 hittype[i][4] = sprite[i].y;
-                sprite[i].zvel = sprite[i].shade == sector[sect].floorshade ? -256 : 256;
-                sector[sect].floorstat |= 0x40;
+                if (sprite[i].shade == sector[sect].floorshade)
+                    sprite[i].zvel = -256;
+                else
+                    sprite[i].zvel = 256;
+                sector[sect].floorstat |= 64;
                 sprite[i].shade = 0;
             }
             break;
         }
-        }
-        changespritestat(i, sprite[i].lotag == 7 ? 9 : 3);
+        if (sprite[i].lotag == 7)
+            changespritestat(i, 9);
+        else
+            changespritestat(i, 3);
         break;
-    }
     case 57:
         sprite[i].owner = i;
         sprite[i].shade = -16;
@@ -772,23 +785,23 @@ void resetplayer(short snum)
     short look;
 
     ps[snum].horiz = 100;
-    ps[snum].bobcounter = 0;
     ps[snum].posx = ps[snum].startposx;
     ps[snum].posy = ps[snum].startposy;
     ps[snum].posz = ps[snum].startposz;
     ps[snum].ang = ps[snum].startang;
     ps[snum].cursectnum = ps[snum].startsectnum;
-    ps[snum].knee_flash = 0;
     ps[snum].on_ground = 0;
+    ps[snum].bobcounter = 0;
+    ps[snum].knee_flash = 0;
     look = 256 - (krand() & 512);
-    ps[snum].jumping_counter = 0;
-    ps[snum].poszv = 0;
-    ps[snum].weapon_clock = 0;
     ps[snum].look_ang = look;
+    ps[snum].newowner = -1;
+    ps[snum].jumping_counter = 0;
+    ps[snum].hard_landing = 0;
+    ps[snum].poszv = 0;
     ps[snum].somethingonplayer = -1;
     ps[snum].holoduke_on = -1;
-    ps[snum].newowner = -1;
-    ps[snum].hard_landing = 0;
+    ps[snum].weapon_clock = 0;
     if (actorscrptr[283] != NULL)
         ps[snum].health = (short)*actorscrptr[283];
     else
@@ -810,30 +823,30 @@ void resetprestat(short snum)
     ps[snum].actors_squashed = 0;
     ps[snum].max_squashed = 0;
     ps[snum].actors_killed = 0;
-    ps[snum].walking_snd_toggle = 0;
     ps[snum].max_actors_killed = 0;
+    ps[snum].walking_snd_toggle = 0;
     if (ps[snum].dimensionmode == 2)
         setgamemode();
     ps[snum].dimensionmode = 3;
     ps[snum].startposx = ps[snum].posx;
+    ps[snum].startposy = ps[snum].posy;
+    ps[snum].startposz = ps[snum].posz;
+    ps[snum].startang = ps[snum].ang;
+    ps[snum].startsectnum = ps[snum].cursectnum;
     vel = 0;
     svel = 0;
-    ps[snum].startposy = ps[snum].posy;
     angvel = 0;
-    ud.camerasprite = -1;
-    ps[snum].startposz = ps[snum].posz;
-    camsprite = -1;
-    ps[snum].startang = ps[snum].ang;
-    ud.gamepaused = 0;
-    ps[snum].startsectnum = ps[snum].cursectnum;
-    numanimwalls = 0;
     ps[snum].one_parallax_sectnum = -1;
     screenpeek = myconnectindex;
-    parallaxtype = 0;
     visibility = ud.visibility;
+    numanimwalls = 0;
     animatecnt = 0;
-    tempwallptr = 0;
+    parallaxtype = 0;
     randomseed = 17;
+    ud.gamepaused = 0;
+    ud.camerasprite = -1;
+    tempwallptr = 0;
+    camsprite = -1;
     resetplayer(snum);
 }
 
@@ -878,18 +891,22 @@ void prelevel(void)
     for (i = 0; i < numwalls; i++) {
         if (numanimwalls >= 256)
             gameexit("Maxed out on anim walls\n");
-        if (wall[i].overpicnum >= 1184 && wall[i].overpicnum <= 1186) {
-            if (wall[i].overpicnum == 1184 && waloff[1184] == -1)
+        switch (wall[i].overpicnum) {
+        case 1184:
+            if (waloff[1184] == -1)
                 for (k = 0; k < 3; k++)
                     loadtile(1184 + k);
-            if (wall[i].shade < 32)
-                wall[i].cstat |= 1;
-            else
+            /* fall through */
+        case 1185: case 1186:
+            if (wall[i].shade > 31)
                 wall[i].cstat = 0;
+            else
+                wall[i].cstat |= 1;
             wall[i].shade = 0;
-            if (wall[i].lotag != 0)
+            if (wall[i].lotag)
                 wall[wall[i].nextwall1].lotag = wall[i].lotag;
-            animwall[numanimwalls++].wallnum = i;
+            animwall[numanimwalls].wallnum = i;
+            numanimwalls++;
             continue;
         }
         switch (wall[i].picnum) {
@@ -899,7 +916,8 @@ void prelevel(void)
                     loadtile(wall[i].picnum + k);
             /* fall through */
         case 570:
-            animwall[numanimwalls++].wallnum = i;
+            animwall[numanimwalls].wallnum = i;
+            numanimwalls++;
             break;
         case 761:
             if (waloff[761] == -1)
@@ -914,10 +932,13 @@ void prelevel(void)
         case 406:
             wall[i].picnum = 405;
             checkhitswitch(wall[i].lotag);
+            /* fall through */
+        case 405:
             animwall[numanimwalls].tag = 0;
-            animwall[numanimwalls++].wallnum = i;
+            animwall[numanimwalls].wallnum = i;
+            numanimwalls++;
             break;
-        case 395: case 396: case 405:
+        case 395: case 396:
             animwall[numanimwalls].tag = 0;
             animwall[numanimwalls].wallnum = i;
             numanimwalls++;
