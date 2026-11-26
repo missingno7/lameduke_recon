@@ -131,7 +131,7 @@
      "status": "STRICT"
     },
     "loadpalette": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "setgamemode": {
      "status": "STRICT"
@@ -140,7 +140,7 @@
      "status": "NEAR_MATCH"
     },
     "transmaskvline": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "initengine": {
      "status": "STRICT"
@@ -152,7 +152,7 @@
      "status": "STRICT"
     },
     "initcache": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "allocache": {
      "status": "STRICT"
@@ -344,7 +344,7 @@
      "status": "STRICT"
     },
     "wallmost": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "rotatesprite": {
      "status": "NEAR_MATCH"

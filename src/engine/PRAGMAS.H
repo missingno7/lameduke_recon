@@ -991,8 +991,7 @@
 	"inc ecx",\
 	"mov ebx, ecx",\
 	"shr ecx, 1",\
-	"test ecx, ecx",\
-	"jz skipbegcalc",\
+	"jecxz skipbegcalc",\
 	"begqcalc: mov edi, edx",\
 	"sar edi, 16",\
 	"mov dword ptr [eax], edi",\
@@ -1002,8 +1001,7 @@
 	"mov dword ptr [eax+4], edi",\
 	"add edx, esi",\
 	"add eax, 8",\
-	"dec ecx",\
-	"jnz begqcalc",\
+	"loop begqcalc",\
 	"test ebx, 1",\
 	"jz skipbegqcalc2",\
 	"skipbegcalc: sar edx, 16",\

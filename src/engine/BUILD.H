@@ -141,7 +141,6 @@ EXTERN char visibility;
 EXTERN short pskyoff[MAXPSKYTILES], pskybits;
 EXTERN char *palookup[MAXPALOOKUPS];
 EXTERN char gotsector[MAXSECTORS>>3];
-EXTERN char vidoption;
 EXTERN long parallaxyoffs;
 
 EXTERN long scaredfallz;

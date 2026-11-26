@@ -5763,6 +5763,26 @@
    "gamepaused": {
     "addr": "2:a57b3",
     "evidence": "sector worker 2026-11-26: Player input toggles this word on the pause bit. GAME tick paths at 08ea0 and 00d10 test it and bypass simulation; stage preparation clears it."
+   },
+   "lplc": {
+    "addr": "2:b6b90",
+    "evidence": "engine worker 2026-11-26: calcwalls stores column angle-derived tile coordinates and shifts them to index pskyoff. The address is the final stack argument to wallscan at 1:3547e and recurs at 22 exact-address LE fixup sites."
+   },
+   "swplc": {
+    "addr": "2:b7590",
+    "evidence": "engine worker 2026-11-26: calcwalls stores the sky scale at 1:3527d and the sine-derived scale at 1:3539f. The address is the penultimate argument to wallscan at 1:3548d and recurs at 22 exact-address LE fixup sites."
+   },
+   "searchsector": {
+    "addr": "2:1bde4a",
+    "evidence": "engine worker 2026-11-26: calcwalls writes the current or adjacent sector index at 1:34dec and 1:34ebb. Ten exact-address LE fixup sites across calcwalls, drawmaskwall and drawsprite."
+   },
+   "searchwall": {
+    "addr": "2:1bde4c",
+    "evidence": "engine worker 2026-11-26: calcwalls writes the original wall index or adjacent wall index at 1:34e59 and 1:34f45. Nine exact-address LE fixup sites across calcwalls, drawmaskwall and drawsprite."
+   },
+   "clipsectnum": {
+    "addr": "2:1bde5a",
+    "evidence": "engine worker 2026-11-26: getcliplines initializes the short to one alongside clipsectorlist[0] at 1:4266b, then compares it with the traversal index at 1:4267c. getzrange repeats the same setup at 1:45702. Fifteen exact-address LE fixup sites across getcliplines, getzrange and clipmove."
    }
   }
  }

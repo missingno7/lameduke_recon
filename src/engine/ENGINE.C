@@ -27,7 +27,6 @@
 #define MAXCLIPDIST 1024
 
 static unsigned char enginetempbuf[MAXWALLS];
-static long globaluclip, globaldclip;
 
 long artversion, mapversion;
 char *pic = NULL;
@@ -476,37 +475,42 @@ wallfront (short l1, short l2)
 	long x1l1, y1l1, x2l1, y2l1, x1l2, y1l2, x2l2, y2l2;
 	long templong0, templong1, templong2, templong3, templong4;
 
-	x1l1 = wall[thewall[l1]].x;
-	y1l1 = wall[thewall[l1]].y;
-	x2l1 = wall[wall[thewall[l1]].point2].x;
-	y2l1 = wall[wall[thewall[l1]].point2].y;
-	x1l2 = wall[thewall[l2]].x;
-	y1l2 = wall[thewall[l2]].y;
-	x2l2 = wall[wall[thewall[l2]].point2].x;
-	y2l2 = wall[wall[thewall[l2]].point2].y;
+	long w;
+	w = thewall[l1];
+	x1l1 = wall[w].x;
+	y1l1 = wall[w].y;
+	w = wall[w].point2;
+	x2l1 = wall[w].x;
+	y2l1 = wall[w].y;
+	w = thewall[l2];
+	x1l2 = wall[w].x;
+	y1l2 = wall[w].y;
+	w = wall[w].point2;
+	x2l2 = wall[w].x;
+	y2l2 = wall[w].y;
 
-	templong1 = (x1l2-x1l1)*(y2l1-y1l1) - (x2l1-x1l1)*(y1l2-y1l1); //p1(l2) vs. l1
-	templong2 = (x2l2-x1l1)*(y2l1-y1l1) - (x2l1-x1l1)*(y2l2-y1l1); //p2(l2) vs. l1
+	templong1 = (x1l2-x1l1)*(y2l1-y1l1) - (y1l2-y1l1)*(x2l1-x1l1); //p1(l2) vs. l1
+	templong2 = (x2l2-x1l1)*(y2l1-y1l1) - (y2l2-y1l1)*(x2l1-x1l1); //p2(l2) vs. l1
 	if ((templong1|templong2) == 0) return(-1);
 	if (templong1 == 0) templong1 = templong2;
 	if (templong2 == 0) templong2 = templong1;
 	if ((templong1 < 0) == (templong2 < 0))
 	{
-		templong0 = (globalposx-x1l1)*(y2l1-y1l1) - (x2l1-x1l1)*(globalposy-y1l1);  //pos vs. l1
+		templong0 = (globalposx-x1l1)*(y2l1-y1l1) - (globalposy-y1l1)*(x2l1-x1l1);  //pos vs. l1
 		if ((templong1<0) == (templong0<0))
 			return(l2);
 		else
 			return(l1);
 	}
 
-	templong1 = (x1l1-x1l2)*(y2l2-y1l2) - (x2l2-x1l2)*(y1l1-y1l2); //p1(l1) vs. l2
-	templong2 = (x2l1-x1l2)*(y2l2-y1l2) - (x2l2-x1l2)*(y2l1-y1l2); //p2(l1) vs. l2
+	templong1 = (x1l1-x1l2)*(y2l2-y1l2) - (y1l1-y1l2)*(x2l2-x1l2); //p1(l1) vs. l2
+	templong2 = (x2l1-x1l2)*(y2l2-y1l2) - (y2l1-y1l2)*(x2l2-x1l2); //p2(l1) vs. l2
 	if ((templong1|templong2) == 0) return(-1);
 	if (templong1 == 0) templong1 = templong2;
 	if (templong2 == 0) templong2 = templong1;
 	if ((templong1 < 0) == (templong2 < 0))
 	{
-		templong0 = (globalposx-x1l2)*(y2l2-y1l2) - (x2l2-x1l2)*(globalposy-y1l2);  //pos vs. l2
+		templong0 = (globalposx-x1l2)*(y2l2-y1l2) - (globalposy-y1l2)*(x2l2-x1l2);  //pos vs. l2
 		if ((templong1<0) == (templong0<0))
 			return(l1);
 		else
@@ -518,18 +522,14 @@ wallfront (short l1, short l2)
 spritewallfront(short s, short w)
 {
 	short p;
-	long x1, y1, x2, y2, x, y;
+	long x1, y1, x2, y2;
 
 	p = wall[w].point2;
 	x1 = wall[w].x;
 	y1 = wall[w].y;
 	x2 = wall[p].x;
 	y2 = wall[p].y;
-	x = sprite[s].x-x1;
-	y = sprite[s].y-y1;
-	x2 -= x1;
-	y2 -= y1;
-	return (y*x2 >= x*y2);
+	return ((x2-x1)*(sprite[s].y-y1) >= (y2-y1)*(sprite[s].x-x1));
 }
 
 bunchfront (short b1, short b2)
@@ -575,7 +575,7 @@ void calcwalls(short bunch)
 	char cstat1, cstat2, andwstat1, andwstat2;
 	short z, wallnum, sectnum, nextsectnum;
 	long i, j, k, l, m, n, top, topinc, bot, botinc, x, y;
-	long templong, z1, z2, hplc, hplc2, hinc, daplc, llin, rlin, scalej;
+	long xrepeat, templong, z1, z2, hplc, hplc2, hinc, daplc, llin, rlin, scalej;
 
 	z = bunchfirst[bunch];
 	sectnum = thesector[z];
@@ -616,21 +616,19 @@ void calcwalls(short bunch)
 
 		if ((nextsectnum == -1) || (sector[nextsectnum].ceilingz > z1) || (sector[nextsectnum].floorz < z2) || ((wall[wallnum].cstat&32) > 0))
 		{
-			i = xb1[z]-halfxdimen;
-			topinc = -ry1[z]*wall[wallnum].xrepeat;
-			top = (mulscale(rx1[z],xdimen,2)-mulscale(i,ry1[z],1))*wall[wallnum].xrepeat;
+			xrepeat = wall[wallnum].xrepeat;
+			topinc = -ry1[z]*xrepeat;
+			top = (mulscale(rx1[z],xdimen,2)-mulscale(xb1[z]-(xdimen>>1),ry1[z],1))*xrepeat;
 			botinc = ((ry2[z]-ry1[z])>>1);
-			bot = mulscale(rx1[z]-rx2[z],xdimen,3)+mulscale(i,botinc,1);
+			bot = mulscale(rx1[z]-rx2[z],xdimen,3)+mulscale(xb1[z]-(xdimen>>1),botinc,1);
 
-			i = xb1[z]; j = xb2[z]+1;
-			for(x=i;x<=j;x+=2)
+			for(x=xb1[z];x<=xb2[z]+1;x+=2)
 			{
 				if (bot != 0) lwall[x] = divscale(top,bot,8);
 				top += topinc, bot += botinc;
 			}
-			k = lwall[i];
-			for(x=i+1;x<j;x+=2)
-				{ l = lwall[x+1]; lwall[x] = ((k+l)>>1); k = l; }
+			for(x=xb1[z]+1;x<=xb2[z];x+=2)
+				lwall[x] = ((lwall[x-1]+lwall[x+1])>>1);
 
 			if (lwall[xb1[z]] < 0) lwall[xb1[z]] = 0;
 			if (wall[wallnum].xrepeat > 0)
@@ -1261,14 +1259,14 @@ addboxlinum(short sectore, short walle)
 					sectorborder[sectorbordercnt++] = nextsectnum;
 		}
 
-	yp1 = doublemulscale(x1,cosglobalang,y1,singlobalang,14);
-	yp2 = doublemulscale(x2,cosglobalang,y2,singlobalang,14);
-	if ((yp1 <= 0) && (yp2 <= 0)) return(0);
 	xp1 = doublemulscale(y1,cosglobalang,-x1,singlobalang,14);
+	yp1 = doublemulscale(x1,cosglobalang,y1,singlobalang,14);
 	xp2 = doublemulscale(y2,cosglobalang,-x2,singlobalang,14);
-	if (xp1*yp2 > xp2*yp1) return(0);    //If wall's NOT facing you
+	yp2 = doublemulscale(x2,cosglobalang,y2,singlobalang,14);
+	if (xp1*yp2 > xp2*yp1) return(0);
+	if ((yp1 <= 0) && (yp2 <= 0)) return(0);
 
-	if (xp1 >= -yp1)
+	if (-yp1 <= xp1)
 	{
 		if (xp1 > yp1) return(0);
 		if (yp1 == 0) return(0);
@@ -1285,7 +1283,7 @@ addboxlinum(short sectore, short walle)
 		if (templong1 == 0) return(0);
 		yb1[numscans] = yp1 + scale(yp2-yp1,xp1+yp1,templong1);
 	}
-	if (xp2 <= yp2)
+	if (yp2 >= xp2)
 	{
 		if (xp2 < -yp2) return(0);
 		if (yp2 == 0) return(0);
@@ -1305,9 +1303,12 @@ addboxlinum(short sectore, short walle)
 	if ((yb1[numscans] <= 0) || (yb2[numscans] <= 0) || (xb1[numscans] > xb2[numscans])) return(0);
 
 		//Made it all the way!
-	thesector[numscans] = sectore; thewall[numscans] = walle;
-	rx1[numscans] = xp1; ry1[numscans] = yp1;
-	rx2[numscans] = xp2; ry2[numscans] = yp2;
+	ry1[numscans] = yp1;
+	thesector[numscans] = sectore;
+	ry2[numscans] = yp2;
+	thewall[numscans] = walle;
+	rx1[numscans] = xp1;
+	rx2[numscans] = xp2;
 	numscans++;
 	return(1);
 }
@@ -2308,7 +2309,7 @@ modeset:
 
 hline (long xl, long xr, long yp, short sectnum)
 {
-	long x, y, xinc, yinc, tempx, tempy, r, p, shade, temp;
+	long temp, r, p, x, y, xinc, yinc, tempx, tempy, shade;
 
 	if (xl > xr) return;
 	if (yp == globalhoriz-1)
@@ -2316,13 +2317,11 @@ hline (long xl, long xr, long yp, short sectnum)
 	else
 		r = divscale(globalzd,320L*klabs(globalhoriz-1-yp),14);
 	xinc = mulscale(r,singlobalang,4);
-	x = xinc*xl;
 	yinc = mulscale(r,cosglobalang,4);
-	x -= (xinc+yinc)*(xdimen>>1);
+	tempx = xinc*xl - (xinc+yinc)*(xdimen>>1);
 	y = yinc*xl;
-	x += (globalposx<<20);
-	y += (xinc-yinc)*(xdimen>>1);
-	y -= (globalposy<<20);
+	x = (globalposx<<20)+tempx;
+	y = y + (xinc-yinc)*(xdimen>>1) - (globalposy<<20);
 
 	if ((globalorientation&0x74) > 0)
 	{
@@ -3439,7 +3438,7 @@ drawmasks()
 
 drawmaskwall(short damaskwallcnt)
 {
-	long i, j, k, x, z, wallnum, sectnum, nextwallnum, nextsectnum;
+	long i, j, k, x, z, wallnum, sectnum, nextsectnum;
 	long z1, z2, llin, rlin, top, topinc, bot, botinc;
 	long hplc, hinc, dax, lx, rx;
 
@@ -3447,7 +3446,6 @@ drawmaskwall(short damaskwallcnt)
 	wallnum = thewall[z];
 	sectnum = thesector[z];
 	globalpal = (long)sector[sectnum].floorpal;
-	nextwallnum = wall[wallnum].nextwall1;
 	nextsectnum = wall[wallnum].nextsector1;
 	z1 = sector[nextsectnum].ceilingz;
 	if (sector[sectnum].ceilingz > z1) z1 = sector[sectnum].ceilingz;
@@ -3470,7 +3468,7 @@ drawmaskwall(short damaskwallcnt)
 	if (lwall[xb1[z]] < 0) lwall[xb1[z]] = 0;
 	if (wall[wallnum].xrepeat > 0)
 	{
-		if (lwall[xb2[z]] >= ((long)wall[wallnum].xrepeat<<9))
+		if (((long)wall[wallnum].xrepeat<<9) <= lwall[xb2[z]])
 			lwall[xb2[z]] = ((long)wall[wallnum].xrepeat<<9)-1;
 	}
 
@@ -3481,21 +3479,19 @@ drawmaskwall(short damaskwallcnt)
 			lwall[x] = j-lwall[x];
 	}
 
-	if (xdimen == XDIM)
-	{
-		hplc = (65536*2048)/yb1[z];
-		hinc = (65536*2048)/yb2[z];
-	}
-	else
-	{
-		hplc = divscale(xdimenscale,yb1[z],11);
-		hinc = divscale(xdimenscale,yb2[z],11);
-	}
+	hplc = (65536*2048)/yb1[z];
+	hinc = (65536*2048)/yb2[z];
 	hinc = (hinc-hplc)/(xb2[z]-xb1[z]+1);
+	dax = hplc;
+	if (xdimen != XDIM)
+	{
+		dax = mulscale(hplc,xdimenscale,16);
+		hinc = mulscale(hinc,xdimenscale,16);
+	}
 
 	wallmost(uwall,z,z1-globalposz);
 	wallmost(dwall,z,z2-globalposz);
-	qinterpolate((long)(&swall[xb1[z]]),xb2[z]-xb1[z],hplc,hinc);
+	qinterpolate((long)(&swall[xb1[z]]),xb2[z]-xb1[z],dax,hinc);
 
 	globalorientation = (long)wall[wallnum].cstat;
 	globalpicnum = wall[wallnum].overpicnum;
@@ -3505,8 +3501,8 @@ drawmaskwall(short damaskwallcnt)
 	if ((picanm[globalpicnum]&192) != 0)
 		globalpicnum += animateoffs(globalpicnum);
 	globalshade = (long)wall[wallnum].shade;
-		globalshiftval = (picsiz[globalpicnum]>>4);
-	if ((1<<globalshiftval) != tilesizy[globalpicnum]) globalshiftval++;
+	globalshiftval = (picsiz[globalpicnum]>>4);
+	if (tilesizy[globalpicnum] != (1<<globalshiftval)) globalshiftval++;
 	globalshiftval = 32-globalshiftval;
 	globalyscale = (wall[wallnum].yrepeat<<(globalshiftval-19));
 	if ((globalorientation&4) == 0)
@@ -3527,7 +3523,7 @@ drawmaskwall(short damaskwallcnt)
 		rx = xb2[j];
 
 		if ((lx <= xb2[z]) && (rx >= xb1[z]))
-			if (wallfront(j,z) == 0)
+			if (wallfront(j,z) == j)
 			{
 				if (lx < xb1[z]) lx = xb1[z];
 				if (rx > xb2[z]) rx = xb2[z];
@@ -3535,9 +3531,11 @@ drawmaskwall(short damaskwallcnt)
 				switch(smostwall[i]&0xc000)
 				{
 					case 0:
-						k = ((rx-lx+1)<<1);
-						clearbufbyte((long)&umost[lx],k,0x00010001);
-						clearbufbyte((long)&dmost[lx],k,0x00000000);
+						for(x=lx;x<=rx;x++)
+						{
+							umost[x] = 1;
+							dmost[x] = 0;
+						}
 						break;
 					case 16384:
 						k = smoststart[i] - xb1[j];
@@ -6756,28 +6754,27 @@ wallmost(long *mostbuf, long w, long z)
 {
 	long bad, x, intx, inty, xcross, y, yy, yinc;
 
-	z <<= 3;
-	bad = (z < globaluclip*yb1[w]);
-	bad += ((z < globaluclip*yb2[w])<<1);
-	bad += ((z > globaldclip*yb1[w])<<2);
-	bad += ((z > globaldclip*yb2[w])<<3);
+	bad = ((z<<3) < (ytop-dahorizbak)*yb1[w]);
+	bad += (((z<<3) < (ytop-dahorizbak)*yb2[w])<<1);
+	bad += (((z<<3) > (ybot-dahorizbak)*yb1[w])<<2);
+	bad += (((z<<3) > (ybot-dahorizbak)*yb2[w])<<3);
 
 	if ((bad&3) == 3)
 	{
-		for(x=xb1[w];x<=xb2[w];x++) mostbuf[x] = 0;
+		for(x=xb1[w];x<=xb2[w];x++) mostbuf[x] = ytop;
 		return(bad);
 	}
 
 	if ((bad&0xc) == 0xc)
 	{
-		for(x=xb1[w];x<=xb2[w];x++) mostbuf[x] = ydimen;
+		for(x=xb1[w];x<=xb2[w];x++) mostbuf[x] = ybot;
 		return(bad);
 	}
 
 	if ((bad&3) > 0)
 	{
-		inty = z / globaluclip;
-		intx = rx1[w]+scale(inty-ry1[w],rx2[w]-rx1[w],ry2[w]-ry1[w]);
+		inty = (z<<3) / -dahorizbak;
+		intx = scale(inty-ry1[w],rx2[w]-rx1[w],ry2[w]-ry1[w])+rx1[w];
 		xcross = ((intx*halfxdimen)/inty)+halfxdimen;
 		if (intx > 0) xcross--;
 
@@ -6785,34 +6782,44 @@ wallmost(long *mostbuf, long w, long z)
 		{
 			if (xb1[w] <= xcross)
 			{
-				y = scale(z,xdimenscale,yb1[w]);
-				yy = scale(z,xdimenscale,inty);
+				y = divscale(z,yb1[w],19);
+				yy = divscale(z,inty,19);
+				if (xdimen != XDIM)
+				{
+					y = mulscale(y,xdimenscale,16);
+					yy = mulscale(yy,xdimenscale,16);
+				}
 				yinc = (yy-y) / (xcross-xb1[w]+1);
 				y += (globalhoriz<<16);
 				qinterpolatedown16((long)(&mostbuf[xb1[w]]),xcross-xb1[w],y,yinc);
 			}
-			for(x=xcross+1;x<=xb2[w];x++) mostbuf[x] = 0;
+			for(x=xcross+1;x<=xb2[w];x++) mostbuf[x] = ytop;
 		}
 		else
 		{
 			if (xcross <= xb2[w])
 			{
-				y = scale(z,xdimenscale,inty);
-				yy = scale(z,xdimenscale,yb2[w]);
+				y = divscale(z,inty,19);
+				yy = divscale(z,yb2[w],19);
+				if (xdimen != XDIM)
+				{
+					y = mulscale(y,xdimenscale,16);
+					yy = mulscale(yy,xdimenscale,16);
+				}
 				yinc = (yy-y) / (xb2[w]-xcross+1);
 				y += (globalhoriz<<16);
 				qinterpolatedown16((long)(&mostbuf[xcross]),xb2[w]-xcross,y,yinc);
 			}
-			for(x=xb1[w];x<xcross;x++) mostbuf[x] = 0;
+			for(x=xb1[w];x<xcross;x++) mostbuf[x] = ytop;
 		}
-		if (mostbuf[xcross] < 0) mostbuf[xcross] = 0;
+		if (mostbuf[xcross] < ytop) mostbuf[xcross] = ytop;
 		return(bad);
 	}
 
 	if ((bad&0xc) > 0)
 	{
-		inty = z / globaldclip;
-		intx = rx1[w]+scale(inty-ry1[w],rx2[w]-rx1[w],ry2[w]-ry1[w]);
+		inty = (z<<3) / (ybot-dahorizbak);
+		intx = scale(inty-ry1[w],rx2[w]-rx1[w],ry2[w]-ry1[w])+rx1[w];
 		xcross = ((intx*halfxdimen)/inty)+halfxdimen;
 		if (intx > 0) xcross--;
 
@@ -6820,40 +6827,50 @@ wallmost(long *mostbuf, long w, long z)
 		{
 			if (xb1[w] <= xcross)
 			{
-				y = scale(z,xdimenscale,yb1[w]);
-				yy = scale(z,xdimenscale,inty);
+				y = divscale(z,yb1[w],19);
+				yy = divscale(z,inty,19);
+				if (xdimen != XDIM)
+				{
+					y = mulscale(y,xdimenscale,16);
+					yy = mulscale(yy,xdimenscale,16);
+				}
 				yinc = (yy-y) / (xcross-xb1[w]+1);
 				y += (globalhoriz<<16);
 				qinterpolatedown16((long)(&mostbuf[xb1[w]]),xcross-xb1[w],y,yinc);
 			}
-			for(x=xcross+1;x<=xb2[w];x++) mostbuf[x] = ydimen;
+			for(x=xcross+1;x<=xb2[w];x++) mostbuf[x] = ybot;
 		}
 		else
 		{
 			if (xcross <= xb2[w])
 			{
-				y = scale(z,xdimenscale,inty);
-				yy = scale(z,xdimenscale,yb2[w]);
+				y = divscale(z,inty,19);
+				yy = divscale(z,yb2[w],19);
+				if (xdimen != XDIM)
+				{
+					y = mulscale(y,xdimenscale,16);
+					yy = mulscale(yy,xdimenscale,16);
+				}
 				yinc = (yy-y) / (xb2[w]-xcross+1);
 				y += (globalhoriz<<16);
 				qinterpolatedown16((long)(&mostbuf[xcross]),xb2[w]-xcross,y,yinc);
 			}
-			for(x=xb1[w];x<xcross;x++) mostbuf[x] = ydimen;
+			for(x=xb1[w];x<xcross;x++) mostbuf[x] = ybot;
 		}
-		if (mostbuf[xcross] > ydimen) mostbuf[xcross] = ydimen;
+		if (mostbuf[xcross] > ybot) mostbuf[xcross] = ybot;
 		return(bad);
 	}
 
-	//(x2-x1)*t - (xb1-halfxdimen)*u = -x1
-	//(y2-y1)*t - halfxdimen*u = -y1
-	//bot = (rx2[w]-rx1[w])*halfxdimen - (xb1[w]-halfxdimen)*(ry2[w]-ry1[w]);
-	//topu = (rx1[w])*(ry2[w]-ry1[w]) - (rx2[w]-rx1[w])*ry1[w];
-	//yb = topu*halfxdimen / bot
-
-	y = scale(z,xdimenscale,yb1[w]);
-	yy = scale(z,xdimenscale,yb2[w]);
+	y = divscale(z,yb1[w],19);
+	yy = divscale(z,yb2[w],19);
+	if (xdimen != XDIM)
+	{
+		y = mulscale(y,xdimenscale,16);
+		yy = mulscale(yy,xdimenscale,16);
+	}
 	yinc = (yy-y) / (xb2[w]-xb1[w]+1);
-	qinterpolatedown16((long)(&mostbuf[xb1[w]]),xb2[w]-xb1[w],y+(globalhoriz<<16),yinc);
+	y += (globalhoriz<<16);
+	qinterpolatedown16((long)(&mostbuf[xb1[w]]),xb2[w]-xb1[w],y,yinc);
 
 	return(bad);
 }
