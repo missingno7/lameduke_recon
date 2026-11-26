@@ -3065,6 +3065,42 @@
    "checksectors": {
     "addr": "1:1c5e0",
     "evidence": "sector worker 2026-11-26: GAME simulation calls this player-sector interaction loop, which tests sector tags, uses neartag and triggers doors and special sectors."
+   },
+   "kickview": {
+    "addr": "1:1f2e0",
+    "evidence": "player worker 2026-11-26: ACTORS callers use player and damaging sprite indices. Callee uses sprite extra as threshold and updates the player horizon and look angle."
+   },
+   "spawn_pistol_tracer": {
+    "addr": "1:1f410",
+    "evidence": "player worker 2026-11-26: Starts after kickview return and compiler fill. Repeated hitscan and EGS tile 214 block in processinput independently identifies the body."
+   },
+   "displayraise": {
+    "addr": "1:1fd20",
+    "evidence": "player worker 2026-11-26: Direct call at 1ff10 with shade and player. Uses the eleven-short frame initializer and draws tile 681 plus the frame."
+   },
+   "displayweapon": {
+    "addr": "1:1fe40",
+    "evidence": "player worker 2026-11-26: GAME render call, aligned entry after the knee pull switch table, and six weapon-tile drawing cases."
+   },
+   "getinput": {
+    "addr": "1:20e60",
+    "evidence": "player worker 2026-11-26: GAME input sampling callers and independently known keyboard, movement and command buffer accesses."
+   },
+   "update_air": {
+    "addr": "1:21280",
+    "evidence": "player worker 2026-11-26: Dedicated prologue after getinput return and twelve fill bytes. The same lotag, bubble sound and FX volume logic occurs in processinput."
+   },
+   "processinput": {
+    "addr": "1:21410",
+    "evidence": "player worker 2026-11-26: GAME tick-loop calls and the independently known player record, clipping and sync inputs."
+   },
+   "player_text_end": {
+    "addr": "1:2515c",
+    "evidence": "player worker 2026-11-26: Return at 2515b, four zero bytes preceding the ACTORS initializer prefix."
+   },
+   "draw_weapon_tile": {
+    "addr": "1:026c0",
+    "evidence": "player worker 2026-11-26: Callee forwards x, y, tile, shade and flags to bound overwritesprite, selecting a palette from current sector or screen player. GAME and PLAYER callers."
    }
   },
   "data": {
@@ -5783,6 +5819,34 @@
    "clipsectnum": {
     "addr": "2:1bde5a",
     "evidence": "engine worker 2026-11-26: getcliplines initializes the short to one alongside clipsectorlist[0] at 1:4266b, then compares it with the traversal index at 1:4267c. getzrange repeats the same setup at 1:45702. Fifteen exact-address LE fixup sites across getcliplines, getzrange and clipmove."
+   },
+   "player_avel": {
+    "addr": "2:a53bb",
+    "evidence": "player worker 2026-11-26: Independent GAME demo record and playback cross-references. Same 17 signed turning-input bytes read by PLAYER weapon sway and turn."
+   },
+   "avel": {
+    "addr": "2:a52f8",
+    "evidence": "player worker 2026-11-26: GAME timer interrupt ramps and writes the turn accumulator at 1:002bd. PLAYER mouse X adjusts it."
+   },
+   "vel": {
+    "addr": "2:a52fc",
+    "evidence": "player worker 2026-11-26: GAME timer interrupt ramps and writes the forward accumulator at 1:002b1. The low byte becomes player_vel in getinput."
+   },
+   "svel": {
+    "addr": "2:a5300",
+    "evidence": "player worker 2026-11-26: GAME timer interrupt ramps and writes the strafe accumulator at 1:002b7. PLAYER mouse Y adjusts it."
+   },
+   "lockclock": {
+    "addr": "2:a5304",
+    "evidence": "player worker 2026-11-26: GAME tick advancement and demo timing references at 1:08ec9 and 1:08283. Compared with totalclock in PLAYER."
+   },
+   "user_visibility": {
+    "addr": "2:a57a8",
+    "evidence": "player worker 2026-11-26: First byte of the 21-byte USERDEFS.TMP settings block read and initialized by GAME. PLAYER copies it to the bound visibility variable."
+   },
+   "knee_frames": {
+    "addr": "2:02364",
+    "evidence": "player worker 2026-11-26: Three display references and one processinput reference, each indexing 20 times the player's sequence byte plus the frame. The same 0xff-terminated sequences recover independently from the image."
    }
   }
  }

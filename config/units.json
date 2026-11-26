@@ -2111,6 +2111,41 @@
      "status": "STRICT"
     }
    }
+  },
+  "game_player": {
+   "source": "src/game/player.c",
+   "profile": "game",
+   "include": [
+    "src/game"
+   ],
+   "kind": "c",
+   "provenance": "BINARY_DERIVED with raynorpat/lameduke and Duke3D 1.5 PLAYER.C semantics; player worker 2026-11-26",
+   "functions": {
+    "kickview": {
+     "status": "STRICT"
+    },
+    "spawn_pistol_tracer": {
+     "status": "NEAR_MATCH"
+    },
+    "shoot": {
+     "status": "NEAR_MATCH"
+    },
+    "displayraise": {
+     "status": "NEAR_MATCH"
+    },
+    "displayweapon": {
+     "status": "NEAR_MATCH"
+    },
+    "getinput": {
+     "status": "NEAR_MATCH"
+    },
+    "update_air": {
+     "status": "NEAR_MATCH"
+    },
+    "processinput": {
+     "status": "NEAR_MATCH"
+    }
+   }
   }
  }
 }
