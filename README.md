@@ -43,11 +43,11 @@ size, so it can only grow by proving more of the original.
 
 | Part | Byte-identical (STRICT) | Functions | Bytes |
 |---|---|---:|---:|
-| Game code (GAME, PREMAP, SECTOR, PLAYER, ACTORS, SOUNDS, MENUES, GAMEDEF) | `████░░░░░░░░░░░░░░░░░░░░░░░░░░`  13.3% | 81 / 143 | 28,256 / 212,556 |
+| Game code (GAME, PREMAP, SECTOR, PLAYER, ACTORS, SOUNDS, MENUES, GAMEDEF) | `████░░░░░░░░░░░░░░░░░░░░░░░░░░`  14.6% | 84 / 143 | 31,136 / 212,556 |
 | Build engine (ENGINE.C + A.ASM) | `███████████████░░░░░░░░░░░░░░░`  49.6% | 101 / 123 | 41,943 / 84,515 |
 | Multiplayer (MULTI.C) | `███████████░░░░░░░░░░░░░░░░░░░`  36.6% | 18 / 25 | 3,164 / 8,645 |
 | Apogee Sound System | `█████████████████████████░░░░░`  84.4% | 348 / 375 | 45,432 / 53,853 |
-| **Whole program (all non-library code)** | `██████████░░░░░░░░░░░░░░░░░░░░`  33.0% | 548 / 666 | 118,795 / 359,569 |
+| **Whole program (all non-library code)** | `██████████░░░░░░░░░░░░░░░░░░░░`  33.8% | 551 / 666 | 121,675 / 359,569 |
 
 - Initialised data proven at its original address (CONST/_DATA): `███████░░░░░░░░░░░░░░░░░░░░░░░`  23.4% (10,530 of 45,056 file-backed bytes).
 - Uninitialised data (_BSS) whose layout is proven: 714,205 bytes.

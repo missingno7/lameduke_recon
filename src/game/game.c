@@ -430,13 +430,13 @@ void getpackets(void)
                 j = ((numplayers + 1) >> 1) + 2;
                 k = (2 << 3);
                 for (i = connecthead; i >= 0; i = connectpoint2[i]) {
-                    if (((1 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                    if ((tempbuf[k >> 3] & (1 << (k & 7))) > 0)
                         syncvel[i] = tempbuf[j++];
-                    if (((2 << (k & 7)) & tempbuf[k >> 3]) > 0)
+                    if ((tempbuf[k >> 3] & (2 << (k & 7))) > 0)
                         syncsvel[i] = tempbuf[j++];
-                    if ((tempbuf[k >> 3] & (4 << (k & 7))) > 0)
+                    if (((4 << (k & 7)) & tempbuf[k >> 3]) > 0)
                         syncangvel[i] = tempbuf[j++];
-                    if (((8 << (k & 7)) & tempbuf[k >> 3]) > 0) {
+                    if ((tempbuf[k >> 3] & (8 << (k & 7))) > 0) {
                         syncbits[i] = tempbuf[j] +
                                          (tempbuf[j + 1] << 8) +
                                          (tempbuf[j + 2] << 16) +
@@ -2038,9 +2038,9 @@ void lotsofglass(short i, short n)
 /* Transporters and water-level crossings (status 9). Later Duke: movetransports(). */
 void movetransports(void)
 {
+    long p, k;
     short i, j, m, sect;
-    long k, p;
-    long sectlotag, otherlotag;
+    long otherlotag, sectlotag;
 
     {
         i = headspritestat[STAT_TRANSPORT];
@@ -2265,7 +2265,14 @@ void closedemowrite(void)
         return;
 
     reccnt--;
-    filename[7] = '0' + (ps[0].level != 0 || ps[0].volume != 0);
+    /* COMPILER_STEERED: do/while(0) models a basic-block boundary after reccnt-- (the oracle keeps
+     * `sub [reccnt],edx` as a memory RMW; in one block the 9.5 scheduler splits it). */
+    do {
+        if (ps[0].level == 0 && ps[0].volume == 0)
+            filename[7] = '0';
+        else
+            filename[7] = '1';
+    } while (0);
 
     fp = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT | O_BINARY, 0xb0);
     if (fp != -1) {

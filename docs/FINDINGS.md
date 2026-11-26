@@ -350,3 +350,19 @@ Each entry names the command or artefact that supports it.
   (size now exact 1632, 10 instructions differ). parse allocation needs j's savings above x's (x 708, i 512, j 408);
   extra j assignments incl. the Duke IFP `j = 1` chain leave j at 408. checkhitceiling (AH vs BL zero register) and
   checkhitwall (savings tie t83/t249) retraced without a natural fix.
+
+## GAME NEAR round 2 (r2game, 2026-11-26; worker files build/workers/r2game/, integrated)
+- PROVEN movetransports STRICT by declaration order alone (`long p, k; short i, j, m, sect; long otherlotag,
+  sectlotag;`); only 6 of 72 orders also keep its inlined copy in domovethings. Declaration order flips register
+  ties that statement/operand respellings cannot reach (64 operand-order combinations compiled identically).
+- PROVEN wait_for_players STRICT via operand order of getpackets' bit tests (tests 1, 2, 4 Ken's
+  `(tempbuf[k>>3] & (N<<(k&7))) > 0`, test 3 mask-first). A callee's operand order can change its inline copies
+  while its own code stays identical. Cost: waitforeverybody now +16 bytes (diffs 1057 -> 1158), sync 1604 -> 1685.
+- closedemowrite STRICT is COMPILER_STEERED (marked in source): the level/volume if/else sits in `do{}while(0)`
+  after `reccnt--`; without that block boundary the 9.5 scheduler splits `sub [reccnt],edx` (+16 bytes).
+- STRONG playback's remaining difference is a register tie in the battery loop of the inlined displaystatus copy;
+  levers found (domovethings `(long)i` temp savings, one conflict record in displaystatus) all live in shared
+  callees that are STRICT on their own. gamenumber jumps into gametext's shared return path (STRICT only together).
+- NEGATIVE 20 meter-loop spellings, cameratext shade types, next_text_shade forms, 54 gametext variants, EGS
+  statement orders/parameter types, newgame, checkcommandline, lotsofglass, declaration-order searches over 13 more
+  functions.

@@ -2354,7 +2354,7 @@
      "status": "NEAR_MATCH"
     },
     "wait_for_players": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "main": {
      "status": "NEAR_MATCH"
@@ -2420,13 +2420,13 @@
      "status": "NEAR_MATCH"
     },
     "movetransports": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "opendemoread": {
      "status": "STRICT"
     },
     "closedemowrite": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     }
    },
    "segments": {
