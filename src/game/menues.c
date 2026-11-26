@@ -1,3 +1,7 @@
+/* MENUES: the prototype's menu pages (descriptor setup, big-font text, slider, key/mouse probe, page dispatcher), the PAUSE sign, the view window,
+   and Ken Silverman's lava/boiling-slime effect (initlava/movelava, Ken-Build GAME.C; BUILD.TXT 9/29/94) placed in this object.
+   Menu code is BINARY_DERIVED; Duke3D 1.5 MENUES.C (1996) is its descendant (probe, bar, menutext, menus). */
+
 #include <stdlib.h>
 #include "menues.h"
 
@@ -28,24 +32,15 @@ char file_id_record[500] =
     "L TO GET THIS FILE FROM A BBS!*ллллллллллллллллллллллллллллл"
     "ллллллллллллллл";
 
-#pragma pack(1)
-struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
-    unsigned char visibility, quotes, brightness, sound, music;
-    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
-    unsigned char reserved[4];
-};
-#pragma pack()
-extern struct user_settings ud;
+extern struct user_defs ud;         /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
 
-/* dataown: one object, one name. The spellings below are fields of the GLOBAL settings block; the extern
-   declarations above keep this unit's symbol slots. */
-#define sound_volume ud.sound_volume
-#define music_volume ud.music_volume
-#define mouse_sensitivity ud.mouse_sensitivity
-#define transition_zoom ud.paused
+/* dataown: one object, one name. Code uses the fields of GLOBAL's settings block ud directly; the unused
+   externs sound_volume, music_volume, mouse_sensitivity and transition_zoom above only keep this unit's
+   symbol slots (docs/BSS_LAYOUT.md). */
 
 #define SAVE_SLOTS "empty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nBack"
 
+/* Set up the static menu descriptors (title tile, text lines, position, input flags). */
 void initmenus(void)
 {
     menu_main.x = 100;
@@ -125,6 +120,7 @@ void initmenus(void)
 
 long lavaradcnt[32], lavaradx[32][128], lavarady[32][128];
 
+/* Draw and edit one options slider (32 notches, value 0..255) at x,y. */
 void draw_menu_slider(short x, short y, short *value, short shade)
 {
     short i;
@@ -166,22 +162,23 @@ void draw_menu_slider(short x, short y, short *value, short shade)
 }
 
 
-long menutext(long x, long y, unsigned char *text, short shade0,
+/* Draw menu item text (big font) with the pointer line pulsing; returns the x after the last glyph. */
+long menutext(long x, long y, unsigned char *t, short s,
     short cursor)
 {
     unsigned char shade;
-    short tile;
+    short ac;
     short base_shade;
     short start_x;
 
-    if (ps[0].display_mode == 2) return 0;
+    if (ps[0].dimensionmode == 2) return 0;
     start_x = x;
-    base_shade = (unsigned char)shade0;
-        while (*text) {
-            if (*text == '\n') {
+    base_shade = (unsigned char)s;
+        while (*t) {
+            if (*t == '\n') {
                 x = start_x;
                 y += 16;
-                ++text;
+                ++t;
                 continue;
             }
             if (klabs(y - cursor + 8) < 8) {
@@ -189,18 +186,18 @@ long menutext(long x, long y, unsigned char *text, short shade0,
                 if (menu_drag) shade -= 4;
             }
             else shade = base_shade;
-            if (*text == ' ') {
+            if (*t == ' ') {
                 x += 5;
-                ++text;
+                ++t;
                 continue;
             }
-            if (*text >= '0' && *text <= '9') tile = *text + 101;
-            if (*text >= 'a' && *text <= 'z') tile = *text + 26;
-            if (*text >= 'A' && *text <= 'Z') tile = *text + 32;
-            overwritesprite(x, y, tile, (unsigned char)shade, 0,
+            if (*t >= '0' && *t <= '9') ac = *t + 101;
+            if (*t >= 'a' && *t <= 'z') ac = *t + 26;
+            if (*t >= 'A' && *t <= 'Z') ac = *t + 32;
+            overwritesprite(x, y, ac, (unsigned char)shade, 0,
                 sector[ps[screenpeek].cursectnum].floorpal);
-            x += tilesizx[tile] + 1;
-            ++text;
+            x += tilesizx[ac] + 1;
+            ++t;
         }
     return x;
 }
@@ -215,10 +212,11 @@ long menutext(long x, long y, unsigned char *text, short shade0,
 long lavadropsizlookup[16];
 unsigned char lavainc[128];
 
-long probe(struct menu item)
+/* Read menu keys/mouse for page m: -1 quit (Q), -2 back (Esc), n>0 line picked, 0 nothing. */
+long probe(struct menu m)
 {
         {
-            if (item.flags | 4)
+            if (m.flags | 4)
             {
                 if (keystatus[0x10] || menu_mouse == 2)
                 {
@@ -231,16 +229,16 @@ long probe(struct menu item)
                     return -2;
                 }
             }
-            if (item.flags | 2)
+            if (m.flags | 2)
             {
                 if (keystatus[0x1c] || keystatus[0x39] || menu_mouse == 1)
                 {
                     keystatus[0x1c] = 0;
                     keystatus[0x39] = 0;
-                    return ((long)menu_y - item.y) / 16 + 1;
+                    return ((long)menu_y - m.y) / 16 + 1;
                 }
             }
-            if (item.flags | 1)
+            if (m.flags | 1)
             {
                 if (PRESSED_UP) menu_y -= 16;
                 if (PRESSED_DOWN) menu_y += 16;
@@ -250,9 +248,9 @@ long probe(struct menu item)
                     keystatus[0x50] = 0;
                     keystatus[0xc8] = 0;
                     keystatus[0xd0] = 0;
-                    menu_x = item.x;
-                    if (menu_y < item.y + 8) menu_y = item.y + (item.lines << 4) - 8;
-                    if (menu_y > item.y + (item.lines << 4) - 8) menu_y = item.y + 8;
+                    menu_x = m.x;
+                    if (menu_y < m.y + 8) menu_y = m.y + (m.lines << 4) - 8;
+                    if (menu_y > m.y + (m.lines << 4) - 8) menu_y = m.y + 8;
                 }
             }
             return 0;
@@ -260,22 +258,24 @@ long probe(struct menu item)
 }
 
 
-long draw_and_probe(struct menu item, unsigned char color)
+/* Draw a menu page (spinning title, items) and return its probe result. */
+long draw_and_probe(struct menu m, unsigned char shade)
 {
         if (menu_zoom < 8192 - 348) menu_zoom += 348; else menu_zoom = 8192;
-        rotatesprite(160L << 16, ((item).y - tilesizy[(item).tile] / 2L - 8) << 16,
-            ((long)menu_zoom << 3) - 4096, menu_zoom, (item).tile);
-    menutext(item.x, item.y, item.text, color, menu_y);
-    return probe(item);
+        rotatesprite(160L << 16, ((m).y - tilesizy[(m).tile] / 2L - 8) << 16,
+            ((long)menu_zoom << 3) - 4096, menu_zoom, (m).tile);
+    menutext(m.x, m.y, m.text, shade, menu_y);
+    return probe(m);
 }
 
 long lavadropsiz[16];
 
+/* Run the current menu page for one frame (pages 0,1,2,10,20,30,40,50,60,100). */
 void menus(void)
 {
-    long action;
+    long choice;
 
-    if (current_menu == 0 && (ps[myconnectindex].game_mode & 4))
+    if (current_menu == 0 && (ps[myconnectindex].gm & MODE_GAME))
     {
         current_menu = 100;
         goto init_cursor;
@@ -293,65 +293,65 @@ init_cursor:
     switch (current_menu & 127)
     {
     case 0:
-        action = draw_and_probe(menu_main, 4);
-        switch (action)
+        choice = draw_and_probe(menu_main, 4);
+        switch (choice)
         {
         case -2: case -1: case 8:
-            ps[myconnectindex].game_mode = 128;
+            ps[myconnectindex].gm = MODE_END;
             break;
         case 1: current_menu = 1; break;
         case 2: current_menu = 10; break;
         case 3: current_menu = 20; break;
         case 4: current_menu = 30; break;
         case 5: current_menu = 40; break;
-        case 6: ps[myconnectindex].game_mode = 6; break;
+        case 6: ps[myconnectindex].gm = MODE_DEMO | MODE_GAME; break;
         case 7: current_menu = 60; break;
         }
         break;
 
     case 1:
-        action = draw_and_probe(menu_episode, 4);
-        switch (action)
+        choice = draw_and_probe(menu_episode, 4);
+        switch (choice)
         {
         case -2: case -1: case 5: current_menu = 0; break;
-        case 1: ps[0].episode = 0; current_menu = 2; break;
-        case 2: ps[0].episode = 1; current_menu = 2; break;
-        case 3: ps[0].episode = 2; current_menu = 2; break;
-        case 4: ps[0].episode = 3; current_menu = 2; break;
+        case 1: ps[0].volume = 0; current_menu = 2; break;
+        case 2: ps[0].volume = 1; current_menu = 2; break;
+        case 3: ps[0].volume = 2; current_menu = 2; break;
+        case 4: ps[0].volume = 3; current_menu = 2; break;
         }
         break;
 
     case 2:
-        action = draw_and_probe(menu_skill, 4);
-        switch (action)
+        choice = draw_and_probe(menu_skill, 4);
+        switch (choice)
         {
         case -2: case -1: case 5: current_menu = 1; break;
         case 1:
             ps[0].skill = 0;
-            newgame(ps[0].episode, 0, 0);
-            enterlevel(4);
+            newgame(ps[0].volume, 0, 0);
+            enterlevel(MODE_GAME);
             break;
         case 2:
             ps[0].skill = 1;
-            newgame(ps[0].episode, 0, 1);
-            enterlevel(4);
+            newgame(ps[0].volume, 0, 1);
+            enterlevel(MODE_GAME);
             break;
         case 3:
             ps[0].skill = 2;
-            newgame(ps[0].episode, 0, 2);
-            enterlevel(4);
+            newgame(ps[0].volume, 0, 2);
+            enterlevel(MODE_GAME);
             break;
         case 4:
             ps[0].skill = 3;
-            newgame(ps[0].episode, 0, 3);
-            enterlevel(4);
+            newgame(ps[0].volume, 0, 3);
+            enterlevel(MODE_GAME);
             break;
         }
         break;
 
     case 10:
-        action = draw_and_probe(menu_load, 4);
-        switch (action)
+        choice = draw_and_probe(menu_load, 4);
+        switch (choice)
         {
         case -2: case -1: case 9: current_menu = 0; break;
         case 1: loadplayer(0); break;
@@ -366,41 +366,41 @@ init_cursor:
         break;
 
     case 20:
-        if (syncbits[0] & 1) gametext(10, 100, "Jump", 0);
-        if (syncbits[0] & 2) gametext(10, 115, "Duck", 0);
-        if (syncbits[0] & 4) gametext(10, 130, "Shoot", 0);
-        if (syncbits[0] & 8) gametext(10, 145, "Open\0\0\0", 0);
-        action = draw_and_probe(menu_instructions, 4);
-        switch (action)
+        if (syncbits[0] & SB_JUMP) gametext(10, 100, "Jump", 0);
+        if (syncbits[0] & SB_CROUCH) gametext(10, 115, "Duck", 0);
+        if (syncbits[0] & SB_FIRE) gametext(10, 130, "Shoot", 0);
+        if (syncbits[0] & SB_UNUSED3) gametext(10, 145, "Open\0\0\0", 0);
+        choice = draw_and_probe(menu_instructions, 4);
+        switch (choice)
         {
         case -2: case -1: case 1: current_menu = 0; break;
         }
         break;
 
     case 30:
-        draw_menu_slider(32, menu_options.y, &sound_volume, 16);
-        FX_SetVolume(sound_volume);
-        draw_menu_slider(32, (short)(menu_options.y + 16), &music_volume, 16);
-        MUSIC_SetVolume(music_volume);
-        draw_menu_slider(32, (short)(menu_options.y + 32), &mouse_sensitivity, 16);
-        action = draw_and_probe(menu_options, 4);
-        switch (action)
+        draw_menu_slider(32, menu_options.y, &ud.sound_volume, 16);
+        FX_SetVolume(ud.sound_volume);
+        draw_menu_slider(32, (short)(menu_options.y + 16), &ud.music_volume, 16);
+        MUSIC_SetVolume(ud.music_volume);
+        draw_menu_slider(32, (short)(menu_options.y + 32), &ud.mouse_sensitivity, 16);
+        choice = draw_and_probe(menu_options, 4);
+        switch (choice)
         {
         case -2: case -1: case 5: current_menu = 0; break;
         }
         break;
 
     case 40:
-        action = draw_and_probe(menu_ordering, 4);
-        switch (action)
+        choice = draw_and_probe(menu_ordering, 4);
+        switch (choice)
         {
         case -2: case -1: case 1: current_menu = 0; break;
         }
         break;
 
     case 50:
-        action = draw_and_probe(menu_save, 4);
-        switch (action)
+        choice = draw_and_probe(menu_save, 4);
+        switch (choice)
         {
         case -2: case -1: case 9: current_menu = 0; break;
         case 1: saveplayer(0); current_menu = 0; break;
@@ -415,28 +415,28 @@ init_cursor:
         break;
 
     case 60:
-        action = draw_and_probe(menu_scores, 4);
-        if ((unsigned long)action >= (unsigned long)-2)
+        choice = draw_and_probe(menu_scores, 4);
+        if ((unsigned long)choice >= (unsigned long)-2)
             current_menu = 0;
         else
             displayhighscores();
         return;
 
     case 100:
-        action = draw_and_probe(menu_pause, 4);
-        switch (action)
+        choice = draw_and_probe(menu_pause, 4);
+        switch (choice)
         {
         case -2: case 1:
-            ps[myconnectindex].game_mode = 128;
+            ps[myconnectindex].gm = MODE_END;
             break;
         case -1:
-            ps[myconnectindex].game_mode = 4;
+            ps[myconnectindex].gm = MODE_GAME;
             break;
         case 2: current_menu = 20; break;
         case 3: current_menu = 50; break;
         case 4: current_menu = 10; break;
         case 5: current_menu = 30; break;
-        case 6: ps[myconnectindex].game_mode = 2; break;
+        case 6: ps[myconnectindex].gm = MODE_DEMO; break;
         }
         break;
 
@@ -447,23 +447,25 @@ init_cursor:
     update_menu_cursor(614);
 }
 
+/* Draw the spinning PAUSE sign (tile 1139) while the game is paused. */
 void draw_pause_sign(void)
 {
-    if (transition_zoom < 8192 - 348)
-        transition_zoom += 348;
+    if (ud.gamepaused < 8192 - 348)
+        ud.gamepaused += 348;
     else
-        transition_zoom = 8192;
+        ud.gamepaused = 8192;
 
     rotatesprite(160L << 16, (100L - tilesizy[1139] / 2L - 8) << 16,
-        ((long)transition_zoom << 3) - 4096, transition_zoom, 1139);
+        ((long)ud.gamepaused << 3) - 4096, ud.gamepaused, 1139);
 }
 
-void vscrn(short p)
+/* Apply player snum's screen size to the view window (setview with a screen_size margin). */
+void vscrn(short snum)
 {
-    long margin = ps[p].screen_size;
+    long margin = ps[snum].screen_size;
 
     if (margin < 0) margin = 0;
-    if (p == screenpeek)
+    if (snum == screenpeek)
         setview(margin, margin, 319 - margin, 199 - margin);
 }
 
@@ -473,6 +475,7 @@ void vscrn(short p)
 #define LAVALOGSIZ 7
 #define LAVAMAXDROPS 16
 
+/* Ken's lava/slime effect: precompute drop rings and the per-row wave ramp (K95 GAME.C initlava). */
 void initlava(void)
 {
     long x, y, z, r;
@@ -496,6 +499,7 @@ void initlava(void)
     lavanumframes = 0;
 }
 
+/* Ken's lava/slime effect: one animation step of the 128x128 tile dapic (K95 GAME.C movelava). */
 void movelava(unsigned char *dapic)
 {
     unsigned char dat, *ptr;
@@ -597,6 +601,7 @@ void movelava(unsigned char *dapic)
     lavanumframes++;
 }
 
+/* Reset the parallaxing sky (pskyoff[0]=0, pskybits=3). */
 void resetparallax(void)
 {
     pskyoff[0] = 0;

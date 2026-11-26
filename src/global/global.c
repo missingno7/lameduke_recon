@@ -6,69 +6,12 @@
    PLAYER's and precedes SOUNDS'. No code-bearing unit can own both. Duke Nukem 3D 1.5 keeps the same kind of
    storage in its code-less GLOBAL.C. The file name is a HYPOTHESIS.
 
-   Struct tags do not take symbol slots. The declaration order below is COMPILER_STEERED: it places each
-   hash-ascending run of the oracle order on its own 22-slot symbol page, and real game prototypes fill the
-   pages (build/workers/dataown/gen_global.py). Names marked unref_ have no reference in the executable. */
+   The record layouts come from src/game/records.h; struct tags take no symbol slots. The declaration order
+   below is COMPILER_STEERED: it places each hash-ascending run of the oracle order on its own 22-slot symbol
+   page, and real game prototypes fill the pages (build/workers/dataown/gen_global.py). Names marked unref_
+   have no reference in the executable. */
 
-#pragma pack(1)
-struct player_view {            /* 176 bytes; field names in game.c */
-    short i;
-    long display_mode, mapzoom;
-    long posx, posy, posz, horiz;
-    long previous_x, previous_y, previous_z, poszv;
-    long oposx, oposy, oposz;
-    unsigned long score;
-    long bobcounter;
-    short ang, oang, previous_ang, cursectnum, ocursectnum, lookang;
-    short screen_size, ammo, batteryammo, remote_ammo, rocket_ammo, health;
-    short newowner, flash_sprite, jumping_counter, airleft, last_weapon;
-    short quote_time[13];
-    short quote_index, kickback_pic, curr_weapon, state80, state82, parallax_sector;
-    char *music;
-    unsigned char gm, weapon_clock, skill, level, volume;
-    unsigned char on_ground, remote_active, knee_sequence, state92;
-    unsigned char scuba_on, jetpack_on, state95, armor;
-    unsigned char inventory[5], state9c[5];
-    unsigned char weapon_pos, statea2, raise_frame, knee_flash, footstep;
-    unsigned char statea6, palette, hard_landing, max_secret_rooms, secret_rooms;
-    unsigned char muzzle_flash, max_squashed, actors_squashed, max_actors_killed, actors_killed;
-};
-
-struct user_settings {          /* the 21-byte USERDEFS.TMP block */
-    unsigned char visibility, quotes, brightness, sound, music;
-    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
-    unsigned char reserved[4];
-};
-
-struct sound_file {
-    char *data;
-    long length;
-};
-
-struct sound_voice {
-    long x, y, z;
-    short sprite;
-    long handle;
-    unsigned char active;
-};
-
-struct menu {
-    short x, y, lines;
-    short unused;
-    short tile;
-    unsigned char *text;
-    unsigned char flags;
-};
-
-struct animwall_entry {
-    short wallnum;
-    long tag;
-};
-
-struct fx_device {
-    long MaxVoices, MaxSampleBits, MaxChannels;
-};
-#pragma pack()
+#include "records.h"
 
 void inittimer(void);
 void uninittimer(void);
@@ -79,7 +22,7 @@ void level_load_hook(void);
 long msx[1024];
 long msy[1024];
 char tempbuf[1024];
-struct animwall_entry animwall[256];
+struct animwalltype animwall[256];
 void gameexit(char *message);
 void getpackets(void);
 void waitforeverybody(void);
@@ -103,7 +46,7 @@ void animatesprites(short ang);
 short animatesect[512];
 long *animateptr[512];
 long animategoal[512];
-struct user_settings ud;
+struct user_defs ud;
 void draw_water_distortion(void);
 void displayrooms(short p);
 void nonsharedkeys(void);
@@ -125,7 +68,7 @@ void write_userdefs(void);
 
 /* symbol page 3 */
 char bootleg_cache[300000];
-struct player_view ps[17];
+struct player_struct ps[17];
 long hittype[4096][5];
 unsigned char typemessage[80];
 char unref_9d430[16384];

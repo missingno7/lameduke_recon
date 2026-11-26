@@ -1,3 +1,8 @@
+/* ACTORS: per-tick sprite updates by status list (1 actors, 2 sleeping actors, 4 projectiles, 5 effects, 6 standables, 10 players, 11 music/sound fx) plus small spawn helpers (guts, blood, gibs, nuke, hitradius).
+   Status 1/2 keep Ken Silverman's Sep-94 GAME.C meanings ('active monster' / 'monster waiting for you'); the rest is 3D Realms code and the direct ancestor of Duke Nukem 3D 1.5 ACTORS.C (1996):
+   ms, movefta, ifsquished, ifhitsectors, ifhitbyweapon, ssp, guts, hitradius, moveweapons, moveexplosions (statnum 5), movestandables, moveplayers, movefx keep their roles there.
+   Hard-coded tiles are DEFS.CON names; everything else is handed to the CON interpreter execute(). BINARY_DERIVED. */
+
 #include "actors.h"
 
 /* Tile names from the prototype DEFS.CON. */
@@ -34,20 +39,12 @@
 #define CAM1 1408
 
 extern long msx[1024], msy[1024];
-#pragma pack(1)
-struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
-    unsigned char visibility, quotes, brightness, sound, music;
-    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
-    unsigned char reserved[4];
-};
-#pragma pack()
-extern struct user_settings ud;
+extern struct user_defs ud;         /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
 
-/* dataown: one object, one name. The spellings below are the GLOBAL definitions or fields of
-   its settings block; the extern declarations above keep this unit's symbol slots. */
-#define disable_armor ud.debug
-#define music_volume ud.music_volume
+/* dataown: one object, one name. Code uses the fields of GLOBAL's settings block ud directly; the unused
+   externs disable_armor and music_volume in actors.h only keep this unit's symbol slots (docs/BSS_LAYOUT.md). */
 
+/* Give player p the weapon tile and switch to it if new or force is set (Duke 1.5 addweapon role). */
 void addweapon(short p, unsigned short weapon, unsigned char force)
 {
     switch (weapon) {
@@ -95,7 +92,8 @@ void addweapon(short p, unsigned short weapon, unsigned char force)
     ps[p].kickback_pic = 0;
 }
 
-void hitradius(short i, long radius, short damage)
+/* Damage everything in status 1/6/10 within r of sprite i by spawning RADIUSEXPLOSION damage sprites. */
+void hitradius(short i, long r, short hp)
 {
     unsigned char statlist[3] = { 1, 6, 10 };
     short k, j, hit;
@@ -106,21 +104,22 @@ void hitradius(short i, long radius, short damage)
             dy = sprite[i].y - sprite[j].y;
             dy_squared = dy * dy;
             dx = sprite[i].x - sprite[j].x;
-            if (dx * dx + dy_squared < radius * radius) {
+            if (dx * dx + dy_squared < r * r) {
                 sprite[i].ang = getangle(sprite[j].x - sprite[i].x, sprite[j].y - sprite[i].y);
                 if (sprite[j].extra >= 0) {
                     hit = EGS(sprite[j].sectnum, sprite[j].x, sprite[j].y, sprite[j].z,
                         0, RADIUSEXPLOSION, -16, 0, 0, sprite[i].ang, 32, 0, sprite[i].owner, 4);
-                    sprite[hit].extra = damage;
+                    sprite[hit].extra = hp;
                 }
             }
         }
 }
 
-void spawn_gib(short i, short tile, short ang, short speed, long zvel)
+/* Spawn one moving gib (status 5) of tile gtype from sprite i. */
+void spawn_gib(short i, short gtype, short ang, short speed, long zvel)
 {
     EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (36 << 8),
-        0, tile, -16, 24, 24, ang, speed, zvel, i, 5);
+        0, gtype, -16, 24, 24, ang, speed, zvel, i, 5);
 }
 
 #define MOVE_ALONG(i, dz, clip) \
@@ -128,17 +127,20 @@ void spawn_gib(short i, short tile, short ang, short speed, long zvel)
         (sintable[(short)(sprite[(i)].ang & 2047)] * sprite[(i)].xvel) >> 14, \
         (dz), 128, 1024, 1024, (clip), synctics)
 
+/* Move sprite i by its velocity; 1 if the move was not blocked. */
 short ssp(short i, short cliptype)
 {
     return MOVE_ALONG(i, sprite[i].zvel, cliptype) == 0;
 }
 
+/* CON 'nuke': FLAIR flash plus EXPLOSION at (x,y,z) from sprite i. */
 void nuke(long x, long y, long z, short i)
 {
     EGS(sprite[i].sectnum, x, y, z + (20 << 8), 2, FLAIR, -127, 96, 48, 0, 0, 0, i, 5);
     spawn(i, EXPLOSION);
 }
 
+/* Spawn one BLOOD drop from sprite i. */
 void spawn_blood(short i, short at, short ang, short speed)
 {
     EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[at].z,
@@ -146,10 +148,11 @@ void spawn_blood(short i, short at, short ang, short speed)
         speed + (krand() & 31), -(krand() & 511), i, 5);
 }
 
+/* Move sector effector i and drag its walls (msx/msy from T2, angle T3). */
 void ms(short i)
 {
-    long ry, rx;
-    short sn, w, end;
+    long ty, tx;
+    short sn, w, endwall;
     long j;
 
     sprite[i].x += (sprite[i].xvel * sintable[(sprite[i].ang + 512) & 2047]) >> 14;
@@ -157,21 +160,22 @@ void ms(short i)
     sprite[i].y += (sprite[i].xvel * sintable[(short)(sprite[i].ang & 2047)]) >> 14;
     j = hittype[i][1];
     w = sector[sn].wallptr;
-    end = sector[sn].wallnum + w;
-    for (; w < end;) {
+    endwall = sector[sn].wallnum + w;
+    for (; w < endwall;) {
         long wx = msx[j];
-        rotatepoint(0, 0, wx, msy[j++], hittype[i][2] & 2047, &rx, &ry);
-        dragpoint(w++, rx + sprite[i].x, ry + sprite[i].y);
+        rotatepoint(0, 0, wx, msy[j++], hittype[i][2] & 2047, &tx, &ty);
+        dragpoint(w++, tx + sprite[i].x, ty + sprite[i].y);
     }
     setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 }
 
+/* Wake status-2 actors that can see a player (Duke 1.5 movefta; check_fta_sounds inline). */
 void movefta(void)
 {
     short i, nexti, p;
     long dist, z;
 
-    for (i = headspritestat[2]; i >= 0; i = nexti) {
+    for (i = headspritestat[STAT_ZOMBIEACTOR]; i >= 0; i = nexti) {
         nexti = nextspritestat[i];
         p = findplayer(i, &dist);
         if (cansee(sprite[i].x, sprite[i].y, sprite[i].z + (z = sprite[i].yrepeat * -128L),
@@ -200,11 +204,12 @@ void movefta(void)
                 FTA(6);
                 break;
             }
-            changespritestat(i, 1);
+            changespritestat(i, STAT_ACTOR);
         }
     }
 }
 
+/* Crush test for sprite i in a closing sector; returns i if squished, else -1. */
 short ifsquished(short i, short p)
 {
     short sn = sprite[i].sectnum;
@@ -218,14 +223,14 @@ short ifsquished(short i, short p)
         sprite[i].z = sector[sprite[i].sectnum].floorz;
         switch ((unsigned short)sprite[i].picnum) {
         case 408: case 490: case 631: case 1536: case 1680: case 1820:
-            ps[p].kills++;
+            ps[p].actors_squashed++;
             sprite[result].xvel = 0;
             sprite[result].cstat &= ~1;
             FTA(10);
             return result;
         case 579:
             sprite[i].xvel = 0;
-            ps[p].kills++;
+            ps[p].actors_squashed++;
             FTA(10);
             return i;
         }
@@ -234,29 +239,31 @@ short ifsquished(short i, short p)
     return -1;
 }
 
+/* First status-5 effect sprite in sprite i's sector, or -1 (Duke 1.5 ifhitsectors). */
 short ifhitsectors(short i)
 {
     short j, sn = sprite[i].sectnum;
 
-    for (j = headspritestat[5]; j >= 0; j = nextspritestat[j])
+    for (j = headspritestat[STAT_MISC]; j >= 0; j = nextspritestat[j])
         if (sn == sprite[j].sectnum && sprite[j].picnum != LASERSITE)
             return j;
     return -1;
 }
 
+/* Projectile (status 4) touching sprite i: apply its damage and return it, else -1. */
 short ifhitbyweapon(short i)
 {
     short j;
 
-    for (j = headspritestat[4]; j >= 0; j = nextspritestat[j])
+    for (j = headspritestat[STAT_PROJECTILE]; j >= 0; j = nextspritestat[j])
         if (i != j && i != sprite[j].owner
             && klabs(sprite[i].x - sprite[j].x) + klabs(sprite[i].y - sprite[j].y) < 768
             && klabs((sprite[i].z - sprite[j].z) >> 8) <= 48) {
-            if (sprite[i].statnum != 3) {
+            if (sprite[i].statnum != STAT_EFFECTOR) {
                 sprite[i].extra -= sprite[j].extra;
                 sprite[i].xvel = sprite[j].xvel;
                 sprite[i].ang = sprite[j].ang;
-                if ((sprite[i].statnum == 1 || sprite[i].statnum == 10)
+                if ((sprite[i].statnum == STAT_ACTOR || sprite[i].statnum == STAT_PLAYER)
                     && sprite[j].picnum == BULLET)
                     spawn(i, STICKSPARK);
             }
@@ -265,6 +272,7 @@ short ifhitbyweapon(short i)
     return -1;
 }
 
+/* CON 'guts': throw arm, leg and head pieces from sprite i. */
 void guts(short i)
 {
     spawn_gib(i, ARMPIECE, sprite[i].ang + 1536, 64, -623);
@@ -294,19 +302,20 @@ void guts(short i)
 } while (0)
 
 #define HURT(p, damage) do { \
-    if (disable_armor == 0 && ps[(p)].armor > 0) \
-        ps[(p)].armor -= 4; \
+    if (ud.debug == 0 && ps[(p)].shield_amount > 0) \
+        ps[(p)].shield_amount -= 4; \
     else if (ps[(p)].health > 0) \
         ps[(p)].health -= (damage); \
     else \
         ps[(p)].health = 0; \
 } while (0)
 
+/* Update active actors (status 1): hard-coded tiles here, everything else through CON execute(). */
 void moveactors(void)
 {
     short i, nexti, j, hit;
 
-    for (i = headspritestat[1]; i >= 0; i = nexti) {
+    for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti) {
         long *t, dist, d;
         short p, sect;
 
@@ -325,9 +334,9 @@ void moveactors(void)
                 continue;
             operatesectors(sect, i);
             for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j]) {
-                if (sprite[j].statnum == 6 && sprite[j].picnum == SEENINE)
+                if (sprite[j].statnum == STAT_STANDABLE && sprite[j].picnum == SEENINE)
                     sprite[j].shade = -31;
-                if (sprite[j].statnum != 3)
+                if (sprite[j].statnum != STAT_EFFECTOR)
                     continue;
                 if (sprite[j].lotag == 2 || sprite[j].lotag == 21)
                     hittype[j][0] = 1;
@@ -436,12 +445,12 @@ shark_steer:
                 setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
                 sprite[i].cstat &= ~8;
                 sprite[i].ang = pl->ang;
-                if (syncbits[p] & 4) {
+                if (syncbits[p] & SB_FIRE) {
                     pl->kickback_pic = 0;
                     sprite[i].xvel = 128;
                     sprite[i].zvel = (short)(16 * (100 - pl->horiz) - 512);
                     hittype[i][0] = 0;
-                    pl->face_parasite = -1;
+                    pl->somethingonplayer = -1;
                 }
                 sprite[i].z = pl->posz - hittype[i][2] + 2048;
                 sprite[i].z += 16 * (100 - pl->horiz);
@@ -467,8 +476,8 @@ shark_steer:
                 sprite[i].y = (sintable[pl->ang & 2047] >> 7) + pl->posy;
                 continue;
             }
-            if (sprite[i].xvel < 64 && dist < 512 && pl->face_parasite == -1) {
-                pl->face_parasite = i;
+            if (sprite[i].xvel < 64 && dist < 512 && pl->somethingonplayer == -1) {
+                pl->somethingonplayer = i;
                 hittype[i][2] = (hittype[i][0] == 3 || hittype[i][0] == 2) ? 3072 : -3328;
                 hittype[i][0] = -4;
             } else if (hittype[i][0] == -3) {
@@ -656,7 +665,7 @@ shark_steer:
 
                             EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z, 0, (short)(krand() % 11 + 235), -8, 32, 32, a, xv, zv, i, 5);
                         }
-                        pl->turret_kills++;
+                        pl->actors_killed++;
                         t[0] = 2;
                         sprite[i].xrepeat = sprite[i].yrepeat = 0;
                     }
@@ -743,17 +752,17 @@ shark_steer:
                 case 408: case 490: case 631: case 1536: case 1680: case 1820:
                     sprite[i].xvel = 0;
                     sprite[i].cstat &= ~1;
-                    ps[p].kills++;
+                    ps[p].actors_squashed++;
                     FTA(10);
                     break;
                 case 579:
                     sprite[i].xvel = 0;
-                    ps[p].kills++;
+                    ps[p].actors_squashed++;
                     FTA(10);
                     break;
                 }
                 if (sprite[i].extra < 0)
-                    ps[own].remote_active = 0;
+                    ps[own].hbomb_on = 0;
             }
             FALL(&sprite[i]);
             if (sprite[i].xvel <= 0)
@@ -764,7 +773,7 @@ shark_steer:
                     sprite[i].cstat ^= 4;
             }
             MOVE_ALONG(i, sprite[i].zvel, 0);
-            if (ps[own].remote_active || ps[own].i != sprite[i].owner) {
+            if (ps[own].hbomb_on || ps[own].i != sprite[i].owner) {
                 if (dist > 512 && dist < 768) {
                     ps[p].remote_ammo++, addweapon(p, 721, 1);
                     deletesprite(i);
@@ -875,7 +884,7 @@ shark_steer:
                 sprite[i].z += 6144;
                 n = hittype[i][1];
                 if (n == 2)
-                    for (k = headspritestat[3]; k >= 0; k = nextspritestat[k])
+                    for (k = headspritestat[STAT_EFFECTOR]; k >= 0; k = nextspritestat[k])
                         if (sprite[k].lotag == 3)
                             hittype[k][4] = 1;
                 if (n == 2 || n == 4 || n == 7 || n == 10 || n == 15) {
@@ -966,38 +975,39 @@ shark_steer:
     }
 }
 
+/* Update projectiles (status 4): flight, player hits and impacts, then CON. */
 void moveweapons(void)
 {
     /* dist is a short: the original compares and passes the low word of the
        findplayer distance. */
-    short p, i, dist, nexti;
+    short p, i, x, nexti;
 
-    for (i = headspritestat[4]; i >= 0; i = nexti) {
+    for (i = headspritestat[STAT_PROJECTILE]; i >= 0; i = nexti) {
         nexti = nextspritestat[i];
-        p = findplayer(i, (long *)&dist);
+        p = findplayer(i, (long *)&x);
         if (sprite[i].picnum == BLUESPARK) {
-            execute(i, p, dist);
+            execute(i, p, x);
             continue;
         }
         if (sprite[i].picnum == RADIUSEXPLOSION) {
             if (sprite[i].shade == -15) {
                 shoot(i, CLUB, 1);
-                if (dist < 512 && sprite[i].owner != ps[p].i) {
+                if (x < 512 && sprite[i].owner != ps[p].i) {
                     kickview(p, i);
                     HURT(p, sprite[i].extra);
                 }
             } else
                 sprite[i].shade = -15;
-            execute(i, p, dist);
+            execute(i, p, x);
             continue;
         }
         if (sprite[i].picnum == BOUNCEMINE) {
-            execute(i, p, dist);
+            execute(i, p, x);
             continue;
         }
         if (sprite[i].picnum == RPG) {
             if (sprite[i].extra >= 0) {
-                if (sprite[i].owner != ps[p].i && dist < 768
+                if (sprite[i].owner != ps[p].i && x < 768
                     && klabs((ps[p].posz - sprite[i].z) >> 8) <= 48) {
                     spritesound(13, ps[p].i);
                     kickview(p, i);
@@ -1009,12 +1019,12 @@ void moveweapons(void)
                     sprite[i].extra = -1;
                 }
             }
-            execute(i, p, dist);
+            execute(i, p, x);
             continue;
         }
         if (sprite[i].picnum == BULLET) {
             if (sprite[i].extra >= 0) {
-                if (dist < 768 && sprite[i].owner != ps[p].i
+                if (x < 768 && sprite[i].owner != ps[p].i
                     && klabs((ps[p].posz - sprite[i].z) >> 8) <= 48) {
                     HURT(p, sprite[i].extra);
                     kickview(p, i);
@@ -1027,18 +1037,18 @@ void moveweapons(void)
                     sprite[i].extra = -1;
                 }
             }
-            execute(i, p, dist);
+            execute(i, p, x);
         }
         if (sprite[i].picnum == SHOTSPARK1) {
-            if (dist < 512)
+            if (x < 512)
                 kickview(p, i);
             if (sprite[i].shade == -15)
                 shoot(i, 191, 1);
             else
                 sprite[i].shade = -15;
-            execute(i, p, dist);
+            execute(i, p, x);
         } else if (sprite[i].picnum == OTHERSHOTSPARK) {
-            if (dist < 512)
+            if (x < 512)
                 kickview(p, i);
             if (sprite[i].shade == -15) {
                 shoot(i, OTHERSHOTSPARK, 1);
@@ -1046,21 +1056,22 @@ void moveweapons(void)
                     spritesound(30, i);
             } else
                 sprite[i].shade = -15;
-            execute(i, p, dist);
+            execute(i, p, x);
         }
     }
 }
 
+/* Update effect sprites (status 5): debris, gibs, casings and splashes; other effects run CON. */
 void moveexplosions(void)
 {
     short i, nexti;
 
-    for (i = headspritestat[5]; i >= 0; i = nexti) {
-        long *t = hittype[i], dist;
+    for (i = headspritestat[STAT_MISC]; i >= 0; i = nexti) {
+        long *t = hittype[i], x;
         short sect, p;
 
         nexti = nextspritestat[i];
-        p = findplayer(i, &dist);
+        p = findplayer(i, &x);
         sect = sprite[i].sectnum;
         switch (sprite[i].picnum) {
         case WATERBUBBLE:
@@ -1074,7 +1085,7 @@ void moveexplosions(void)
         case 1360:
         case EXPLOSION:
         case STICKSPARK:
-            execute(i, p, dist);
+            execute(i, p, x);
             continue;
         }
         if (sprite[i].picnum == SHELL) {
@@ -1144,7 +1155,7 @@ void moveexplosions(void)
                 sprite[i].zvel = (short)-sprite[i].zvel;
                 if (++t[0] == 3) {
                     sprite[i].z = sector[sect].floorz - 512;
-                    changespritestat(i, 0);
+                    changespritestat(i, STAT_DEFAULT);
                     continue;
                 }
             }
@@ -1153,7 +1164,7 @@ void moveexplosions(void)
             if (hittype[i][2]) {
                 if (hittype[i][4] < 256)
                     hittype[i][4]++;
-                else if (dist > 4096)
+                else if (x > 4096)
                     deletesprite(i);
                 continue;
             }
@@ -1184,7 +1195,7 @@ void moveexplosions(void)
             if (hittype[i][2]) {
                 if (hittype[i][4] < 256)
                     hittype[i][4]++;
-                else if (dist > 4096)
+                else if (x > 4096)
                     deletesprite(i);
                 continue;
             }
@@ -1215,7 +1226,7 @@ void moveexplosions(void)
             if (hittype[i][2]) {
                 if (hittype[i][4] < 256)
                     hittype[i][4]++;
-                else if (dist > 4096)
+                else if (x > 4096)
                     deletesprite(i);
                 continue;
             }
@@ -1280,29 +1291,30 @@ void moveexplosions(void)
     }
 }
 
+/* Update player sprites (status 10) and holoduke decoys. */
 void moveplayers(void)
 {
     short i, nexti;
 
-    for (i = headspritestat[10]; i >= 0; i = nexti) {
+    for (i = headspritestat[STAT_PLAYER]; i >= 0; i = nexti) {
         nexti = nextspritestat[i];
         if (sprite[i].owner >= 0) {
             if (ps[sprite[i].yvel].newowner >= 0) {
                 parallaxtype = 2;
-                sprite[i].x = ps[sprite[i].yvel].oldx;
-                sprite[i].y = ps[sprite[i].yvel].oldy;
-                sprite[i].z = ps[sprite[i].yvel].oldz + (36 << 8);
-                sprite[i].ang = ps[sprite[i].yvel].oldang;
+                sprite[i].x = ps[sprite[i].yvel].oposx;
+                sprite[i].y = ps[sprite[i].yvel].oposy;
+                sprite[i].z = ps[sprite[i].yvel].oposz + (36 << 8);
+                sprite[i].ang = ps[sprite[i].yvel].oang;
             } else {
                 execute(i, sprite[i].yvel, 0);
-                ps[sprite[i].yvel].muzzle_flash = 0;
+                ps[sprite[i].yvel].shooting = 0;
                 sprite[i].x = ps[sprite[i].yvel].posx;
                 sprite[i].y = ps[sprite[i].yvel].posy;
                 sprite[i].z = ps[sprite[i].yvel].posz + (36 << 8);
                 sprite[i].ang = ps[sprite[i].yvel].ang;
             }
             setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
-        } else if (ps[sprite[i].yvel].holoduke == 0) {
+        } else if (ps[sprite[i].yvel].holoduke_on == 0) {
             deletesprite(i);
         } else {
             if (sprite[i].z < sector[sprite[i].sectnum].floorz) {
@@ -1335,13 +1347,14 @@ void moveplayers(void)
     }
 }
 
+/* Range-triggered sound effects and level/environment music switching (status 11). */
 void movefx(void)
 {
     short i;
     long dist;
     char *song;
 
-    for (i = headspritestat[11]; i >= 0; i = nextspritestat[i]) {
+    for (i = headspritestat[STAT_FX]; i >= 0; i = nextspritestat[i]) {
         if (sprite[i].lotag > 999) {
             dist = (klabs(sprite[ps[screenpeek].i].x - sprite[i].x)
                 + klabs(sprite[ps[screenpeek].i].y - sprite[i].y));
@@ -1375,27 +1388,28 @@ void movefx(void)
                 if (song != ps[screenpeek].music) {
                     ps[screenpeek].music = song;
                     playmusic(ps[screenpeek].music);
-                    MUSIC_SetVolume(music_volume);
+                    MUSIC_SetVolume(ud.music_volume);
                 }
                 break;
             case 1:
                 if ((dist >> 3) < sprite[i].hitag)
-                    hittype[i][1] = music_volume;
+                    hittype[i][1] = ud.music_volume;
                 break;
             case 3:
                 if ((dist >> 3) >= sprite[i].hitag)
-                    hittype[i][1] = music_volume;
+                    hittype[i][1] = ud.music_volume;
                 break;
             }
         }
     }
 }
 
+/* Update standables (status 6): force posts, cranes, cans; script standables run CON. */
 void movestandables(void)
 {
     short i, nexti, j;
 
-    for (i = headspritestat[6]; i >= 0; i = nexti) {
+    for (i = headspritestat[STAT_STANDABLE]; i >= 0; i = nexti) {
         long d;
         short sect = sprite[i].sectnum, p;
 
@@ -1414,7 +1428,7 @@ void movestandables(void)
             } else {
                 j = ifhitbyweapon(i);
                 if ((j >= 0 && sprite[i].extra < 0) || sprite[i].shade == -31) {
-                    for (j = headspritestat[6]; j >= 0; j = nextspritestat[j])
+                    for (j = headspritestat[STAT_STANDABLE]; j >= 0; j = nextspritestat[j])
                         if (sprite[i].hitag == sprite[j].hitag && sprite[j].picnum == SEENINE)
                             sprite[j].shade = -32;
                 }
@@ -1458,8 +1472,8 @@ void movestandables(void)
                     else {
                         if (sprite[i].owner == -2) {
                             p = findplayer(i, &d);
-                            if (ps[p].crane == i)
-                                ps[p].crane = -1;
+                            if (ps[p].on_crane == i)
+                                ps[p].on_crane = -1;
                         }
                         t[0]++;
                         sprite[i].owner = -1;
@@ -1471,7 +1485,7 @@ void movestandables(void)
                     if (p >= 0 && ps[p].on_ground) {
                         sprite[i].owner = -2;
                         ps[p].ang = (short)getangle(sprite[i].x - ps[p].posx, sprite[i].y - ps[p].posy);
-                        ps[p].crane = i;
+                        ps[p].on_crane = i;
                     } else {
                         FIND_IN_SECTOR((short)hittype[i][1], 627, j);
                         if (j >= 0)
@@ -1509,15 +1523,15 @@ void movestandables(void)
             p = findplayer(i, &d);
             j = ifhitbyweapon(i);
             if (j >= 0) {
-                if (sprite[i].owner == -2 && ps[p].crane == i)
-                    ps[p].crane = -1;
+                if (sprite[i].owner == -2 && ps[p].on_crane == i)
+                    ps[p].on_crane = -1;
                 sprite[i].owner = -1;
                 sprite[i].picnum = CRANE;
             }
             if (sprite[i].owner == -2) {
                 playertype *pl = &ps[p];
 
-                if (pl->crane == i && p == screenpeek)
+                if (pl->on_crane == i && p == screenpeek)
                     sprite[i].xrepeat = sprite[i].yrepeat = 0;
                 pl->posx = sprite[i].x - (sintable[(pl->ang + 512) & 2047] >> 6);
                 pl->posy = sprite[i].y - (sintable[pl->ang & 2047] >> 6);

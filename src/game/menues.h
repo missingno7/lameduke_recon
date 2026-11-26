@@ -1,37 +1,10 @@
 #ifndef MENUES_H
 #define MENUES_H
 
-/* Watcom's game profile packs these records to one byte. */
-struct menu {
-    short x, y, lines;
-    short unused;
-    short tile;
-    unsigned char *text;
-    unsigned char flags;
-};
+#include "records.h"
 
-struct menu_player {
-    unsigned char prefix[2];
-    long display_mode;
-    unsigned char movement[62];
-    short cursectnum;
-    unsigned char view[4];
-    short screen_size;
-    unsigned char controls[62];
-    unsigned char game_mode;
-    unsigned char unknown_8b;
-    unsigned char skill, level, episode;
-    unsigned char remainder[33];
-};
-
-struct menu_sector {
-    unsigned char prefix[29];
-    unsigned char floorpal;
-    unsigned char tags[7];
-};
-
-extern struct menu_player ps[17];
-extern struct menu_sector sector[1024];
+extern struct player_struct ps[17];
+extern struct sectortype sector[1024];
 extern short screenpeek, myconnectindex;
 extern short tilesizx[4096], tilesizy[4096], pskyoff[], pskybits;
 extern volatile unsigned char keystatus[256];

@@ -1,3 +1,7 @@
+/* GAMEDEF: the CON script compiler (loadefs/parsecommand -> script[] of 60-keyword bytecode) and interpreter (execute/parse/move) for actors.
+   Earliest known form of 3D Realms' CON language (Todd Replogle; Duke Nukem 3D 1.5 GAMEDEF.C, 1996, is its descendant: 49 of LameDuke's 60 keyword slots keep number and role there, 45 with the same keyword).
+   Lexer helpers ispecial/isaltok/getlabel/keyword are byte-identical to the 1996 text; the rest is BINARY_DERIVED with Duke 1.5 semantics. */
+
 #include <conio.h>
 #include <ctype.h>
 #include <fcntl.h>
@@ -30,20 +34,12 @@ char parsing_state;
 signed char brace_depth;
 unsigned char checking_ifelse;
 short cached_cansee, hit_sprite;
-#pragma pack(1)
-struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
-    unsigned char visibility, quotes, brightness, sound, music;
-    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
-    unsigned char reserved[4];
-};
-#pragma pack()
-extern struct user_settings ud;
+extern struct user_defs ud;         /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
 
-/* dataown: one object, one name. The spellings below are the GLOBAL definitions or fields of
-   its settings block; the extern declarations above keep this unit's symbol slots. */
-#define disable_armor ud.debug
-#define facing_sprite ud.camera
+/* dataown: one object, one name. Code uses the fields of GLOBAL's settings block ud directly; the unused
+   externs disable_armor and facing_sprite in gamedef.h only keep this unit's symbol slots (docs/BSS_LAYOUT.md). */
 
+/* Angle step from a toward na (Build 2048-unit circle), shifted right by shift. Later Duke: getincangle(a,na). */
 short getincangle(short a, short na, short shift)
 {
     a &= 2047;
@@ -54,6 +50,7 @@ short getincangle(short a, short na, short shift)
     return (((a + 1024) & 2047) - na) >> shift;
 }
 
+/* True if c ends a label (LF, space, CR); LF advances line_number. */
 char ispecial(char c)
 {
     if (c == '\n') {
@@ -68,11 +65,13 @@ char ispecial(char c)
 #define TOKEN_CHAR(c) (isalnum(c) || (c) == '{' || (c) == '}' || (c) == '/' \
     || (c) == '*' || (c) == '-' || (c) == '_' || (c) == '.')
 
+/* True if c may appear in a CON token (isalnum or { } / * - _ .). */
 char isaltok(char c)
 {
     return TOKEN_CHAR(c);
 }
 
+/* Read the next label into label+(labelcnt<<6); the slot becomes permanent only if the caller increments labelcnt. */
 void getlabel(void)
 {
     long i;
@@ -91,6 +90,7 @@ void getlabel(void)
     label[(labelcnt << 6) + i] = 0;
 }
 
+/* Peek the next token and return its keyword number (-1 = not a keyword, 0 = end of text). */
 long keyword(void)
 {
     long i;
@@ -116,6 +116,7 @@ long keyword(void)
     return -1;
 }
 
+/* Translate the next word: emit keyword number (or label value) at scriptptr and return it; -1 on EOF or undefined symbol. */
 long transword(void)
 {
     long l, i;
@@ -158,6 +159,7 @@ long transword(void)
     return -1;
 }
 
+/* Translate a numeric operand (label value or decimal literal) into script[]. */
 void transnum(void)
 {
     long i, l;
@@ -202,12 +204,13 @@ void transnum(void)
 
 
 
+/* Compile one CON command into script[]. Returns 1 to end the enclosing loop (end, '}', EOF or too many errors). */
 char parsecommand(void)
 {
-    long i, j, k, *branch;
-    short tw, saved_line;
-    int fd;
-    char *saved_text, saved_ifelse, c;
+    long i, j, k, *tempscrptr;
+    short tw, temp_line_number;
+    int fp;
+    char *origtptr, temp_ifelse_check, c;
 
     if (warning + error > 12)
         return 1;
@@ -394,26 +397,26 @@ char parsecommand(void)
             tempbuf[i++] = *textptr++;
         tempbuf[i] = 0;
         printf("    Loading include file %s\n", tempbuf);
-        fd = open(tempbuf, O_BINARY | O_RDWR, S_IREAD);
-        j = filelength(fd);
-        saved_line = line_number;
-        saved_ifelse = checking_ifelse;
+        fp = open(tempbuf, O_BINARY | O_RDWR, S_IREAD);
+        j = filelength(fp);
+        temp_line_number = line_number;
+        temp_ifelse_check = checking_ifelse;
         checking_ifelse = 0;
-        saved_text = textptr;
+        origtptr = textptr;
         textptr = bootleg_cache_alloc(j);
         textptr[j] = 0;
         if (!textptr) {
             puts("  * ERROR! Not enough memory.");
             exit(0);
         }
-        read(fd, textptr, j);
-        close(fd);
+        read(fp, textptr, j);
+        close(fp);
         while (!parsecommand())
             ;
         total_lines += line_number;
-        textptr = saved_text;
-        line_number = saved_line;
-        checking_ifelse = saved_ifelse;
+        textptr = origtptr;
+        line_number = temp_line_number;
+        checking_ifelse = temp_ifelse_check;
         bootleg_cache_pop();
         return 0;
 
@@ -496,9 +499,9 @@ char parsecommand(void)
     case CON_ELSE:
         if (checking_ifelse) {
             checking_ifelse--;
-            branch = scriptptr++;
+            tempscrptr = scriptptr++;
             parsecommand();
-            *branch = (long)scriptptr;
+            *tempscrptr = (long)scriptptr;
         } else {
             scriptptr--;
             warning++;
@@ -525,14 +528,14 @@ char parsecommand(void)
             }
             *scriptptr++ = j;
         }
-        branch = scriptptr++;
+        tempscrptr = scriptptr++;
         do {
             k = keyword();
             if (k == CON_LINECOMMENT || k == CON_BLOCKCOMMENT)
                 parsecommand();
         } while (k == CON_LINECOMMENT || k == CON_BLOCKCOMMENT);
         parsecommand();
-        *branch = (long)scriptptr;
+        *tempscrptr = (long)scriptptr;
         checking_ifelse++;
         return 0;
 
@@ -577,31 +580,33 @@ char parsecommand(void)
     }
 }
 
+/* Single compile pass over the loaded text. */
 void passone(void)
 {
     while (!parsecommand())
         ;
 }
 
+/* Load and compile GAME.CON (and its includes) into script[]; script[0] receives the end pointer. */
 void loadefs(void)
 {
-    int fd;
-    long size;
+    int fp;
+    long fs;
 
-    fd = open("game.con", O_BINARY | O_RDWR, S_IREAD);
-    if (fd) {
+    fp = open("game.con", O_BINARY | O_RDWR, S_IREAD);
+    if (fp) {
         puts("\nLoading script...");
-        size = filelength(fd);
-        textptr = bootleg_cache_alloc(size);
+        fs = filelength(fp);
+        textptr = bootleg_cache_alloc(fs);
         label = bootleg_cache_alloc(MAXLABELS * LABELSIZE);
         labelcode = bootleg_cache_alloc(MAXLABELS * sizeof(long));
         if (!labelcode || !label) {
             puts("  * ERROR! Not enough memory.");
             exit(0);
         }
-        read(fd, textptr, size);
-        close(fd);
-        last_used_text = textptr + size - 2;
+        read(fp, textptr, fs);
+        close(fp);
+        last_used_text = textptr + fs - 2;
         *last_used_text = 0;
         puts("    Compiling...");
         fill_dwords(actorscrptr, 0, MAXTILES);
@@ -630,24 +635,25 @@ void loadefs(void)
     }
 }
 
+/* Pick the most open of angs evenly spaced headings around sprite i (longest hitscan). */
 short furthestangle(short i, short angs)
 {
-    short a, hitwall, hitsect, best_angle, step;
-    long hitx, hity, hitz, distance, best_distance;
+    short j, hitwall, hitsect, furthest_angle, angincs;
+    long hx, hy, hz, d, greatestd;
 
-    step = 2048 / angs;
-    best_distance = (-2147483647L - 1);
-    for (a = 0; a < 2048; a += step) {
+    angincs = 2048 / angs;
+    greatestd = (-2147483647L - 1);
+    for (j = 0; j < 2048; j += angincs) {
         hitscan(sprite[i].x, sprite[i].y, sprite[i].z - (8 << 8),
-            sprite[i].sectnum, sintable[(a + 512) & 2047], sintable[a & 2047], 0,
-            &hitsect, &hitwall, &hitsect, &hitx, &hity, &hitz);
-        distance = klabs(hitx - sprite[i].x) + klabs(hity - sprite[i].y);
-        if (distance > best_distance) {
-            best_distance = distance;
-            best_angle = a;
+            sprite[i].sectnum, sintable[(j + 512) & 2047], sintable[j & 2047], 0,
+            &hitsect, &hitwall, &hitsect, &hx, &hy, &hz);
+        d = klabs(hx - sprite[i].x) + klabs(hy - sprite[i].y);
+        if (d > greatestd) {
+            greatestd = d;
+            furthest_angle = j;
         }
     }
-    return best_angle;
+    return furthest_angle;
 }
 
 #define SLOW_TO_STOP 1
@@ -662,21 +668,22 @@ short furthestangle(short i, short angs)
 #define ON_OWNER 512
 #define STICK_TO_FLOOR 1024
 
+/* Apply sprite i's CON move and hitag move flags (Duke 1.5 move()). */
 void move_actor(short i, short p, long x)
 {
 /* Post-script sprite movement. The includer supplies i and p. */
-short flags, owner, goal;
-long *movement;
+short flags, owner, goalang;
+long *moveptr;
 
 flags = sprite[i].hitag;
 if (!hittype[i].move || !flags)
     return;
 
 hittype[i].movecount++;
-movement = hittype[i].move;
+moveptr = hittype[i].move;
 if (flags & ON_OWNER) {
     owner = sprite[i].owner;
-    if (owner >= 0 && sprite[owner].statnum == 1) {
+    if (owner >= 0 && sprite[owner].statnum == STAT_ACTOR) {
         sprite[i].x = sprite[sprite[i].owner].x;
         sprite[i].y = sprite[sprite[i].owner].y;
         sprite[i].z = sprite[sprite[i].owner].z;
@@ -687,22 +694,22 @@ if (flags & SLOW_TO_STOP)
 if (flags & FACE_PLAYER)
     sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
 if (flags & GET_H)
-    sprite[i].xvel += (movement[0] - sprite[i].xvel) >> 1;
+    sprite[i].xvel += (moveptr[0] - sprite[i].xvel) >> 1;
 if (flags & GET_V)
-    sprite[i].zvel += ((movement[1] << 4) - sprite[i].zvel) >> 1;
+    sprite[i].zvel += ((moveptr[1] << 4) - sprite[i].zvel) >> 1;
 if (flags & HOVER) {
     if (sprite[i].z + 8192 < sector[sprite[i].sectnum].floorz)
-        sprite[i].zvel += movement[1] << 4;
+        sprite[i].zvel += moveptr[1] << 4;
     else if (sprite[i].z + 8192 > sector[sprite[i].sectnum].floorz)
-        sprite[i].zvel -= movement[1] << 4;
+        sprite[i].zvel -= moveptr[1] << 4;
 }
 if (flags & STICK_TO_CEILING)
     sprite[i].z = sector[sprite[i].sectnum].ceilingz + 2048;
 if (flags & STICK_TO_FLOOR)
     sprite[i].z = sector[sprite[i].sectnum].floorz - 2048;
 if (flags & FACE_TO_PLAYER) {
-    goal = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-    sprite[i].ang += getincangle(sprite[i].ang, goal, 1);
+    goalang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
+    sprite[i].ang += getincangle(sprite[i].ang, goalang, 1);
 }
 if (sprite[i].xvel | sprite[i].zvel) {
     if (!ssp(i, 1) && (flags & RHR) && (sector[sprite[i].sectnum].lotag & 32767) != 1) {
@@ -730,10 +737,11 @@ if (sprite[i].xvel | sprite[i].zvel) {
 #define SCRAP1 235
 #define BLOOD 488
 
+/* Run one CON instruction for actor i (player p at distance x); nonzero ends the current block. */
 char parse(short i, short p, long x)
 {
-    long j, flags, speed, *resume;
-    short angle, difference;
+    long j, flags, speed, *tempscrptr;
+    short goalang, angdif;
 
     if (killit_flag)
         return 1;
@@ -750,9 +758,9 @@ case CON_IFRND:
 
 case CON_IFCANSEE:
     if (cached_cansee == -1) {
-        angle = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-        difference = getincangle(sprite[i].ang, angle, 0);
-        if (difference > -128 && difference < 128)
+        goalang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
+        angdif = getincangle(sprite[i].ang, goalang, 0);
+        if (angdif > -128 && angdif < 128)
             cached_cansee = cansee(sprite[i].x, sprite[i].y,
                 sprite[i].z - (sprite[i].yrepeat << 7), sprite[i].sectnum,
                 ps[p].posx, ps[p].posy, ps[p].posz - (16 << 8), ps[p].cursectnum);
@@ -877,8 +885,8 @@ case CON_WEAPON:
 
 case CON_ADDHEALTH:
     insptr++;
-    if (!disable_armor && ps[p].armor)
-        ps[p].armor -= 4;
+    if (!ud.debug && ps[p].shield_amount)
+        ps[p].shield_amount -= 4;
     else if (ps[p].health > 0)
         ps[p].health += *insptr;
     else
@@ -887,11 +895,11 @@ case CON_ADDHEALTH:
     CON_NEXT();
 
 case CON_STATE:
-    resume = insptr + 2;
+    tempscrptr = insptr + 2;
     insptr = (long *)insptr[1];
     while (!parse(i, p, x))
         ;
-    insptr = resume;
+    insptr = tempscrptr;
     CON_NEXT();
 
 case CON_LBRACE:
@@ -1015,20 +1023,20 @@ case CON_IFP:
     insptr++;
     flags = *insptr;
     speed = syncsvel[p] + syncvel[p];
-    PARSE_IF(((flags & 8) && ps[p].on_ground && (syncbits[p] & 2)) ||
-        ((flags & 16) && !ps[p].poszv && !ps[p].on_ground &&
+    PARSE_IF(((flags & 8) && ps[p].on_ground && (syncbits[p] & SB_CROUCH)) ||
+        ((flags & 16) && !ps[p].jumping_counter && !ps[p].on_ground &&
             sector[ps[p].cursectnum].floorz - ps[p].posz > 18432) ||
-        ((flags & 32) && ps[p].poszv > 348) ||
+        ((flags & 32) && ps[p].jumping_counter > 348) ||
         ((flags & 1) && speed >= 0 && speed < 8) ||
-        ((flags & 2) && speed >= 8 && !(syncbits[p] & 32)) ||
-        ((flags & 4) && speed >= 8 && (syncbits[p] & 32)) ||
+        ((flags & 2) && speed >= 8 && !(syncbits[p] & SB_RUN)) ||
+        ((flags & 4) && speed >= 8 && (syncbits[p] & SB_RUN)) ||
         ((flags & 64) && sprite[i].z - 12288 > ps[p].posz) ||
-        ((flags & 128) && speed <= -8 && !(syncbits[p] & 32)) ||
-        ((flags & 256) && speed <= -8 && (syncbits[p] & 32)) ||
-        ((flags & 512) && ps[p].horiz < -128) ||
-        ((flags & 1024) && ps[p].horiz > 128) ||
+        ((flags & 128) && speed <= -8 && !(syncbits[p] & SB_RUN)) ||
+        ((flags & 256) && speed <= -8 && (syncbits[p] & SB_RUN)) ||
+        ((flags & 512) && ps[p].look_ang < -128) ||
+        ((flags & 1024) && ps[p].look_ang > 128) ||
         ((flags & 2048) ?
-            ((((sprite[i].ang + 3200 - sprite[facing_sprite].ang) & 2047) >> 8) < 2) :
+            ((((sprite[i].ang + 3200 - sprite[ud.camerasprite].ang) & 2047) >> 8) < 2) :
             (((flags & 4096) && ps[p].shooting) ||
              ((flags & 8192) && ps[p].on_ground) ||
              ((flags & 16384) && ps[p].jetpack_on))));
@@ -1036,7 +1044,7 @@ case CON_IFP:
 
 case CON_ADDRAMMO:
     insptr++;
-    ps[p].rammo += *insptr;
+    ps[p].rocket_ammo += *insptr;
     insptr++;
     CON_NEXT();
 
@@ -1088,6 +1096,7 @@ default:
 #undef PARSE_ARGS
 }
 
+/* Execute sprite i's actor script (from actorscrptr[picnum]+4) for one game tick. */
 void execute(short i, short p, long x)
 {
     if (!actorscrptr[sprite[i].picnum])

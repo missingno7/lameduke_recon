@@ -1,6 +1,8 @@
 #ifndef GAMEDEF_H
 #define GAMEDEF_H
 
+#include "records.h"
+
 #define MAXTILES 4096
 #define MAXSPRITES 4096
 #define LABELSIZE 64
@@ -22,25 +24,8 @@ enum con_opcode {
     CON_IFSPAWNEDBY, NUMKEYWORDS
 };
 
-struct spritetype {
-    long x, y, z;
-    unsigned char cstat;
-    signed char shade;
-    unsigned char xrepeat, yrepeat;
-    short picnum, ang, xvel, yvel, zvel, owner;
-    short sectnum, statnum, lotag, hitag, extra;
-};
-
-struct sectortype {
-    unsigned short wallptr, wallnum;
-    short ceilingpicnum, floorpicnum, ceilingheinum, floorheinum;
-    long ceilingz, floorz;
-    signed char ceilingshade, floorshade;
-    unsigned char ceilingxpanning, floorxpanning, ceilingypanning, floorypanning;
-    unsigned char ceilingstat, floorstat, ceilingpal, floorpal, visibility;
-    short lotag, hitag, extra;
-};
-
+/* GAMEDEF's typed view of one hittype[] row (Duke 1.5 temp_data[0..4], T1..T5); the other units index
+   hittype[i][0..4] as longs. */
 struct actorstate {
     long movecount;
     long *move;
@@ -48,40 +33,10 @@ struct actorstate {
     long *action;
 };
 
-struct playerstate {
-    unsigned char prefix[10];
-    long posx, posy, posz;
-    unsigned char motion[32];
-    long score;
-    unsigned char view[10];
-    short cursectnum;
-    unsigned char state46[2];
-    short horiz;
-    unsigned char state4a[2];
-    short ammo, batteryammo;
-    unsigned char state50[2];
-    short rammo, health;
-    unsigned char state56[4];
-    short poszv;
-    unsigned char state5c[34];
-    short curr_weapon;
-    unsigned char state80[12];
-    unsigned char skill;
-    unsigned char state8d[2];
-    unsigned char on_ground;
-    unsigned char state90[4];
-    unsigned char jetpack_on;
-    unsigned char state95;
-    unsigned char armor, inventory[5];
-    unsigned char state9c[15];
-    unsigned char shooting;
-    unsigned char tail[4];
-};
-
 extern struct spritetype sprite[MAXSPRITES];
 extern struct sectortype sector[1024];
 extern struct actorstate hittype[MAXSPRITES];
-extern struct playerstate ps[17];
+extern struct player_struct ps[17];
 extern short sintable[2048];
 extern char tempbuf[];
 extern char *textptr;

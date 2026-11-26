@@ -1,3 +1,7 @@
+/* SOUNDS: the 'BootLeg CacheMaster' LIFO arena (also the Apogee Sound System USRHOOKS memory hooks), VOC loading, MIDI playback
+   and positional effects through Jim Dose's ASS (FX_PlayVOC3D/FX_Pan3D). Fixed 39-name VOC table, at most 3 copies of a sound.
+   Duke3D 1.5 SOUNDS.C (1996) keeps xyzsound/spritesound/stopsound/pan3dsound/TestCallBack/playmusic/USRHOOKS_*; cache names are invented. */
+
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
@@ -32,20 +36,15 @@ extern struct sound_voice sound_voices[NUM_SOUNDS];
 /* BootLeg CacheMaster bookkeeping owned by this module. */
 long cache_sizes[128], cache_depth, cache_remaining;
 char *cache_cursor;
-#pragma pack(1)
-struct user_settings {          /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
-    unsigned char visibility, quotes, brightness, sound, music;
-    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
-    unsigned char reserved[4];
-};
-#pragma pack()
-extern struct user_settings ud;
+extern struct user_defs ud;         /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
 
-/* dataown: one object, one name. The spellings below are the GLOBAL definitions or fields of
-   its settings block; the extern declarations above keep this unit's symbol slots. */
+/* dataown: one object, one name. camerasprite and SoundToggle (sounds.h) are bound names of ud's fields
+   (2:a57b5, 2:a57ab); MusicToggle there is unused and only keeps this unit's symbol slots. playmusic tests
+   the music card chosen in SETUP.DAT (option[2], Duke 1.5's MusicDevice), not ud.MusicToggle. */
 extern char option[];
-#define MusicToggle option[2]
+#define MusicDevice option[2]
 
+/* BootLeg CacheMaster: allocate size bytes from the LIFO arena (exits on overflow). */
 char *bootleg_cache_alloc(long size)
 {
     if (cache_depth > 127)
@@ -61,6 +60,7 @@ char *bootleg_cache_alloc(long size)
     return cache_cursor - size;
 }
 
+/* Free the newest BootLeg cache block. */
 void bootleg_cache_pop(void)
 {
     if (cache_depth > 0) {
@@ -70,6 +70,7 @@ void bootleg_cache_pop(void)
     }
 }
 
+/* Free all BootLeg cache blocks (unused). */
 void bootleg_cache_reset(void)
 {
     while (cache_depth > 0) {
@@ -79,6 +80,7 @@ void bootleg_cache_reset(void)
     }
 }
 
+/* Initialise the BootLeg CacheMaster arena (300000 bytes). */
 void init_bootleg_cache(void)
 {
     cache_cursor = bootleg_cache;
@@ -86,6 +88,7 @@ void init_bootleg_cache(void)
     cache_remaining = sizeof(bootleg_cache);
 }
 
+/* Apogee Sound System hook: allocate size bytes into *ptr from the BootLeg cache. */
 int USRHOOKS_GetMem(char **ptr, unsigned long size)
 {
     char *memory = bootleg_cache_alloc(size);
@@ -95,6 +98,7 @@ int USRHOOKS_GetMem(char **ptr, unsigned long size)
     return 0;
 }
 
+/* Apogee Sound System hook: free (pops the newest BootLeg cache block). */
 int USRHOOKS_FreeMem(char *ptr)
 {
     if (cache_depth > 0) {
@@ -105,45 +109,48 @@ int USRHOOKS_FreeMem(char *ptr)
     return 0;
 }
 
+/* Load every VOC of sound_names into the BootLeg cache (startup, after FX_SetupCard). */
 void loadsounds(void)
 {
-    long i, length;
-    int fd;
+    long i, l;
+    int fp;
     char *data;
 
     for (i = 0; i < NUM_SOUNDS; i++) {
-        fd = open(sound_names[i], O_RDWR | O_BINARY, S_IREAD);
-        if (fd != -1) {
-            length = filelength(fd);
-            data = bootleg_cache_alloc(length);
-            read(fd, data, length);
-            close(fd);
+        fp = open(sound_names[i], O_RDWR | O_BINARY, S_IREAD);
+        if (fp != -1) {
+            l = filelength(fp);
+            data = bootleg_cache_alloc(l);
+            read(fp, data, l);
+            close(fp);
             sound_file_table[i].data = data;
         }
     }
 }
 
-void playmusic(char *filename)
+/* Load and loop a MIDI song through MUSIC_PlaySong. */
+void playmusic(char *fn)
 {
     FILE *fp;
-    long length;
+    long l;
 
-    if (MusicToggle == 0)
+    if (MusicDevice == 0)
         return;
 
-    fp = fopen(filename, "rb\0");
+    fp = fopen(fn, "rb\0");
     fseek(fp, 0, SEEK_END);
-    length = ftell(fp);
+    l = ftell(fp);
     fseek(fp, 0, SEEK_SET);
-    fread(music_buffer, 1, length, fp);
+    fread(music_buffer, 1, l, fp);
     fclose(fp);
     MUSIC_PlaySong(music_buffer, 1);
 }
 
+/* Play sound num at map position x,y (owner sprite i, -1 = player 0). */
 void xyzsound(short num, short i, long x, long y, long z)
 {
-    long cx, cy, distance, voice;
-    short ca, angle, priority;
+    long cx, cy, sndist, voice;
+    short ca, sndang, priority;
 
     if (SoundToggle == 0 || sound_voices[num].active > 2)
         return;
@@ -158,26 +165,26 @@ void xyzsound(short num, short i, long x, long y, long z)
         ca = sprite[camerasprite].ang;
     }
 
-    angle = 2048 + ca - getangle(cx - x, cy - y);
-    angle &= 2047;
-    distance = klabs(cx - x) + klabs(cy - y);
+    sndang = 2048 + ca - getangle(cx - x, cy - y);
+    sndang &= 2047;
+    sndist = klabs(cx - x) + klabs(cy - y);
     priority = 0;
     if (num == 32)
         priority = 255;
     else if (num == 17)
-        distance <<= 5;
-    if ((distance >> 6) > 255)
+        sndist <<= 5;
+    if ((sndist >> 6) > 255)
         return;
 
-    voice = FX_PlayVOC3D(sound_file_table[num].data, 0, angle >> 4,
-                         distance >> 6, priority, num);
+    voice = FX_PlayVOC3D(sound_file_table[num].data, 0, sndang >> 4,
+                         sndist >> 6, priority, num);
     if (voice > 0) {
         /* The prototype also stores Z in the Y field. */
         sound_voices[num].y = y;
         sound_voices[num].y = z;
         sound_voices[num].x = x;
         if (i == -1)
-            sound_voices[num].sprite = ps[0].sprite;
+            sound_voices[num].sprite = ps[0].i;
         else
             sound_voices[num].sprite = i;
         sound_voices[num].handle = voice;
@@ -185,11 +192,12 @@ void xyzsound(short num, short i, long x, long y, long z)
     }
 }
 
+/* Play sound num at sprite i (inline copy of xyzsound). */
 /* The indices use the signed low words of the register arguments. */
 void spritesound(int number, int source)
 {
-    long x, y, z, cx, cy, distance, scaled, voice;
-    short ca, angle, priority;
+    long x, y, z, cx, cy, sndist, scaled, voice;
+    short ca, sndang, priority;
     short i;
     short num = number;
 
@@ -211,31 +219,32 @@ void spritesound(int number, int source)
         ca = sprite[camerasprite].ang;
     }
 
-    angle = 2048 + ca - getangle(cx - x, cy - y);
-    angle &= 2047;
-    distance = klabs(cx - x) + klabs(cy - y);
+    sndang = 2048 + ca - getangle(cx - x, cy - y);
+    sndang &= 2047;
+    sndist = klabs(cx - x) + klabs(cy - y);
     priority = 0;
     if (num == 32)
         priority = 255;
     else if (num == 17)
-        distance <<= 5;
-    scaled = distance >> 6;
+        sndist <<= 5;
+    scaled = sndist >> 6;
     if (scaled > 255)
         return;
 
-    voice = FX_PlayVOC3D(sound_file_table[num].data, 0, angle >> 4,
+    voice = FX_PlayVOC3D(sound_file_table[num].data, 0, sndang >> 4,
                          scaled, priority, num);
     if (voice > 0) {
         /* The prototype also stores Z in the Y field. */
         sound_voices[num].y = y;
         sound_voices[num].y = z;
         sound_voices[num].x = x;
-        sound_voices[num].sprite = i == -1 ? ps[0].sprite : i;
+        sound_voices[num].sprite = i == -1 ? ps[0].i : i;
         sound_voices[num].handle = voice;
         sound_voices[num].active++;
     }
 }
 
+/* Stop sound num (its last voice). */
 void stopsound(short num)
 {
     FX_StopSound(sound_voices[num].handle);
@@ -243,11 +252,12 @@ void stopsound(short num)
         sound_voices[(unsigned long)num].active--;
 }
 
+/* Re-pan all playing sounds to their owners (call once per frame). */
 void pan3dsound(void)
 {
-    long cx, cy, dx, dy, distance;
-    short ca, angle;
-    long i;
+    long cx, cy, dx, dy, sndist;
+    short ca, sndang;
+    long j;
 
     if (camerasprite == -1) {
         cx = ps[screenpeek].posx;
@@ -259,22 +269,23 @@ void pan3dsound(void)
         ca = sprite[camerasprite].ang;
     }
 
-    for (i = 0; i < NUM_SOUNDS; i++) {
-        if (sound_voices[i].active) {
-            dx = sprite[sound_voices[i].sprite].x;
-            dy = sprite[sound_voices[i].sprite].y;
-            angle = 2048 + ca - getangle(cx - dx, cy - dy);
-            angle &= 2047;
-            distance = klabs(cx - dx) + klabs(cy - dy);
-            FX_Pan3D(sound_voices[i].handle, angle >> 4, distance >> 6);
+    for (j = 0; j < NUM_SOUNDS; j++) {
+        if (sound_voices[j].active) {
+            dx = sprite[sound_voices[j].sprite].x;
+            dy = sprite[sound_voices[j].sprite].y;
+            sndang = 2048 + ca - getangle(cx - dx, cy - dy);
+            sndang &= 2047;
+            sndist = klabs(cx - dx) + klabs(cy - dy);
+            FX_Pan3D(sound_voices[j].handle, sndang >> 4, sndist >> 6);
         }
     }
 }
 
-void TestCallBack(long number)
+/* FX callback: a voice of sound num finished. */
+void TestCallBack(long num)
 {
-    if (sound_voices[number].active > 0)
-        sound_voices[number].active--;
+    if (sound_voices[num].active > 0)
+        sound_voices[num].active--;
 }
 
 

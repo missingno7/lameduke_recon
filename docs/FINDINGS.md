@@ -314,3 +314,12 @@ Each entry names the command or artefact that supports it.
   and flipping ties elsewhere in the function (movemusic STRICT via playmusic(ps[screenpeek].music) instead of a song
   local; moveplayers followed). Prefer use-count changes over expression respellings for allocation ties.
 - klabs is declared only by #pragma aux (no prototype), as in Ken's PRAGMAS.H -> oracle's `mov ax; cwde`.
+
+## One set of records (unify worker 2026-11-26)
+- The player record, map v5 types and ud/menu/sound records are defined once in src/game/records.h (struct tags and
+  macros only, no symbol slots); all game units and GLOBAL include it; objects identical to before (segment bytes,
+  fixups, publics, externs). Field renames applied by byte offset (fixes swapped scuba_on/jetpack_on, fta/ftq, opos*).
+- OPEN type conflict: sector wallptr/wallnum are unsigned in Ken's BUILD.H and for SECTOR, but GAME's moveeffectors
+  needs signed loads (oracle mov+cwde); records.h keeps unsigned and moveeffectors has (short) casts (COMPILER_STEERED).
+- OPEN prototypes still differ between units (spritesound, getincangle, getangle, spawn, myos, EGS ...): changing them
+  changes code; the original may have had per-unit declarations or a shared header with different types.

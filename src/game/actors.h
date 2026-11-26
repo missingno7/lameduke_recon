@@ -1,48 +1,16 @@
 #ifndef ACTORS_H
 #define ACTORS_H
 
+#include "records.h"
+
 #define MAXSPRITES 4096
 #define MAXSECTORS 1024
 #define MAXPLAYERS 17
 
-#pragma pack(1)
-typedef struct {
-    long x, y, z;
-    unsigned char cstat;
-    signed char shade;
-    unsigned char xrepeat, yrepeat;
-    short picnum, ang, xvel, yvel, zvel, owner;
-    short sectnum, statnum, lotag, hitag, extra;
-} spritetype;
-
-typedef struct {
-    unsigned short wallptr, wallnum;
-    short ceilingpicnum, floorpicnum, ceilingheinum, floorheinum;
-    long ceilingz, floorz;
-    signed char ceilingshade, floorshade;
-    unsigned char ceilingxpanning, floorxpanning, ceilingypanning, floorypanning;
-    unsigned char ceilingstat, floorstat, ceilingpal, floorpal, visibility;
-    short lotag, hitag, extra;
-} sectortype;
-
-typedef struct {
-    short i;
-    long viewmode, mapzoom, posx, posy, posz, horiz;
-    long oldx, oldy, oldz, poszv;
-    long oposx, oposy, oposz, score, bobcounter;
-    short ang, oang, oldang, cursectnum, ocursectnum, lookang;
-    short screen_size, ammo, batteryammo, remote_ammo, rocket_ammo, health;
-    short newowner, holoduke, jumping_counter, airleft, last_weapon;
-    short weapon_delay[13];
-    short weapon_slot, kickback_pic, curr_weapon, face_parasite, crane, state84;
-    char *music;
-    unsigned char gm, weapon_clock, skill, level, volume, on_ground;
-    unsigned char remote_active, state91[5], armor, state97[5];
-    unsigned char gotweapon[5], weapon_pos;
-    unsigned char statea2[9];
-    unsigned char muzzle_flash, kills_left, kills, total_kills, turret_kills;
-} playertype;
-#pragma pack()
+/* Short names for the records.h layouts (the typedefs also hold this unit's symbol slots). */
+typedef struct spritetype spritetype;
+typedef struct sectortype sectortype;
+typedef struct player_struct playertype;
 
 typedef char sprite_stride[(sizeof(spritetype) == 38) ? 1 : -1];
 typedef char sector_stride[(sizeof(sectortype) == 37) ? 1 : -1];

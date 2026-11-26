@@ -1,55 +1,17 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "records.h"
+
 #define MAXPLAYERS 17
 #define MAXSPRITES 4096
 #define MAXSECTORS 1024
 
-struct playerstate {
-    short i;
-    long display_mode, unused_06;
-    long posx, posy, posz, horiz;
-    long previous_x, previous_y, previous_z, poszv;
-    long oposx, oposy, oposz, score, bobcounter;
-    short ang, oang, previous_ang, cursectnum, ocursectnum, lookang;
-    short screen_size, ammo, batteryammo, remote_ammo, rocket_ammo, health;
-    short newowner, flash_sprite, jumping_counter, airleft, last_weapon;
-    short weapon_delay[13];
-    short weapon_slot, kickback_pic, curr_weapon, state80, state82, state84;
-    long music_offset;
-    unsigned char gm, weapon_clock, skill, level, volume;
-    unsigned char on_ground, remote_active, knee_sequence, state92;
-    unsigned char scuba_on, jetpack_on, state95, armor;
-    unsigned char inventory[5], state9c[5];
-    unsigned char weapon_pos, statea2, raise_frame, knee_flash, footstep;
-    unsigned char statea6, statea7, hard_landing, statea9, stateaa;
-    unsigned char muzzle_flash, stateac, statead, stateae, stateaf;
-};
-
-struct spritetype {
-    long x, y, z;
-    unsigned char cstat;
-    signed char shade;
-    unsigned char xrepeat, yrepeat;
-    short picnum, ang, xvel, yvel, zvel, owner;
-    short sectnum, statnum, lotag, hitag, extra;
-};
-
-struct sectortype {
-    unsigned short wallptr, wallnum;
-    short ceilingpicnum, floorpicnum, ceilingheinum, floorheinum;
-    long ceilingz, floorz;
-    signed char ceilingshade, floorshade;
-    unsigned char ceilingxpanning, floorxpanning, ceilingypanning, floorypanning;
-    unsigned char ceilingstat, floorstat, ceilingpal, floorpal, visibility;
-    short lotag, hitag, extra;
-};
-
-typedef char player_stride[(sizeof(struct playerstate) == 176) ? 1 : -1];
+typedef char player_stride[(sizeof(struct player_struct) == 176) ? 1 : -1];
 typedef char sprite_stride[(sizeof(struct spritetype) == 38) ? 1 : -1];
 typedef char sector_stride[(sizeof(struct sectortype) == 37) ? 1 : -1];
 
-extern struct playerstate ps[MAXPLAYERS];
+extern struct player_struct ps[MAXPLAYERS];
 extern struct spritetype sprite[MAXSPRITES];
 extern struct sectortype sector[MAXSECTORS];
 extern short sintable[2048];

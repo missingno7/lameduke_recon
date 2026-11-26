@@ -1,3 +1,8 @@
+/* PREMAP: level setup (spawn, prelevel, newgame, enterlevel), player and level-state resets, the 96x96 camera/mirror tile renderer
+   and the high-score entry helpers. Names follow Duke3D 1.5 PREMAP.C/GAME.C (1996) where the role matches; Ken's Sep-94 GAME.C prepareboard
+   (K94s:640-959) is the ancestor of the reset/prelevel/enterlevel sequence. LameDuke's ps.startpos* is the respawn point; ps.opos* is the
+   previous-tick position, as in Duke 1.5. */
+
 #include <dos.h>
 #include <fcntl.h>
 #include <i86.h>
@@ -63,52 +68,16 @@ extern char lookup_missing[];
 /* The exit banner opens the shared GAME pool (2:00004); provisional like the two above. */
 extern char exit_banner[];
 
-#pragma pack(1)
-struct user_settings {
-    unsigned char visibility, quotes, brightness, sound, music;
-    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
-    unsigned char reserved[4];
-};
-#pragma pack()
+typedef char user_defs_size_check[sizeof(struct user_defs) == 21 ? 1 : -1];
 
-typedef char user_settings_size_check[sizeof(struct user_settings) == 21 ? 1 : -1];
-
-extern struct user_settings ud;
+extern struct user_defs ud;
 extern char score_names[12][33];
 extern long high_scores[12], recstat;
 extern const char userdefs_filename[];
 
-/* The packed, 176-byte player record. Field names follow src/game/player.h; GAME's own
-   names replace PLAYER's placeholders where GAME shows the meaning (mapzoom, quote_time and
-   quote_index, parallax_sector, music, palette and the end-of-level tallies). */
-#pragma pack(1)
-struct player_view {
-    short i;
-    long display_mode, mapzoom;
-    long posx, posy, posz, horiz;
-    long previous_x, previous_y, previous_z, poszv;
-    long oposx, oposy, oposz;
-    unsigned long score;
-    long bobcounter;
-    short ang, oang, previous_ang, cursectnum, ocursectnum, lookang;
-    short screen_size, ammo, batteryammo, remote_ammo, rocket_ammo, health;
-    short newowner, flash_sprite, jumping_counter, airleft, last_weapon;
-    short quote_time[13];
-    short quote_index, kickback_pic, curr_weapon, state80, state82, parallax_sector;
-    char *music;
-    unsigned char gm, weapon_clock, skill, level, volume;
-    unsigned char on_ground, remote_active, knee_sequence, state92;
-    unsigned char scuba_on, jetpack_on, state95, armor;
-    unsigned char inventory[5], state9c[5];
-    unsigned char weapon_pos, statea2, raise_frame, knee_flash, footstep;
-    unsigned char statea6, palette, hard_landing, max_secret_rooms, secret_rooms;
-    unsigned char muzzle_flash, max_squashed, actors_squashed, max_actors_killed, actors_killed;
-};
-#pragma pack()
+typedef char player_size_check[sizeof(struct player_struct) == 176 ? 1 : -1];
 
-typedef char player_size_check[sizeof(struct player_view) == 176 ? 1 : -1];
-
-extern struct player_view ps[17];
+extern struct player_struct ps[17];
 extern char demo_filename[], demo_missing[];
 
 extern long hittype[4096][5], msx[1024], msy[1024];
@@ -172,13 +141,7 @@ extern short disable_armor;
 extern unsigned char level_tick_state;
 extern signed char osyncvel[17], osyncsvel[17], osyncangvel[17];
 extern long osyncbits[17];
-struct game_sound_voice {
-    long x, y, z;
-    short sprite;
-    long handle;
-    unsigned char active;
-};
-extern struct game_sound_voice sound_voices[39];
+extern struct sound_voice sound_voices[39];
 
 /* Inline Build helpers from the historical PRAGMAS.H. */
 extern long ksgn(long value);
@@ -221,11 +184,7 @@ extern void movefta(void);
 extern void moveactors(void);
 extern void movefx(void);
 
-struct animwall_entry {
-    short wallnum;
-    long tag;
-};
-extern struct animwall_entry animwall[256];
+extern struct animwalltype animwall[256];
 
 /* Declarations used by the functions in 1:04cd0-0ba30. */
 extern char warp_on;
@@ -244,7 +203,7 @@ extern void init_bootleg_cache(void), loadefs(void), initmenus(void), initengine
 extern void initmultiplayers(unsigned char option, unsigned char rate);
 extern void loadpics(char *filename), initlava(void), loadsounds(void);
 extern int sound_device_map[];
-extern struct { long MaxVoices, MaxSampleBits, MaxChannels; } fx_device;
+extern struct fx_device fx_device;
 extern char *FX_ErrorString(int error), *MUSIC_ErrorString(int error);
 extern int FX_SetupCard(int card, void *device);
 extern int FX_Init(int card, int voices, int channels, int bits, unsigned rate);
@@ -269,21 +228,17 @@ extern char score_rank_title[], score_quote_title[], score_score_title[];
 
 
 /* dataown: one object, one name. GLOBAL defines the timer ramps as angvel/svel/vel and the 21-byte settings
-   block as ud; the separate spellings used here are its fields. */
+   block as ud, and code uses those names. The unused externs turn_velocity, strafe_velocity,
+   forward_velocity, camerasprite, gamepaused, disable_armor and facing_sprite above only keep this
+   unit's symbol slots (docs/BSS_LAYOUT.md). */
 extern long angvel, svel, vel;
-#define turn_velocity angvel
-#define strafe_velocity svel
-#define forward_velocity vel
-#define disable_armor ud.debug
-#define gamepaused ud.paused
-#define camerasprite ud.camera
-#define facing_sprite ud.camera
 
 /* The status bar drawing, written out through the helper calls. */
 
+/* Set up map sprite pn (j < 0) or spawn tile pn at sprite j; per-picnum defaults and sector-effector setup. */
 void spawn(long j, short pn)
 {
-    short i, sect, k, wall_end;
+    short i, sect, k, endwall;
     long *actor;
 
     if (j >= 0) {
@@ -313,7 +268,7 @@ void spawn(long j, short pn)
     switch (sprite[i].picnum) {
     case 1408:
         sprite[i].owner = -1;
-        changespritestat(i, 1);
+        changespritestat(i, STAT_ACTOR);
         break;
     case 1165:
         if (j >= 0) {
@@ -339,7 +294,7 @@ void spawn(long j, short pn)
             sprite[i].zvel = -192;
             sprite[i].xvel = 48;
             sprite[i].xrepeat = sprite[i].yrepeat = 5;
-            changespritestat(i, 5);
+            changespritestat(i, STAT_MISC);
         }
         break;
     case 1406:
@@ -352,12 +307,12 @@ void spawn(long j, short pn)
             sprite[i].zvel = sprite[j].zvel;
             sprite[i].owner = j;
             sprite[i].z -= 0x2000;
-            changespritestat(i, 4);
+            changespritestat(i, STAT_PROJECTILE);
         }
         break;
     case 5:
         sprite[i].xrepeat = sprite[i].yrepeat = 0;
-        changespritestat(i, 11);
+        changespritestat(i, STAT_FX);
         break;
     case 1404:
         if (j >= 0) {
@@ -366,7 +321,7 @@ void spawn(long j, short pn)
             sprite[i].yrepeat = (unsigned char)(tilesizy[sprite[j].picnum] / 3);
             sprite[i].shade = -127;
         }
-        changespritestat(i, 5);
+        changespritestat(i, STAT_MISC);
         break;
     case 1359:
         sprite[i].xrepeat = sprite[i].yrepeat = 32;
@@ -374,10 +329,10 @@ void spawn(long j, short pn)
         sprite[i].ang = (short)(krand() & 2047);
         sprite[i].shade = 0;
         sprite[i].z = sector[sect].floorz;
-        changespritestat(i, 5);
+        changespritestat(i, STAT_MISC);
         break;
     case 1360:
-        if (j >= 0 && sprite[j].statnum == 10)
+        if (j >= 0 && sprite[j].statnum == STAT_PLAYER)
             sprite[i].z += 4096;
         /* fall through */
     case 686: case 1370:
@@ -388,23 +343,23 @@ void spawn(long j, short pn)
         sprite[i].cstat = (unsigned char)(krand() & 0xC);
         sprite[i].shade = -127;
         sprite[i].ang = sprite[j].ang;
-        changespritestat(i, 5);
+        changespritestat(i, STAT_MISC);
         break;
     case 283:
         sprite[i].xrepeat = sprite[i].yrepeat = 0;
         sprite[i].shade = -32;
-        changespritestat(i, 10);
+        changespritestat(i, STAT_PLAYER);
         break;
     case 215:
         sprite[i].xrepeat = sprite[i].yrepeat = 10;
         sprite[i].shade = -16;
-        changespritestat(i, 5);
+        changespritestat(i, STAT_MISC);
         break;
     case 1280:
         sprite[i].xrepeat = sprite[i].yrepeat = 64;
         sprite[i].shade = -127;
         sprite[i].cstat |= 1;
-        changespritestat(i, 2);
+        changespritestat(i, STAT_ZOMBIEACTOR);
         break;
     case 1175: {
         show2dsprite[i >> 3] |= 1 << (i & 7);
@@ -415,7 +370,7 @@ void spawn(long j, short pn)
         msx[tempwallptr] = sprite[i].x;
         msy[tempwallptr] = sprite[i].y;
         msx[tempwallptr + 2] = sprite[i].z;
-        for (k = headspritestat[0]; k >= 0; k = nextspritestat[k]) {
+        for (k = headspritestat[STAT_DEFAULT]; k >= 0; k = nextspritestat[k]) {
             if (sprite[k].picnum == 1174 && sprite[k].hitag == sprite[i].hitag) {
                 hittype[i][1] = sprite[k].sectnum;
                 sprite[k].xrepeat = 48;
@@ -433,20 +388,20 @@ void spawn(long j, short pn)
         }
         sprite[i].owner = -1;
         tempwallptr += 3;
-        changespritestat(i, 6);
+        changespritestat(i, STAT_STANDABLE);
         break;
     }
     case 1190:
         sprite[i].xrepeat = sprite[i].yrepeat = 20;
         sprite[i].shade = -16;
-        changespritestat(i, 5);
+        changespritestat(i, STAT_MISC);
         break;
     case 960:
         sprite[i].xrepeat = 16;
         sprite[i].yrepeat = 0;
         hittype[i][1] = krand() & 0x1F;
         sprite[i].z = sector[sect].ceilingz + 2048;
-        changespritestat(i, 2);
+        changespritestat(i, STAT_ZOMBIEACTOR);
         break;
     case 962:
         sprite[i].z = sector[sect].ceilingz + 6144;
@@ -458,7 +413,7 @@ void spawn(long j, short pn)
         sprite[i].xrepeat = 32;
         sprite[i].yrepeat = 16;
         sprite[i].cstat |= 1;
-        changespritestat(i, 2);
+        changespritestat(i, STAT_ZOMBIEACTOR);
         break;
     case 305:
         hittype[i][0] = sprite[i].xrepeat;
@@ -467,7 +422,7 @@ void spawn(long j, short pn)
     case 32: case 51: case 216:
         sprite[i].xrepeat = sprite[i].yrepeat = 0;
         sprite[i].yvel = 0;
-        changespritestat(i, 1);
+        changespritestat(i, STAT_ACTOR);
         break;
     case 408: case 490: case 579: case 1536: case 1680: case 1820:
         ps[0].max_squashed++;
@@ -480,18 +435,18 @@ void spawn(long j, short pn)
         sprite[i].xrepeat = 52;
         if (sprite[i].picnum == 408)
             sprite[i].xrepeat -= 9;
-        changespritestat(i, 2);
+        changespritestat(i, STAT_ZOMBIEACTOR);
         sprite[i].cstat |= 1;
         break;
     case 34:
-        changespritestat(i, 7);
+        changespritestat(i, STAT_LOCATOR);
         sprite[i].xrepeat = sprite[i].yrepeat = 0;
         break;
     case 23: case 31:
         sprite[i].xrepeat = sprite[i].yrepeat = 0;
         if (sprite[i].picnum == 23)
             sector[sect].lotag ^= 0x4000;
-        changespritestat(i, 8);
+        changespritestat(i, STAT_ACTIVATOR);
         break;
     case 30: case 313: case 314: case 1123:
         sprite[i].cstat |= 1;
@@ -499,7 +454,7 @@ void spawn(long j, short pn)
     case 1122:
         sprite[i].shade = -12;
         show2dsprite[i >> 3] |= 1 << (i & 7);
-        changespritestat(i, 1);
+        changespritestat(i, STAT_ACTOR);
         break;
     case 38: case 60: case 70: case 80: case 159: case 263: case 315: case 316: case 381: case 620:
     case 677: case 720: case 721: case 722: case 723: case 724: case 726: case 727: case 728:
@@ -507,7 +462,7 @@ void spawn(long j, short pn)
         sprite[i].shade = -17;
         show2dsprite[i >> 3] |= 1 << (i & 7);
         sprite[i].cstat |= 1;
-        changespritestat(i, 2);
+        changespritestat(i, STAT_ZOMBIEACTOR);
         break;
     case 931:
         show2dsprite[i >> 3] |= 1 << (i & 7);
@@ -516,7 +471,7 @@ void spawn(long j, short pn)
         sprite[i].z = hittype[i][3] + 10752;
         sprite[i].cstat |= 9;
         ps[0].max_actors_killed++;
-        changespritestat(i, 2);
+        changespritestat(i, STAT_ZOMBIEACTOR);
         break;
     case 930:
         show2dsprite[i >> 3] |= 1 << (i & 7);
@@ -525,7 +480,7 @@ void spawn(long j, short pn)
         sprite[i].z = hittype[i][3] + 3072;
         sprite[i].cstat |= 1;
         ps[0].max_actors_killed++;
-        changespritestat(i, 2);
+        changespritestat(i, STAT_ZOMBIEACTOR);
         break;
     case 940:
         show2dsprite[i >> 3] |= 1 << (i & 7);
@@ -533,7 +488,7 @@ void spawn(long j, short pn)
         sprite[i].xrepeat = sprite[i].yrepeat = 24;
         sprite[i].cstat |= 1;
         ps[0].max_actors_killed++;
-        changespritestat(i, 4);
+        changespritestat(i, STAT_PROJECTILE);
         break;
     case 323:
         sprite[i].z = sector[sect].floorz - (sprite[i].yrepeat << 7);
@@ -544,7 +499,7 @@ void spawn(long j, short pn)
     case 327:
         show2dsprite[i >> 3] |= 1 << (i & 7);
         sprite[i].shade = -16;
-        changespritestat(i, 1);
+        changespritestat(i, STAT_ACTOR);
         break;
     case 175: {
         sprite[i].yvel = sector[sect].extra;
@@ -584,9 +539,9 @@ void spawn(long j, short pn)
             }
             sector[sect].ceilingshade = sector[sect].floorshade;
             if (sprite[i].ang == 512) {
-                wall_end = sector[sect].wallptr + sector[sect].wallnum;
-                for (k = sector[sect].wallptr; k < wall_end; k++) {
-                    short ns = wall[k].nextsector;
+                endwall = sector[sect].wallptr + sector[sect].wallnum;
+                for (k = sector[sect].wallptr; k < endwall; k++) {
+                    short ns = wall[k].nextsector1;
 
                     if (ns >= 0 && !(sector[ns].ceilingstat & 1)) {
                         sector[sect].ceilingpicnum = sector[ns].ceilingpicnum;
@@ -620,8 +575,8 @@ void spawn(long j, short pn)
         case 20: {
             long best = 0x7FFFFFFF, w0 = -1;
 
-            wall_end = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < wall_end; k++) {
+            endwall = sector[sect].wallptr + sector[sect].wallnum;
+            for (k = sector[sect].wallptr; k < endwall; k++) {
                 long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
 
                 if (d < best) {
@@ -631,8 +586,8 @@ void spawn(long j, short pn)
             }
             hittype[i][1] = w0;
             best = 0x7FFFFFFF;
-            wall_end = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < wall_end; k++) {
+            endwall = sector[sect].wallptr + sector[sect].wallnum;
+            for (k = sector[sect].wallptr; k < endwall; k++) {
                 long d = ksqrt((sprite[i].y - wall[k].y) * (sprite[i].y - wall[k].y) + (sprite[i].x - wall[k].x) * (sprite[i].x - wall[k].x));
 
                 if (d < best && k != hittype[i][1]) {
@@ -649,8 +604,8 @@ void spawn(long j, short pn)
             sector[sect].ceilingshade = sprite[i].shade;
             sprite[i].owner = (short)(sector[sect].ceilingpal << 8);
             sprite[i].owner |= sector[sect].floorpal;
-            wall_end = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < wall_end; k++)
+            endwall = sector[sect].wallptr + sector[sect].wallnum;
+            for (k = sector[sect].wallptr; k < endwall; k++)
                 if (!(wall[k].hitag & 1))
                     wall[k].shade = sprite[i].shade;
             break;
@@ -658,8 +613,8 @@ void spawn(long j, short pn)
             hittype[i][2] = sector[sect].floorshade;
             sprite[i].owner = (short)(sector[sect].ceilingpal << 8);
             sprite[i].owner |= sector[sect].floorpal;
-            wall_end = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < wall_end; k++)
+            endwall = sector[sect].wallptr + sector[sect].wallnum;
+            for (k = sector[sect].wallptr; k < endwall; k++)
                 if (wall[k].shade > hittype[i][3])
                     hittype[i][3] = wall[k].shade;
             break;
@@ -670,8 +625,8 @@ void spawn(long j, short pn)
         case 8:
             hittype[i][0] = sector[sect].floorshade;
             hittype[i][1] = sector[sect].ceilingshade;
-            wall_end = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < wall_end; k++)
+            endwall = sector[sect].wallptr + sector[sect].wallnum;
+            for (k = sector[sect].wallptr; k < endwall; k++)
                 if (wall[k].shade > hittype[i][2])
                     hittype[i][2] = wall[k].shade;
             hittype[i][3] = (sprite[i].yvel >> 8) + 2;
@@ -686,8 +641,8 @@ void spawn(long j, short pn)
             short s;
 
             hittype[i][1] = tempwallptr;
-            wall_end = sector[sect].wallptr + sector[sect].wallnum;
-            for (k = sector[sect].wallptr; k < wall_end; k++) {
+            endwall = sector[sect].wallptr + sector[sect].wallnum;
+            for (k = sector[sect].wallptr; k < endwall; k++) {
                 msx[tempwallptr] = wall[k].x - sprite[i].x;
                 msy[tempwallptr] = wall[k].y - sprite[i].y;
                 tempwallptr++;
@@ -739,7 +694,7 @@ void spawn(long j, short pn)
             sprite[i].xrepeat = sprite[i].yrepeat = 0;
         show2dsprite[i >> 3] |= 1 << (i & 7);
         sprite[i].cstat |= 1;
-        changespritestat(i, 6);
+        changespritestat(i, STAT_STANDABLE);
         break;
     case 606: case 627: case 905: case 1200:
         sprite[i].owner = i;
@@ -747,7 +702,7 @@ void spawn(long j, short pn)
         show2dsprite[i >> 3] |= 1 << (i & 7);
         sprite[i].yrepeat = sprite[i].xrepeat = 38;
         sprite[i].cstat |= 1;
-        changespritestat(i, 6);
+        changespritestat(i, STAT_STANDABLE);
         break;
     }
 }
@@ -767,7 +722,8 @@ void spawn(long j, short pn)
         copybuf((void *)(frameplace + row + 2240), (void *)(waloff[tile] + dest + 672), 24); \
     }
 
-void render_camera_tile(long x, long y, long z, short ang, short sect, short tile)
+/* Render a 96x96 view from (x,y,z,ang,sect) into tile tilenume (viewscreens, mirror). */
+void render_camera_tile(long x, long y, long z, short ang, short sect, short tilenume)
 {
     short row, dest, row2, dest2;
 
@@ -776,19 +732,21 @@ void render_camera_tile(long x, long y, long z, short ang, short sect, short til
     animatesprites(ang);
     drawmasks();
     row = dest = 0;
-    COPY_CAMERA_WINDOW(tile, row, dest)
+    COPY_CAMERA_WINDOW(tilenume, row, dest)
     row2 = dest2 = 0;
-    rotatesprite(47L << 16, 47L << 16, 1L << 16, 0, tile);
-    COPY_CAMERA_WINDOW(tile, row2, dest2)
+    rotatesprite(47L << 16, 47L << 16, 1L << 16, 0, tilenume);
+    COPY_CAMERA_WINDOW(tilenume, row2, dest2)
     vscrn(screenpeek);
 }
 
+/* Render sprite i's viewpoint into its own tile. */
 void render_sprite_camera(short i)
 {
     render_camera_tile(sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].ang, sprite[i].sectnum,
                        sprite[i].picnum);
 }
 
+/* Draw the fake mirror: the view from wall w's midpoint toward the viewer, into MIRROR (570). */
 void render_mirror(short w)
 {
     long x, y, z, x1, y1, x2, y2, player_x;
@@ -803,80 +761,83 @@ void render_mirror(short w)
     y = (y1 + y2) / 2;
     z = ps[screenpeek].posz;
     ang = getangle(player_x - x, ps[screenpeek].posy - y);
-    render_camera_tile(x, y, z, ang, wall[w].nextsector, 570);
+    render_camera_tile(x, y, z, ang, wall[w].nextsector1, 570);
 }
 
 #undef COPY_CAMERA_WINDOW
 
-void resetplayer(short p)
+/* Respawn player snum at its start point with fresh view, motion and weapon-raise state (CON 'resetplayer'). */
+void resetplayer(short snum)
 {
     short look;
 
-    ps[p].horiz = 100;
-    ps[p].bobcounter = 0;
-    ps[p].posx = ps[p].oposx;
-    ps[p].posy = ps[p].oposy;
-    ps[p].posz = ps[p].oposz;
-    ps[p].ang = ps[p].oang;
-    ps[p].cursectnum = ps[p].ocursectnum;
-    ps[p].knee_flash = 0;
-    ps[p].on_ground = 0;
+    ps[snum].horiz = 100;
+    ps[snum].bobcounter = 0;
+    ps[snum].posx = ps[snum].startposx;
+    ps[snum].posy = ps[snum].startposy;
+    ps[snum].posz = ps[snum].startposz;
+    ps[snum].ang = ps[snum].startang;
+    ps[snum].cursectnum = ps[snum].startsectnum;
+    ps[snum].knee_flash = 0;
+    ps[snum].on_ground = 0;
     look = 256 - (krand() & 512);
-    ps[p].jumping_counter = 0;
-    ps[p].poszv = 0;
-    ps[p].weapon_clock = 0;
-    ps[p].lookang = look;
-    ps[p].state80 = -1;
-    ps[p].flash_sprite = -1;
-    ps[p].newowner = -1;
-    ps[p].hard_landing = 0;
+    ps[snum].jumping_counter = 0;
+    ps[snum].poszv = 0;
+    ps[snum].weapon_clock = 0;
+    ps[snum].look_ang = look;
+    ps[snum].somethingonplayer = -1;
+    ps[snum].holoduke_on = -1;
+    ps[snum].newowner = -1;
+    ps[snum].hard_landing = 0;
     if (actorscrptr[283] != NULL)
-        ps[p].health = (short)*actorscrptr[283];
+        ps[snum].health = (short)*actorscrptr[283];
     else
-        ps[p].health = 100;
-    ps[p].state82 = -1;
-    ps[p].remote_active = 0;
-    ps[p].kickback_pic = 5;
-    ps[p].weapon_pos = 6;
-    ps[p].raise_frame = 1;
-    ps[p].mapzoom = 768;
+        ps[snum].health = 100;
+    ps[snum].on_crane = -1;
+    ps[snum].hbomb_on = 0;
+    ps[snum].kickback_pic = 5;
+    ps[snum].weapon_pos = 6;
+    ps[snum].knuckle_incs = 1;
+    ps[snum].zoom = 768;
 }
 
-void resetprestat(short p)
+/* Reset level tallies and global level state before a level starts (Duke3D 1.5 resetprestat), then resetplayer. */
+void resetprestat(short snum)
 {
-    ps[p].statea2 = 0;
-    ps[p].secret_rooms = 0;
-    ps[p].max_secret_rooms = 0;
-    ps[p].actors_squashed = 0;
-    ps[p].max_squashed = 0;
-    ps[p].actors_killed = 0;
-    ps[p].footstep = 0;
-    ps[p].max_actors_killed = 0;
-    if (ps[p].display_mode == 2)
+    ps[snum].toggle_key_flag = 0;
+    ps[snum].secret_rooms = 0;
+    ps[snum].max_secret_rooms = 0;
+    ps[snum].actors_squashed = 0;
+    ps[snum].max_squashed = 0;
+    ps[snum].actors_killed = 0;
+    ps[snum].walking_snd_toggle = 0;
+    ps[snum].max_actors_killed = 0;
+    if (ps[snum].dimensionmode == 2)
         setgamemode();
-    ps[p].display_mode = 3;
-    ps[p].oposx = ps[p].posx;
-    forward_velocity = 0;
-    strafe_velocity = 0;
-    ps[p].oposy = ps[p].posy;
-    turn_velocity = 0;
-    camerasprite = -1;
-    ps[p].oposz = ps[p].posz;
+    ps[snum].dimensionmode = 3;
+    ps[snum].startposx = ps[snum].posx;
+    vel = 0;
+    svel = 0;
+    ps[snum].startposy = ps[snum].posy;
+    angvel = 0;
+    ud.camerasprite = -1;
+    ps[snum].startposz = ps[snum].posz;
     camsprite = -1;
-    ps[p].oang = ps[p].ang;
-    gamepaused = 0;
-    ps[p].ocursectnum = ps[p].cursectnum;
+    ps[snum].startang = ps[snum].ang;
+    ud.gamepaused = 0;
+    ps[snum].startsectnum = ps[snum].cursectnum;
     numanimwalls = 0;
-    ps[p].parallax_sector = -1;
+    ps[snum].one_parallax_sectnum = -1;
     screenpeek = myconnectindex;
     parallaxtype = 0;
     visibility = ud.visibility;
     animatecnt = 0;
     tempwallptr = 0;
     randomseed = 17;
-    resetplayer(p);
+    resetplayer(snum);
 }
 
+/* Set up a freshly loaded board: reset state, scan sector tags, spawn all map sprites, collect animated walls. */
 void prelevel(void)
 {
     short i, k, sect, nexti;
@@ -886,22 +847,22 @@ void prelevel(void)
     resetprestat(0);
 
     for (i = 0; i < 13; i++)
-        ps[0].quote_time[i] = 0;
+        ps[0].fta[i] = 0;
     for (i = 0; i < 512; i++)
         show2dwall[i] = 255;
     for (i = 0; i < 512; i++)
-        show2dsprite[i] = 255 * disable_armor;
+        show2dsprite[i] = 255 * ud.debug;
 
     for (i = 0; i < numsectors; i++) {
         sector[i].extra = 256;
-        if (ps[0].parallax_sector == -1 && (sector[i].ceilingstat & 1))
-            ps[0].parallax_sector = i;
+        if (ps[0].one_parallax_sectnum == -1 && (sector[i].ceilingstat & 1))
+            ps[0].one_parallax_sectnum = i;
         if ((sector[i].lotag & 32767) == 32767)
             ps[0].max_secret_rooms++;
         else if (sector[i].lotag == 2)
             sector[i].ceilingpal = sector[i].floorpal = 1;
     }
-    for (i = headspritestat[0]; i >= 0; i = nexti) {
+    for (i = headspritestat[STAT_DEFAULT]; i >= 0; i = nexti) {
         nexti = nextspritestat[i];
         if (sprite[i].picnum == 310) {
             sector[sprite[i].sectnum].extra = sprite[i].lotag;
@@ -927,7 +888,7 @@ void prelevel(void)
                 wall[i].cstat = 0;
             wall[i].shade = 0;
             if (wall[i].lotag != 0)
-                wall[wall[i].nextwall].lotag = wall[i].lotag;
+                wall[wall[i].nextwall1].lotag = wall[i].lotag;
             animwall[numanimwalls++].wallnum = i;
             continue;
         }
@@ -965,28 +926,29 @@ void prelevel(void)
     }
 }
 
-void newgame(unsigned char episode, unsigned char level, unsigned char skill)
+/* Start a new game: episode vn, level ln, skill sk; fresh inventory, pistol and ammo for player 0. */
+void newgame(unsigned char vn, unsigned char ln, unsigned char sk)
 {
-    ps[0].level = level;
-    ps[0].volume = episode;
-    ps[0].skill = skill;
+    ps[0].level = ln;
+    ps[0].volume = vn;
+    ps[0].skill = sk;
     ps[0].scuba_on = 0;
     ps[0].inventory[0] = 0;
     ps[0].jetpack_on = 0;
     ps[0].inventory[1] = 0;
-    ps[0].state95 = 0;
+    ps[0].steroids_on = 0;
     ps[0].inventory[2] = 0;
-    ps[0].armor = 0;
+    ps[0].shield_amount = 0;
     ps[0].inventory[3] = 0;
-    ps[0].state92 = 0;
-    ps[0].state9c[0] = 0;
-    ps[0].state9c[2] = 0;
-    ps[0].state9c[3] = 0;
-    ps[0].state9c[4] = 0;
+    ps[0].show_inventory = 0;
+    ps[0].gotweapon[0] = 0;
+    ps[0].gotweapon[2] = 0;
+    ps[0].gotweapon[3] = 0;
+    ps[0].gotweapon[4] = 0;
     ps[0].screen_size = -4;
-    ps[0].state9c[1] = 1;
+    ps[0].gotweapon[1] = 1;
     ps[0].score = 0;
-    if (disable_armor) {
+    if (ud.debug) {
         ps[0].rocket_ammo = 99;
         ps[0].remote_ammo = 696;
         ps[0].ammo = 144;
@@ -1002,13 +964,14 @@ void newgame(unsigned char episode, unsigned char level, unsigned char skill)
     reccnt = 0;
 }
 
-void enterlevel(unsigned char mode)
+/* Load and start the current level; g becomes the game mode (MODE_GAME / MODE_DEMO). */
+void enterlevel(unsigned char g)
 {
-    char *map_name = "L1.MAP";
+    char *levname = "L1.MAP";
     short i, p, load_result;
-    unsigned char palette;
+    unsigned char which_palookup;
 
-    if (disable_armor == 0 && (mode & 4)) {
+    if (ud.debug == 0 && (g & 4)) {
         dobonus();
     } else {
         overwritesprite(0, 0, 482, 0, 0, 0);
@@ -1019,13 +982,13 @@ void enterlevel(unsigned char mode)
         numtext(232, 74, ps[0].level + 1, 0);
         nextpage();
     }
-    map_name[0] = 'L' + ps[0].volume;
-    map_name[1] = '1' + ps[0].level;
+    levname[0] = 'L' + ps[0].volume;
+    levname[1] = '1' + ps[0].level;
     FX_StopAllSounds();
-    call_level_load_hook(map_name);
-    load_result = loadboard(map_name, &ps[0].posx, &ps[0].posy, &ps[0].posz,
+    call_level_load_hook(levname);
+    load_result = loadboard(levname, &ps[0].posx, &ps[0].posy, &ps[0].posz,
                             &ps[0].ang, &ps[0].cursectnum);
-    call_level_load_hook(map_name);
+    call_level_load_hook(levname);
     if (load_result == -1)
         gameexit("Board not found.");
     prelevel();
@@ -1047,27 +1010,27 @@ void enterlevel(unsigned char mode)
     else
         vscrn(0);
 
-    palette = 0;
-    i = headspritestat[10];
+    which_palookup = 0;
+    i = headspritestat[STAT_PLAYER];
     for (p = connecthead; p >= 0; p = connectpoint2[p]) {
         show2dsprite[i >> 3] |= 1 << (i & 7);
         sprite[i].cstat = 1;
         sprite[i].shade = -16;
         sprite[i].owner = i;
         sprite[i].yvel = p;
-        ps[p].palette = palette;
-        if (palette != 0)
-            palette++;
+        ps[p].palookup = which_palookup;
+        if (which_palookup != 0)
+            which_palookup++;
         else
-            palette = 3;
+            which_palookup = 3;
         sprite[i].xrepeat = sprite[i].yrepeat = 42;
         ps[p].i = i;
         if (numplayers > 1) {
-            ps[p].oposx = ps[p].posx = sprite[i].x;
-            ps[p].oposy = ps[p].posy = sprite[i].y;
-            ps[p].oposz = ps[p].posz = sprite[i].z;
-            ps[p].oang = ps[p].ang = sprite[i].ang;
-            ps[p].ocursectnum = ps[p].cursectnum = sprite[i].sectnum;
+            ps[p].startposx = ps[p].posx = sprite[i].x;
+            ps[p].startposy = ps[p].posy = sprite[i].y;
+            ps[p].startposz = ps[p].posz = sprite[i].z;
+            ps[p].startang = ps[p].ang = sprite[i].ang;
+            ps[p].startsectnum = ps[p].cursectnum = sprite[i].sectnum;
         }
         updatesector(sprite[i].x, sprite[i].y, &ps[p].cursectnum);
         i = nextspritestat[i];
@@ -1077,36 +1040,38 @@ void enterlevel(unsigned char mode)
     displaystatus(myconnectindex);
     lockclock = totalclock = 0;
     level_tick_state = synctics = 0;
-    ps[myconnectindex].gm = mode;
+    ps[myconnectindex].gm = g;
 }
 
+/* Check FILE_ID.DIZ against the embedded notice; nonzero = missing or modified. */
 unsigned char check_file_id(void)
 {
-    int file;
-    long expected, actual;
+    int fil;
+    long recpos, bufpos;
 
-    file = open("FILE_ID.DIZ", O_RDWR | O_BINARY, S_IREAD);
-    if (file == -1)
+    fil = open("FILE_ID.DIZ", O_RDWR | O_BINARY, S_IREAD);
+    if (fil == -1)
         return 1;
 
-    read(file, tempbuf, 450);
-    actual = 0;
-    for (expected = 0; expected < 400; expected++, actual++) {
-        if (file_id_record[expected] == '*') {
-            expected++;
-            actual += 2;
+    read(fil, tempbuf, 450);
+    bufpos = 0;
+    for (recpos = 0; recpos < 400; recpos++, bufpos++) {
+        if (file_id_record[recpos] == '*') {
+            recpos++;
+            bufpos += 2;
         }
-        if (tempbuf[actual] != file_id_record[expected]) {
-            close(file);
+        if (tempbuf[bufpos] != file_id_record[recpos]) {
+            close(fil);
             return 1;
         }
     }
-    close(file);
+    close(fil);
     bootleg_cache_pop();
     return 0;
 }
 
 
+/* Place the current score in the high-score table; returns its row or -1. */
 short newscore(void)
 {
     short i, j;
@@ -1126,6 +1091,7 @@ short newscore(void)
     return -1;
 }
 
+/* Edit the high-score name on row; nonzero when entry is finished. */
 unsigned char getscorename(short row)
 {
     return strget(50, row * 11 + 50, next_text_shade(), 31) != 0;

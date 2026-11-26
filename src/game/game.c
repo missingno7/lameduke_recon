@@ -1,3 +1,8 @@
+/* GAME: LameDuke's main module (obj1 1:00010-0f160): timer, keyboard ramps, master/slave packet sync and demo recording,
+   descended from Ken Silverman's Build demo GAME.C (K94s Sep-94 getpackets/sync/playback; K95 Jun-95 timers, keytimerstuff, waitforeverybody),
+   plus 3D Realms' HUD text, status bar, command line, main loop, bonus screen, saves and sector effectors,
+   whose later forms are Duke Nukem 3D 1.5 GAME.C / PREMAP.C / ACTORS.C / MENUES.C (1996). */
+
 #include <dos.h>
 #include <fcntl.h>
 #include <i86.h>
@@ -63,52 +68,16 @@ extern char file_id_record[];
 /* The exit banner opens the shared GAME pool (2:00004); provisional like the two above. */
 #define exit_banner "ÞßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßÝÞ DUKE DUKEM 3D Beta version 1.3.95 -- DO NOT DISTRIBUTE!!! That would be bad. ÝÞÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÝ"
 
-#pragma pack(1)
-struct user_settings {
-    unsigned char visibility, quotes, brightness, sound, music;
-    short debug, sound_volume, music_volume, paused, camera, mouse_sensitivity;
-    unsigned char reserved[4];
-};
-#pragma pack()
+typedef char user_defs_size_check[sizeof(struct user_defs) == 21 ? 1 : -1];
 
-typedef char user_settings_size_check[sizeof(struct user_settings) == 21 ? 1 : -1];
-
-extern struct user_settings ud;
+extern struct user_defs ud;
 extern char score_names[12][33];
 extern long high_scores[12], recstat;
 #define userdefs_filename "userdefs.tmp"
 
-/* The packed, 176-byte player record. Field names follow src/game/player.h; GAME's own
-   names replace PLAYER's placeholders where GAME shows the meaning (mapzoom, quote_time and
-   quote_index, parallax_sector, music, palette and the end-of-level tallies). */
-#pragma pack(1)
-struct player_view {
-    short i;
-    long display_mode, mapzoom;
-    long posx, posy, posz, horiz;
-    long previous_x, previous_y, previous_z, poszv;
-    long oposx, oposy, oposz;
-    unsigned long score;
-    long bobcounter;
-    short ang, oang, previous_ang, cursectnum, ocursectnum, lookang;
-    short screen_size, ammo, batteryammo, remote_ammo, rocket_ammo, health;
-    short newowner, flash_sprite, jumping_counter, airleft, last_weapon;
-    short quote_time[13];
-    short quote_index, kickback_pic, curr_weapon, state80, state82, parallax_sector;
-    char *music;
-    unsigned char gm, weapon_clock, skill, level, volume;
-    unsigned char on_ground, remote_active, knee_sequence, state92;
-    unsigned char scuba_on, jetpack_on, state95, armor;
-    unsigned char inventory[5], state9c[5];
-    unsigned char weapon_pos, statea2, raise_frame, knee_flash, footstep;
-    unsigned char statea6, palette, hard_landing, max_secret_rooms, secret_rooms;
-    unsigned char muzzle_flash, max_squashed, actors_squashed, max_actors_killed, actors_killed;
-};
-#pragma pack()
+typedef char player_size_check[sizeof(struct player_struct) == 176 ? 1 : -1];
 
-typedef char player_size_check[sizeof(struct player_view) == 176 ? 1 : -1];
-
-extern struct player_view ps[17];
+extern struct player_struct ps[17];
 #define demo_filename "mydemo__.dmo"
 #define demo_missing "Demo not found."
 
@@ -172,13 +141,7 @@ extern short disable_armor;
 extern unsigned char level_tick_state;
 extern signed char osyncvel[17], osyncsvel[17], osyncangvel[17];
 extern long osyncbits[17];
-struct game_sound_voice {
-    long x, y, z;
-    short sprite;
-    long handle;
-    unsigned char active;
-};
-extern struct game_sound_voice sound_voices[39];
+extern struct sound_voice sound_voices[39];
 
 /* Inline Build helpers from the historical PRAGMAS.H. */
 extern long ksgn(long value);
@@ -221,11 +184,7 @@ extern void movefta(void);
 extern void moveactors(void);
 extern void movefx(void);
 
-struct animwall_entry {
-    short wallnum;
-    long tag;
-};
-extern struct animwall_entry animwall[256];
+extern struct animwalltype animwall[256];
 
 /* Declarations used by the functions in 1:04cd0-0ba30. */
 char warp_on;
@@ -272,7 +231,7 @@ extern void init_bootleg_cache(void), loadefs(void), initmenus(void), initengine
 extern void initmultiplayers(unsigned char option, unsigned char rate);
 extern void loadpics(char *filename), initlava(void), loadsounds(void);
 extern int sound_device_map[];
-extern struct { long MaxVoices, MaxSampleBits, MaxChannels; } fx_device;
+extern struct fx_device fx_device;
 extern char *FX_ErrorString(int error), *MUSIC_ErrorString(int error);
 extern int FX_SetupCard(int card, void *device);
 extern int FX_Init(int card, int voices, int channels, int bits, unsigned rate);
@@ -310,18 +269,14 @@ extern void qsetmode640350(void);
 
 
 /* dataown: one object, one name. GLOBAL defines the timer ramps as angvel/svel/vel and the 21-byte settings
-   block as ud; the separate spellings used here are its fields. */
+   block as ud, and code uses those names. The unused externs turn_velocity, strafe_velocity,
+   forward_velocity, camerasprite, gamepaused, disable_armor and facing_sprite above only keep this
+   unit's symbol slots (docs/BSS_LAYOUT.md). */
 extern long angvel, svel, vel;
-#define turn_velocity angvel
-#define strafe_velocity svel
-#define forward_velocity vel
-#define disable_armor ud.debug
-#define gamepaused ud.paused
-#define camerasprite ud.camera
-#define facing_sprite ud.camera
 
 /* The status bar drawing, written out through the helper calls. */
 
+/* Set the PIT to 120 Hz and hook IRQ0 (INT 8) with timerhandler, saving the old vector. Ken Silverman, Build GAME.C (1995). */
 void inittimer(void)
 {
     outp(0x43, 0x36);
@@ -333,6 +288,7 @@ void inittimer(void)
     _enable();
 }
 
+/* Restore the BIOS 18.2 Hz timer and the original IRQ0 handler. Ken Silverman, Build GAME.C (1995). */
 void uninittimer(void)
 {
     outp(0x43, 0x36);
@@ -346,76 +302,78 @@ void uninittimer(void)
 #define held(binding, scan) \
     ((keystatus[keys[binding]] | keystatus[scan] | keystatus[(scan) + 128]) > 0)
 
+/* Per-tick keyboard ramps for angvel, svel (strafe) and vel (forward). After Ken Silverman's keytimerstuff, Build GAME.C (1995). */
 void keytimerstuff(void)
 {
     if (!keystatus[keys[5]]) {
         if (held(2, 0x4b)) {
-            turn_velocity -= 16;
-            if (turn_velocity < -128)
-                turn_velocity = -128;
+            angvel -= 16;
+            if (angvel < -128)
+                angvel = -128;
         }
         if (held(3, 0x4d)) {
-            turn_velocity += 16;
-            if (turn_velocity > 127)
-                turn_velocity = 127;
+            angvel += 16;
+            if (angvel > 127)
+                angvel = 127;
         }
     } else {
         if (held(2, 0x4b)) {
-            strafe_velocity += 8;
-            if (strafe_velocity > 127)
-                strafe_velocity = 127;
+            svel += 8;
+            if (svel > 127)
+                svel = 127;
         }
         if (held(3, 0x4d)) {
-            strafe_velocity -= 8;
-            if (strafe_velocity < -128)
-                strafe_velocity = -128;
+            svel -= 8;
+            if (svel < -128)
+                svel = -128;
         }
     }
     if (held(0, 0x48)) {
-        forward_velocity += 8;
-        if (forward_velocity > 127)
-            forward_velocity = 127;
+        vel += 8;
+        if (vel > 127)
+            vel = 127;
     }
     if (held(1, 0x50)) {
-        forward_velocity -= 8;
-        if (forward_velocity < -128)
-            forward_velocity = -128;
+        vel -= 8;
+        if (vel < -128)
+            vel = -128;
     }
 
-    if (turn_velocity < 0) {
-        turn_velocity += 10;
-        if (turn_velocity > 0)
-            turn_velocity = 0;
+    if (angvel < 0) {
+        angvel += 10;
+        if (angvel > 0)
+            angvel = 0;
     }
-    if (turn_velocity > 0) {
-        turn_velocity -= 10;
-        if (turn_velocity < 0)
-            turn_velocity = 0;
+    if (angvel > 0) {
+        angvel -= 10;
+        if (angvel < 0)
+            angvel = 0;
     }
-    if (strafe_velocity < 0) {
-        strafe_velocity += 2;
-        if (strafe_velocity > 0)
-            strafe_velocity = 0;
+    if (svel < 0) {
+        svel += 2;
+        if (svel > 0)
+            svel = 0;
     }
-    if (strafe_velocity > 0) {
-        strafe_velocity -= 2;
-        if (strafe_velocity < 0)
-            strafe_velocity = 0;
+    if (svel > 0) {
+        svel -= 2;
+        if (svel < 0)
+            svel = 0;
     }
-    if (forward_velocity < 0) {
-        forward_velocity += 2;
-        if (forward_velocity > 0)
-            forward_velocity = 0;
+    if (vel < 0) {
+        vel += 2;
+        if (vel > 0)
+            vel = 0;
     }
-    if (forward_velocity > 0) {
-        forward_velocity -= 2;
-        if (forward_velocity < 0)
-            forward_velocity = 0;
+    if (vel > 0) {
+        vel -= 2;
+        if (vel < 0)
+            vel = 0;
     }
 }
 
 #undef held
 
+/* Empty hook called around loadboard (the caller passes the map name in EAX). */
 void level_load_hook(void)
 {
 }
@@ -423,6 +381,7 @@ void level_load_hook(void)
 #define held(binding, scan) \
     ((keystatus[keys[binding]] | keystatus[scan] | keystatus[(scan) + 128]) > 0)
 
+/* 120 Hz timer interrupt. After Ken Silverman's timerhandler, Build GAME.C (1995). */
 void __interrupt __far timerhandler(void)
 {
     totalclock++;
@@ -440,7 +399,8 @@ void __interrupt __far timerhandler(void)
 
 #undef held
 
-void gameexit(char *message)
+/* Shut everything down and exit to DOS with a message. Duke Nukem 3D 1.5 keeps this name. */
+void gameexit(char *t)
 {
     if (option[2] != 0)
         MUSIC_Shutdown();
@@ -453,16 +413,17 @@ void gameexit(char *message)
     uninittimer();
     setvmode(3);
     puts(exit_banner);
-    puts(message);
+    puts(t);
     exit(0);
 }
 
+/* Read and apply all pending network packets. After Ken Silverman's getpackets, Build GAME.C (1994). */
 void getpackets(void)
 {
-    short other, packbufleng, p;
+    short otherconnectindex, tempbufleng, p;
     long i, j, k;
 
-    while ((packbufleng = getpacket(&other, (unsigned char *)tempbuf)) > 0) {
+    while ((tempbufleng = getpacket(&otherconnectindex, (unsigned char *)tempbuf)) > 0) {
         switch (tempbuf[0]) {
             case 2:
                 synctics = tempbuf[1];
@@ -489,60 +450,61 @@ void getpackets(void)
             case 3:
                 j = 2;
                 if ((tempbuf[1] & 1) > 0)
-                    syncvel[other] = tempbuf[j++];
+                    syncvel[otherconnectindex] = tempbuf[j++];
                 if ((tempbuf[1] & 2) > 0)
-                    syncsvel[other] = tempbuf[j++];
+                    syncsvel[otherconnectindex] = tempbuf[j++];
                 if ((tempbuf[1] & 4) > 0)
-                    syncangvel[other] = tempbuf[j++];
+                    syncangvel[otherconnectindex] = tempbuf[j++];
                 if ((tempbuf[1] & 8) > 0) {
-                    syncbits[other] &= 0xffffff00;
-                    syncbits[other] |= tempbuf[j++];
+                    syncbits[otherconnectindex] &= 0xffffff00;
+                    syncbits[otherconnectindex] |= tempbuf[j++];
                 }
                 if ((tempbuf[1] & 16) > 0) {
-                    syncbits[other] &= 0xffff00ff;
-                    syncbits[other] |= tempbuf[j++] << 8;
+                    syncbits[otherconnectindex] &= 0xffff00ff;
+                    syncbits[otherconnectindex] |= tempbuf[j++] << 8;
                 }
                 if ((tempbuf[1] & 32) > 0) {
-                    syncbits[other] &= 0xff00ffff;
-                    syncbits[other] |= tempbuf[j++] << 16;
+                    syncbits[otherconnectindex] &= 0xff00ffff;
+                    syncbits[otherconnectindex] |= tempbuf[j++] << 16;
                 }
                 if ((tempbuf[1] & 64) > 0) {
-                    syncbits[other] &= 0x00ffffff;
-                    syncbits[other] |= tempbuf[j++] << 24;
+                    syncbits[otherconnectindex] &= 0x00ffffff;
+                    syncbits[otherconnectindex] |= tempbuf[j++] << 24;
                 }
                 break;
             case 4:
                 typemessageleng = 0; /* 9.5b keeps only the xor, as in the oracle */
-                for (j = 1; j < packbufleng; j++)
+                for (j = 1; j < tempbufleng; j++)
                     typemessage[typemessageleng++] = tempbuf[j];
                 msgtext = typemessage;
                 msgtime = typemessageleng << 4;
                 typemessage[0] = 0;
                 break;
             case 5:
-                playerreadyflag[other] = 1;
+                playerreadyflag[otherconnectindex] = 1;
                 break;
             case 255:
-                ps[myconnectindex].gm = 0x80;
+                ps[myconnectindex].gm = MODE_END;
                 break;
         }
     }
 }
 
+/* Wait until every player is ready. After Ken Silverman's waitforeverybody, Build GAME.C (1995); Duke 1.5 PREMAP.C keeps the name. */
 void waitforeverybody(void)
 {
-    long i, j, clock;
+    long i, j, oldtotalclock;
 
     if (numplayers < 2)
         return;
     for (j = connecthead; j >= 0; j = connectpoint2[j])
         playerreadyflag[j] = 0;
-    clock = totalclock - 120;
+    oldtotalclock = totalclock - 120;
     if (myconnectindex == connecthead) {
         playerreadyflag[connecthead] = 1;
         do {
-            if (totalclock >= clock + 120) {
-                clock = totalclock;
+            if (totalclock >= oldtotalclock + 120) {
+                oldtotalclock = totalclock;
                 tempbuf[0] = 5;
                 for (i = connecthead; i >= 0; i = connectpoint2[i])
                     if (i != connecthead)
@@ -555,8 +517,8 @@ void waitforeverybody(void)
         } while (j < numplayers);
     } else {
         do {
-            if (totalclock >= clock + 120) {
-                clock = totalclock;
+            if (totalclock >= oldtotalclock + 120) {
+                oldtotalclock = totalclock;
                 tempbuf[0] = 5;
                 sendpacket(connecthead, (unsigned char *)tempbuf, 1);
             }
@@ -565,6 +527,7 @@ void waitforeverybody(void)
     }
 }
 
+/* Master/slave input synchronisation for one frame. After Ken Silverman's sync, Build GAME.C (1994). */
 void sync(void)
 {
     long i, j, k;
@@ -657,6 +620,7 @@ void sync(void)
     }
 }
 
+/* Pulsing text shade for menus and HUD captions; each call advances the pulse. */
 long next_text_shade(void)
 {
     short phase = hudpulse + 128;
@@ -669,7 +633,8 @@ long next_text_shade(void)
 extern unsigned char getscorename(short row);
 extern short newscore(void);
 
-void operatefta(short p)
+/* Draw the chat message and the active help quote, decrementing their timers. Later Duke: operatefta(). */
+void operatefta(short snum)
 {
     long offset = 0;
 
@@ -677,116 +642,122 @@ void operatefta(short p)
         msgtime--;
         minitext(8, 162, msgtext, 0);
     }
-    if (ps[p].quote_time[ps[p].quote_index] > 0) {
-        ps[p].quote_time[ps[p].quote_index]--;
-        if (ps[p].screen_size >= 0)
+    if (ps[snum].fta[ps[snum].ftq] > 0) {
+        ps[snum].fta[ps[snum].ftq]--;
+        if (ps[snum].screen_size >= 0)
             offset -= 23;
-        minitext(24, offset + 189, (unsigned char *)fta_quotes[ps[p].quote_index], 0);
+        minitext(24, offset + 189, (unsigned char *)fta_quotes[ps[snum].ftq], 0);
     }
 }
 
+/* Show help quote q ('first time active' message). Duke Nukem 3D 1.5 keeps the name. */
 void FTA(short q)
 {
-    if (ud.quotes == 1 && ps[screenpeek].quote_time[q] == 0) {
-        ps[screenpeek].quote_time[q] = strlen(fta_quotes[q]) << 2;
-        ps[screenpeek].quote_index = q;
+    if (ud.quotes == 1 && ps[screenpeek].fta[q] == 0) {
+        ps[screenpeek].fta[q] = strlen(fta_quotes[q]) << 2;
+        ps[screenpeek].ftq = q;
     }
 }
 
-void myos(short x, short y, short tile, unsigned char shade,
-                      unsigned char flags)
+/* Draw an overlay tile in the viewed player's sector palette. Later Duke: myos()/myospal(). */
+void myos(short x, short y, short tilenum, unsigned char shade,
+                      unsigned char orientation)
 {
-    unsigned char palette;
+    unsigned char p;
 
-    if (ps[screenpeek].display_mode == 3) {
-        palette = sector[ps[screenpeek].cursectnum].floorpal;
-        if (palette)
-            overwritesprite(x, y, tile, shade, flags, palette);
+    if (ps[screenpeek].dimensionmode == 3) {
+        p = sector[ps[screenpeek].cursectnum].floorpal;
+        if (p)
+            overwritesprite(x, y, tilenum, shade, orientation, p);
         else
-            overwritesprite(x, y, tile, shade, flags, ps[screenpeek].palette);
+            overwritesprite(x, y, tilenum, shade, orientation, ps[screenpeek].palookup);
     }
 }
 
-long gametext(long sx, long y, unsigned char *text, unsigned char shade)
+/* Big-font text; returns the next x. Duke Nukem 3D 1.5 keeps the name. */
+long gametext(long sx, long y, unsigned char *t, unsigned char s)
 {
     long x = sx;
     short left;
-    short tile, descender;
+    short ac, descender;
 
     left = x;
-    if (ps[screenpeek].display_mode == 2)
+    if (ps[screenpeek].dimensionmode == 2)
         return 0;
-    while (*text) {
+    while (*t) {
         descender = 2;
-        if (*text == '\n') {
+        if (*t == '\n') {
             x = left;
             y += 16;
-            text++;
+            t++;
             continue;
         }
-        if (*text == ' ') {
+        if (*t == ' ') {
             x += 5;
-            text++;
+            t++;
             continue;
         }
-        if (*text >= '0' && *text <= '9')
-            tile = *text + 101;
-        if (*text >= 'a' && *text <= 'z')
-            tile = *text + 26;
-        if (*text >= 'A' && *text <= 'Z') {
-            tile = *text + 32;
+        if (*t >= '0' && *t <= '9')
+            ac = *t + 101;
+        if (*t >= 'a' && *t <= 'z')
+            ac = *t + 26;
+        if (*t >= 'A' && *t <= 'Z') {
+            ac = *t + 32;
             descender = 0;
         }
-        overwritesprite(x, y + descender, tile, shade, 0, 0);
-        x += tilesizx[tile] + 1;
-        text++;
+        overwritesprite(x, y + descender, ac, s, 0, 0);
+        x += tilesizx[ac] + 1;
+        t++;
     }
     return x;
 }
 
-long minitext(long x, long y, unsigned char *text, unsigned char shade)
+/* Small-font text; returns the next x. Duke Nukem 3D 1.5 keeps the name. */
+long minitext(long x, long y, unsigned char *t, unsigned char s)
 {
-    if (ps[screenpeek].display_mode == 2)
+    if (ps[screenpeek].dimensionmode == 2)
         return 0;
 
 #define TEXT_ROW y
 /* Small glyph rendering shared with the decimal printer. */
 {
     short left = x;
-    short tile, descender;
+    short ac, descender;
 
-    while (*text) {
+    while (*t) {
         descender = 0;
-        if (*text == '\n') {
+        if (*t == '\n') {
             x = left;
             TEXT_ROW += 8;
-            text++;
+            t++;
             continue;
         }
-        if (*text == ' ') {
+        if (*t == ' ') {
             x += 2;
-            text++;
+            t++;
             continue;
         }
-        tile = *text + 991;
-        if (*text >= 'a' && *text <= 'z')
+        ac = *t + 991;
+        if (*t >= 'a' && *t <= 'z')
             descender = 2;
-        overwritesprite(x, TEXT_ROW + descender, tile, shade, 0, 0);
-        text++;
-        x += tilesizx[tile] + 1;
+        overwritesprite(x, TEXT_ROW + descender, ac, s, 0, 0);
+        t++;
+        x += tilesizx[ac] + 1;
     }
 }
 #undef TEXT_ROW
     return x;
 }
 
-void gamenumber(long sx, long sy, long value, unsigned char shade)
+/* Big-font number. Later Duke: gamenumber(). */
+void gamenumber(long x, long sy, long n, unsigned char s)
 {
-    ltoa(value, tempbuf, 10);
-    gametext(sx, sy - 1, (unsigned char *)tempbuf, shade);
+    ltoa(n, tempbuf, 10);
+    gametext(x, sy - 1, (unsigned char *)tempbuf, s);
 }
 
-int strget(long x, long y, long shade, long limit)
+/* Line editor for chat and high-score names; returns nonzero on Enter. Typing loop after Ken Silverman's getinput typemode, Build GAME.C (1994). */
+int strget(long x, long y, long shade, long dalen)
 {
     enum {
         KEY_BACKSPACE = 0x0e,
@@ -797,29 +768,29 @@ int strget(long x, long y, long shade, long limit)
         REPEAT_THRESHOLD = 60,
         LARGE_FONT_FLAG = 128
     };
-    unsigned char maxlen = limit, drawshade = shade;
+    unsigned char maxlen = dalen, drawshade = shade;
     unsigned char ch;
-    short scan;
+    short i;
 
-    for (scan = 0; scan < 128; scan++)
-        if (keystatus[scan] > 0)
+    for (i = 0; i < 128; i++)
+        if (keystatus[i] > 0)
         {
             if ((keystatus[0x2a] | keystatus[0x36]) != 0)
             {
-                if (scantoascwithshift[scan] != 0)
+                if (scantoascwithshift[i] != 0)
                 {
                     if (typemessageleng < 79)
-                        typemessage[typemessageleng++] = scantoascwithshift[scan];
-                    keystatus[scan] = 0;
+                        typemessage[typemessageleng++] = scantoascwithshift[i];
+                    keystatus[i] = 0;
                 }
             }
             else
             {
-                if (scantoasc[scan] != 0)
+                if (scantoasc[i] != 0)
                 {
                     if (typemessageleng < 159)
-                        typemessage[typemessageleng++] = scantoasc[scan];
-                    keystatus[scan] = 0;
+                        typemessage[typemessageleng++] = scantoasc[i];
+                    keystatus[i] = 0;
                 }
             }
 
@@ -855,18 +826,20 @@ int strget(long x, long y, long shade, long limit)
     return (keystatus[KEY_ACCEPT] | keystatus[KEY_EXTENDED_ACCEPT]) != 0;
 }
 
-short LocateTheLocator(short tag, short sector)
+/* Find locator n (status 7) in sector sn (-1 = anywhere). Later Duke: LocateTheLocator(). */
+short LocateTheLocator(short n, short sn)
 {
-    short i = headspritestat[7];
+    short i = headspritestat[STAT_LOCATOR];
 
     while (i >= 0) {
-        if ((sector == -1 || sector == sprite[i].sectnum) && tag == sprite[i].lotag)
+        if ((sn == -1 || sn == sprite[i].sectnum) && n == sprite[i].lotag)
             return i;
         i = nextspritestat[i];
     }
     return -1;
 }
 
+/* Spawn a sprite with explicit fields (Duke's 'EGS'). Duke Nukem 3D 1.5 keeps the name. */
 short EGS(short sect, long x, long y, long z, unsigned char cstat, short picnum,
           signed char shade, unsigned char xrepeat, unsigned char yrepeat,
           short ang, short xvel, short zvel, short owner, signed char stat)
@@ -903,6 +876,7 @@ short EGS(short sect, long x, long y, long z, unsigned char cstat, short picnum,
     return i;
 }
 
+/* Precache the tiles a level needs. Later Duke split it into cachespritenum() and cachegoodsprites(). */
 void cacheit(void)
 {
     short i, j, maxc;
@@ -1120,62 +1094,67 @@ void cacheit(void)
     }
 }
 
+/* Load sprite colour remaps from LOOKUP.DAT. Later Duke: genspriteremaps(). */
 void genspriteremaps(void)
 {
-    unsigned char count, palette;
-    short i;
-    int file;
+    unsigned char numl, look_pos;
+    short j;
+    int fp;
 
     resetparallax();
-    file = open(lookup_filename, O_RDWR | O_BINARY, S_IREAD);
-    if (file != -1)
-        read(file, &count, 1);
+    fp = open(lookup_filename, O_RDWR | O_BINARY, S_IREAD);
+    if (fp != -1)
+        read(fp, &numl, 1);
     else
         gameexit(lookup_missing);
 
-    for (i = 0; i < count; i++) {
-        read(file, &palette, 1);
-        read(file, tempbuf, 256);
-        makepalookup(palette, tempbuf, 0, 0, 0);
+    for (j = 0; j < numl; j++) {
+        read(fp, &look_pos, 1);
+        read(fp, tempbuf, 256);
+        makepalookup(look_pos, tempbuf, 0, 0, 0);
     }
-    close(file);
+    close(fp);
 }
 
-void numtext(long sx, long sy, long value, unsigned char shade)
+/* Small-font number (minitext counterpart of gamenumber). */
+void numtext(long x, long sy, long n, unsigned char s)
 {
-    ltoa(value, tempbuf, 10);
-    minitext(sx, sy, (unsigned char *)tempbuf, shade);
+    ltoa(n, tempbuf, 10);
+    minitext(x, sy, (unsigned char *)tempbuf, s);
 }
 
-void numtext_fixed(long x, long y, long value, unsigned char shade)
+/* Status-bar digits, right-aligned. Role of Duke 1.5's digitalnumber(). */
+void numtext_fixed(long x, long y, long n, unsigned char s)
 {
     short i, offset;
 
-    ltoa(value, tempbuf, 10);
+    ltoa(n, tempbuf, 10);
     i = strlen(tempbuf);
     offset = 0;
     while (i != 0) {
-        overwritesprite(x - offset, y, tempbuf[i - 1] + 0x536, shade, 0, 0);
+        overwritesprite(x - offset, y, tempbuf[i - 1] + 0x536, s, 0, 0);
         offset += 6;
         i--;
     }
 }
 
-void scratchmarks(long x, long y, long units, unsigned char shade)
+/* Tally marks in groups of five. Survives commented out as scratchmarks() in Duke 1.5 GAME.C. */
+void scratchmarks(long x, long y, long n, unsigned char s)
 {
     enum { FIRST_METER_TILE = 0x570, FULL_METER_TILE = FIRST_METER_TILE + 5 };
-    long i, full_cells;
+    long i, ni;
 
-    full_cells = units / 5;
-    for (i = 0; i < full_cells; i++) {
-        overwritesprite(x - 2, y, FULL_METER_TILE, shade, 0, 0);
+    ni = n / 5;
+    for (i = 0; i < ni; i++) {
+        overwritesprite(x - 2, y, FULL_METER_TILE, s, 0, 0);
         x += tilesizx[FULL_METER_TILE] - 1;
     }
-    if (units % 5)
-        overwritesprite(x, y, FIRST_METER_TILE + units % 5, shade, 0, 0);
+    if (n % 5)
+        overwritesprite(x, y, FIRST_METER_TILE + n % 5, s, 0, 0);
 }
 
-void animatesprites(short ang)
+/* Choose rotation/animation frames for visible sprites. Duke Nukem 3D 1.5 keeps the name (Ken's analyzesprites). */
+void animatesprites(short daang)
 {
     short i, j, k, sect;
     long l;
@@ -1198,10 +1177,10 @@ void animatesprites(short ang)
             }
             switch (l) {
                 case 2:
-                    k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 1;
+                    k = (((sprite[i].ang + 3200 - daang) & 2047) >> 8) & 1;
                     break;
                 case 3:
-                    k = (((sprite[i].ang + 3200 - ang) & 2047) / 192) % 5;
+                    k = (((sprite[i].ang + 3200 - daang) & 2047) / 192) % 5;
                     if (k > 2) {
                         sprite[i].cstat |= 4;
                         k = 4 - k;
@@ -1210,7 +1189,7 @@ void animatesprites(short ang)
                     }
                     break;
                 case 5:
-                    k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                    k = (((sprite[i].ang + 3200 - daang) & 2047) >> 8) & 7;
                     if (k > 4) {
                         k = 8 - k;
                         sprite[i].cstat |= 4;
@@ -1219,7 +1198,7 @@ void animatesprites(short ang)
                     }
                     break;
                 case 7:
-                    k = ((sprite[i].ang + 3200 - ang) & 2047) / 170;
+                    k = ((sprite[i].ang + 3200 - daang) & 2047) / 170;
                     if (k > 6) {
                         k = 12 - k;
                         sprite[i].cstat |= 4;
@@ -1228,7 +1207,7 @@ void animatesprites(short ang)
                     }
                     break;
                 case 8:
-                    k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                    k = (((sprite[i].ang + 3200 - daang) & 2047) >> 8) & 7;
                     break;
                 default:
                     k = 0;
@@ -1249,7 +1228,7 @@ void animatesprites(short ang)
                 sprite[i].cstat &= ~12;
         } else if (sprite[i].picnum == 1280) {
             spritepicnum[j] = 1280;
-            k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+            k = (((sprite[i].ang + 3200 - daang) & 2047) >> 8) & 7;
             l = hittype[i][0];
             if (k > 4) {
                 if (l == 2)
@@ -1265,13 +1244,13 @@ void animatesprites(short ang)
         } else if (sprite[i].picnum == 283) {
             if (sector[sect].floorpal != 2) {
                 if (sprite[i].owner >= 0)
-                    spritepal[j] = ps[sprite[i].yvel].palette;
+                    spritepal[j] = ps[sprite[i].yvel].palookup;
                 else
                     spritepal[j] = 0;
             }
         } else if (sprite[i].picnum == 263 || sprite[i].picnum == 264) {
             if (hittype[i][0] != 0) {
-                k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+                k = (((sprite[i].ang + 3200 - daang) & 2047) >> 8) & 7;
                 if (k > 4) {
                     k = 8 - k;
                     sprite[i].cstat |= 4;
@@ -1283,7 +1262,7 @@ void animatesprites(short ang)
                 spritepicnum[j] = k + 247;
             }
         } else if (sprite[i].picnum >= 930 && sprite[i].picnum <= 931) {
-            k = (((sprite[i].ang + 3200 - ang) & 2047) >> 8) & 7;
+            k = (((sprite[i].ang + 3200 - daang) & 2047) >> 8) & 7;
             if (k > 4) {
                 k = 8 - k;
                 sprite[i].cstat |= 4;
@@ -1299,47 +1278,49 @@ void animatesprites(short ang)
     }
 }
 
+/* Reflective floor effect for tile 572: mirror the view into the floor's marker pixels. */
 void draw_water_distortion(void)
 {
-    long column, row, depth = 0;
-    unsigned char shade, *pixel, *reflection;
+    long x, row, run = 0;
+    unsigned char c, *pixel, *src;
 
-    for (column = 0; column < 320; column++) {
-        pixel = (unsigned char *)frameplace + column + 99 * 320;
+    for (x = 0; x < 320; x++) {
+        pixel = (unsigned char *)frameplace + x + 99 * 320;
         for (row = 99; row < 200; row++, pixel += 320) {
             if (*pixel == 255) {
-                if (depth == 0) {
-                    depth = 1;
-                    reflection = pixel - 320;
+                if (run == 0) {
+                    run = 1;
+                    src = pixel - 320;
                 }
-                shade = *reflection & 31;
-                shade = shade + 96 - (depth >> 1);
-                if (depth > 63 || shade < 96 || shade > 128)
-                    shade = 96;
-                reflection -= 320;
-                depth++;
-                *pixel = shade;
+                c = *src & 31;
+                c = c + 96 - (run >> 1);
+                if (run > 63 || c < 96 || c > 128)
+                    c = 96;
+                src -= 320;
+                run++;
+                *pixel = c;
             } else {
-                depth = 0;
+                run = 0;
             }
         }
     }
 }
 
-void displayrooms(short p)
+/* Draw the 2D map or the 3D view (player or camera). Duke Nukem 3D 1.5 keeps the name (Ken's drawscreen). */
+void displayrooms(short snum)
 {
     short s;
 
-    if (ps[p].display_mode == 2) {
-        draw2dscreen(ps[p].posx, ps[p].posy, ps[p].ang + ps[p].lookang, ps[p].mapzoom, 0);
+    if (ps[snum].dimensionmode == 2) {
+        draw2dscreen(ps[snum].posx, ps[snum].posy, ps[snum].ang + ps[snum].look_ang, ps[snum].zoom, 0);
         return;
     }
-    if ((syncbits[p] & 0x80000) || (syncbits[p] & 0x100000) || (syncbits[p] & 0x400000))
+    if ((syncbits[snum] & SB_ENLARGE_VIEW) || (syncbits[snum] & SB_SHRINK_VIEW) || (syncbits[snum] & SB_MAP))
         permanentwritesprite(0, 0, 0x492, 0, 0, 0, 319, 199);
     animatewalls();
-    animatecamsprite(p);
-    if (facing_sprite >= 0) {
-        s = facing_sprite;
+    animatecamsprite(snum);
+    if (ud.camerasprite >= 0) {
+        s = ud.camerasprite;
         if (sprite[s].yvel < 0)
             sprite[s].yvel = 0;
         else if (sprite[s].yvel > 199)
@@ -1348,9 +1329,9 @@ void displayrooms(short p)
                   sprite[s].yvel, sprite[s].sectnum);
         animatesprites(sprite[s].ang);
     } else {
-        drawrooms(ps[p].posx, ps[p].posy, ps[p].posz, ps[p].ang + ps[p].lookang,
-                  ps[p].horiz, ps[p].cursectnum);
-        animatesprites(ps[p].ang + ps[p].lookang);
+        drawrooms(ps[snum].posx, ps[snum].posy, ps[snum].posz, ps[snum].ang + ps[snum].look_ang,
+                  ps[snum].horiz, ps[snum].cursectnum);
+        animatesprites(ps[snum].ang + ps[snum].look_ang);
     }
     drawmasks();
     if ((gotpic[572 >> 3] & (1 << (572 & 7))) > 0 && waloff[572] != -1) {
@@ -1365,6 +1346,7 @@ void displayrooms(short p)
 /* The view drawing of displayrooms, written out where a loop redraws the view. */
 /* gametext's large-font loop, written out where screens draw fixed captions. */
 
+/* Local (non-synchronised) function keys and the debug warp screen. Duke Nukem 3D 1.5 keeps the name. */
 void nonsharedkeys(void)
 {
     if (keystatus[0x58]) {
@@ -1380,7 +1362,7 @@ void nonsharedkeys(void)
     }
     if (keystatus[0x14] > 0) {
         keystatus[0x14] = 0;
-        ps[myconnectindex].gm |= 16;
+        ps[myconnectindex].gm |= MODE_TYPE;
     }
     if (keystatus[0x20]) {
         keystatus[0x20] = 0;
@@ -1388,16 +1370,16 @@ void nonsharedkeys(void)
     }
     if (option[2] && keystatus[0x32]) {
         keystatus[0x32] = 0;
-        ud.music ^= 1;
-        if (ud.music == 0)
+        ud.MusicToggle ^= 1;
+        if (ud.MusicToggle == 0)
             MUSIC_Pause();
         else
             MUSIC_Continue();
     }
     if (option[1] && keystatus[0x1f]) {
         keystatus[0x1f] = 0;
-        ud.sound ^= 1;
-        if (ud.sound == 0)
+        ud.SoundToggle ^= 1;
+        if (ud.SoundToggle == 0)
             FX_StopAllSounds();
     }
     if (keystatus[0x2f]) {
@@ -1410,7 +1392,7 @@ void nonsharedkeys(void)
         screenpeek = connectpoint2[screenpeek];
         if (screenpeek == -1)
             screenpeek = connecthead;
-        if (ps[screenpeek].display_mode == 3) {
+        if (ps[screenpeek].dimensionmode == 3) {
             overwritesprite(0, 0, 1170, 0, 0, 0);
             nextpage();
             overwritesprite(0, 0, 1170, 0, 0, 0);
@@ -1421,7 +1403,7 @@ void nonsharedkeys(void)
         vscrn(screenpeek);
         keystatus[0x25] = 0;
     }
-    if (keystatus[0x11] && ud.debug && (ps[myconnectindex].gm & 16) == 0) {
+    if (keystatus[0x11] && ud.debug && (ps[myconnectindex].gm & MODE_TYPE) == 0) {
         keystatus[0x11] = 0;
         while ((keystatus[0x1c] | keystatus[0x9c] | keystatus[0x39] | keystatus[1]) == 0) {
             displayrooms(screenpeek);
@@ -1453,11 +1435,12 @@ void nonsharedkeys(void)
             nextpage();
         }
         if (keystatus[1] == 0)
-            enterlevel(4);
+            enterlevel(MODE_GAME);
         keystatus[0x1c] = keystatus[0x9c] = keystatus[0x39] = keystatus[1] = 0;
     }
 }
 
+/* Command-line help. Later Duke: comlinehelp(). */
 void comlinehelp(char **argv)
 {
     puts(help_banner);
@@ -1473,6 +1456,7 @@ void comlinehelp(char **argv)
     puts(help_encode);
 }
 
+/* Parse the command line. Duke Nukem 3D 1.5 keeps the name. */
 void checkcommandline(int argc, char **argv)
 {
     short i, j;
@@ -1554,22 +1538,24 @@ void checkcommandline(int argc, char **argv)
     }
 }
 
+/* Wait for the other players to log on. From the waitplayers loop of Ken Silverman's main, Build GAME.C (1994). */
 /* numtext_fixed's body, written out for the status bar. */
 void wait_for_players(void)
 {
-    short numwanted;
+    short waitplayers;
 
     if (option[4] >= 1 && option[4] <= 4)
-        numwanted = 2;
+        waitplayers = 2;
     else
-        numwanted = option[4] - 3;
+        waitplayers = option[4] - 3;
     sendlogon();
-    while (numplayers < numwanted && keystatus[1] == 0) {
+    while (numplayers < waitplayers && keystatus[1] == 0) {
         getpackets();
     }
     keystatus[1] = 0;
 }
 
+/* Program entry: initialise, run demos and the game loop, save scores and exit. */
 void main(int argc, char **argv)
 {
     unsigned char which;
@@ -1631,7 +1617,7 @@ void main(int argc, char **argv)
     setgamemode();
     if (warp_on) {
         newgame(ps[0].volume, ps[0].level, ps[0].skill);
-        enterlevel(4);
+        enterlevel(MODE_GAME);
     }
 
 attract:
@@ -1640,10 +1626,10 @@ attract:
     warp_on = 0;
 
 play:
-    while ((ps[myconnectindex].gm & 128) == 0) {
+    while ((ps[myconnectindex].gm & MODE_END) == 0) {
         nonsharedkeys();
         displayrooms(screenpeek);
-        if (ps[myconnectindex].gm & 16) {
+        if (ps[myconnectindex].gm & MODE_TYPE) {
             if (strget(10, 140, next_text_shade(), 79)) {
                 short k;
 
@@ -1654,14 +1640,14 @@ play:
                 for (k = connecthead; k >= 0; k = connectpoint2[k])
                     if (k != myconnectindex)
                         sendpacket(k, (unsigned char *)tempbuf, p);
-                ps[myconnectindex].gm ^= 16;
+                ps[myconnectindex].gm ^= MODE_TYPE;
             }
         }
-        if (ud.paused && ps[screenpeek].display_mode == 3)
+        if (ud.gamepaused && ps[screenpeek].dimensionmode == 3)
             draw_pause_sign();
-        if ((ps[myconnectindex].gm & 4) &&
-            (((ps[myconnectindex].gm & 1) == 0 && numplayers < 2) ||
-             ((ps[myconnectindex].gm & 1) && numplayers >= 2))) {
+        if ((ps[myconnectindex].gm & MODE_GAME) &&
+            (((ps[myconnectindex].gm & MODE_MENU) == 0 && numplayers < 2) ||
+             ((ps[myconnectindex].gm & MODE_MENU) && numplayers >= 2))) {
             if (totalclock < 360 && numplayers > 1 && ud.debug) {
                 if (myconnectindex == connecthead) {
                     gametext(120, 48, main_master, 0);
@@ -1681,22 +1667,22 @@ play:
                 domovethings();
             } else
                 sync();
-            if (ps[myconnectindex].gm & 8) {
+            if (ps[myconnectindex].gm & MODE_EOL) {
                 ps[myconnectindex].level++;
-                enterlevel(4);
+                enterlevel(MODE_GAME);
                 continue;
             }
         }
-        if (ps[myconnectindex].gm & 1) {
-            ps[myconnectindex].gm &= ~16;
+        if (ps[myconnectindex].gm & MODE_MENU) {
+            ps[myconnectindex].gm &= ~MODE_TYPE;
             menus();
-            if (ps[myconnectindex].gm & 2)
+            if (ps[myconnectindex].gm & MODE_DEMO)
                 goto attract;
         }
         nextpage();
         pan3dsound();
     }
-    if (ud.debug == 0 && (ps[myconnectindex].gm & 2) == 0) {
+    if (ud.debug == 0 && (ps[myconnectindex].gm & MODE_DEMO) == 0) {
         p = newscore();
         if (p >= 0) {
             while (getscorename(p) == 0) {
@@ -1717,11 +1703,12 @@ play:
     gameexit(main_game_over);
 }
 
+/* Status bar and inventory panel for player snum (3D view only). */
 void displaystatus(short snum)
 {
     short i;
 
-    if (ps[snum].display_mode != 3)
+    if (ps[snum].dimensionmode != 3)
         return;
     if ((sector[ps[snum].cursectnum].lotag & 0x7fff) == 15)
         myos(160, 120, 1136, 0, 1);
@@ -1766,15 +1753,15 @@ void displaystatus(short snum)
             break;
         }
     }
-    if (ps[snum].state92) {
+    if (ps[snum].show_inventory) {
         overwritesprite(0, 28, 1398, 0, 0, 0);
-        if (ps[snum].state95)
+        if (ps[snum].steroids_on)
             overwritesprite(39, 41, 1399, 0, 0, 0);
-        if (ps[snum].armor)
+        if (ps[snum].shield_amount)
             overwritesprite(39, 66, 1399, 0, 0, 0);
         if (ps[snum].scuba_on)
             overwritesprite(39, 93, 1399, 0, 0, 0);
-        if (ps[snum].flash_sprite)
+        if (ps[snum].holoduke_on)
             overwritesprite(39, 119, 1399, 0, 0, 0);
         if (ps[snum].jetpack_on)
             overwritesprite(39, 145, 1399, 0, 0, 0);
@@ -1791,17 +1778,18 @@ void displaystatus(short snum)
     }
 }
 
+/* Demo playback / attract loop. After Ken Silverman's playback, Build GAME.C (1994); Duke 1.5 keeps the name. */
 void playback(void)
 {
-    unsigned char which = 1;
+    unsigned char which_demo = 1;
     long i;
 
 restart:
-    opendemoread(which);
-    which++;
-    if (which == 8)
-        which = 0;
-    enterlevel(2);
+    opendemoread(which_demo);
+    which_demo++;
+    if (which_demo == 8)
+        which_demo = 0;
+    enterlevel(MODE_DEMO);
     recstat = 2;
     reccnt--;
     i = 0;
@@ -1821,28 +1809,28 @@ restart:
             displayrooms(screenpeek);
             if (ps[screenpeek].newowner >= 0)
                 cameratext();
-            else if (ud.camera == -1) {
+            else if (ud.camerasprite == -1) {
                 displayweapon(screenpeek);
                 displaystatus(screenpeek);
                 operatefta(screenpeek);
             }
             if (keystatus[1]) {
                 keystatus[1] = 0;
-                ps[myconnectindex].gm |= 1;
+                ps[myconnectindex].gm |= MODE_MENU;
                 current_menu = 0;
             }
-            if (ps[myconnectindex].gm & 1) {
-                ps[myconnectindex].gm &= ~16;
+            if (ps[myconnectindex].gm & MODE_MENU) {
+                ps[myconnectindex].gm &= ~MODE_TYPE;
                 menus();
             }
-            if (ud.camera >= 0)
+            if (ud.camerasprite >= 0)
                 overwritesprite(268, 156, 481, 0, 4, 0);
             pan3dsound();
             nextpage();
-            if (ps[myconnectindex].gm == 128)
+            if (ps[myconnectindex].gm == MODE_END)
                 return;
-            if (ps[myconnectindex].gm & 4) {
-                if (ps[myconnectindex].gm & 2)
+            if (ps[myconnectindex].gm & MODE_GAME) {
+                if (ps[myconnectindex].gm & MODE_DEMO)
                     goto restart;
                 recstat = 0;
                 return;
@@ -1852,12 +1840,13 @@ restart:
     goto restart;
 }
 
-void record(short player)
+/* Record one tick of input into the demo buffers. Ken Silverman's recording code, Build GAME.C (1994). */
+void record(short snum)
 {
-    recsyncvel[reccnt] = syncvel[player];
-    recsyncsvel[reccnt] = syncsvel[player];
-    recsyncangvel[reccnt] = syncangvel[player];
-    recsyncbits[reccnt] = syncbits[player];
+    recsyncvel[reccnt] = syncvel[snum];
+    recsyncsvel[reccnt] = syncsvel[snum];
+    recsyncangvel[reccnt] = syncangvel[snum];
+    recsyncbits[reccnt] = syncbits[snum];
     recsynctics[reccnt] = synctics;
     if (++reccnt > 16383)
         reccnt = 16383;
@@ -1866,28 +1855,29 @@ void record(short player)
 /* Water and teleporter pairs (status 9); domovethings writes the same walk out. */
 
 
+/* Advance the whole game by one tick. Duke Nukem 3D 1.5 keeps the name (Ken's movethings). */
 void domovethings(void)
 {
-    short p;
+    short i;
 
     randomstash = krand();
-    ud.camera = -1;
+    ud.camerasprite = -1;
     lockclock += synctics;
     doanimations(synctics);
-    if (ud.paused == 0) {
+    if (ud.gamepaused == 0) {
         if (recstat == 1)
             record(0);
         moveexplosions();
         movetransports();
     }
-    for (p = connecthead; p >= 0; p = connectpoint2[p]) {
-        cheatkeys(p);
-        if (ud.paused == 0) {
-            processinput(p);
-            checksectors(p);
+    for (i = connecthead; i >= 0; i = connectpoint2[i]) {
+        cheatkeys(i);
+        if (ud.gamepaused == 0) {
+            processinput(i);
+            checksectors(i);
         }
     }
-    if (ud.paused == 0) {
+    if (ud.gamepaused == 0) {
         moveplayers();
         moveweapons();
         movestandables();
@@ -1900,6 +1890,7 @@ void domovethings(void)
 }
 
 
+/* Bonus/episode-map screen between levels. Duke Nukem 3D 1.5 keeps the name. */
 void dobonus(void)
 {
     short i, start, shade;
@@ -1927,7 +1918,7 @@ void dobonus(void)
                             1133, shade, 0, 0);
         overwritesprite(bonus_marks[ps[0].volume][i * 2], bonus_marks[ps[0].volume][i * 2 + 1],
                         1134, shade, 0, 0);
-        if (ps[myconnectindex].gm == 8) {
+        if (ps[myconnectindex].gm == MODE_EOL) {
             gametext(32, 10, bonus_title, 0);
             if (start + 240 < totalclock) {
                 if (ps[0].max_secret_rooms)
@@ -1964,6 +1955,7 @@ void dobonus(void)
     }
 }
 
+/* Camera-view frame overlay. Later Duke: cameratext(). */
 void cameratext(void)
 {
     short shade = (unsigned char)next_text_shade();
@@ -1976,14 +1968,15 @@ void cameratext(void)
         myos(18, 20, 279, shade, 2);
 }
 
+/* Update and draw the menu mouse pointer. */
 void update_menu_cursor(short tile)
 {
-    short dx, dy;
+    short mousx, mousy;
     unsigned char shade = next_text_shade();
     long scale;
 
     menu_previous_buttons = menu_drag;
-    getmousevalues(&dx, &dy, &menu_drag);
+    getmousevalues(&mousx, &mousy, &menu_drag);
 
     if (menu_drag == 0 && menu_previous_buttons != 0)
         menu_mouse = menu_previous_buttons;
@@ -1992,8 +1985,8 @@ void update_menu_cursor(short tile)
 
     if (moustat != 0) {
         scale = ud.mouse_sensitivity + 129;
-        menu_x += (dx * scale) >> 9;
-        menu_y += (dy * scale) >> 9;
+        menu_x += (mousx * scale) >> 9;
+        menu_y += (mousy * scale) >> 9;
         if (menu_x < 0)
             menu_x = 0;
         else if (menu_x > 319)
@@ -2007,6 +2000,7 @@ void update_menu_cursor(short tile)
     myos(menu_x, menu_y, tile, shade, 1);
 }
 
+/* High-score table. */
 void displayhighscores(void)
 {
     short i;
@@ -2026,12 +2020,13 @@ void displayhighscores(void)
 
 
 
-void lotsofglass(short i, short count)
+/* Throw glass shards from sprite i. Later Duke: lotsofglass() (which adds a wall parameter). */
+void lotsofglass(short i, short n)
 {
     short j;
     long z;
 
-    for (j = 0; j < count; j++) {
+    for (j = 0; j < n; j++) {
         z = sprite[i].z - (krand() & 4095);
         if (z < sector[sprite[i].sectnum].ceilingz)
             z = sprite[i].z;
@@ -2040,14 +2035,15 @@ void lotsofglass(short i, short count)
     }
 }
 
+/* Transporters and water-level crossings (status 9). Later Duke: movetransports(). */
 void movetransports(void)
 {
     short i, j, m, sect;
     long k, p;
-    long lotag, otherlotag;
+    long sectlotag, otherlotag;
 
     {
-        i = headspritestat[9];
+        i = headspritestat[STAT_TRANSPORT];
         while (i >= 0) {
             sect = sprite[i].sectnum;
             if (sprite[i].z > sector[sect].floorz)
@@ -2059,9 +2055,9 @@ void movetransports(void)
                         hittype[i][1]--;
                         break;
                     }
-                    if (sprite[j].statnum != 3 && sprite[j].statnum != 9 &&
+                    if (sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_TRANSPORT &&
                         sprite[j].picnum != 215 && sprite[j].picnum != 283) {
-                        k = headspritestat[9];
+                        k = headspritestat[STAT_TRANSPORT];
                         while (k >= 0) {
                             if (i != k && sprite[i].hitag == sprite[k].hitag) {
                                 sprite[j].x = sprite[k].x;
@@ -2081,28 +2077,28 @@ void movetransports(void)
             p = connecthead;
             while (p >= 0) {
                 if (ps[p].cursectnum == sect) {
-                    lotag = sector[sect].lotag & 0x7fff;
-                    if (lotag == 0) {
+                    sectlotag = sector[sect].lotag & 0x7fff;
+                    if (sectlotag == 0) {
                         if (klabs(sprite[i].z - ps[p].posz) > 4096 &&
                             sprite[i].z != sector[sect].floorz)
                             goto nextplayer;
-                    } else if (lotag == 2) {
+                    } else if (sectlotag == 2) {
                         if (sector[sect].ceilingz + 0x500 < ps[p].posz)
                             goto nextplayer;
-                    } else if (lotag == 1) {
+                    } else if (sectlotag == 1) {
                         if (sector[sect].floorz - 0x500 > ps[p].posz)
                             goto nextplayer;
                     }
                     if (hittype[i][0] == 0) {
-                    m = headspritestat[9];
+                    m = headspritestat[STAT_TRANSPORT];
                     while (m >= 0) {
                         if (m != i && sprite[i].hitag == sprite[m].hitag) {
-                            otherlotag = lotag;
-                            lotag = sector[sprite[m].sectnum].lotag;
-                            if (!(otherlotag == 1 && lotag == 0) &&
-                                !(otherlotag == 1 && lotag == 1) &&
-                                !(otherlotag == 2 && lotag == 2)) {
-                                if (lotag == 0) {
+                            otherlotag = sectlotag;
+                            sectlotag = sector[sprite[m].sectnum].lotag;
+                            if (!(otherlotag == 1 && sectlotag == 0) &&
+                                !(otherlotag == 1 && sectlotag == 1) &&
+                                !(otherlotag == 2 && sectlotag == 2)) {
+                                if (sectlotag == 0) {
                                     ps[p].posx = sprite[m].x;
                                     ps[p].posy = sprite[m].y;
                                     if (sprite[m].z != sprite[i].z)
@@ -2112,7 +2108,7 @@ void movetransports(void)
                                     hittype[m][0] = 20;
                                     hittype[i][0] = 20;
                                 }
-                                if (lotag == 1) {
+                                if (sectlotag == 1) {
                                     if (ps[p].on_ground)
                                         spritesound(28, ps[p].i);
                                     ps[p].posx += sprite[m].x - sprite[i].x;
@@ -2121,7 +2117,7 @@ void movetransports(void)
                                     hittype[m][0] = 1;
                                     hittype[i][0] = 1;
                                 }
-                                if (lotag == 2) {
+                                if (sectlotag == 2) {
                                     spritesound(10, ps[p].i);
                                     ps[p].posx += sprite[m].x - sprite[i].x;
                                     ps[p].posy += sprite[m].y - sprite[i].y;
@@ -2151,112 +2147,118 @@ void movetransports(void)
     }
 }
 
+/* Read USERDEFS.TMP (settings + high scores). */
 void read_userdefs(void)
 {
-    int file;
+    int fp;
 
     recstat = 0;
-    file = open(userdefs_filename, O_RDWR | O_BINARY, S_IREAD);
-    if (file == -1) {
+    fp = open(userdefs_filename, O_RDWR | O_BINARY, S_IREAD);
+    if (fp == -1) {
         ud.mouse_sensitivity = 128;
         ud.visibility = 13;
         ud.sound_volume = 255;
         ud.music_volume = 255;
         ud.brightness = 1;
-        ud.sound = 1;
-        ud.music = 1;
+        ud.SoundToggle = 1;
+        ud.MusicToggle = 1;
         return;
     }
-    read(file, &ud, sizeof(ud));
-    read(file, score_names, sizeof(score_names));
-    read(file, high_scores, sizeof(high_scores));
-    close(file);
+    read(fp, &ud, sizeof(ud));
+    read(fp, score_names, sizeof(score_names));
+    read(fp, high_scores, sizeof(high_scores));
+    close(fp);
 }
 
+/* Write USERDEFS.TMP (settings + high scores). */
 void write_userdefs(void)
 {
-    int file;
+    int fp;
 
     /* Both text and binary flag bits are present in the original call. */
-    file = open(userdefs_filename, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT | O_BINARY, 0xb0);
-    write(file, &ud, sizeof(ud));
-    write(file, score_names, sizeof(score_names));
-    write(file, high_scores, sizeof(high_scores));
-    close(file);
+    fp = open(userdefs_filename, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT | O_BINARY, 0xb0);
+    write(fp, &ud, sizeof(ud));
+    write(fp, score_names, sizeof(score_names));
+    write(fp, high_scores, sizeof(high_scores));
+    close(fp);
 }
 
-void saveplayer(char slot)
+/* Save a game to slot spot. Duke Nukem 3D 1.5 keeps the name. */
+void saveplayer(char spot)
 {
-    int file;
+    int fil;
     char *gamename = savegame_filename, *boardname = saveboard_filename;
 
-    slot += '1';
+    spot += '1';
     boardname[5] = '1' + ps[0].volume;
     boardname[6] = '1' + ps[0].level;
-    boardname[7] = slot;
-    gamename[7] = slot;
-    file = open(gamename, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT | O_BINARY, 0xb0);
-    write(file, ps, sizeof(ps));
-    write(file, hittype, sizeof(hittype));
-    write(file, animwall, sizeof(animwall));
-    write(file, msx, sizeof(msx));
-    write(file, msy, sizeof(msy));
-    close(file);
+    boardname[7] = spot;
+    gamename[7] = spot;
+    fil = open(gamename, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT | O_BINARY, 0xb0);
+    write(fil, ps, sizeof(ps));
+    write(fil, hittype, sizeof(hittype));
+    write(fil, animwall, sizeof(animwall));
+    write(fil, msx, sizeof(msx));
+    write(fil, msy, sizeof(msy));
+    close(fil);
     saveboard(boardname, &ps[0].posx, &ps[0].posy, &ps[0].posz,
               &ps[0].ang, &ps[0].cursectnum);
 }
 
-void loadplayer(char slot)
+/* Load a game from slot spot. Duke Nukem 3D 1.5 keeps the name. */
+void loadplayer(char spot)
 {
-    int file;
+    int fil;
     char *gamename = savegame_filename, *boardname = saveboard_filename;
 
-    slot += '1';
+    spot += '1';
     boardname[5] = '1' + ps[0].volume;
     boardname[6] = '1' + ps[0].level;
-    boardname[7] = slot;
-    gamename[7] = slot;
-    file = open(gamename, O_RDWR | O_BINARY, S_IREAD);
-    if (file != -1) {
-        read(file, ps, sizeof(ps));
-        read(file, hittype, sizeof(hittype));
-        read(file, animwall, sizeof(animwall));
-        read(file, msx, sizeof(msx));
-        read(file, msy, sizeof(msy));
-        close(file);
+    boardname[7] = spot;
+    gamename[7] = spot;
+    fil = open(gamename, O_RDWR | O_BINARY, S_IREAD);
+    if (fil != -1) {
+        read(fil, ps, sizeof(ps));
+        read(fil, hittype, sizeof(hittype));
+        read(fil, animwall, sizeof(animwall));
+        read(fil, msx, sizeof(msx));
+        read(fil, msy, sizeof(msy));
+        close(fil);
     }
     if (loadboard(boardname, &ps[0].posx, &ps[0].posy, &ps[0].posz,
                   &ps[0].ang, &ps[0].cursectnum) == -1)
         gameexit(saveboard_missing);
-    ps[myconnectindex].gm = 4;
+    ps[myconnectindex].gm = MODE_GAME;
 }
 
-void opendemoread(unsigned char slot)
+/* Open and load demo which_demo. Later Duke: opendemoread(). */
+void opendemoread(unsigned char which_demo)
 {
-    int file;
+    int fp;
 
-    demo_filename[7] = '0' + slot;
-    file = open(demo_filename, O_RDWR | O_BINARY, S_IREAD);
-    if (file != -1) {
-        read(file, &ps[0].volume, sizeof(ps[0].volume));
-        read(file, &ps[0].level, sizeof(ps[0].level));
-        read(file, &ps[0].skill, sizeof(ps[0].skill));
+    demo_filename[7] = '0' + which_demo;
+    fp = open(demo_filename, O_RDWR | O_BINARY, S_IREAD);
+    if (fp != -1) {
+        read(fp, &ps[0].volume, sizeof(ps[0].volume));
+        read(fp, &ps[0].level, sizeof(ps[0].level));
+        read(fp, &ps[0].skill, sizeof(ps[0].skill));
         newgame(ps[0].volume, ps[0].level, ps[0].skill);
-        read(file, &reccnt, sizeof(reccnt));
-        read(file, recsyncvel, reccnt);
-        read(file, recsyncsvel, reccnt);
-        read(file, recsyncangvel, reccnt);
-        read(file, recsynctics, reccnt);
-        read(file, recsyncbits, reccnt * sizeof(recsyncbits[0]));
-        close(file);
+        read(fp, &reccnt, sizeof(reccnt));
+        read(fp, recsyncvel, reccnt);
+        read(fp, recsyncsvel, reccnt);
+        read(fp, recsyncangvel, reccnt);
+        read(fp, recsynctics, reccnt);
+        read(fp, recsyncbits, reccnt * sizeof(recsyncbits[0]));
+        close(fp);
     } else {
         gameexit(demo_missing);
     }
 }
 
+/* Write the recorded demo at exit. Later Duke split this into opendemowrite()/closedemowrite(). */
 void closedemowrite(void)
 {
-    int file;
+    int fp;
     char *filename = demo_filename;
 
     if (recstat != 1)
@@ -2265,30 +2267,32 @@ void closedemowrite(void)
     reccnt--;
     filename[7] = '0' + (ps[0].level != 0 || ps[0].volume != 0);
 
-    file = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT | O_BINARY, 0xb0);
-    if (file != -1) {
-        write(file, &ps[0].volume, sizeof(ps[0].volume));
-        write(file, &ps[0].level, sizeof(ps[0].level));
-        write(file, &ps[0].skill, sizeof(ps[0].skill));
-        write(file, &reccnt, sizeof(reccnt));
-        write(file, recsyncvel, reccnt);
-        write(file, recsyncsvel, reccnt);
-        write(file, recsyncangvel, reccnt);
-        write(file, recsynctics, reccnt);
-        write(file, recsyncbits, reccnt * sizeof(recsyncbits[0]));
-        close(file);
+    fp = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT | O_BINARY, 0xb0);
+    if (fp != -1) {
+        write(fp, &ps[0].volume, sizeof(ps[0].volume));
+        write(fp, &ps[0].level, sizeof(ps[0].level));
+        write(fp, &ps[0].skill, sizeof(ps[0].skill));
+        write(fp, &reccnt, sizeof(reccnt));
+        write(fp, recsyncvel, reccnt);
+        write(fp, recsyncsvel, reccnt);
+        write(fp, recsyncangvel, reccnt);
+        write(fp, recsynctics, reccnt);
+        write(fp, recsyncbits, reccnt * sizeof(recsyncbits[0]));
+        close(fp);
     }
 }
 
+/* Sector effector logic (status 3). Duke Nukem 3D 1.5 keeps the name. */
 /* The dispatch follows LameDuke's status-3 actor and sector conventions, written
  * in the Duke 1.3d moveeffectors style (shared q/l/m/x scratch, st, long j).
- * FTA is expanded in place where the compiler inlined it. */
+ * FTA is expanded in place where the compiler inlined it. sector[].wallptr is unsigned (BUILD.H); the
+ * (short) casts on the wall-loop starts keep this NEAR reconstruction's signed loads (COMPILER_STEERED). */
 void moveeffectors(void)
 {
     long q, l, m, x, st, j, d, *t;
     short i, k, nexti, p, sect;
 
-    i = headspritestat[3];
+    i = headspritestat[STAT_EFFECTOR];
     while (i >= 0) {
         nexti = nextspritestat[i];
         sect = sprite[i].sectnum;
@@ -2297,7 +2301,7 @@ void moveeffectors(void)
 
         switch (st) {
         case 0:
-            for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
+            for (j = headspritestat[STAT_EFFECTOR]; j >= 0; j = nextspritestat[j])
                 if (sprite[i].hitag == sprite[j].hitag && (sprite[j].lotag == 1 || sprite[j].lotag == 5)) {
                     q = sector[sect].extra >> 3;
                     if (sprite[j].ang > 1024)
@@ -2362,7 +2366,7 @@ void moveeffectors(void)
             }
             sector[sect].floorshade = sector[sect].ceilingshade = t[0];
             k = sector[sect].wallptr + sector[sect].wallnum;
-            for (x = sector[sect].wallptr; x < k; x++)
+            for (x = (short)sector[sect].wallptr; x < k; x++)
                 if (!(wall[x].hitag & 1))
                     wall[x].shade = t[0];
             break;
@@ -2380,7 +2384,7 @@ void moveeffectors(void)
             }
             sector[sect].ceilingshade = sector[sect].floorshade = t[1];
             k = sector[sect].wallptr + sector[sect].wallnum;
-            for (x = sector[sect].wallptr; x < k; x++)
+            for (x = (short)sector[sect].wallptr; x < k; x++)
                 if (!(wall[x].hitag & 1))
                     wall[x].shade = t[0];
             break;
@@ -2452,7 +2456,7 @@ void moveeffectors(void)
             } else
                 sprite[i].xvel = 256;
             x = 0;
-            for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
+            for (j = headspritestat[STAT_EFFECTOR]; j >= 0; j = nextspritestat[j])
                 if (sprite[j].lotag == 14 && sprite[j].hitag == sprite[i].hitag && hittype[j][0] == t[0]) {
                     sprite[j].xvel = sprite[i].xvel;
                     x++;
@@ -2516,12 +2520,12 @@ void moveeffectors(void)
                 x = t[3];
             if (st == 9)
                 x = -x;
-            for (j = headspritestat[3]; j >= 0; j = nextspritestat[j]) {
+            for (j = headspritestat[STAT_EFFECTOR]; j >= 0; j = nextspritestat[j]) {
                 k = sprite[j].sectnum;
                 m = sprite[j].shade;
                 if (sprite[j].lotag == st && sprite[j].hitag == sprite[i].hitag) {
                     p = sector[k].wallptr + sector[k].wallnum;
-                    for (l = sector[k].wallptr; l < p; l++)
+                    for (l = (short)sector[k].wallptr; l < p; l++)
                         if (!(wall[l].hitag & 1)) {
                             wall[l].shade += x;
                             if (wall[l].shade < m)
@@ -2570,7 +2574,7 @@ void moveeffectors(void)
                 t[2] += step;
                 t[4] += step;
                 ms(i);
-                for (j = sector[sect].wallptr; j < (short)(sector[sect].wallptr + sector[sect].wallnum); j++)
+                for (j = (short)sector[sect].wallptr; j < (short)(sector[sect].wallptr + sector[sect].wallnum); j++)
                     for (p = connecthead; p >= 0; p = connectpoint2[p])
                         if (clipinsidebox(ps[p].posx, ps[p].posy, j, 128) == 1) {
                             t[4] -= step;
@@ -2587,7 +2591,7 @@ void moveeffectors(void)
         case 12:
             if (t[0] == 1) {
                 k = sector[sect].wallptr + sector[sect].wallnum;
-                for (j = sector[sect].wallptr; j < k; j++)
+                for (j = (short)sector[sect].wallptr; j < k; j++)
                     wall[j].shade = t[1];
                 sector[sect].floorshade = t[1];
                 sector[sect].ceilingshade = t[2];
@@ -2596,7 +2600,7 @@ void moveeffectors(void)
                 if (sector[sect].floorshade > sprite[i].shade) {
                     sector[sect].floorshade -= 2;
                     sector[sect].ceilingshade -= 2;
-                    for (j = sector[sect].wallptr; j < (short)(sector[sect].wallptr + sector[sect].wallnum); j++)
+                    for (j = (short)sector[sect].wallptr; j < (short)(sector[sect].wallptr + sector[sect].wallnum); j++)
                         wall[j].shade -= 2;
                 } else
                     t[0] = 0;
@@ -2604,9 +2608,9 @@ void moveeffectors(void)
             break;
         case 13:
             if (t[2] == 0) {
-                for (j = headspritestat[6]; j >= 0; j = nextspritestat[j])
+                for (j = headspritestat[STAT_STANDABLE]; j >= 0; j = nextspritestat[j])
                     if (sprite[j].picnum == 57 && sprite[j].shade == -32 && sprite[j].hitag == sprite[i].hitag) {
-                        for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
+                        for (j = headspritestat[STAT_EFFECTOR]; j >= 0; j = nextspritestat[j])
                             if (sprite[j].lotag == 13 && sprite[j].hitag == sprite[i].hitag)
                                 hittype[j][2] = 1;
                         break;
@@ -2626,12 +2630,12 @@ void moveeffectors(void)
                     sector[sect].ceilingstat ^= 1;
                     if (sprite[i].ang == 512) {
                         k = sector[sect].wallptr + sector[sect].wallnum;
-                        for (j = sector[sect].wallptr; j < k; j++)
+                        for (j = (short)sector[sect].wallptr; j < k; j++)
                             wall[j].shade = sprite[i].shade;
                         sector[sect].floorshade = sprite[i].shade;
-                        if (ps[0].parallax_sector >= 0) {
-                            sector[sect].ceilingpicnum = sector[ps[0].parallax_sector].ceilingpicnum;
-                            sector[sect].ceilingshade = sector[ps[0].parallax_sector].ceilingshade;
+                        if (ps[0].one_parallax_sectnum >= 0) {
+                            sector[sect].ceilingpicnum = sector[ps[0].one_parallax_sectnum].ceilingpicnum;
+                            sector[sect].ceilingshade = sector[ps[0].one_parallax_sectnum].ceilingshade;
                         }
                     }
                 }
@@ -2750,7 +2754,7 @@ void moveeffectors(void)
                 t[1] = 0;
                 for (p = connecthead; p >= 0; p = connectpoint2[p])
                     if (ps[p].cursectnum == sect)
-                        for (j = headspritestat[3]; j >= 0; j = nextspritestat[j])
+                        for (j = headspritestat[STAT_EFFECTOR]; j >= 0; j = nextspritestat[j])
                             if (sprite[j].lotag == 17 && sector[sect].hitag - t[0] == sector[sprite[j].sectnum].hitag
                                 && sprite[j].hitag == sprite[i].hitag) {
                                 ps[p].posx += sprite[j].x - sprite[i].x;
@@ -2797,7 +2801,7 @@ void moveeffectors(void)
                 sector[sect].ceilingz += sprite[i].yvel;
             } else if (ifhitsectors(i) >= 0) {
                 FTA(8);
-                for (l = headspritestat[3]; l >= 0; l = nextspritestat[l])
+                for (l = headspritestat[STAT_EFFECTOR]; l >= 0; l = nextspritestat[l])
                     if ((sprite[l].lotag & 0x7fff) == 19 && sprite[l].hitag == sprite[i].hitag && hittype[l][0] == 0)
                         hittype[l][0] = 1;
             }
@@ -2825,7 +2829,7 @@ void moveeffectors(void)
                     break;
                 }
                 for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
-                    if (sprite[j].statnum != 3) {
+                    if (sprite[j].statnum != STAT_EFFECTOR) {
                         sprite[j].x += dx;
                         sprite[j].y += dy;
                     }
@@ -2877,8 +2881,8 @@ void moveeffectors(void)
                     sprite[i].shade = 1;
             } else if (sprite[i].shade == 1) {
                 /* The initial sector comes from the shared l slot. */
-                for (j = sector[l].wallptr; j < (short)(sector[l].wallptr + sector[l].wallnum); j++)
-                    if (sector[wall[j].nextsector].hitag == sector[l].hitag)
+                for (j = (short)sector[l].wallptr; j < (short)(sector[l].wallptr + sector[l].wallnum); j++)
+                    if (sector[wall[j].nextsector1].hitag == sector[l].hitag)
                         wall[j].picnum = 49;
                 q = 0x80000000;
                 for (x = 0; x < t[0]; x++) {
@@ -2912,7 +2916,7 @@ void moveeffectors(void)
             x = (sprite[i].yvel * sintable[(sprite[i].ang + 512) & 2047]) >> 18;
             l = (sprite[i].yvel * sintable[sprite[i].ang & 2047]) >> 18;
             for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
-                if (sprite[j].statnum != 9 && sprite[j].statnum != 0 && sprite[j].statnum != 3 && sprite[j].statnum != 10)
+                if (sprite[j].statnum != STAT_TRANSPORT && sprite[j].statnum != STAT_DEFAULT && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PLAYER)
                     if (sprite[j].picnum < 1175 || sprite[j].picnum > 1178) {
                         sprite[j].x += x;
                         sprite[j].y += l;
@@ -2970,7 +2974,7 @@ void moveeffectors(void)
             } else
                 sector[sect].floorz += sprite[i].zvel;
             for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
-                if (sprite[j].statnum != 3 && sprite[j].statnum != 10) {
+                if (sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PLAYER) {
                     sprite[j].x += l;
                     sprite[j].y += x;
                     setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z + sprite[i].zvel);
@@ -2983,7 +2987,7 @@ void moveeffectors(void)
                     setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + 9216);
                 }
             k = sector[sect].wallptr + sector[sect].wallnum;
-            for (j = sector[sect].wallptr; j < k; j++)
+            for (j = (short)sector[sect].wallptr; j < k; j++)
                 if (wall[j].lotag == 0)
                     wall[j].xpanning += 4;
             ms(i);
@@ -2993,27 +2997,27 @@ void moveeffectors(void)
             if (ps[p].health > 0) {
                 if (t[0] < 0) {
                     t[0]++;
-                    camerasprite = i;
+                    ud.camerasprite = i;
                 } else if (recstat == 2 && ps[p].newowner == -1) {
                     if (cansee(sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum)) {
                         if (x < (unsigned)sprite[i].hitag) {
                             t[0] = 999;
-                            camerasprite = i;
+                            ud.camerasprite = i;
                             sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
                             sprite[i].yvel = 100 + ((sprite[i].z - ps[p].posz) / 257);
                         } else if (t[0] == 999) {
-                            if (camerasprite == i)
+                            if (ud.camerasprite == i)
                                 t[0] = 0;
                             else
                                 t[0] = -20;
-                            camerasprite = i;
+                            ud.camerasprite = i;
                         }
                     } else if (t[0] == 999) {
-                        if (camerasprite == i)
+                        if (ud.camerasprite == i)
                             t[0] = 0;
                         else
                             t[0] = -20;
-                        camerasprite = i;
+                        ud.camerasprite = i;
                     }
                 }
             }
@@ -3022,18 +3026,18 @@ void moveeffectors(void)
             if (wall[t[2]].cstat | 32) {
                 wall[t[2]].cstat &= (255 - 32);
                 wall[t[2]].cstat |= 16;
-                wall[wall[t[2]].nextwall].cstat &= (255 - 32);
-                wall[wall[t[2]].nextwall].cstat |= 16;
+                wall[wall[t[2]].nextwall1].cstat &= (255 - 32);
+                wall[wall[t[2]].nextwall1].cstat |= 16;
             }
             wall[t[2]].overpicnum++;
-            wall[wall[t[2]].nextwall].overpicnum++;
+            wall[wall[t[2]].nextwall1].overpicnum++;
             if (t[0] == 0)
                 lotsofglass(i, 15);
             if (t[0] < t[1])
                 t[0]++;
             else {
                 wall[t[2]].cstat &= (128 + 32 + 8 + 4 + 2);
-                wall[wall[t[2]].nextwall].cstat &= (128 + 32 + 8 + 4 + 2);
+                wall[wall[t[2]].nextwall1].cstat &= (128 + 32 + 8 + 4 + 2);
                 deletesprite(i);
                 goto BOLT;
             }
@@ -3045,7 +3049,7 @@ void moveeffectors(void)
             unsigned char frames[12] = { 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0 };
 
             wall[t[2]].overpicnum = frames[t[0]] + 790;
-            wall[wall[t[2]].nextwall].overpicnum = frames[t[0] + 2] + 790;
+            wall[wall[t[2]].nextwall1].overpicnum = frames[t[0] + 2] + 790;
             t[0]++;
             if (t[0] > 9) {
                 deletesprite(i);

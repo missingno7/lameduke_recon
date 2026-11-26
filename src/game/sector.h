@@ -1,6 +1,8 @@
 #ifndef SECTOR_H
 #define SECTOR_H
 
+#include "records.h"
+
 #define MAXANIMATES 512
 #define MAXANIMWALLS 256
 #define MAXSPRITES 4096
@@ -13,74 +15,12 @@
 #define SOUND_LIFT_STOP 35
 #define SOUND_LIFT_MOVING 36
 
-#pragma pack(1)
-typedef struct {
-    long x, y, z;
-    unsigned char cstat;
-    signed char shade;
-    unsigned char xrepeat, yrepeat;
-    short picnum, ang, xvel, yvel, zvel, owner;
-    short sectnum, statnum, lotag, hitag, extra;
-} spritetype;
-
-typedef struct {
-    unsigned short wallptr, wallnum;
-    short ceilingpicnum, floorpicnum, ceilingheinum, floorheinum;
-    long ceilingz, floorz;
-    signed char ceilingshade, floorshade;
-    unsigned char ceilingxpanning, floorxpanning, ceilingypanning, floorypanning;
-    unsigned char ceilingstat, floorstat, ceilingpal, floorpal, visibility;
-    short lotag, hitag, extra;
-} sectortype;
-
-typedef struct {
-    long x, y;
-    short point2, picnum, overpicnum;
-    signed char shade;
-    short cstat;
-    unsigned char xrepeat, yrepeat, xpanning, ypanning;
-    short nextsector, nextwall, nextsector2, nextwall2;
-    short lotag, hitag, extra;
-} walltype;
-
-typedef struct {
-    short i;
-    long viewmode, mapzoom;
-    long posx, posy, posz;
-    char state16[4];
-    long oldx, oldy, oldz;
-    char state26[24];
-    short ang;
-    char state40[2];
-    short oldang;
-    short cursectnum;
-    char state46[4];
-    short screen_size;
-    char state4c[10];
-    short camera, holoduke;
-    char state5a[38];
-    short weapon_locked;
-    char state82[8];
-    unsigned char game_mode;
-    char state8b[4];
-    unsigned char on_ground;
-    char state90[2];
-    unsigned char toggle_view, jetpack_on, scuba_on, steroids_on;
-    unsigned char nightvision_charge, jetpack, scuba, steroids, shield, holoduke_charge;
-    char state9c;
-    unsigned char gotweapon[4], weapon_select, use_pressed, jump_pressed;
-    char statea4[2];
-    unsigned char keys_pressed;
-    char statea7[3];
-    unsigned char secrets;
-    char stateab[5];
-} playertype;
-
-typedef struct {
-    short wallnum;
-    long tag;
-} animwalltype;
-#pragma pack()
+/* Short names for the records.h layouts (the typedefs also hold this unit's symbol slots). */
+typedef struct spritetype spritetype;
+typedef struct sectortype sectortype;
+typedef struct walltype walltype;
+typedef struct player_struct playertype;
+typedef struct animwalltype animwalltype;
 
 extern spritetype sprite[MAXSPRITES];
 extern sectortype sector[MAXSECTORS];

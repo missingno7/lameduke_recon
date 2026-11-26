@@ -1,43 +1,12 @@
 #ifndef SOUNDS_H
 #define SOUNDS_H
 
+#include "records.h"
+
 #define NUM_SOUNDS 39
 
-#pragma pack(1)
-struct sound_file {
-    char *data;
-    long length;
-};
-
-struct sound_voice {
-    long x, y, z;
-    short sprite;
-    long handle;
-    unsigned char active;
-};
-
-/* Portions of the map-v5 sprite and prototype player records used by SOUNDS. */
-struct sound_sprite {
-    long x, y, z;
-    char fields_before_ang[6];
-    short ang;
-    char fields_after_ang[18];
-};
-
-struct sound_player {
-    short sprite;
-    char fields_before_pos[8];
-    long posx, posy;
-    char fields_before_ang[44];
-    short ang;
-    char fields_before_look_ang[8];
-    short look_ang;
-    char fields_after_look_ang[102];
-};
-#pragma pack()
-
-extern struct sound_sprite sprite[];
-extern struct sound_player ps[];
+extern struct spritetype sprite[];
+extern struct player_struct ps[];
 extern short screenpeek, camerasprite;
 extern char SoundToggle, MusicToggle;
 
