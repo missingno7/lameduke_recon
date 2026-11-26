@@ -6,7 +6,7 @@
    "profile": "ken_asm",
    "kind": "asm",
    "provenance": "ORIGINAL_ASM reconstructed: BINARY_DERIVED mnemonics guided by Ken's BUIL0422 (Apr-94) and buil1995 (May-95) A.ASM and BUIL0624/0719/0801 A.OBJ; worker runtime 2026-11-26",
-   "quality": "readable mnemonics, symbolic operands; Ken's original labels/comments not yet restored",
+   "quality": "Ken's own labels, comments and declaration style restored from BUIL0422 (Apr-94) and buil1995 (May-95) A.ASM where counterparts exist; generated labels only elsewhere (asmhuman 2026-11-26)",
    "functions": {
     "SETHLINESIZES": {
      "status": "STRICT"
