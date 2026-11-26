@@ -2202,6 +2202,71 @@
      "status": "STRICT"
     }
    }
+  },
+  "game_actors": {
+   "source": "src/game/actors.c",
+   "profile": "game",
+   "include": [
+    "src/game"
+   ],
+   "kind": "c",
+   "provenance": "BINARY_DERIVED with raynorpat/lameduke and Duke3D 1.5 ACTORS.C semantics; actors worker 2026-11-26",
+   "functions": {
+    "addweapon": {
+     "status": "STRICT"
+    },
+    "hitradius": {
+     "status": "NEAR_MATCH"
+    },
+    "spawn_gib": {
+     "status": "STRICT"
+    },
+    "ssp": {
+     "status": "STRICT"
+    },
+    "nuke": {
+     "status": "STRICT"
+    },
+    "spawn_blood": {
+     "status": "STRICT"
+    },
+    "movesector": {
+     "status": "NEAR_MATCH"
+    },
+    "wakeactors": {
+     "status": "NEAR_MATCH"
+    },
+    "ifsquished": {
+     "status": "NEAR_MATCH"
+    },
+    "effectinsect": {
+     "status": "STRICT"
+    },
+    "ifhitbyweapon": {
+     "status": "STRICT"
+    },
+    "guts": {
+     "status": "NEAR_MATCH"
+    },
+    "moveactors": {
+     "status": "NEAR_MATCH"
+    },
+    "moveweapons": {
+     "status": "NEAR_MATCH"
+    },
+    "moveeffects": {
+     "status": "NEAR_MATCH"
+    },
+    "moveplayers": {
+     "status": "NEAR_MATCH"
+    },
+    "movemusic": {
+     "status": "NEAR_MATCH"
+    },
+    "movestandables": {
+     "status": "NEAR_MATCH"
+    }
+   }
   }
  }
 }

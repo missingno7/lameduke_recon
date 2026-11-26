@@ -3169,6 +3169,54 @@
    "game_text_end": {
     "addr": "1:14fad",
     "evidence": "game2 worker 2026-11-26: The final routine's ret at 1:14fac is followed by three zero bytes and the SECTOR entry at 1:14fb0. Boundary only."
+   },
+   "spawn_gib": {
+    "addr": "1:255b0",
+    "evidence": "actors worker 2026-11-26: Five direct calls from the parasite actor dispatcher pass tile, angle and velocities. Callee forwards them to EGS with status 5 and a 9216-unit height offset."
+   },
+   "spawn_blood": {
+    "addr": "1:256e0",
+    "evidence": "actors worker 2026-11-26: Distinct complete prologue and epilogue following nuke and its alignment. EGS tile 488 and the same three random masks and argument shape recur in the gib updates at 294e0."
+   },
+   "movesector": {
+    "addr": "1:25750",
+    "evidence": "actors worker 2026-11-26: GAME sector effectors call this routine to advance a sector sprite, rotate its saved wall offsets, drag walls, and update the sprite position."
+   },
+   "wakeactors": {
+    "addr": "1:258c0",
+    "evidence": "actors worker 2026-11-26: Called by the GAME tic loop. Traverses status 2, uses cansee with the nearest player, and promotes visible sprites to status 1."
+   },
+   "effectinsect": {
+    "addr": "1:25be0",
+    "evidence": "actors worker 2026-11-26: GAME effector updates use the first status 5 non-casing sprite in the given sprite's sector. The callee tests status list 5, equal sector, and tile 214."
+   },
+   "moveactors": {
+    "addr": "1:25f10",
+    "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. It traverses status 1, handles hard-coded actor tiles and passes other tiles to execute."
+   },
+   "moveweapons": {
+    "addr": "1:28f30",
+    "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. It traverses status 4, clips projectiles and applies player damage before calling execute."
+   },
+   "moveeffects": {
+    "addr": "1:294e0",
+    "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. It traverses status 5 and advances effects including tile 488 and gib animation tiles."
+   },
+   "moveplayers": {
+    "addr": "1:2a470",
+    "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. It traverses status 10 and synchronizes sprites with positions from ps."
+   },
+   "movemusic": {
+    "addr": "1:2a860",
+    "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. Callee walks status 11 and selects music or ambient sound based on lotag and distance."
+   },
+   "movestandables": {
+    "addr": "1:2ab90",
+    "evidence": "actors worker 2026-11-26: GAME tic loop calls this routine. Callee walks status 6 and dispatches force-field posts, cranes, barrels, and script-backed standables."
+   },
+   "actors_text_end": {
+    "addr": "1:2ba27",
+    "evidence": "actors worker 2026-11-26: Return at 2ba26 followed by nine zero bytes and independently matched SOUNDS entry at 2ba30."
    }
   },
   "data": {
@@ -5999,6 +6047,18 @@
    "demomode": {
     "addr": "2:a5258",
     "evidence": "game2 worker 2026-11-26: Loaded and initialized by main, adjusted by demo playback, tested by the game tick and cleared by demo write and user-stats read."
+   },
+   "msx": {
+    "addr": "2:a2830",
+    "evidence": "actors worker 2026-11-26: GAME spawn initializes saved moving-wall x offsets and a crane initializer records pickup and home x coordinates on this base. ACTORS movesector reads corresponding offsets."
+   },
+   "msy": {
+    "addr": "2:a3830",
+    "evidence": "actors worker 2026-11-26: GAME spawn initializes saved moving-wall y offsets and a crane initializer records pickup and home y coordinates on this base. ACTORS movesector reads corresponding offsets."
+   },
+   "randomstash": {
+    "addr": "2:a53a0",
+    "evidence": "actors worker 2026-11-26: GAME tic paths at 000d10 and 008ea0 store the low word from krand here. ACTORS reads this state for flicker, blood and attack angles, matching the same reuse in the prototype reference."
    }
   }
  }
