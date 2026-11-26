@@ -51,7 +51,9 @@ enum MIDI_Errors
 
 #define MIDI_MaxVolume 255
 
+#if (LIBVER_ASSREV >= 19950821L)
 extern char MIDI_PatchMap[ 128 ];
+#endif
 
 typedef struct
    {
@@ -73,7 +75,7 @@ int  MIDI_AllNotesOff( void );
 int  MIDI_Reset( void );
 int  MIDI_SetVolume( int volume );
 int  MIDI_GetVolume( void );
-void MIDI_SetMidiFuncs( midifuncs *funcs );
+int  MIDI_SetMidiFuncs( midifuncs *funcs );
 void MIDI_SetContext( int context );
 int  MIDI_GetContext( void );
 void MIDI_SetLoopFlag( int loopflag );

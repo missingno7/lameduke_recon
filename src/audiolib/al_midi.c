@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <dos.h>
 #include <stddef.h>
 #include <stdlib.h>
-//#include <math.h>
+#include <math.h>
 #include "dpmi.h"
 #if (LIBVER_ASSREV < 20011231L) // *** VERSIONS RESTORATION ***
 #include "interrupt.h"
@@ -53,57 +53,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define TRUE  ( 1 == 1 )
 #define FALSE ( !TRUE )
 
-static unsigned OctavePitch[ MAX_OCTAVE + 1 ] =
-   {
-   OCTAVE_0, OCTAVE_1, OCTAVE_2, OCTAVE_3,
-   OCTAVE_4, OCTAVE_5, OCTAVE_6, OCTAVE_7,
-   };
 
 static unsigned NoteMod12[ MAX_NOTE + 1 ];
 static unsigned NoteDiv12[ MAX_NOTE + 1 ];
-
-// Pitch table
-
-//static unsigned NotePitch[ FINETUNE_MAX + 1 ][ 12 ] =
-//   {
-//      { C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B },
-//   };
-
-static unsigned NotePitch[ FINETUNE_MAX + 1 ][ 12 ] =
-   {
-      { 0x157, 0x16b, 0x181, 0x198, 0x1b0, 0x1ca, 0x1e5, 0x202, 0x220, 0x241, 0x263, 0x287 },
-      { 0x157, 0x16b, 0x181, 0x198, 0x1b0, 0x1ca, 0x1e5, 0x202, 0x220, 0x242, 0x264, 0x288 },
-      { 0x158, 0x16c, 0x182, 0x199, 0x1b1, 0x1cb, 0x1e6, 0x203, 0x221, 0x243, 0x265, 0x289 },
-      { 0x158, 0x16c, 0x183, 0x19a, 0x1b2, 0x1cc, 0x1e7, 0x204, 0x222, 0x244, 0x266, 0x28a },
-      { 0x159, 0x16d, 0x183, 0x19a, 0x1b3, 0x1cd, 0x1e8, 0x205, 0x223, 0x245, 0x267, 0x28b },
-      { 0x15a, 0x16e, 0x184, 0x19b, 0x1b3, 0x1ce, 0x1e9, 0x206, 0x224, 0x246, 0x268, 0x28c },
-      { 0x15a, 0x16e, 0x185, 0x19c, 0x1b4, 0x1ce, 0x1ea, 0x207, 0x225, 0x247, 0x269, 0x28e },
-      { 0x15b, 0x16f, 0x185, 0x19d, 0x1b5, 0x1cf, 0x1eb, 0x208, 0x226, 0x248, 0x26a, 0x28f },
-      { 0x15b, 0x170, 0x186, 0x19d, 0x1b6, 0x1d0, 0x1ec, 0x209, 0x227, 0x249, 0x26b, 0x290 },
-      { 0x15c, 0x170, 0x187, 0x19e, 0x1b7, 0x1d1, 0x1ec, 0x20a, 0x228, 0x24a, 0x26d, 0x291 },
-      { 0x15d, 0x171, 0x188, 0x19f, 0x1b7, 0x1d2, 0x1ed, 0x20b, 0x229, 0x24b, 0x26e, 0x292 },
-      { 0x15d, 0x172, 0x188, 0x1a0, 0x1b8, 0x1d3, 0x1ee, 0x20c, 0x22a, 0x24c, 0x26f, 0x293 },
-      { 0x15e, 0x172, 0x189, 0x1a0, 0x1b9, 0x1d4, 0x1ef, 0x20d, 0x22b, 0x24d, 0x270, 0x295 },
-      { 0x15f, 0x173, 0x18a, 0x1a1, 0x1ba, 0x1d4, 0x1f0, 0x20e, 0x22c, 0x24e, 0x271, 0x296 },
-      { 0x15f, 0x174, 0x18a, 0x1a2, 0x1bb, 0x1d5, 0x1f1, 0x20f, 0x22d, 0x24f, 0x272, 0x297 },
-      { 0x160, 0x174, 0x18b, 0x1a3, 0x1bb, 0x1d6, 0x1f2, 0x210, 0x22e, 0x250, 0x273, 0x298 },
-      { 0x161, 0x175, 0x18c, 0x1a3, 0x1bc, 0x1d7, 0x1f3, 0x211, 0x22f, 0x251, 0x274, 0x299 },
-      { 0x161, 0x176, 0x18c, 0x1a4, 0x1bd, 0x1d8, 0x1f4, 0x212, 0x230, 0x252, 0x276, 0x29b },
-      { 0x162, 0x176, 0x18d, 0x1a5, 0x1be, 0x1d9, 0x1f5, 0x212, 0x231, 0x254, 0x277, 0x29c },
-      { 0x162, 0x177, 0x18e, 0x1a6, 0x1bf, 0x1d9, 0x1f5, 0x213, 0x232, 0x255, 0x278, 0x29d },
-      { 0x163, 0x178, 0x18f, 0x1a6, 0x1bf, 0x1da, 0x1f6, 0x214, 0x233, 0x256, 0x279, 0x29e },
-      { 0x164, 0x179, 0x18f, 0x1a7, 0x1c0, 0x1db, 0x1f7, 0x215, 0x235, 0x257, 0x27a, 0x29f },
-      { 0x164, 0x179, 0x190, 0x1a8, 0x1c1, 0x1dc, 0x1f8, 0x216, 0x236, 0x258, 0x27b, 0x2a1 },
-      { 0x165, 0x17a, 0x191, 0x1a9, 0x1c2, 0x1dd, 0x1f9, 0x217, 0x237, 0x259, 0x27c, 0x2a2 },
-      { 0x166, 0x17b, 0x192, 0x1aa, 0x1c3, 0x1de, 0x1fa, 0x218, 0x238, 0x25a, 0x27e, 0x2a3 },
-      { 0x166, 0x17b, 0x192, 0x1aa, 0x1c3, 0x1df, 0x1fb, 0x219, 0x239, 0x25b, 0x27f, 0x2a4 },
-      { 0x167, 0x17c, 0x193, 0x1ab, 0x1c4, 0x1e0, 0x1fc, 0x21a, 0x23a, 0x25c, 0x280, 0x2a6 },
-      { 0x168, 0x17d, 0x194, 0x1ac, 0x1c5, 0x1e0, 0x1fd, 0x21b, 0x23b, 0x25d, 0x281, 0x2a7 },
-      { 0x168, 0x17d, 0x194, 0x1ad, 0x1c6, 0x1e1, 0x1fe, 0x21c, 0x23c, 0x25e, 0x282, 0x2a8 },
-      { 0x169, 0x17e, 0x195, 0x1ad, 0x1c7, 0x1e2, 0x1ff, 0x21d, 0x23d, 0x260, 0x283, 0x2a9 },
-      { 0x16a, 0x17f, 0x196, 0x1ae, 0x1c8, 0x1e3, 0x1ff, 0x21e, 0x23e, 0x261, 0x284, 0x2ab },
-      { 0x16a, 0x17f, 0x197, 0x1af, 0x1c8, 0x1e4, 0x200, 0x21f, 0x23f, 0x262, 0x286, 0x2ac }
-   };
 
 // Slot numbers as a function of the voice and the operator.
 // ( melodic only)
@@ -141,6 +93,17 @@ static char offsetSlot[ NumChipSlots ] =
    16, 17, 18, 19, 20, 21
    };
 
+static unsigned NotePitch[ FINETUNE_MAX + 1 ][ 12 ] =
+   {
+      { C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B },
+   };
+
+static unsigned OctavePitch[ MAX_OCTAVE + 1 ] =
+   {
+   OCTAVE_0, OCTAVE_1, OCTAVE_2, OCTAVE_3,
+   OCTAVE_4, OCTAVE_5, OCTAVE_6, OCTAVE_7,
+   };
+
 // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV < 19950821L)
 static int VoiceReserved[ NUM_VOICES ] =
@@ -169,7 +132,6 @@ static int PitchBendRange;
 
 static int AL_LeftPort   = 0x388;
 static int AL_RightPort  = 0x388;
-static int AL_Stereo     = FALSE;
 static int AL_SendStereo = FALSE;
 static int AL_OPL3       = FALSE;
 // *** VERSIONS RESTORATION ***
@@ -217,7 +179,7 @@ void AL_SendOutputToPort
    outp( port + 1, data );
 
 //   for( delay = 35; delay > 0 ; delay-- )
-   for( delay = 27; delay > 0 ; delay-- )
+   for( delay = 35; delay > 0 ; delay-- )
 //   for( delay = 2; delay > 0 ; delay-- )
       {
       inp( port );
@@ -441,7 +403,7 @@ static void AL_SetVoiceVolume
 
    // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV < 19950821L)
-   if ( !AL_Stereo )
+   if ( !AL_SendStereo )
 #else
    if ( !AL_SendStereo )
 #endif
@@ -682,7 +644,7 @@ static void AL_SetVoicePitch
 
    // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV < 19950821L)
-   if ( !AL_Stereo )
+   if ( !AL_SendStereo )
       {
       AL_SendOutputToPort( ADLIB_PORT, 0xA0 + voc, pitch );
       AL_SendOutputToPort( ADLIB_PORT, 0xB0 + voc, pitch >> 8 );
@@ -823,7 +785,7 @@ static void AL_ResetVoices
    for( index = 0; index < NUM_VOICES; index++ )
 #else
    numvoices = NUM_VOICES;
-   if ( ( AL_OPL3 ) && ( !AL_Stereo ) )
+   if ( ( AL_OPL3 ) && ( !AL_SendStereo ) )
       {
       numvoices = NUM_VOICES * 2;
       }
@@ -882,8 +844,8 @@ static void AL_CalcPitchInfo
 
    {
    int    note;
-//   int    finetune;
-//   double detune;
+   int    finetune;
+   double detune;
 
    for( note = 0; note <= MAX_NOTE; note++ )
       {
@@ -891,14 +853,14 @@ static void AL_CalcPitchInfo
       NoteDiv12[ note ] = note / 12;
       }
 
-//   for( finetune = 1; finetune <= FINETUNE_MAX; finetune++ )
-//      {
-//      detune = pow( 2, ( double )finetune / ( 12.0 * FINETUNE_RANGE ) );
-//      for( note = 0; note < 12; note++ )
-//         {
-//         NotePitch[ finetune ][ note ] = ( ( double )NotePitch[ 0 ][ note ] * detune );
-//         }
-//      }
+   for( finetune = 1; finetune <= FINETUNE_MAX; finetune++ )
+      {
+      detune = pow( 2, ( double )finetune / ( 12.0 * FINETUNE_RANGE ) );
+      for( note = 0; note < 12; note++ )
+         {
+         NotePitch[ finetune ][ note ] = ( ( double )NotePitch[ 0 ][ note ] * detune );
+         }
+      }
    }
 
 
@@ -955,70 +917,6 @@ void AL_FlushCard
 
 
 /*---------------------------------------------------------------------
-   Function: AL_StereoOn
-
-   Sets the card send info in stereo.
----------------------------------------------------------------------*/
-
-void AL_StereoOn
-   (
-   void
-   )
-
-   {
-   if ( ( AL_Stereo ) && ( !AL_SendStereo ) )
-      {
-      AL_SendStereo = TRUE;
-      if ( AL_OPL3 )
-         {
-         // Set card to OPL3 operation
-         AL_SendOutputToPort( AL_RightPort, 0x5, 1 );
-         }
-      }
-   // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV >= 19950821L)
-   else if ( AL_OPL3 )
-      {
-      // Set card to OPL3 operation
-      AL_SendOutputToPort( AL_RightPort, 0x5, 1 );
-      }
-#endif
-   }
-
-
-/*---------------------------------------------------------------------
-   Function: AL_StereoOff
-
-   Sets the card send info in mono.
----------------------------------------------------------------------*/
-
-void AL_StereoOff
-   (
-   void
-   )
-
-   {
-   if ( ( AL_Stereo ) && ( AL_SendStereo ) )
-      {
-      AL_SendStereo = FALSE;
-      if ( AL_OPL3 )
-         {
-         // Set card back to OPL2 operation
-         AL_SendOutputToPort( AL_RightPort, 0x5, 0 );
-         }
-      }
-   // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV >= 19950821L)
-   else if ( AL_OPL3 )
-      {
-      // Set card back to OPL2 operation
-      AL_SendOutputToPort( AL_RightPort, 0x5, 0 );
-      }
-#endif
-   }
-
-
-/*---------------------------------------------------------------------
    Function: AL_Reset
 
    Sets the card to a known (quiet) state.
@@ -1036,14 +934,12 @@ void AL_Reset
    // Set the values: AM Depth, VIB depth & Rhythm
    AL_SendOutputToPort( ADLIB_PORT, 0xBD, 0 );
 
-   AL_StereoOn();
+   if ( AL_OPL3 )
+      {
+      AL_SendOutputToPort( AL_RightPort, 0x5, 1 );
+      }
 
-   // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19950821L)
    if ( AL_SendStereo )
-#else
-   if ( ( AL_SendStereo ) || ( AL_OPL3 ) )
-#endif
       {
       AL_FlushCard( AL_LeftPort );
       AL_FlushCard( AL_RightPort );
@@ -1172,7 +1068,7 @@ void AL_NoteOff
 
    // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV < 19950821L)
-   if ( AL_Stereo )
+   if ( AL_SendStereo )
 #else
    port = Voice[ voice ].port;
    voc  = ( voice >= NUM_VOICES ) ? voice - NUM_VOICES : voice;
@@ -1508,7 +1404,10 @@ void AL_Shutdown
    )
 
    {
-   AL_StereoOff();
+   if ( AL_OPL3 )
+      {
+      AL_SendOutputToPort( AL_RightPort, 0x5, 0 );
+      }
 
    AL_OPL3 = FALSE;
    AL_ResetVoices();
@@ -1533,7 +1432,6 @@ void AL_Shutdown
 #endif
    DPMI_Unlock( AL_LeftPort );
    DPMI_Unlock( AL_RightPort );
-   DPMI_Unlock( AL_Stereo );
    DPMI_Unlock( AL_SendStereo );
    DPMI_Unlock( AL_OPL3 );
    // *** VERSIONS RESTORATION ***
@@ -1595,7 +1493,6 @@ int AL_Init
 #endif
    status |= DPMI_Lock( AL_LeftPort );
    status |= DPMI_Lock( AL_RightPort );
-   status |= DPMI_Lock( AL_Stereo );
    status |= DPMI_Lock( AL_SendStereo );
    status |= DPMI_Lock( AL_OPL3 );
    // *** VERSIONS RESTORATION ***
@@ -1608,33 +1505,24 @@ int AL_Init
       return( AL_Error );
       }
 
-   AL_Stereo = FALSE;
+   AL_SendStereo = FALSE;
    AL_OPL3   = FALSE;
    AL_LeftPort = 0x388;
    AL_RightPort = 0x388;
 
-   // *** VERSIONS RESTORATION ***
-   // Note there's also the code further below, (originally) temporarily
-   // commented out for ROTT, with a few differences
-#if (LIBVER_ASSREV >= 19950821L)
    switch( soundcard )
       {
       case ProAudioSpectrum :
       case SoundMan16 :
          AL_OPL3 = TRUE;
-         AL_LeftPort = 0x388;
-         AL_RightPort = 0x38A;
+         AL_SendStereo = TRUE;
+         AL_RightPort = 0x38a;
          break;
 
       case SoundBlaster :
-         status = BLASTER_GetCardSettings( &Blaster );
-         if ( status != BLASTER_Ok )
+         if ( BLASTER_GetEnv( &Blaster ) != BLASTER_Ok )
             {
-            status = BLASTER_GetEnv( &Blaster );
-            if ( status != BLASTER_Ok )
-               {
-               break;
-               }
+            break;
             }
 
          switch( Blaster.Type )
@@ -1642,58 +1530,19 @@ int AL_Init
             case SBPro2 :
             case SB16 :
                AL_OPL3 = TRUE;
-               AL_LeftPort  = Blaster.Address;
-               AL_RightPort = Blaster.Address + 2;
-               break;
-            }
-         break;
-      }
-#endif // LIBVER_ASSREV >= 19950821L
-// Temporarally commented out for ROTT.
-// Stereo FM seems to take too long on some computers and
-// causes the mouse driver to miss interrupts.
-
-/*
-   switch( soundcard )
-      {
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         AL_OPL3 = TRUE;
-         AL_Stereo = TRUE;
-         AL_LeftPort  = 0x388;
-         AL_RightPort = 0x38A;
-         break;
-
-      case SoundBlaster :
-         status = BLASTER_GetCardSettings( &Blaster );
-         if ( status != BLASTER_Ok )
-            {
-            status = BLASTER_GetEnv( &Blaster );
-            if ( status != BLASTER_Ok )
-               {
-               break;
-               }
-            }
-
-         switch( Blaster.Type )
-            {
-            case SBPro2 :
-            case SB16 :
-               AL_OPL3 = TRUE;
-               AL_Stereo = TRUE;
-               AL_LeftPort  = Blaster.Address;
+               AL_LeftPort = Blaster.Address;
+               AL_SendStereo = TRUE;
                AL_RightPort = Blaster.Address + 2;
                break;
 
             case SBPro :
-               AL_Stereo = TRUE;
-               AL_LeftPort  = Blaster.Address;
+               AL_LeftPort = Blaster.Address;
+               AL_SendStereo = TRUE;
                AL_RightPort = Blaster.Address + 2;
                break;
             }
          break;
       }
-*/
 
    AL_CalcPitchInfo();
    // *** VERSIONS RESTORATION ***
@@ -1709,37 +1558,3 @@ int AL_Init
    }
 
 
-/*---------------------------------------------------------------------
-   Function: AL_RegisterTimbreBank
-
-   Copies user supplied timbres over the default timbre bank.
----------------------------------------------------------------------*/
-
-void AL_RegisterTimbreBank
-   (
-   unsigned char *timbres
-   )
-
-   {
-   int i;
-
-   for( i = 0; i < 256; i++ )
-      {
-      ADLIB_TimbreBank[ i ].SAVEK[ 0 ] = *( timbres++ );
-      ADLIB_TimbreBank[ i ].SAVEK[ 1 ] = *( timbres++ );
-      ADLIB_TimbreBank[ i ].Level[ 0 ] = *( timbres++ );
-      ADLIB_TimbreBank[ i ].Level[ 1 ] = *( timbres++ );
-      ADLIB_TimbreBank[ i ].Env1[ 0 ]  = *( timbres++ );
-      ADLIB_TimbreBank[ i ].Env1[ 1 ]  = *( timbres++ );
-      ADLIB_TimbreBank[ i ].Env2[ 0 ]  = *( timbres++ );
-      ADLIB_TimbreBank[ i ].Env2[ 1 ]  = *( timbres++ );
-      ADLIB_TimbreBank[ i ].Wave[ 0 ]  = *( timbres++ );
-      ADLIB_TimbreBank[ i ].Wave[ 1 ]  = *( timbres++ );
-      ADLIB_TimbreBank[ i ].Feedback   = *( timbres++ );
-      ADLIB_TimbreBank[ i ].Transpose  = *( signed char * )( timbres++ );
-      // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV >= 19950821L)
-      ADLIB_TimbreBank[ i ].Velocity   = *( signed char * )( timbres++ );
-#endif
-      }
-   }

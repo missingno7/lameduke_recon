@@ -55,6 +55,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // size of DMA buffer for patch loading
 #define DMABUFFSIZE 2048U
 
+int GUS_AuxError  = 0;
+
+int GUS_ErrorCode = GUS_Ok;
+
 struct gf1_dma_buff GUS_HoldBuffer;
 static int          HoldBufferAllocated = FALSE;
 
@@ -62,10 +66,6 @@ static int GUS_Installed = 0;
 
 extern VoiceNode   GUSWAVE_Voices[ VOICES ];
 extern int GUSWAVE_Installed;
-
-int GUS_AuxError  = 0;
-
-int GUS_ErrorCode = GUS_Ok;
 
 #define GUS_SetErrorCode( status ) \
    GUS_ErrorCode   = ( status );

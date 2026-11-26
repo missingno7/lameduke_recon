@@ -176,8 +176,6 @@ int FX_SetupCard
 #endif
    int status;
    int DeviceStatus;
-   int *bits;
-   int *channels;
 
    FX_SoundDevice = SoundCard;
 
@@ -226,18 +224,17 @@ int FX_SetupCard
             break;
             }
 
-         channels = &device->MaxChannels;
-         bits = &device->MaxSampleBits;
          device->MaxVoices = 8;
-         PAS_GetCardInfo( bits, channels );
+         PAS_GetCardInfo( &device->MaxSampleBits, &device->MaxChannels );
          break;
 
       // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV < 19960116L)
       case Adlib :
+      case PC :
          device->MaxVoices     = 1;
-         device->MaxSampleBits = 0;
          device->MaxChannels   = 1;
+         device->MaxSampleBits = status;
          break;
 #endif
 
@@ -259,8 +256,8 @@ int FX_SetupCard
             }
 
          device->MaxVoices     = 8;
-         device->MaxSampleBits = 0;
-         device->MaxChannels   = 0;
+         device->MaxSampleBits = status;
+         device->MaxChannels   = status;
          break;
 
       case SoundSource :
@@ -276,15 +273,6 @@ int FX_SetupCard
          device->MaxSampleBits = 8;
          device->MaxChannels   = 1;
          break;
-
-      // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19960116L)
-      case PC :
-         device->MaxVoices     = 1;
-         device->MaxSampleBits = 0;
-         device->MaxChannels   = 1;
-         break;
-#endif
 
       default :
          FX_SetErrorCode( FX_InvalidCard );

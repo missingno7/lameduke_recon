@@ -437,10 +437,10 @@
    "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
    "functions": {
     "AL_SendOutputToPort": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "AL_SendOutput": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "AL_SetVoiceTimbre": {
      "status": "NEAR_MATCH"
@@ -467,7 +467,7 @@
      "status": "STRICT"
     },
     "AL_ResetVoices": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "AL_ReserveVoice": {
      "status": "STRICT"
@@ -476,7 +476,7 @@
      "status": "STRICT"
     },
     "AL_NoteOff": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "AL_AllNotesOff": {
      "status": "STRICT"
@@ -488,12 +488,33 @@
      "status": "STRICT"
     },
     "AL_SetPitchBend": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
+    },
+    "AL_CalcPitchInfo": {
+     "status": "STRICT"
+    },
+    "AL_FlushCard": {
+     "status": "STRICT"
+    },
+    "AL_Reset": {
+     "status": "STRICT"
+    },
+    "AL_NoteOn": {
+     "status": "NEAR_MATCH"
+    },
+    "AL_DetectFM": {
+     "status": "STRICT"
+    },
+    "AL_LockEnd": {
+     "status": "STRICT"
+    },
+    "AL_Shutdown": {
+     "status": "STRICT"
+    },
+    "AL_Init": {
+     "status": "NEAR_MATCH"
     }
-   },
-   "extra_flags": [
-    "-zu"
-   ]
+   }
   },
   "ass_awe32": {
    "source": "src/audiolib/awe32.c",
@@ -539,7 +560,7 @@
      "status": "STRICT"
     },
     "AWE32_Init": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "AWE32_Shutdown": {
      "status": "CODE_BYTES_MATCH"
@@ -563,10 +584,10 @@
      "status": "STRICT"
     },
     "BLASTER_CardConfig": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "BLASTER_ErrorString": {
-     "status": "NEAR_MATCH"
+     "status": "CODE_BYTES_MATCH"
     },
     "BLASTER_EnableInterrupt": {
      "status": "STRICT"
@@ -575,13 +596,13 @@
      "status": "STRICT"
     },
     "BLASTER_ServiceInterrupt": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "BLASTER_ReadDSP": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "BLASTER_ResetDSP": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "BLASTER_WriteDSP": {
      "status": "STRICT"
@@ -596,7 +617,7 @@
      "status": "STRICT"
     },
     "BLASTER_SetupDMABuffer": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "BLASTER_DSP1xx_BeginPlayback": {
      "status": "STRICT"
@@ -605,7 +626,7 @@
      "status": "STRICT"
     },
     "BLASTER_DSP4xx_BeginPlayback": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "BLASTER_BeginBufferedPlayback": {
      "status": "STRICT"
@@ -626,10 +647,10 @@
      "status": "STRICT"
     },
     "BLASTER_ReadMixer": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "BLASTER_GetMidiVolume": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "BLASTER_CardHasMixer": {
      "status": "STRICT"
@@ -647,22 +668,67 @@
      "status": "STRICT"
     },
     "BLASTER_GetEnv": {
-     "status": "NEAR_MATCH"
+     "status": "CODE_BYTES_MATCH"
     },
     "BLASTER_UnlockMemory": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "BLASTER_LockMemory": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "BLASTER_ShutdownWaveBlaster": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "BLASTER_Init": {
      "status": "NEAR_MATCH"
     },
     "BLASTER_Shutdown": {
      "status": "CODE_BYTES_MATCH"
+    },
+    "BLASTER_GetDSPVersion": {
+     "status": "STRICT"
+    },
+    "BLASTER_SpeakerOn": {
+     "status": "STRICT"
+    },
+    "BLASTER_SpeakerOff": {
+     "status": "STRICT"
+    },
+    "BLASTER_GetPlaybackRate": {
+     "status": "STRICT"
+    },
+    "BLASTER_GetCurrentPos": {
+     "status": "STRICT"
+    },
+    "BLASTER_GetVoiceVolume": {
+     "status": "STRICT"
+    },
+    "BLASTER_SetVoiceVolume": {
+     "status": "STRICT"
+    },
+    "BLASTER_SetMidiVolume": {
+     "status": "STRICT"
+    },
+    "BLASTER_SetCardSettings": {
+     "status": "STRICT"
+    },
+    "BLASTER_GetCardInfo": {
+     "status": "STRICT"
+    },
+    "BLASTER_SetCallBack": {
+     "status": "STRICT"
+    },
+    "BLASTER_LockEnd": {
+     "status": "STRICT"
+    },
+    "BLASTER_AllocateTimerStack": {
+     "status": "STRICT"
+    },
+    "BLASTER_DeallocateTimerStack": {
+     "status": "STRICT"
+    },
+    "BLASTER_SetupWaveBlaster": {
+     "status": "STRICT"
     }
    }
   },
@@ -710,19 +776,19 @@
    "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
    "functions": {
     "DPMI_GetRealModeVector": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "DPMI_SetRealModeVector": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "DPMI_CallRealModeFunction": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "DPMI_LockMemoryRegion": {
      "status": "STRICT"
     },
     "DPMI_LockMemory": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "DPMI_UnlockMemoryRegion": {
      "status": "STRICT"
@@ -749,31 +815,31 @@
      "status": "NEAR_MATCH"
     },
     "FX_Init": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "FX_Shutdown": {
      "status": "STRICT"
     },
     "FX_SetCallBack": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "FX_SetVolume": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "FX_GetVolume": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "FX_SetPan": {
      "status": "STRICT"
     },
     "FX_SetPitch": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "FX_PlayVOC": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "FX_PlayVOC3D": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "FX_Pan3D": {
      "status": "STRICT"
@@ -782,7 +848,7 @@
      "status": "STRICT"
     },
     "FX_StopSound": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "FX_StopAllSounds": {
      "status": "CODE_BYTES_MATCH"
@@ -818,6 +884,9 @@
     },
     "GUSWAVE_Shutdown": {
      "status": "CODE_BYTES_MATCH"
+    },
+    "D32DosMemAlloc": {
+     "status": "STRICT"
     }
    },
    "flags_override": [
@@ -907,10 +976,10 @@
      "status": "CODE_BYTES_MATCH"
     },
     "GUSWAVE_CallBack": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "GUSWAVE_GetVoice": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "GUSWAVE_VoicePlaying": {
      "status": "STRICT"
@@ -922,7 +991,7 @@
      "status": "STRICT"
     },
     "GUSWAVE_KillAllVoices": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "GUSWAVE_SetPitch": {
      "status": "STRICT"
@@ -946,7 +1015,7 @@
      "status": "NEAR_MATCH"
     },
     "GUSWAVE_InitVoices": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "GUSWAVE_SetCallBack": {
      "status": "STRICT"
@@ -973,10 +1042,13 @@
      "status": "STRICT"
     },
     "IRQ_SetVector": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "IRQ_RestoreVector": {
      "status": "CODE_BYTES_MATCH"
+    },
+    "IRQ_D32DosMemAlloc": {
+     "status": "STRICT"
     }
    }
   },
@@ -1039,36 +1111,63 @@
      "status": "STRICT"
     },
     "MIDI_SetLoopFlag": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "MIDI_ContinueSong": {
      "status": "STRICT"
     },
     "MIDI_PauseSong": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MIDI_SongPlaying": {
      "status": "STRICT"
     },
     "MIDI_SetMidiFuncs": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MIDI_StopSong": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MIDI_PlaySong": {
      "status": "NEAR_MATCH"
     },
     "MIDI_GetPosition": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MIDI_SetPosition": {
+     "status": "STRICT"
+    },
+    "_MIDI_ReadDelta_": {
+     "status": "STRICT"
+    },
+    "_MIDI_ResetTracks_": {
      "status": "NEAR_MATCH"
+    },
+    "_MIDI_ServiceRoutine_": {
+     "status": "NEAR_MATCH"
+    },
+    "_MIDI_SendControlChange_": {
+     "status": "STRICT"
+    },
+    "MIDI_AllNotesOff": {
+     "status": "STRICT"
+    },
+    "MIDI_Reset": {
+     "status": "STRICT"
+    },
+    "MIDI_LoadTimbres": {
+     "status": "STRICT"
+    },
+    "MIDI_LockEnd": {
+     "status": "STRICT"
+    },
+    "MIDI_UnlockMemory": {
+     "status": "STRICT"
+    },
+    "MIDI_LockMemory": {
+     "status": "CODE_BYTES_MATCH"
     }
-   },
-   "extra_flags": [
-    "-zu"
-   ]
+   }
   },
   "ass_mpu401": {
    "source": "src/audiolib/mpu401.c",
@@ -1138,46 +1237,112 @@
    "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
    "functions": {
     "MV_ErrorString": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_ServiceRecord": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "MV_VoicePlaying": {
      "status": "STRICT"
     },
     "MV_KillAllVoices": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_VoicesPlaying": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "MV_SetPan": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_Pan3D": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_CalcVolume": {
      "status": "NEAR_MATCH"
     },
     "MV_SetVolume": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "MV_GetVolume": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "MV_Init": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_Shutdown": {
      "status": "NEAR_MATCH"
     },
     "MV_UnlockMemory": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_LockMemory": {
+     "status": "CODE_BYTES_MATCH"
+    },
+    "MV_Mix8bitMono": {
+     "status": "STRICT"
+    },
+    "MV_Mix8bitStereo": {
+     "status": "STRICT"
+    },
+    "MV_Mix16bitUnsignedMono": {
+     "status": "STRICT"
+    },
+    "MV_Mix16bitUnsignedStereo": {
+     "status": "STRICT"
+    },
+    "MV_DeleteDeadVoices": {
      "status": "NEAR_MATCH"
+    },
+    "MV_ServiceVoc": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_GetVoice": {
+     "status": "STRICT"
+    },
+    "MV_Kill": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_AllocVoice": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_SetPitch": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_SetMixMode": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_StopPlayback": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_StartRecording": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_LockEnd": {
+     "status": "STRICT"
+    },
+    "MV_StopRecord": {
+     "status": "STRICT"
+    },
+    "MV_StartPlayback": {
+     "status": "STRICT"
+    },
+    "MV_StartDemandFeedPlayback": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_GetNextVOCBlock": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_PlayVOC": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_PlayVOC3D": {
+     "status": "STRICT"
+    },
+    "MV_CalcPanTable": {
+     "status": "NEAR_MATCH"
+    },
+    "MV_SetCallBack": {
+     "status": "STRICT"
     }
    },
    "flags_override": [
@@ -1187,7 +1352,6 @@
     "-omaxne",
     "-zp4",
     "-5r",
-    "-zu",
     "-DLIBVER_ASSREV=19950518"
    ]
   },
@@ -1205,10 +1369,10 @@
      "status": "CODE_BYTES_MATCH"
     },
     "MUSIC_Init": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "MUSIC_Shutdown": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "MUSIC_SetVolume": {
      "status": "STRICT"
@@ -1241,19 +1405,19 @@
      "status": "STRICT"
     },
     "MUSIC_InitAWE32": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MUSIC_InitFM": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MUSIC_InitMidi": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MUSIC_InitGUS": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MUSIC_FadeRoutine": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "MUSIC_FadeActive": {
      "status": "STRICT"
@@ -1262,6 +1426,9 @@
      "status": "STRICT"
     },
     "MUSIC_RerouteMidiChannel": {
+     "status": "STRICT"
+    },
+    "MUSIC_FadeVolume": {
      "status": "STRICT"
     }
    }
@@ -1280,7 +1447,7 @@
      "status": "STRICT"
     },
     "PAS_ErrorString": {
-     "status": "NEAR_MATCH"
+     "status": "CODE_BYTES_MATCH"
     },
     "PAS_CheckForDriver": {
      "status": "STRICT"
@@ -1292,13 +1459,13 @@
      "status": "STRICT"
     },
     "PAS_GetCardSettings": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "PAS_DisableInterrupt": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "PAS_ServiceInterrupt": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "PAS_Write": {
      "status": "STRICT"
@@ -1319,7 +1486,7 @@
      "status": "STRICT"
     },
     "PAS_StopPlayback": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "PAS_SetupDMABuffer": {
      "status": "STRICT"
@@ -1331,7 +1498,7 @@
      "status": "STRICT"
     },
     "PAS_BeginTransfer": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "PAS_BeginBufferedPlayback": {
      "status": "STRICT"
@@ -1355,7 +1522,7 @@
      "status": "STRICT"
     },
     "PAS_GetCardInfo": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "PAS_FindCard": {
      "status": "STRICT"
@@ -1376,13 +1543,31 @@
      "status": "STRICT"
     },
     "PAS_Init": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "PAS_UnlockMemory": {
      "status": "STRICT"
     },
     "PAS_LockMemory": {
      "status": "CODE_BYTES_MATCH"
+    },
+    "PAS_EnableInterrupt": {
+     "status": "STRICT"
+    },
+    "PAS_GetPlaybackRate": {
+     "status": "STRICT"
+    },
+    "PAS_SetCallBack": {
+     "status": "STRICT"
+    },
+    "PAS_AllocateTimerStack": {
+     "status": "STRICT"
+    },
+    "PAS_DeallocateTimerStack": {
+     "status": "STRICT"
+    },
+    "PAS_Shutdown": {
+     "status": "STRICT"
     }
    }
   },
@@ -1541,7 +1726,7 @@
    "provenance": "THIRD_PARTY_SOURCE: GPL Apogee Sound System (audiolib-reconstructions al_104 @5f2d287) backported to the Dec-1994 library; audio worker 2026-11-26",
    "functions": {
     "TS_FreeTaskList": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "TS_SetClockSpeed": {
      "status": "STRICT"
@@ -1553,16 +1738,46 @@
      "status": "NEAR_MATCH"
     },
     "TS_ScheduleTask": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "TS_Terminate": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "TS_Dispatch": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "TS_SetTaskRate": {
      "status": "STRICT"
+    },
+    "TS_ServiceSchedule": {
+     "status": "STRICT"
+    },
+    "TS_ServiceTasks": {
+     "status": "STRICT"
+    },
+    "TS_AllocateTimerStack": {
+     "status": "STRICT"
+    },
+    "TS_DeallocateTimerStack": {
+     "status": "STRICT"
+    },
+    "TS_Startup": {
+     "status": "NEAR_MATCH"
+    },
+    "TS_Shutdown": {
+     "status": "STRICT"
+    },
+    "TS_AddTask": {
+     "status": "NEAR_MATCH"
+    },
+    "TS_LockEnd": {
+     "status": "STRICT"
+    },
+    "TS_UnlockMemory": {
+     "status": "STRICT"
+    },
+    "TS_LockMemory": {
+     "status": "CODE_BYTES_MATCH"
     }
    }
   },
@@ -1663,7 +1878,7 @@
      "status": "STRICT"
     },
     "transword": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "transnum": {
      "status": "NEAR_MATCH"
@@ -1675,7 +1890,7 @@
      "status": "STRICT"
     },
     "loadefs": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "furthestangle": {
      "status": "STRICT"

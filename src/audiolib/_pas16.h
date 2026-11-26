@@ -75,9 +75,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SampleRateInterruptFlag   0x04
 #define SampleBufferInterruptFlag 0x08
 
-#define PAS_SampleSizeMask     0xf3
+#define PAS_SampleSizeMask     0xe3
 #define PAS_SignedSampleMask   0xe3
-#define PAS_16BitSampleFlag    0x04
+#define PAS_16BitSampleFlag    0x14
 #define PAS_UnsignedSampleFlag 0x10
 //bSC2msbinv   equ   00010000b   ;; invert MSB from standard method
 

@@ -57,7 +57,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // *** VERSIONS RESTORATION ***
 // Uncomment for earlier versions
 #if (LIBVER_ASSREV < 20011231L)
-#define MV_MaxVolume       63
+#define MV_MaxVolume       15
 #endif
 #define MV_NumVoices       8
 
@@ -68,11 +68,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
    ( ( max( 0, min( ( volume ), 255 ) ) * ( MV_MaxVolume + 1 ) ) >> 8 )
 #else
 #define MIX_VOLUME( volume ) \
-   ( ( max( 0, min( ( volume ), 255 ) ) ) >> 2 )
+   ( ( max( 0, min( ( volume ), 255 ) ) ) >> 4 )
 #endif
 
 //#define SILENCE_16BIT     0x80008000
-#define SILENCE_16BIT     0
+#define SILENCE_16BIT     0x80008000
 #define SILENCE_8BIT      0x80808080
 //#define SILENCE_16BIT_PAS 0
 
@@ -102,42 +102,25 @@ typedef struct VoiceNode
    {
    struct VoiceNode *next;
    struct VoiceNode *prev;
-
-   wavedata      wavetype;
-   char          bits;
-
-   playbackstatus ( *GetSound )( struct VoiceNode *voice );
-
-   void ( *mix )( unsigned long position, unsigned long rate,
-      char *start, unsigned long length );
-
-   char         *NextBlock;
-   char         *LoopStart;
-   char         *LoopEnd;
-   unsigned      LoopCount;
-   unsigned long LoopSize;
+   char *NextBlock;
+   char *LoopStart;
+   unsigned LoopCount;
    unsigned long BlockLength;
-
    unsigned long PitchScale;
-   unsigned long FixedPointBufferSize;
-
-   char         *sound;
+   char *sound;
    unsigned long length;
    unsigned long SamplingRate;
    unsigned long RateScale;
    unsigned long position;
-   int           Playing;
-
-   int           handle;
-   int           priority;
-
-   void          ( *DemandFeed )( char **ptr, unsigned long *length );
-
-   short        *LeftVolume;
-   short        *RightVolume;
-
+   int Playing;
+   int Active[ NumberOfBuffers ];
+   int handle;
+   int priority;
+   void ( *DemandFeed )( char **ptr, unsigned long *length );
+   int Volume;
+   int LeftVolume;
+   int RightVolume;
    unsigned long callbackval;
-
    } VoiceNode;
 
 typedef struct
@@ -152,7 +135,7 @@ typedef struct
    char right;
    } Pan;
 
-typedef signed short MONO16;
+typedef unsigned short MONO16;
 typedef signed char  MONO8;
 
 typedef struct
@@ -203,43 +186,16 @@ typedef struct
    } data_header;
 
 typedef MONO8  VOLUME8[ 256 ];
-typedef MONO16 VOLUME16[ 256 ];
+typedef short VOLUME16[ 256 ];
 
 typedef char HARSH_CLIP_TABLE_8[ MV_NumVoices * 256 ];
 
-static void MV_Mix( VoiceNode *voice, int buffer );
-static void MV_PlayVoice( VoiceNode *voice );
-static void MV_StopVoice( VoiceNode *voice );
-static void MV_ServiceVoc( void );
+typedef VOLUME8 VOLUME_TABLE_8BIT[ MV_MaxVolume + 1 ];
+typedef VOLUME16 VOLUME_TABLE_16BIT[ MV_MaxVolume + 1 ];
+typedef unsigned short HARSH_CLIP_TABLE_16[ MV_NumVoices * 256 * 16 ];
 
-static playbackstatus MV_GetNextVOCBlock( VoiceNode *voice );
-static playbackstatus MV_GetNextDemandFeedBlock( VoiceNode *voice );
-static playbackstatus MV_GetNextRawBlock( VoiceNode *voice );
-static playbackstatus MV_GetNextWAVBlock( VoiceNode *voice );
-
-static void       MV_ServiceRecord( void );
-static VoiceNode *MV_GetVoice( int handle );
-static VoiceNode *MV_AllocVoice( int priority );
-
-static short     *MV_GetVolumeTable( int vol );
-
-#if (LIBVER_ASSREV >= 19950821L)
-static void       MV_SetVoiceMixMode( VoiceNode *voice );
-#endif
-
-static void       MV_SetVoicePitch( VoiceNode *voice, unsigned long rate, int pitchoffset );
-static void       MV_CalcVolume( int MaxLevel );
-static void       MV_CalcPanTable( void );
-
-#define ATR_INDEX               0x3c0
-#define STATUS_REGISTER_1       0x3da
-
-#define SetBorderColor(color) \
-   { \
-   inp  (STATUS_REGISTER_1); \
-   outp (ATR_INDEX,0x31);    \
-   outp (ATR_INDEX,color);   \
-   }
+void MV_GetNextVOCBlock( VoiceNode *voice );
+void MV_LockEnd( void );
 
 void ClearBuffer_DW( void *ptr, unsigned data, int length );
 
@@ -252,58 +208,6 @@ void ClearBuffer_DW( void *ptr, unsigned data, int length );
    "pop    es",              \
 parm [ edi ] [ eax ] [ ecx ] modify exact [ ecx edi ];
 
-// *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19950821L)
-void MV_Mix8BitMonoFast( unsigned long position, unsigned long rate,
-   char *start, unsigned long length );
 
-void MV_Mix8BitStereoFast( unsigned long position, unsigned long rate,
-   char *start, unsigned long length );
-
-void MV_Mix8Bit1ChannelFast( unsigned long position, unsigned long rate,
-   char *start, unsigned long length );
-
-void MV_Mix16BitMonoFast( unsigned long position, unsigned long rate,
-   char *start, unsigned long length );
-
-void MV_Mix16BitStereoFast( unsigned long position, unsigned long rate,
-   char *start, unsigned long length );
-
-void MV_Mix16Bit1ChannelFast( unsigned long position, unsigned long rate,
-   char *start, unsigned long length );
-#else // LIBVER_ASSREV >= 19950821L
-void MV_Mix8BitMono( unsigned long position, unsigned long rate,
-   char *start, unsigned long length );
-
-void MV_Mix8BitStereo( unsigned long position,
-   unsigned long rate, char *start, unsigned long length );
-
-void MV_Mix16BitMono( unsigned long position,
-   unsigned long rate, char *start, unsigned long length );
-
-void MV_Mix16BitStereo( unsigned long position,
-   unsigned long rate, char *start, unsigned long length );
-
-void MV_Mix16BitMono16( unsigned long position,
-   unsigned long rate, char *start, unsigned long length );
-
-void MV_Mix8BitMono16( unsigned long position, unsigned long rate,
-   char *start, unsigned long length );
-
-void MV_Mix8BitStereo16( unsigned long position,
-   unsigned long rate, char *start, unsigned long length );
-
-void MV_Mix16BitStereo16( unsigned long position,
-   unsigned long rate, char *start, unsigned long length );
-
-void MV_16BitReverb( char *src, char *dest, VOLUME16 *volume, int count );
-#pragma aux MV_16BitReverb parm [eax] [edx] [ebx] [ecx] modify exact [eax ebx ecx edx esi edi]
-void MV_8BitReverb( signed char *src, signed char *dest, VOLUME16 *volume, int count );
-#pragma aux MV_8BitReverb parm [eax] [edx] [ebx] [ecx] modify exact [eax ebx ecx edx esi edi]
-void MV_16BitReverbFast( char *src, char *dest, int count, int shift );
-#pragma aux MV_16BitReverbFast parm [eax] [edx] [ebx] [ecx] modify exact [eax ebx ecx edx esi edi]
-void MV_8BitReverbFast( signed char *src, signed char *dest, int count, int shift );
-#pragma aux MV_8BitReverbFast parm [eax] [edx] [ebx] [ecx] modify exact [eax ebx ecx edx esi edi]
-#endif // LIBVER_ASSREV < 19950821L
 
 #endif

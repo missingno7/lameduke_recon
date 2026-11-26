@@ -142,10 +142,12 @@ typedef struct
 #endif
    } songcontext;
 
-typedef struct
+typedef struct midi_track
    {
    // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV < 19950821L)
+   struct midi_track *next;
+   struct midi_track *prev;
    long           delay;
    long           active;
    long           RunningStatus;
@@ -153,7 +155,6 @@ typedef struct
    unsigned char *start;
    unsigned char *pos;
 
-   songcontext    context[ 1 ]; // FIXME (RESTORATION) TEMP HACK
 #else
    unsigned char *start;
    unsigned char *pos;

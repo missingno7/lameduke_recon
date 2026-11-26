@@ -648,11 +648,9 @@ int MUSIC_InitAWE32
    {
    int status;
 
-   status = AWE32_Init();
-   if ( status != AWE32_Ok )
+   if ( AWE32_Init() != AWE32_Ok )
       {
       MUSIC_SetErrorCode( MUSIC_SoundCardError );
-      return( MUSIC_Error );
       }
 
    Funcs->NoteOff           = AWE32_NoteOff;
@@ -675,7 +673,11 @@ int MUSIC_InitAWE32
       }
 
    status = MUSIC_Ok;
-   MIDI_SetMidiFuncs( Funcs );
+   if ( MIDI_SetMidiFuncs( Funcs ) != MIDI_Ok )
+      {
+      MUSIC_SetErrorCode( MUSIC_SoundCardError );
+      status = MUSIC_Error;
+      }
 
    return( status );
    }
@@ -749,7 +751,11 @@ int MUSIC_InitFM
          break;
       }
 
-   MIDI_SetMidiFuncs( Funcs );
+   if ( MIDI_SetMidiFuncs( Funcs ) != MIDI_Ok )
+      {
+      MUSIC_SetErrorCode( MUSIC_SoundCardError );
+      status = MUSIC_Error;
+      }
 
    return( status );
    }
@@ -767,46 +773,9 @@ int MUSIC_InitMidi
    status = MUSIC_Ok;
 
    // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19960116L)
    if ( card == WaveBlaster )
       {
-      if ( Address <= BLASTER_Ok )
-         {
-         Address = BLASTER_Error;
-         }
-      Address = BLASTER_SetupWaveBlaster(Address);
-      if ( Address < BLASTER_Ok )
-         {
-         MUSIC_SetErrorCode( MUSIC_SoundCardError );
-         return( MUSIC_Error );
-         }
-      }
-   else if ( ( card == SoundCanvas ) || ( card == GenMidi ) )
-      {
-          BLASTER_SetupWaveBlaster(BLASTER_Ok);
-      }
-#else // LIBVER_ASSREV >= 19960116L
-   if ( ( card == WaveBlaster ) || ( card == SoundCanvas ) ||
-      ( card == GenMidi ) )
-      {
-      // Setup WaveBlaster Daughterboard clone
-      // (ie. SoundCanvas DB, TurtleBeach Rio)
       BLASTER_SetupWaveBlaster();
-      }
-#endif // LIBVER_ASSREV < 19960116L
-
-   if ( card == SoundScape )
-      {
-      Address = SOUNDSCAPE_GetMIDIPort();
-      if ( Address < SOUNDSCAPE_Ok )
-         {
-         MUSIC_SetErrorCode( MUSIC_SoundCardError );
-         return( MUSIC_Error );
-         }
-      // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19950821L)
-      MIDI_PatchMap[0x50] = 0x51;
-#endif
       }
 
    if ( MPU_Init( Address ) != MPU_Ok )
@@ -837,7 +806,11 @@ int MUSIC_InitMidi
          }
       }
 
-   MIDI_SetMidiFuncs( Funcs );
+   if ( MIDI_SetMidiFuncs( Funcs ) != MIDI_Ok )
+      {
+      MUSIC_SetErrorCode( MUSIC_SoundCardError );
+      status = MUSIC_Error;
+      }
 
    return( status );
    }
@@ -860,17 +833,21 @@ int MUSIC_InitGUS
 
    Funcs->NoteOff           = GUSMIDI_NoteOff;
    Funcs->NoteOn            = GUSMIDI_NoteOn;
-   Funcs->PolyAftertouch    = NULL;
    Funcs->ControlChange     = GUSMIDI_ControlChange;
    Funcs->ProgramChange     = GUSMIDI_ProgramChange;
-   Funcs->ChannelAftertouch = NULL;
    Funcs->PitchBend         = GUSMIDI_PitchBend;
-   Funcs->ReleasePatches    = NULL;//GUSMIDI_ReleasePatches;
-   Funcs->LoadPatch         = NULL;//GUSMIDI_LoadPatch;
    Funcs->SetVolume         = GUSMIDI_SetVolume;
    Funcs->GetVolume         = GUSMIDI_GetVolume;
 
-   MIDI_SetMidiFuncs( Funcs );
+   Funcs->PolyAftertouch    = NULL;
+   Funcs->ChannelAftertouch = NULL;
+   Funcs->ReleasePatches    = NULL;
+   Funcs->LoadPatch         = NULL;
+   if ( MIDI_SetMidiFuncs( Funcs ) != MIDI_Ok )
+      {
+      MUSIC_SetErrorCode( MUSIC_SoundCardError );
+      status = MUSIC_Error;
+      }
 
    return( status );
    }
@@ -936,7 +913,6 @@ int MUSIC_FadeVolume
    if ( ( MUSIC_SoundDevice == ProAudioSpectrum ) ||
       ( MUSIC_SoundDevice == SoundMan16 ) ||
       ( MUSIC_SoundDevice == GenMidi ) ||
-      ( MUSIC_SoundDevice == SoundScape ) ||
       ( MUSIC_SoundDevice == SoundCanvas ) )
       {
       MIDI_SetVolume( tovolume );
@@ -955,8 +931,8 @@ int MUSIC_FadeVolume
    MUSIC_FadeLength = milliseconds / 25;
    MUSIC_FadeRate   = ( ( tovolume - fromvolume ) << 7 ) / MUSIC_FadeLength;
    MUSIC_LastFadeVolume = fromvolume;
-   MUSIC_CurrentFadeVolume = fromvolume << 7;
    MUSIC_EndingFadeVolume = tovolume;
+   MUSIC_CurrentFadeVolume = fromvolume << 7;
 
    MUSIC_FadeTask = TS_ScheduleTask( MUSIC_FadeRoutine, 40, 1, NULL );
    if ( MUSIC_FadeTask == NULL )

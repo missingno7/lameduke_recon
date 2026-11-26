@@ -75,7 +75,7 @@ static char  PatchLoaded[ NUM_PATCHES ];
 
 // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV < 19950821L)
-static char  ConfigFileName[] = "ULTRASND.INI";
+static char  ConfigFileName[] = "ULTRAMID.INI";
 #else
 static char  ConfigFileName[] = "ULTRAMID.INI";
 #endif

@@ -47,7 +47,6 @@ enum MV_Errors
    MV_VoiceNotFound,
    MV_BlasterError,
    MV_PasError,
-   MV_SoundScapeError,
    MV_SoundSourceError,
    MV_DPMI_Error,
    MV_InvalidVOCFile,
@@ -81,7 +80,7 @@ int   MV_GetMaxReverbDelay( void );
 int   MV_GetReverbDelay( void );
 void  MV_SetReverbDelay( int delay );
 #endif
-int   MV_SetMixMode( int numchannels, int samplebits );
+int   MV_SetMixMode( int mode );
 int   MV_StartPlayback( void );
 void  MV_StopPlayback( void );
 int   MV_StartRecording( int MixRate, void ( *function )( char *ptr, int length ) );

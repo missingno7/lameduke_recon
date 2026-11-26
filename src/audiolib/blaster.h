@@ -43,7 +43,6 @@ typedef struct
    } BLASTER_CONFIG;
 
 extern BLASTER_CONFIG BLASTER_Config;
-extern int BLASTER_DMAChannel;
 
 #define UNDEFINED -1
 
@@ -54,25 +53,11 @@ enum BLASTER_ERRORS
    BLASTER_Ok = 0,
    BLASTER_EnvNotFound,
    BLASTER_AddrNotSet,
-   // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19960116L)
    BLASTER_IntNotSet,
-#endif
    BLASTER_DMANotSet,
    BLASTER_DMA16NotSet,
-   // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19960116L)
-   BLASTER_MIDINotSet,
    BLASTER_CardTypeNotSet,
-#if (LIBVER_ASSREV < 19950821L)
-   BLASTER_UnsupportedSBCardType,
-#endif
-#endif
    BLASTER_InvalidParameter,
-   // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19960116L)
-   BLASTER_UnsupportedCardType,
-#endif
    BLASTER_CardNotReady,
    BLASTER_NoSoundPlaying,
    BLASTER_InvalidIrq,
@@ -80,7 +65,12 @@ enum BLASTER_ERRORS
    BLASTER_DmaError,
    BLASTER_NoMixer,
    BLASTER_DPMI_Error,
-   BLASTER_OutOfMemory
+   BLASTER_OutOfMemory,
+
+   // Retained for paths still using the later driver source.
+   BLASTER_MIDINotSet,
+   BLASTER_UnsupportedCardType,
+   BLASTER_UnsupportedSBCardType
    };
 
 enum BLASTER_Types
@@ -151,15 +141,9 @@ void  BLASTER_SaveMidiVolume( void );
 void  BLASTER_RestoreMidiVolume( void );
 int   BLASTER_GetEnv( BLASTER_CONFIG *Config );
 int   BLASTER_SetCardSettings( BLASTER_CONFIG Config );
-int   BLASTER_GetCardSettings( BLASTER_CONFIG *Config );
 int   BLASTER_GetCardInfo( int *MaxSampleBits, int *MaxChannels );
 void  BLASTER_SetCallBack( void ( *func )( void ) );
-// *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19960116L)
-int   BLASTER_SetupWaveBlaster( int Address );
-#else
 void  BLASTER_SetupWaveBlaster( void );
-#endif
 void  BLASTER_ShutdownWaveBlaster( void );
 int   BLASTER_Init( void );
 void  BLASTER_Shutdown( void );

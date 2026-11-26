@@ -68,7 +68,15 @@ static int cdecl ( *_MIDI_RerouteFunctions[ NUM_MIDI_CHANNELS ] )
 
 static track *_MIDI_TrackPtr = NULL;
 static int    _MIDI_TrackMemSize;
-static int    _MIDI_NumTracks;
+#if (LIBVER_ASSREV < 19950821L)
+static struct
+   {
+   track *start;
+   track *end;
+   } _MIDI_TrackList;
+#else
+static int _MIDI_NumTracks;
+#endif
 
 static int _MIDI_SongActive = FALSE;
 static int _MIDI_SongLoaded = FALSE;
@@ -106,14 +114,16 @@ static int _MIDI_ChannelVolume[ NUM_MIDI_CHANNELS ];
 
 static midifuncs *_MIDI_Funcs = NULL;
 
-static int Reset = FALSE;
+
 
 // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV >= 19950821L)
 int MIDI_Tempo = 120;
 #endif
 
+#if (LIBVER_ASSREV >= 19950821L)
 char MIDI_PatchMap[ 128 ];
+#endif
 
 
 /**********************************************************************
@@ -204,14 +214,29 @@ static void _MIDI_ResetTracks
    )
 
    {
-   int    i;
+#if (LIBVER_ASSREV < 19950821L)
    track *ptr;
 
-   // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19950821L)
+   _MIDI_ActiveTracks = 0;
    _MIDI_PositionInTicks = 0;
-   _MIDI_ActiveTracks = _MIDI_NumTracks;
+   ptr = _MIDI_TrackList.start;
+   if ( ptr )
+      {
+      do
+         {
+         _MIDI_ActiveTracks++;
+         ptr->pos = ptr->start;
+         ptr->delay = _MIDI_ReadDelta( ptr );
+         ptr->active = TRUE;
+         ptr->RunningStatus = 0;
+         ptr = ptr->next;
+         }
+      while ( ptr );
+      }
 #else
+   int i;
+   track *ptr;
+
    _MIDI_Tick = 0;
    _MIDI_Beat = 1;
    _MIDI_Measure = 1;
@@ -223,36 +248,24 @@ static void _MIDI_ResetTracks
    _MIDI_PositionInTicks = 0;
    _MIDI_ActiveTracks    = 0;
    _MIDI_Context         = 0;
-#endif
 
    ptr = _MIDI_TrackPtr;
    for( i = 0; i < _MIDI_NumTracks; i++ )
       {
-      ptr->pos                    = ptr->start;
-      ptr->delay                  = _MIDI_ReadDelta( ptr );
-      // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19950821L)
-      ptr->active                 = TRUE;
-      ptr->RunningStatus          = 0;
-#else
-      ptr->active                 = ptr->EMIDI_IncludeTrack;
-      ptr->RunningStatus          = 0;
-      ptr->currentcontext         = 0;
-#endif
+      ptr->pos = ptr->start;
+      ptr->delay = _MIDI_ReadDelta( ptr );
+      ptr->active = ptr->EMIDI_IncludeTrack;
+      ptr->RunningStatus = 0;
+      ptr->currentcontext = 0;
       ptr->context[ 0 ].loopstart = ptr->start;
       ptr->context[ 0 ].loopcount = 0;
-
-      // *** VERSIONS RESTORATION ***
-      // FIXME use less ifdefs after removing separate context struct
-#if (LIBVER_ASSREV >= 19950821L)
       if ( ptr->active )
          {
          _MIDI_ActiveTracks++;
          }
-#endif
-
       ptr++;
       }
+#endif
    }
 
 
@@ -609,13 +622,15 @@ static void _MIDI_ServiceRoutine
       return;
       }
 
+#if (LIBVER_ASSREV < 19950821L)
+   Track = _MIDI_TrackList.start;
+   ++_MIDI_PositionInTicks;
+   while( Track )
+#else
    Track = _MIDI_TrackPtr;
    tracknum = 0;
-   // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19950821L)
-   ++_MIDI_PositionInTicks;
-#endif
    while( tracknum < _MIDI_NumTracks )
+#endif
       {
       while ( ( Track->active ) && ( Track->delay == 0 ) )
          {
@@ -740,37 +755,6 @@ static void _MIDI_ServiceRoutine
                TimeSet = _MIDI_InterpretControllerInfo( Track, TimeSet,
                   channel, c1, c2 );
 #else
-               if ( c1 == EMIDI_LOOP_START )
-                  {
-                  Track->context[ 0 ].loopstart        = Track->pos;
-
-                  if ( c2 == 0 )
-                     {
-                     Track->context[ 0 ].loopcount = EMIDI_INFINITE;
-                     }
-                  else
-                     {
-                     Track->context[ 0 ].loopcount = c2;
-                     }
-                  break;
-                  }
-
-               if ( ( c1 == EMIDI_LOOP_END ) &&
-                  ( c2 == EMIDI_END_LOOP_VALUE ) )
-                  {
-                  if ( ( Track->context[ 0 ].loopstart != NULL ) &&
-                     ( Track->context[ 0 ].loopcount != 0 ) )
-                     {
-                     if ( Track->context[ 0 ].loopcount != EMIDI_INFINITE )
-                        {
-                        Track->context[ 0 ].loopcount--;
-                        }
-
-                     Track->pos           = Track->context[ 0 ].loopstart;
-                     }
-                  break;
-                  }
-
                if ( c1 == MIDI_MONO_MODE_ON )
                   {
                   Track->pos++;
@@ -798,7 +782,11 @@ static void _MIDI_ServiceRoutine
                   ( !Track->EMIDI_ProgramChange ) )
 #endif
                   {
+#if (LIBVER_ASSREV < 19950821L)
+                  _MIDI_Funcs->ProgramChange( channel, c1 );
+#else
                   _MIDI_Funcs->ProgramChange( channel, MIDI_PatchMap[ c1 & 0x7f ] );
+#endif
                   }
                break;
 
@@ -824,16 +812,24 @@ static void _MIDI_ServiceRoutine
          }
 
       Track->delay--;
+#if (LIBVER_ASSREV < 19950821L)
+      Track = Track->next;
+#else
       Track++;
       tracknum++;
+#endif
 
       if ( _MIDI_ActiveTracks == 0 )
          {
          _MIDI_ResetTracks();
          if ( _MIDI_Loop )
             {
+#if (LIBVER_ASSREV < 19950821L)
+            Track = _MIDI_TrackList.start;
+#else
             tracknum = 0;
             Track = _MIDI_TrackPtr;
+#endif
             }
          else
             {
@@ -926,12 +922,15 @@ int MIDI_AllNotesOff
 
    {
    int channel;
+   int status;
 
    for( channel = 0; channel < NUM_MIDI_CHANNELS; channel++ )
       {
-      _MIDI_SendControlChange( channel, 0x40, 0 );
-      _MIDI_SendControlChange( channel, MIDI_ALL_NOTES_OFF, 0 );
-      _MIDI_SendControlChange( channel, 0x78, 0 );
+      status = _MIDI_SendControlChange( channel, MIDI_ALL_NOTES_OFF, 0 );
+      if ( status != MIDI_Ok )
+         {
+         return( status );
+         }
       }
 
    return( MIDI_Ok );
@@ -1023,18 +1022,13 @@ int MIDI_Reset
 
    {
    int channel;
-   long time;
-   unsigned flags;
+   int status;
 
-   MIDI_AllNotesOff();
-
-   flags = DisableInterrupts();
-   _enable();
-   time = clock() + CLOCKS_PER_SEC/24;
-   while(clock() < time)
-      ;
-
-   RestoreInterrupts( flags );
+   status = MIDI_AllNotesOff();
+   if ( status != MIDI_Ok )
+      {
+      return( status );
+      }
 
    for( channel = 0; channel < NUM_MIDI_CHANNELS; channel++ )
       {
@@ -1047,8 +1041,6 @@ int MIDI_Reset
       }
 
    _MIDI_SendChannelVolumes();
-
-   Reset = TRUE;
 
    return( MIDI_Ok );
    }
@@ -1247,13 +1239,14 @@ int MIDI_SongPlaying
    Selects the routines that send the MIDI data to the music device.
 ---------------------------------------------------------------------*/
 
-void MIDI_SetMidiFuncs
+int MIDI_SetMidiFuncs
    (
    midifuncs *funcs
    )
 
    {
    _MIDI_Funcs = funcs;
+   return( MIDI_Ok );
    }
 
 
@@ -1288,11 +1281,17 @@ void MIDI_StopSong
          _MIDI_Funcs->ReleasePatches();
          }
 
+#if (LIBVER_ASSREV < 19950821L)
+      _MIDI_TrackList.start = NULL;
+      _MIDI_TrackList.end = NULL;
+#endif
       DPMI_UnlockMemory( _MIDI_TrackPtr, _MIDI_TrackMemSize );
       USRHOOKS_FreeMem( _MIDI_TrackPtr );
 
       _MIDI_TrackPtr     = NULL;
+#if (LIBVER_ASSREV >= 19950821L)
       _MIDI_NumTracks    = 0;
+#endif
       _MIDI_TrackMemSize = 0;
 
       // *** VERSIONS RESTORATION ***
@@ -1349,7 +1348,7 @@ int MIDI_PlaySong
    headersize      = _MIDI_ReadNumber( song, 4 );
    song += 4;
    format          = _MIDI_ReadNumber( song, 2 );
-   _MIDI_NumTracks = _MIDI_ReadNumber( song + 2, 2 );
+   numtracks = _MIDI_ReadNumber( song + 2, 2 );
    _MIDI_Division  = _MIDI_ReadNumber( song + 4, 2 );
    // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV >= 19950821L)
@@ -1365,14 +1364,20 @@ int MIDI_PlaySong
       return( MIDI_UnknownMidiFormat );
       }
 
+#if (LIBVER_ASSREV < 19950821L)
+   _MIDI_TrackList.start = NULL;
+   _MIDI_TrackList.end = NULL;
+#else
+   _MIDI_NumTracks = numtracks;
+#endif
    ptr = song + headersize;
 
-   if ( _MIDI_NumTracks == 0 )
+   if ( numtracks == 0 )
       {
       return( MIDI_NoTracks );
       }
 
-   _MIDI_TrackMemSize = _MIDI_NumTracks  * sizeof( track );
+   _MIDI_TrackMemSize = numtracks * sizeof( track );
    status = USRHOOKS_GetMem( &_MIDI_TrackPtr, _MIDI_TrackMemSize );
    if ( status != USRHOOKS_Ok )
       {
@@ -1386,13 +1391,14 @@ int MIDI_PlaySong
 
       _MIDI_TrackPtr     = NULL;
       _MIDI_TrackMemSize = 0;
+#if (LIBVER_ASSREV >= 19950821L)
       _MIDI_NumTracks    = 0;
+#endif
 //      MIDI_SetErrorCode( MIDI_DPMI_Error );
       return( MIDI_Error );
       }
 
    CurrentTrack = _MIDI_TrackPtr;
-   numtracks    = _MIDI_NumTracks;
    while( numtracks-- )
       {
       if ( *( unsigned long * )ptr != MIDI_TRACK_SIGNATURE )
@@ -1411,6 +1417,9 @@ int MIDI_PlaySong
       ptr += 8;
       CurrentTrack->start = ptr;
       ptr += tracklength;
+#if (LIBVER_ASSREV < 19950821L)
+      LL_AddToTail( track, &_MIDI_TrackList, CurrentTrack );
+#endif
       CurrentTrack++;
       }
 
@@ -1436,12 +1445,7 @@ int MIDI_PlaySong
    _MIDI_ResetTracks();
 #endif
 
-   if ( !Reset )
-      {
-      MIDI_Reset();
-      }
-
-   Reset = FALSE;
+   MIDI_Reset();
 
    // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV < 19950821L)
@@ -1495,7 +1499,6 @@ void MIDI_SetPosition
    int   channel;
    int   command;
    track *Track;
-   int   tracknum;
    int   status;
    int   c1;
    int   c2;
@@ -1516,10 +1519,9 @@ void MIDI_SetPosition
 
    while ( _MIDI_PositionInTicks < PositionInTicks )
       {
-      Track = _MIDI_TrackPtr;
-      tracknum = 0;
+      Track = _MIDI_TrackList.start;
       ++_MIDI_PositionInTicks;
-      while( ( tracknum < _MIDI_NumTracks ) && ( Track != NULL ) )
+      while( Track )
          {
          // RESTORATION - More-or-less a copy-and-paste
          // from (an earlier revision of) _MIDI_ServiceRoutine
@@ -1652,8 +1654,7 @@ void MIDI_SetPosition
             }
 
          Track->delay--;
-         Track++;
-         tracknum++;
+         Track = Track->next;
 
          if ( _MIDI_ActiveTracks == 0 )
             {
@@ -2376,9 +2377,14 @@ void MIDI_LoadTimbres
    track *Track;
    int    tracknum;
 
+#if (LIBVER_ASSREV < 19950821L)
+   Track = _MIDI_TrackList.start;
+   while( Track )
+#else
    Track = _MIDI_TrackPtr;
    tracknum = 0;
    while( ( tracknum < _MIDI_NumTracks ) && ( Track != NULL ) )
+#endif
       {
       Finished = FALSE;
       while ( !Finished )
@@ -2479,8 +2485,12 @@ void MIDI_LoadTimbres
          Track->pos += length;
          _MIDI_ReadDelta( Track );
          }
+#if (LIBVER_ASSREV < 19950821L)
+      Track = Track->next;
+#else
       Track++;
       tracknum++;
+#endif
       }
 
    _MIDI_ResetTracks();
@@ -2517,8 +2527,13 @@ void MIDI_UnlockMemory
    DPMI_UnlockMemoryRegion( MIDI_LockStart, MIDI_LockEnd );
    DPMI_UnlockMemory( ( void * )&_MIDI_CommandLengths[ 0 ],
       sizeof( _MIDI_CommandLengths ) );
+#if (LIBVER_ASSREV < 19950821L)
+   DPMI_Unlock( _MIDI_TrackList );
+   DPMI_Unlock( _MIDI_TrackPtr );
+#else
    DPMI_Unlock( _MIDI_TrackPtr );
    DPMI_Unlock( _MIDI_NumTracks );
+#endif
    DPMI_Unlock( _MIDI_SongActive );
    DPMI_Unlock( _MIDI_SongLoaded );
    DPMI_Unlock( _MIDI_Loop );
@@ -2569,8 +2584,13 @@ int MIDI_LockMemory
    status  = DPMI_LockMemoryRegion( MIDI_LockStart, MIDI_LockEnd );
    status |= DPMI_LockMemory( ( void * )&_MIDI_CommandLengths[ 0 ],
       sizeof( _MIDI_CommandLengths ) );
+#if (LIBVER_ASSREV < 19950821L)
+   status |= DPMI_Lock( _MIDI_TrackList );
+   status |= DPMI_Lock( _MIDI_TrackPtr );
+#else
    status |= DPMI_Lock( _MIDI_TrackPtr );
    status |= DPMI_Lock( _MIDI_NumTracks );
+#endif
    status |= DPMI_Lock( _MIDI_SongActive );
    status |= DPMI_Lock( _MIDI_SongLoaded );
    status |= DPMI_Lock( _MIDI_Loop );

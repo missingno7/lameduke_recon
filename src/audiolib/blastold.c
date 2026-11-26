@@ -108,17 +108,16 @@ static int BLASTER_OriginalMidiVolumeRight  = 255;
 static int BLASTER_OriginalVoiceVolumeLeft  = 255;
 static int BLASTER_OriginalVoiceVolumeRight = 255;
 
-static int BLASTER_WaveBlasterPort  = UNDEFINED;
 static int BLASTER_WaveBlasterState = 0x0F;
 
 // adequate stack size
-#define kStackSize 2048
+#define kStackSize 1024
 
-static unsigned short StackSelector = NULL;
-static unsigned long  StackPointer;
+static unsigned short BLASTER_StackSelector = NULL;
+static unsigned long  BLASTER_StackPointer;
 
-static unsigned short oldStackSelector;
-static unsigned long  oldStackPointer;
+static unsigned short BLASTER_OldStackSelector;
+static unsigned long  BLASTER_OldStackPointer;
 
 // This is defined because we can't create local variables in a
 // function that switches stacks.
@@ -146,8 +145,6 @@ extern void SetStack(unsigned short selector,unsigned long stackptr);
    parm [ax] [edx]      \
    modify [eax edx];
 
-int BLASTER_DMAChannel;
-
 int BLASTER_ErrorCode = BLASTER_Ok;
 
 #define BLASTER_SetErrorCode( status ) \
@@ -171,7 +168,6 @@ char *BLASTER_ErrorString
 
    switch( ErrorNumber )
       {
-      case BLASTER_Warning :
       case BLASTER_Error :
          ErrorString = BLASTER_ErrorString( BLASTER_ErrorCode );
          break;
@@ -200,37 +196,20 @@ char *BLASTER_ErrorString
          ErrorString = "Missing Sound Blaster 16-bit DMA channel in BLASTER environment variable.";
          break;
 
-      case BLASTER_MIDINotSet :
-         ErrorString = "Missing WaveBlaster MIDI port in BLASTER environment variable.";
-         break;
-
       case BLASTER_CardTypeNotSet :
-         ErrorString = "Missing Sound Blaster card Type parameter in BLASTER environment variable.";
+         ErrorString = "Sound Blaster card type not set.";
          break;
 
       case BLASTER_InvalidParameter :
          ErrorString = "Invalid parameter in BLASTER environment variable.";
          break;
 
-// *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19960116L)
-      case BLASTER_UnsupportedCardType :
-         ErrorString = "Unsupported card selected in BLASTER environment variable T parameter.";
-         break;
-
-#if (LIBVER_ASSREV < 19950821L)
-      case BLASTER_UnsupportedSBCardType :
-         ErrorString = "Unsupported Sound Blaster card type selected.";
-         break;
-
-#endif
-#endif
       case BLASTER_CardNotReady :
-         ErrorString = "Sound Blaster not responding on selected port.";
+         ErrorString = "Sound Blaster card not ready.";
          break;
 
       case BLASTER_NoSoundPlaying :
-         ErrorString = "No sound playing on Sound Blaster.";
+         ErrorString = "No sound playing.";
          break;
 
       case BLASTER_InvalidIrq :
@@ -238,7 +217,7 @@ char *BLASTER_ErrorString
          break;
 
       case BLASTER_UnableToSetIrq :
-         ErrorString = "Unable to set Sound Blaster IRQ.  Try selecting an IRQ of 7 or below.";
+         ErrorString = "Unable to set Sound Blaster Irq.";
          break;
 
       case BLASTER_DmaError :
@@ -361,10 +340,10 @@ void __interrupt __far BLASTER_ServiceInterrupt
    {
    #ifdef USESTACK
    // save stack
-   GetStack( &oldStackSelector, &oldStackPointer );
+   GetStack( &BLASTER_OldStackSelector, &BLASTER_OldStackPointer );
 
    // set our stack
-   SetStack( StackSelector, StackPointer );
+   SetStack( BLASTER_StackSelector, BLASTER_StackPointer );
    #endif
 
    // Acknowledge interrupt
@@ -390,7 +369,7 @@ void __interrupt __far BLASTER_ServiceInterrupt
          {
          #ifdef USESTACK
          // restore stack
-         SetStack( oldStackSelector, oldStackPointer );
+         SetStack( BLASTER_OldStackSelector, BLASTER_OldStackPointer );
          #endif
 
          // Wasn't our interrupt.  Call the old one.
@@ -433,7 +412,7 @@ void __interrupt __far BLASTER_ServiceInterrupt
 
    #ifdef USESTACK
    // restore stack
-   SetStack( oldStackSelector, oldStackPointer );
+   SetStack( BLASTER_OldStackSelector, BLASTER_OldStackPointer );
    #endif
 
    // send EOI to Interrupt Controller
@@ -916,8 +895,6 @@ int BLASTER_SetupDMABuffer
       return( BLASTER_Error );
       }
 
-   BLASTER_DMAChannel = DmaChannel;
-
    BLASTER_DMABuffer          = BufferPtr;
    BLASTER_CurrentDMABuffer   = BufferPtr;
    BLASTER_TotalDMABufferSize = BufferSize;
@@ -1084,28 +1061,21 @@ int BLASTER_DSP4xx_BeginPlayback
       TransferCommand = DSP_16BitDAC;
       SampleLength = ( length / 2 ) - 1;
       BLASTER_HaltTransferCommand = DSP_Halt16bitTransfer;
-      if ( BLASTER_MixMode & STEREO )
-         {
-         TransferMode = DSP_SignedStereoData;
-         }
-      else
-         {
-         TransferMode = DSP_SignedMonoData;
-         }
       }
    else
       {
       TransferCommand = DSP_8BitDAC;
       SampleLength = length - 1;
       BLASTER_HaltTransferCommand = DSP_Halt8bitTransfer;
-      if ( BLASTER_MixMode & STEREO )
-         {
-         TransferMode = DSP_UnsignedStereoData;
-         }
-      else
-         {
-         TransferMode = DSP_UnsignedMonoData;
-         }
+      }
+
+   if ( BLASTER_MixMode & STEREO )
+      {
+      TransferMode = DSP_UnsignedStereoData;
+      }
+   else
+      {
+      TransferMode = DSP_UnsignedMonoData;
       }
 
    HiByte = hibyte( SampleLength );
@@ -1851,16 +1821,6 @@ int BLASTER_GetEnv
       {
       errorcode = BLASTER_CardTypeNotSet;
       }
-   // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV >= 19950821L)
-   else if ( ( Config->Type < BLASTER_MinCardType ) ||
-      ( Config->Type > BLASTER_MaxCardType ) ||
-      ( !BLASTER_CardConfig[ Config->Type ].IsSupported ) )
-      {
-      errorcode = BLASTER_UnsupportedCardType;
-      }
-#endif
-
    if ( Config->Dma8 == UNDEFINED )
       {
       errorcode = BLASTER_DMANotSet;
@@ -1876,16 +1836,6 @@ int BLASTER_GetEnv
       errorcode = BLASTER_AddrNotSet;
       }
 
-   // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19950821L)
-   if ( ( Config->Type < BLASTER_MinCardType ) ||
-      ( Config->Type > BLASTER_MaxCardType ) ||
-      ( !BLASTER_CardConfig[ Config->Type ].IsSupported ) )
-      {
-      errorcode = BLASTER_UnsupportedCardType;
-      }
-
-#endif
    if ( errorcode != BLASTER_Ok )
       {
       status = BLASTER_Error;
@@ -1913,14 +1863,6 @@ int BLASTER_SetCardSettings
       BLASTER_Shutdown();
       }
 
-   if ( ( Config.Type < BLASTER_MinCardType ) ||
-      ( Config.Type > BLASTER_MaxCardType ) ||
-      ( !BLASTER_CardConfig[ Config.Type ].IsSupported ) )
-      {
-      BLASTER_SetErrorCode( BLASTER_UnsupportedCardType );
-      return( BLASTER_Error );
-      }
-
    BLASTER_Config.Address   = Config.Address;
    BLASTER_Config.Type      = Config.Type;
    BLASTER_Config.Interrupt = Config.Interrupt;
@@ -1928,46 +1870,6 @@ int BLASTER_SetCardSettings
    BLASTER_Config.Dma16     = Config.Dma16;
    BLASTER_Config.Midi      = Config.Midi;
    BLASTER_Config.Emu       = Config.Emu;
-
-   BLASTER_MixerAddress = Config.Address;
-   BLASTER_MixerType = 0;
-  // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19950821L)
-if ( ( Config.Type >= BLASTER_MinCardType ) ||
-   ( Config.Type <= BLASTER_MaxCardType ) )
-#endif
-   BLASTER_MixerType = Config.Type;
-
-   return( BLASTER_Ok );
-   }
-
-
-/*---------------------------------------------------------------------
-   Function: BLASTER_GetCardSettings
-
-   Sets up the sound card's parameters.
----------------------------------------------------------------------*/
-
-int BLASTER_GetCardSettings
-   (
-   BLASTER_CONFIG *Config
-   )
-
-   {
-   if ( BLASTER_Config.Address == UNDEFINED )
-      {
-      return( BLASTER_Warning );
-      }
-   else
-      {
-      Config->Address   = BLASTER_Config.Address;
-      Config->Type      = BLASTER_Config.Type;
-      Config->Interrupt = BLASTER_Config.Interrupt;
-      Config->Dma8      = BLASTER_Config.Dma8;
-      Config->Dma16     = BLASTER_Config.Dma16;
-      Config->Midi      = BLASTER_Config.Midi;
-      Config->Emu       = BLASTER_Config.Emu;
-      }
 
    return( BLASTER_Ok );
    }
@@ -2150,14 +2052,14 @@ int BLASTER_LockMemory
 
 
 /*---------------------------------------------------------------------
-   Function: allocateTimerStack
+   Function: BLASTER_AllocateTimerStack
 
    Allocate a block of memory from conventional (low) memory and return
    the selector (which can go directly into a segment register) of the
    memory block or 0 if an error occured.
 ---------------------------------------------------------------------*/
 
-static unsigned short allocateTimerStack
+static unsigned short BLASTER_AllocateTimerStack
    (
    unsigned short size
    )
@@ -2190,13 +2092,13 @@ static unsigned short allocateTimerStack
 
 
 /*---------------------------------------------------------------------
-   Function: deallocateTimerStack
+   Function: BLASTER_DeallocateTimerStack
 
    Deallocate a block of conventional (low) memory given a selector to
    it.  Assumes the block was allocated with DPMI function 0x100.
 ---------------------------------------------------------------------*/
 
-static void deallocateTimerStack
+static void BLASTER_DeallocateTimerStack
    (
    unsigned short selector
    )
@@ -2223,49 +2125,17 @@ static void deallocateTimerStack
    plays digital sound.
 ---------------------------------------------------------------------*/
 
-int BLASTER_SetupWaveBlaster
+void BLASTER_SetupWaveBlaster
    (
-   int address
+   void
    )
 
    {
-   BLASTER_CONFIG Blaster;
-   int status;
-
-   if ( address != UNDEFINED )
-      {
-      BLASTER_WaveBlasterPort = address;
-      }
-   else
-      {
-      if ( BLASTER_Config.Midi == UNDEFINED )
-         {
-         status = BLASTER_GetEnv( &Blaster );
-         if ( status == BLASTER_Ok )
-            {
-            if ( Blaster.Midi == UNDEFINED )
-               {
-               BLASTER_SetErrorCode( BLASTER_MIDINotSet );
-               return( BLASTER_Error );
-               }
-            BLASTER_WaveBlasterPort = Blaster.Midi;
-            }
-         else
-            {
-            return( status );
-            }
-         }
-      }
-
    if ( BLASTER_CardHasMixer() )
       {
-      // Disable MPU401 interrupts.  If they are not disabled,
-      // the SB16 will not produce sound or music.
       BLASTER_WaveBlasterState = BLASTER_ReadMixer( MIXER_DSP4xxISR_Enable );
       BLASTER_WriteMixer( MIXER_DSP4xxISR_Enable, MIXER_DisableMPU401Interrupts );
       }
-
-   return( BLASTER_WaveBlasterPort );
    }
 
 
@@ -2319,7 +2189,24 @@ int BLASTER_Init
    status = BLASTER_ResetDSP();
    if ( status == BLASTER_Ok )
       {
-      BLASTER_SaveVoiceVolume();
+      if ( BLASTER_CardHasMixer() )
+         {
+         switch( BLASTER_MixerType )
+            {
+            case SBPro :
+            case SBPro2 :
+               BLASTER_OriginalVoiceVolumeLeft =
+                  BLASTER_ReadMixer( MIXER_SBProVoice );
+               break;
+   
+            case SB16 :
+               BLASTER_OriginalVoiceVolumeLeft =
+                  BLASTER_ReadMixer( MIXER_SB16VoiceLeft );
+               BLASTER_OriginalVoiceVolumeRight =
+                  BLASTER_ReadMixer( MIXER_SB16VoiceRight );
+               break;
+            }
+         }
 
       BLASTER_SoundPlaying = FALSE;
 
@@ -2354,14 +2241,8 @@ int BLASTER_Init
 
       // Install our interrupt handler
       Irq = BLASTER_Config.Interrupt;
-      if ( !VALID_IRQ( Irq ) )
-         {
-         BLASTER_SetErrorCode( BLASTER_InvalidIrq );
-         return( BLASTER_Error );
-         }
-
       Interrupt = BLASTER_Interrupts[ Irq ];
-      if ( Interrupt == INVALID )
+      if ( !Interrupt )
          {
          BLASTER_SetErrorCode( BLASTER_InvalidIrq );
          return( BLASTER_Error );
@@ -2374,8 +2255,8 @@ int BLASTER_Init
          return( status );
          }
 
-      StackSelector = allocateTimerStack( kStackSize );
-      if ( StackSelector == NULL )
+      BLASTER_StackSelector = BLASTER_AllocateTimerStack( kStackSize );
+      if ( BLASTER_StackSelector == NULL )
          {
          BLASTER_UnlockMemory();
          BLASTER_SetErrorCode( BLASTER_OutOfMemory );
@@ -2383,7 +2264,7 @@ int BLASTER_Init
          }
 
       // Leave a little room at top of stack just for the hell of it...
-      StackPointer = kStackSize - sizeof( long );
+      BLASTER_StackPointer = kStackSize - sizeof( long );
 
       BLASTER_OldInt = _dos_getvect( Interrupt );
       if ( Irq < 8 )
@@ -2396,8 +2277,8 @@ int BLASTER_Init
          if ( status != IRQ_Ok )
             {
             BLASTER_UnlockMemory();
-            deallocateTimerStack( StackSelector );
-            StackSelector = NULL;
+            BLASTER_DeallocateTimerStack( BLASTER_StackSelector );
+            BLASTER_StackSelector = NULL;
             BLASTER_SetErrorCode( BLASTER_UnableToSetIrq );
             return( BLASTER_Error );
             }
@@ -2453,8 +2334,8 @@ void BLASTER_Shutdown
 
    BLASTER_UnlockMemory();
 
-   deallocateTimerStack( StackSelector );
-   StackSelector = NULL;
+   BLASTER_DeallocateTimerStack( BLASTER_StackSelector );
+   BLASTER_StackSelector = NULL;
 
    BLASTER_Installed = FALSE;
    }

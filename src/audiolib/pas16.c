@@ -73,7 +73,7 @@ static int PAS_OriginalFMLeftVolume  = 75;
 static int PAS_OriginalFMRightVolume = 75;
 
 unsigned int PAS_DMAChannel;
-static int PAS_Irq;
+static unsigned PAS_Irq;
 
 static MVState *PAS_State = NULL;
 static MVFunc  *PAS_Func  = NULL;
@@ -96,13 +96,13 @@ volatile int   PAS_SoundPlaying;
 void ( *PAS_CallBack )( void );
 
 // adequate stack size
-#define kStackSize 2048
+#define kStackSize 1024
 
-static unsigned short StackSelector = NULL;
-static unsigned long  StackPointer;
+static unsigned short PAS_StackSelector = NULL;
+static unsigned long  PAS_StackPointer;
 
-static unsigned short oldStackSelector;
-static unsigned long  oldStackPointer;
+static unsigned short PAS_OldStackSelector;
+static unsigned long  PAS_OldStackPointer;
 
 // This is defined because we can't create local variables in a
 // function that switches stacks.
@@ -174,7 +174,7 @@ char *PAS_ErrorString
          break;
 
       case PAS_UnableToSetIrq :
-         ErrorString = "Unable to set Pro AudioSpectrum IRQ.  Try selecting an IRQ of 7 or below.";
+         ErrorString = "Unable to set Pro AudioSpectrum Irq.";
          break;
 
       case PAS_Dos4gwIrqError :
@@ -182,7 +182,7 @@ char *PAS_ErrorString
          break;
 
       case PAS_NoSoundPlaying :
-         ErrorString = "No sound playing on Pro AudioSpectrum.";
+         ErrorString = "No sound playing.";
          break;
 
       case PAS_CardNotFound :
@@ -384,12 +384,6 @@ int PAS_GetCardSettings
       return( PAS_Error );
       }
 
-   if ( PAS_Interrupts[ PAS_Irq ] == INVALID )
-      {
-      PAS_SetErrorCode( PAS_InvalidIrq );
-      return( PAS_Error );
-      }
-
    status = DMA_VerifyChannel( PAS_DMAChannel );
    if ( status == DMA_Error )
       {
@@ -507,10 +501,10 @@ void interrupt far PAS_ServiceInterrupt
    {
    #ifdef USESTACK
    // save stack
-   GetStack( &oldStackSelector, &oldStackPointer );
+   GetStack( &PAS_OldStackSelector, &PAS_OldStackPointer );
 
    // set our stack
-   SetStack( StackSelector, StackPointer );
+   SetStack( PAS_StackSelector, PAS_StackPointer );
    #endif
 
    irqstatus = PAS_Read( InterruptStatus );
@@ -518,7 +512,7 @@ void interrupt far PAS_ServiceInterrupt
       {
       #ifdef USESTACK
       // restore stack
-      SetStack( oldStackSelector, oldStackPointer );
+      SetStack( PAS_OldStackSelector, PAS_OldStackPointer );
       #endif
 
       _chain_intr( PAS_OldInt );
@@ -551,7 +545,7 @@ void interrupt far PAS_ServiceInterrupt
 
    #ifdef USESTACK
    // restore stack
-   SetStack( oldStackSelector, oldStackPointer );
+   SetStack( PAS_OldStackSelector, PAS_OldStackPointer );
    #endif
    }
 
@@ -1014,19 +1008,10 @@ void PAS_BeginTransfer
    // Get the filter appropriate filter setting
    data = PAS_GetFilterSetting( PAS_SampleRate );
 
-   // Enable the Sample Rate Timer and Sample Buffer Count
-   data |= SampleRateTimerGateFlag | SampleBufferCountGateFlag;
-
-   if ( mode != RECORD )
-      {
-      // Enable audio (not Audio Mute)
-      data |= PAS_AudioMuteFlag;
-      }
-
+   // Enable the sample timers and audio.
+   data |= SampleRateTimerGateFlag | SampleBufferCountGateFlag | PAS_AudioMuteFlag;
    PAS_Write( AudioFilterControl, data );
    PAS_State->audiofilt = data;
-
-   PAS_SoundPlaying = TRUE;
    }
 
 
@@ -1591,14 +1576,14 @@ static void PAS_LockEnd
 
 
 /*---------------------------------------------------------------------
-   Function: allocateTimerStack
+   Function: PAS_AllocateTimerStack
 
    Allocate a block of memory from conventional (low) memory and return
    the selector (which can go directly into a segment register) of the
    memory block or 0 if an error occured.
 ---------------------------------------------------------------------*/
 
-static unsigned short allocateTimerStack
+static unsigned short PAS_AllocateTimerStack
    (
    unsigned short size
    )
@@ -1631,13 +1616,13 @@ static unsigned short allocateTimerStack
 
 
 /*---------------------------------------------------------------------
-   Function: deallocateTimerStack
+   Function: PAS_DeallocateTimerStack
 
    Deallocate a block of conventional (low) memory given a selector to
    it.  Assumes the block was allocated with DPMI function 0x100.
 ---------------------------------------------------------------------*/
 
-static void deallocateTimerStack
+static void PAS_DeallocateTimerStack
    (
    unsigned short selector
    )
@@ -1732,8 +1717,8 @@ int PAS_Init
       return( status );
       }
 
-   StackSelector = allocateTimerStack( kStackSize );
-   if ( StackSelector == NULL )
+   PAS_StackSelector = PAS_AllocateTimerStack( kStackSize );
+   if ( PAS_StackSelector == NULL )
       {
       PAS_UnlockMemory();
       PAS_SetErrorCode( PAS_OutOfMemory );
@@ -1741,7 +1726,7 @@ int PAS_Init
       }
 
    // Leave a little room at top of stack just for the hell of it...
-   StackPointer = kStackSize - sizeof( long );
+   PAS_StackPointer = kStackSize - sizeof( long );
 
    // Install our interrupt handler
    Interrupt = PAS_Interrupts[ PAS_Irq ];
@@ -1756,8 +1741,8 @@ int PAS_Init
       if ( status != IRQ_Ok )
          {
          PAS_UnlockMemory();
-         deallocateTimerStack( StackSelector );
-         StackSelector = NULL;
+         PAS_DeallocateTimerStack( PAS_StackSelector );
+         PAS_StackSelector = NULL;
          PAS_SetErrorCode( PAS_UnableToSetIrq );
          return( PAS_Error );
          }
@@ -1824,8 +1809,8 @@ void PAS_Shutdown
 
       PAS_UnlockMemory();
 
-      deallocateTimerStack( StackSelector );
-      StackSelector = NULL;
+      PAS_DeallocateTimerStack( PAS_StackSelector );
+      PAS_StackSelector = NULL;
 
       PAS_Installed = FALSE;
       }

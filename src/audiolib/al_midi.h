@@ -45,8 +45,6 @@ void AL_SendOutput( int reg, int data );
 #else
 void AL_SendOutput( int  voice, int reg, int data );
 #endif
-void AL_StereoOn( void );
-void AL_StereoOff( void );
 int  AL_ReserveVoice( int voice );
 int  AL_ReleaseVoice( int voice );
 void AL_Shutdown( void );
@@ -62,6 +60,5 @@ void AL_ControlChange( int channel, int type, int data );
 void AL_ProgramChange( int channel, int patch );
 void AL_SetPitchBend( int channel, int lsb, int msb );
 int  AL_DetectFM( void );
-void AL_RegisterTimbreBank( unsigned char *timbres );
 
 #endif

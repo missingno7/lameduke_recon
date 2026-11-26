@@ -55,9 +55,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 int MPU_BaseAddr = MPU_DefaultAddress;
 
-//unsigned MPU_Delay = 500;
-//unsigned MPU_Delay = 5000;
-unsigned MPU_Delay = 0x5000;
+unsigned MPU_Delay = 500;
 
 
 /**********************************************************************

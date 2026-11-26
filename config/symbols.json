@@ -2589,6 +2589,302 @@
    "getoutputcirclesize": {
     "addr": "1:49c4e",
     "evidence": "multi worker 2026-11-26: Documented in BUILD.TXT 10/16/94. Same calculation with December 4096-byte ring as June 1995 MULTI.OBJ uses with its 16384-byte ring."
+   },
+   "MV_Mix8bitMono": {
+    "addr": "1:593ae",
+    "evidence": "audio worker 2026-11-26: MV_ServiceVoc dispatch; 256 byte samples, mono volume row and clip table"
+   },
+   "MV_Mix8bitStereo": {
+    "addr": "1:59479",
+    "evidence": "audio worker 2026-11-26: MV_ServiceVoc dispatch; 256 stereo frames, distinct left/right 8-bit rows"
+   },
+   "MV_Mix16bitUnsignedMono": {
+    "addr": "1:59597",
+    "evidence": "audio worker 2026-11-26: MV_ServiceVoc dispatch; unsigned word destination and scalar clamp to 65535"
+   },
+   "MV_Mix16bitUnsignedStereo": {
+    "addr": "1:5967e",
+    "evidence": "audio worker 2026-11-26: MV_ServiceVoc dispatch; two unsigned word destinations and two scalar clamps"
+   },
+   "MV_DeleteDeadVoices": {
+    "addr": "1:597b6",
+    "evidence": "audio worker 2026-11-26: MV_ServiceVoc calls with previous page; checks indexed Active[] then moves list nodes"
+   },
+   "MV_ServiceVoc": {
+    "addr": "1:5983d",
+    "evidence": "audio worker 2026-11-26: callback passed to BLASTER/PAS/SS buffered playback; invokes four mode-specific mixers"
+   },
+   "MV_GetVoice": {
+    "addr": "1:599ce",
+    "evidence": "audio worker 2026-11-26: lookup by handle at voice +0x74; called by MV_VoicePlaying, Kill and SetPan"
+   },
+   "MV_Kill": {
+    "addr": "1:59a5e",
+    "evidence": "audio worker 2026-11-26: FX_StopSound and MV_KillAllVoices call; removes node and fires callback"
+   },
+   "MV_AllocVoice": {
+    "addr": "1:59b57",
+    "evidence": "audio worker 2026-11-26: MV_PlayVOC and DemandFeed call; picks node by priority and advances handle"
+   },
+   "MV_SetPitch": {
+    "addr": "1:59c20",
+    "evidence": "audio worker 2026-11-26: called by FX_SetPitch; retrieves voice then calls PITCH_GetScale"
+   },
+   "MV_StopPlayback": {
+    "addr": "1:5a056",
+    "evidence": "audio worker 2026-11-26: called by MV_Shutdown, dispatches driver stop"
+   },
+   "MV_LockEnd": {
+    "addr": "1:5a1d7",
+    "evidence": "audio worker 2026-11-26: one-byte RET with both MV memory locking routines passing this exact region bound"
+   },
+   "MV_StartDemandFeedPlayback": {
+    "addr": "1:5a230",
+    "evidence": "audio worker 2026-11-26: puts first argument in +0x7c callback, queues voice and allocates at fixed priority"
+   },
+   "MV_GetNextVOCBlock": {
+    "addr": "1:5a461",
+    "evidence": "audio worker 2026-11-26: called by all four mixers and both play entry points, handles VOC continuation and demand feed"
+   },
+   "MV_PlayVOC": {
+    "addr": "1:5a665",
+    "evidence": "audio worker 2026-11-26: called by FX_PlayVOC; reads VOC data offset at header +0x14"
+   },
+   "MV_PlayVOC3D": {
+    "addr": "1:5a870",
+    "evidence": "audio worker 2026-11-26: called by FX_PlayVOC3D; indexes pan table and calls MV_PlayVOC"
+   },
+   "MV_CalcPanTable": {
+    "addr": "1:5aa13",
+    "evidence": "audio worker 2026-11-26: MV_Init calls before MV_SetVolume; fills 32 angles and 16 volume levels"
+   },
+   "MV_SetCallBack": {
+    "addr": "1:5ab0c",
+    "evidence": "audio worker 2026-11-26: FX_SetCallBack dispatcher enters sole callback pointer store"
+   },
+   "TS_ServiceSchedule": {
+    "addr": "1:55ccc",
+    "evidence": "audio worker 2026-11-26: registered INT 8 handler in TS_Startup"
+   },
+   "TS_ServiceTasks": {
+    "addr": "1:55d54",
+    "evidence": "audio worker 2026-11-26: INT 8 callback loop, invoked after private stack switch"
+   },
+   "TS_AllocateTimerStack": {
+    "addr": "1:55d90",
+    "evidence": "audio worker 2026-11-26: TS_Startup invokes with 0x400; DPMI AX=0100"
+   },
+   "TS_DeallocateTimerStack": {
+    "addr": "1:55dec",
+    "evidence": "audio worker 2026-11-26: conventional-memory release AX=0101 takes selector"
+   },
+   "TS_Startup": {
+    "addr": "1:55e2c",
+    "evidence": "audio worker 2026-11-26: invoked by TS_ScheduleTask; registers INT 8 and atexit"
+   },
+   "TS_AddTask": {
+    "addr": "1:561a8",
+    "evidence": "audio worker 2026-11-26: invoked by TS_ScheduleTask; ascending priority insertion"
+   },
+   "TS_LockEnd": {
+    "addr": "1:56304",
+    "evidence": "audio worker 2026-11-26: exclusive code endpoint passed by TS_LockMemory and TS_UnlockMemory"
+   },
+   "TS_UnlockMemory": {
+    "addr": "1:56308",
+    "evidence": "audio worker 2026-11-26: DPMI unlock list from TS_Startup error path and Shutdown"
+   },
+   "TS_LockMemory": {
+    "addr": "1:563b0",
+    "evidence": "audio worker 2026-11-26: DPMI lock list called by TS_Startup"
+   },
+   "TS_Shutdown": {
+    "addr": "1:55eec",
+    "evidence": "audio worker 2026-11-26: passed to atexit by TS_Startup and restores original INT 8 vector"
+   },
+   "MV_StartRecording": {
+    "addr": "1:5a102",
+    "evidence": "audio worker 2026-11-26: stops playback, fills DMA buffer, installs record callback and dispatches to card"
+   },
+   "MV_StopRecord": {
+    "addr": "1:5a1d8",
+    "evidence": "audio worker 2026-11-26: stops the record backend and resumes playback setup"
+   },
+   "BLASTER_SetVoiceVolume": {
+    "addr": "1:5fbb4",
+    "evidence": "audio worker 2026-11-26: FX_SetVolume dispatch and matching mixer register-write routine"
+   },
+   "BLASTER_GetVoiceVolume": {
+    "addr": "1:5fb10",
+    "evidence": "audio worker 2026-11-26: FX_GetVolume dispatch and matching mixer register-read routine"
+   },
+   "AL_Shutdown": {
+    "addr": "1:61b34",
+    "evidence": "audio worker 2026-11-26: MUSIC_Shutdown calls for OPL and OPL-backed cards; AL teardown block"
+   },
+   "MV_SetMixMode": {
+    "addr": "1:59e59",
+    "evidence": "audio worker 2026-11-26: MV_Init calls with requested mode; selects sample width and silence value"
+   },
+   "MV_StartPlayback": {
+    "addr": "1:5a1ec",
+    "evidence": "audio worker 2026-11-26: MV_Init calls after PITCH_Init; clears DMA buffers and jumps to backend setup"
+   },
+   "BLASTER_GetDSPVersion": {
+    "addr": "1:5f3ac",
+    "evidence": "audio worker 2026-11-26: BLASTER_Init calls; DSP command E1 reads major/minor bytes"
+   },
+   "BLASTER_SpeakerOn": {
+    "addr": "1:5f3e8",
+    "evidence": "audio worker 2026-11-26: DSP speaker enable D1 tail call"
+   },
+   "BLASTER_SpeakerOff": {
+    "addr": "1:5f3f0",
+    "evidence": "audio worker 2026-11-26: DSP speaker disable D3 tail call"
+   },
+   "BLASTER_GetPlaybackRate": {
+    "addr": "1:5f560",
+    "evidence": "audio worker 2026-11-26: MULTIVOC calls on successful BLASTER playback setup"
+   },
+   "BLASTER_GetCurrentPos": {
+    "addr": "1:5f6d0",
+    "evidence": "audio worker 2026-11-26: DMA current position calculation after setup"
+   },
+   "BLASTER_SetMidiVolume": {
+    "addr": "1:5fd04",
+    "evidence": "audio worker 2026-11-26: MIDI mixer register variant of verified SetVoiceVolume"
+   },
+   "BLASTER_SetCardSettings": {
+    "addr": "1:601d0",
+    "evidence": "audio worker 2026-11-26: FX_SetupCard passes config by value; copies exactly seven dwords"
+   },
+   "BLASTER_GetCardInfo": {
+    "addr": "1:60224",
+    "evidence": "audio worker 2026-11-26: FX_SetupCard passes sample-width and channel-count output pointers"
+   },
+   "BLASTER_SetCallBack": {
+    "addr": "1:60290",
+    "evidence": "audio worker 2026-11-26: sole store to DMA driver callback pointer before lock end"
+   },
+   "BLASTER_LockEnd": {
+    "addr": "1:60298",
+    "evidence": "audio worker 2026-11-26: code endpoint passed to BLASTER memory lock"
+   },
+   "BLASTER_AllocateTimerStack": {
+    "addr": "1:60664",
+    "evidence": "audio worker 2026-11-26: returns selector from DPMI AX=0100; called by BLASTER_Init"
+   },
+   "BLASTER_DeallocateTimerStack": {
+    "addr": "1:606c0",
+    "evidence": "audio worker 2026-11-26: DPMI AX=0101 on nonzero selector"
+   },
+   "BLASTER_SetupWaveBlaster": {
+    "addr": "1:60700",
+    "evidence": "audio worker 2026-11-26: MUSIC backend setup calls this followed by MPU initialization"
+   },
+   "PAS_EnableInterrupt": {
+    "addr": "1:57608",
+    "evidence": "audio worker 2026-11-26: PAS_BeginTransfer enables hardware interrupt through this routine"
+   },
+   "PAS_GetPlaybackRate": {
+    "addr": "1:57a0c",
+    "evidence": "audio worker 2026-11-26: MULTIVOC calls on PAS playback success and records returned rate"
+   },
+   "PAS_SetCallBack": {
+    "addr": "1:57ff8",
+    "evidence": "audio worker 2026-11-26: stores PAS DMA callback immediately before PAS_FindCard"
+   },
+   "PAS_AllocateTimerStack": {
+    "addr": "1:5838c",
+    "evidence": "audio worker 2026-11-26: PAS_Init calls DPMI conventional memory allocator"
+   },
+   "PAS_DeallocateTimerStack": {
+    "addr": "1:583e8",
+    "evidence": "audio worker 2026-11-26: DPMI conventional memory free directly follows PAS allocator"
+   },
+   "PAS_Shutdown": {
+    "addr": "1:586c8",
+    "evidence": "audio worker 2026-11-26: MV_Shutdown calls and PAS driver stops playback and frees ISR stack"
+   },
+   "AL_CalcPitchInfo": {
+    "addr": "1:61424",
+    "evidence": "audio worker 2026-11-26: AL_Init calls before reset; fills note quotient/remainder and frequency table"
+   },
+   "AL_FlushCard": {
+    "addr": "1:614d0",
+    "evidence": "audio worker 2026-11-26: AL_Reset passes card port; clears registers for nine OPL voices"
+   },
+   "AL_Reset": {
+    "addr": "1:6156c",
+    "evidence": "audio worker 2026-11-26: AL_Init and AL_Shutdown call; resets OPL registers then flushes channels"
+   },
+   "AL_NoteOn": {
+    "addr": "1:617ec",
+    "evidence": "audio worker 2026-11-26: checks channel and velocity then acquires/releases a voice"
+   },
+   "AL_DetectFM": {
+    "addr": "1:61a54",
+    "evidence": "audio worker 2026-11-26: MUSIC_InitFM calls; gets environment and exercises OPL timer/status"
+   },
+   "AL_LockEnd": {
+    "addr": "1:61b30",
+    "evidence": "audio worker 2026-11-26: AL_Shutdown passes this address as code-end to DPMI"
+   },
+   "AL_Init": {
+    "addr": "1:61c74",
+    "evidence": "audio worker 2026-11-26: MUSIC_InitFM invokes; DPMI locks and initializes OPL tables"
+   },
+   "_MIDI_ReadDelta_": {
+    "addr": "1:5b5f8",
+    "evidence": "audio worker 2026-11-26: MIDI track helpers call; reads variable-length delta at track cursor"
+   },
+   "_MIDI_ResetTracks_": {
+    "addr": "1:5b634",
+    "evidence": "audio worker 2026-11-26: resets track cursor and reads initial delta"
+   },
+   "_MIDI_ServiceRoutine_": {
+    "addr": "1:5b6a3",
+    "evidence": "audio worker 2026-11-26: scheduled by MIDI_PlaySong; parses per-track events"
+   },
+   "_MIDI_SendControlChange_": {
+    "addr": "1:5b9ec",
+    "evidence": "audio worker 2026-11-26: MIDI_Reset and AllNotesOff call event router"
+   },
+   "MIDI_AllNotesOff": {
+    "addr": "1:5ba68",
+    "evidence": "audio worker 2026-11-26: MIDI_PauseSong calls; sends MIDI CC 123 for each channel"
+   },
+   "MIDI_Reset": {
+    "addr": "1:5bb44",
+    "evidence": "audio worker 2026-11-26: sends controller resets after all-notes-off; called by PlaySong and StopSong"
+   },
+   "MIDI_LoadTimbres": {
+    "addr": "1:5c3ac",
+    "evidence": "audio worker 2026-11-26: called by PlaySong prior to MIDI_Reset; scans metadata and tracks"
+   },
+   "MIDI_LockEnd": {
+    "addr": "1:5c4d8",
+    "evidence": "audio worker 2026-11-26: exclusive code limit passed by both MIDI lock/unlock routines"
+   },
+   "MIDI_UnlockMemory": {
+    "addr": "1:5c4dc",
+    "evidence": "audio worker 2026-11-26: DPMI unlock starts with verified MIDI locked range"
+   },
+   "MIDI_LockMemory": {
+    "addr": "1:5c5b4",
+    "evidence": "audio worker 2026-11-26: DPMI lock starts with verified MIDI locked range"
+   },
+   "MUSIC_FadeVolume": {
+    "addr": "1:591f8",
+    "evidence": "audio worker 2026-11-26: sets fade target, divides milliseconds by 25 and schedules MUSIC_FadeRoutine"
+   },
+   "D32DosMemAlloc": {
+    "addr": "1:5dba2",
+    "evidence": "audio worker 2026-11-26: GUS_Init calls with 2048 bytes to allocate GF1 DMA buffer"
+   },
+   "IRQ_D32DosMemAlloc": {
+    "addr": "1:5c780",
+    "evidence": "audio worker 2026-11-26: IRQ_SetVector calls this private conventional memory allocator for its real-mode stub"
    }
   },
   "data": {
@@ -4719,6 +5015,362 @@
    "last_used_text": {
     "addr": "2:b1df0",
     "evidence": "gamedef worker 2026-11-26: Private CON state packing: the seven independently located tail fields at 2:b1df4\u00e2\u20ac\u201cb1dfe occupy offsets 4,6,8,10,12,13,14 of a 15-byte pointer/short/char group. The next engine BSS starts at 2:b1e00. Watcom 9.5b -4r -s -otexan emits the sole pointer at offset zero in eight static/public, forward/reverse and renamed controls. Duke 1.5 GAMEDEF.C independently declares the file-buffer pointer in the private CON state. This predicts 2:b1df0 before checking the loader's lone store."
+   },
+   "MV_8BitVolumeTable": {
+    "addr": "2:094b4",
+    "evidence": "audio worker 2026-11-26: mixer selects 256-byte volume row; pointer targets 1c2048"
+   },
+   "MV_16BitVolumeTable": {
+    "addr": "2:094b8",
+    "evidence": "audio worker 2026-11-26: mixer selects 512-byte volume row; pointer targets 1c2048"
+   },
+   "MV_SoundCard": {
+    "addr": "2:094c0",
+    "evidence": "audio worker 2026-11-26: stored in init, dispatch key in MV_StartPlayback and MV_StopPlayback"
+   },
+   "MV_TotalVolume": {
+    "addr": "2:094c4",
+    "evidence": "audio worker 2026-11-26: getter at 5ab06 and setter at 5aae9"
+   },
+   "MV_MaxVoices": {
+    "addr": "2:094c8",
+    "evidence": "audio worker 2026-11-26: initialized voice allocation count, lock table dword following total volume"
+   },
+   "MV_BufferSize": {
+    "addr": "2:094cc",
+    "evidence": "audio worker 2026-11-26: playback buffer setup and division by four before rep stosd at 59895"
+   },
+   "MV_SampleSize": {
+    "addr": "2:094d0",
+    "evidence": "audio worker 2026-11-26: mix-mode sample width in SetMixMode and following lock table entry"
+   },
+   "MV_NumberOfBuffers": {
+    "addr": "2:094d4",
+    "evidence": "audio worker 2026-11-26: compared against advanced mix page in MV_ServiceVoc"
+   },
+   "MV_MixMode": {
+    "addr": "2:094d8",
+    "evidence": "audio worker 2026-11-26: four-way sample format dispatch and 16-bit check in MV_CalcVolume"
+   },
+   "MV_Silence": {
+    "addr": "2:094dc",
+    "evidence": "audio worker 2026-11-26: rep stosd fill value in service and playback initialization"
+   },
+   "MV_SwapLeftRight": {
+    "addr": "2:094e0",
+    "evidence": "audio worker 2026-11-26: tested in MV_SetPan and MV_PlayVOC to swap volume rows"
+   },
+   "MV_Voices": {
+    "addr": "2:094e4",
+    "evidence": "audio worker 2026-11-26: allocated voice storage pointer used by init and shutdown"
+   },
+   "MV_VoiceList": {
+    "addr": "2:094e8",
+    "evidence": "audio worker 2026-11-26: active list used by lookup and playback insert"
+   },
+   "MV_VoicePool": {
+    "addr": "2:094f0",
+    "evidence": "audio worker 2026-11-26: free list used by allocator and dead-voice recycle"
+   },
+   "MV_MixPage": {
+    "addr": "2:094f8",
+    "evidence": "audio worker 2026-11-26: advance and wrap against buffer count in MV_ServiceVoc"
+   },
+   "MV_PlayPage": {
+    "addr": "2:094fc",
+    "evidence": "audio worker 2026-11-26: copied from mix page in MV_ServiceVoc; previous page used for recycle"
+   },
+   "MV_VoiceHandle": {
+    "addr": "2:09500",
+    "evidence": "audio worker 2026-11-26: loop increments until unique handle found in allocator"
+   },
+   "MV_CallBackFunc": {
+    "addr": "2:09504",
+    "evidence": "audio worker 2026-11-26: written by MV_SetCallBack and invoked when removing voice"
+   },
+   "MV_RecordFunc": {
+    "addr": "2:09508",
+    "evidence": "audio worker 2026-11-26: indirect record callback called from bound MV_ServiceRecord"
+   },
+   "MV_BufferEmpty": {
+    "addr": "2:1c1bc8",
+    "evidence": "audio worker 2026-11-26: indexed dwords gate full-buffer silence clear in service"
+   },
+   "MV_MixBuffer": {
+    "addr": "2:1c1c08",
+    "evidence": "audio worker 2026-11-26: indexed sample buffer pointers in all four mixers and lock table"
+   },
+   "MV_PanTable": {
+    "addr": "2:1c1c48",
+    "evidence": "audio worker 2026-11-26: looked up by angle and 4-bit volume; locked 1024 bytes"
+   },
+   "MV_VolumeTable": {
+    "addr": "2:1c2048",
+    "evidence": "audio worker 2026-11-26: both initialized table pointers point here; lock extent 8192 bytes"
+   },
+   "MV_BufferDescriptor": {
+    "addr": "2:1c4048",
+    "evidence": "audio worker 2026-11-26: buffer allocation descriptor by lock sequence and Init/Shutdown"
+   },
+   "MV_RequestedMixRate": {
+    "addr": "2:1c4050",
+    "evidence": "audio worker 2026-11-26: init saves incoming mix rate, passed to backend buffer setup"
+   },
+   "HarshClipTable": {
+    "addr": "2:1c4054",
+    "evidence": "audio worker 2026-11-26: 8-bit mixers read through pointer; MV_CalcVolume fills clamp and identity ranges"
+   },
+   "MV_MixRate": {
+    "addr": "2:1c4058",
+    "evidence": "audio worker 2026-11-26: backend mixer rate and divisor in pitch scaling"
+   },
+   "TaskList": {
+    "addr": "2:1c1420",
+    "evidence": "audio worker 2026-11-26: 8-byte start/end list passed to DPMI and copied by TS_Shutdown"
+   },
+   "OldInt8": {
+    "addr": "2:1c1432",
+    "evidence": "audio worker 2026-11-26: 6-byte interrupt vector saved in TS_Startup and chained by ISR"
+   },
+   "TaskServiceCount": {
+    "addr": "2:09420",
+    "evidence": "audio worker 2026-11-26: ISR accumulates TaskServiceRate and masks to 16 bits before chaining"
+   },
+   "TS_Installed": {
+    "addr": "2:09424",
+    "evidence": "audio worker 2026-11-26: checked and set by TS_Startup; cleared by TS_Shutdown"
+   },
+   "TS_ExitRegistered": {
+    "addr": "2:09425",
+    "evidence": "audio worker 2026-11-26: tests and sets one-shot atexit registration in TS_Startup"
+   },
+   "MV_TotalMemory": {
+    "addr": "2:1c404c",
+    "evidence": "audio worker 2026-11-26: MV_Init computes allocation as 144 * Voices + 2048 and saves size"
+   },
+   "AL_LeftPort": {
+    "addr": "2:09d44",
+    "evidence": "audio worker 2026-11-26: AL_SendOutput writes OPL address on left channel"
+   },
+   "AL_RightPort": {
+    "addr": "2:09d48",
+    "evidence": "audio worker 2026-11-26: AL_SendOutput alternate OPL channel path"
+   },
+   "AL_SendStereo": {
+    "addr": "2:09d4c",
+    "evidence": "audio worker 2026-11-26: OPL channel flag gates second write in AL_SendOutput"
+   },
+   "PitchBendRange": {
+    "addr": "2:1c8780",
+    "evidence": "audio worker 2026-11-26: indexed pitch bend scaling in AL_SetPitchBend"
+   },
+   "wEMUBaseAddx": {
+    "addr": "2:1c8886",
+    "evidence": "audio worker 2026-11-26: AWE detection result and teardown port argument"
+   },
+   "FX_MixRate": {
+    "addr": "2:1c7f08",
+    "evidence": "audio worker 2026-11-26: FX_Init stores requested mix rate for driver setup paths"
+   },
+   "IRQ_Regs": {
+    "addr": "2:1c40c0",
+    "evidence": "audio worker 2026-11-26: IRQ vector save/replace and restore pass dedicated REGS to int386"
+   },
+   "IRQ_SegRegs": {
+    "addr": "2:1c40dc",
+    "evidence": "audio worker 2026-11-26: IRQ vector manipulation supplies SREGS to int386x"
+   },
+   "IRQ_RealModeCode": {
+    "addr": "2:095b0",
+    "evidence": "audio worker 2026-11-26: IRQ_SetVector writes instruction fields into real mode stub"
+   },
+   "InstrumentDirectory": {
+    "addr": "2:1c62a8",
+    "evidence": "audio worker 2026-11-26: GUS_GetPatchMap constructs path; GUSMIDI_LoadPatch appends patch filename"
+   },
+   "ConfigDirectory": {
+    "addr": "2:095d9",
+    "evidence": "audio worker 2026-11-26: GUS_GetPatchMap appends the configuration subdirectory to ULTRASND"
+   },
+   "_MIDI_Loop": {
+    "addr": "2:09564",
+    "evidence": "audio worker 2026-11-26: MIDI_SetLoopFlag writes this dword; sequencer reads it at track completion"
+   },
+   "MUSIC_MidiFunctions": {
+    "addr": "2:1c1b98",
+    "evidence": "audio worker 2026-11-26: MUSIC_Init populates backend function table"
+   },
+   "MUSIC_FadeRate": {
+    "addr": "2:1c1b94",
+    "evidence": "audio worker 2026-11-26: fade worker adds this to running level"
+   },
+   "MUSIC_CurrentFadeVolume": {
+    "addr": "2:1c1b8c",
+    "evidence": "audio worker 2026-11-26: fade worker accumulates rate in this dword"
+   },
+   "MUSIC_FadeLength": {
+    "addr": "2:1c1bc4",
+    "evidence": "audio worker 2026-11-26: fade worker decrements task time remaining"
+   },
+   "MUSIC_EndingFadeVolume": {
+    "addr": "2:1c1b90",
+    "evidence": "audio worker 2026-11-26: fade worker uses this as final volume"
+   },
+   "MUSIC_LastFadeVolume": {
+    "addr": "2:1c1b88",
+    "evidence": "audio worker 2026-11-26: fade worker stores latest delivered mixer level"
+   },
+   "BLASTER_DMABufferEnd": {
+    "addr": "2:1c7f6c",
+    "evidence": "audio worker 2026-11-26: DMA buffer end in ISR and lock/unlock list"
+   },
+   "BLASTER_CurrentDMABuffer": {
+    "addr": "2:1c7f50",
+    "evidence": "audio worker 2026-11-26: ISR current DMA cursor and unlock record"
+   },
+   "BLASTER_TotalDMABufferSize": {
+    "addr": "2:1c7f64",
+    "evidence": "audio worker 2026-11-26: buffer size saved by setup and reflected in unlock record"
+   },
+   "GlobalStatus": {
+    "addr": "2:1c7f4c",
+    "evidence": "audio worker 2026-11-26: BLASTER lock/unlock list references mixer status structure"
+   },
+   "BLASTER_WaveBlasterState": {
+    "addr": "2:09698",
+    "evidence": "audio worker 2026-11-26: recorded mixer status restored by WaveBlaster teardown"
+   },
+   "AL_OPL3": {
+    "addr": "2:09d50",
+    "evidence": "audio worker 2026-11-26: AL_Shutdown tests before writing second-bank register 5"
+   },
+   "NoteDiv12": {
+    "addr": "2:1c7f80",
+    "evidence": "audio worker 2026-11-26: AL_CalcPitchInfo stores quotient from IDIV 12"
+   },
+   "NoteMod12": {
+    "addr": "2:1c8570",
+    "evidence": "audio worker 2026-11-26: AL_CalcPitchInfo stores remainder from IDIV 12"
+   },
+   "VoiceLevel": {
+    "addr": "2:1c86f0",
+    "evidence": "audio worker 2026-11-26: AL_Init locks 72-byte level table; voice volume loop indexes it"
+   },
+   "VoiceKsl": {
+    "addr": "2:1c8738",
+    "evidence": "audio worker 2026-11-26: AL_Init locks 72-byte key scale level table next to VoiceLevel"
+   },
+   "PAS_StackSelector": {
+    "addr": "2:094a0",
+    "evidence": "audio worker 2026-11-26: current stack selector loaded into SS in the card ISR"
+   },
+   "PAS_StackPointer": {
+    "addr": "2:1c1b2c",
+    "evidence": "audio worker 2026-11-26: driver stack pointer loaded into ESP in the card ISR"
+   },
+   "PAS_OldStackPointer": {
+    "addr": "2:1c1b20",
+    "evidence": "audio worker 2026-11-26: saved interrupted ESP"
+   },
+   "PAS_OldStackSelector": {
+    "addr": "2:1c1b86",
+    "evidence": "audio worker 2026-11-26: saved interrupted SS"
+   },
+   "BLASTER_StackSelector": {
+    "addr": "2:0969c",
+    "evidence": "audio worker 2026-11-26: current stack selector loaded into SS in the card ISR"
+   },
+   "BLASTER_StackPointer": {
+    "addr": "2:1c7f40",
+    "evidence": "audio worker 2026-11-26: driver stack pointer loaded into ESP in the card ISR"
+   },
+   "BLASTER_OldStackPointer": {
+    "addr": "2:1c7f60",
+    "evidence": "audio worker 2026-11-26: saved interrupted ESP"
+   },
+   "BLASTER_OldStackSelector": {
+    "addr": "2:1c7f7c",
+    "evidence": "audio worker 2026-11-26: saved interrupted SS"
+   },
+   "BLASTER_ErrorCode": {
+    "addr": "2:096a0",
+    "evidence": "audio worker 2026-11-26: recursive error string reads most recent status; set on driver failure"
+   },
+   "StackSelector": {
+    "addr": "2:09418",
+    "evidence": "audio worker 2026-11-26: stores DPMI allocated selector and sets SS in TSR"
+   },
+   "StackPointer": {
+    "addr": "2:1c1428",
+    "evidence": "audio worker 2026-11-26: stores 0x3fc and sets ESP in TSR"
+   },
+   "oldStackSelector": {
+    "addr": "2:1c1438",
+    "evidence": "audio worker 2026-11-26: stores old SS during IRQ stack switch"
+   },
+   "oldStackPointer": {
+    "addr": "2:1c142c",
+    "evidence": "audio worker 2026-11-26: stores old ESP during IRQ stack switch"
+   },
+   "_MIDI_TrackList": {
+    "addr": "2:1c409c",
+    "evidence": "audio worker 2026-11-26: PlaySong inserts linked records via LL_AddNode; StopSong clears both pointers"
+   },
+   "_MIDI_ActiveTracks": {
+    "addr": "2:1c40a4",
+    "evidence": "audio worker 2026-11-26: reset and service maintain number of unfinished tracks"
+   },
+   "_MIDI_TrackMemSize": {
+    "addr": "2:1c40a8",
+    "evidence": "audio worker 2026-11-26: PlaySong saves track count times 28 bytes before allocation"
+   },
+   "_MIDI_PositionInTicks": {
+    "addr": "2:1c40ac",
+    "evidence": "audio worker 2026-11-26: reset zeroes position and MIDI service advances it"
+   },
+   "_MIDI_Division": {
+    "addr": "2:1c40b0",
+    "evidence": "audio worker 2026-11-26: PlaySong writes MIDI time division from header and timing code reads it"
+   },
+   "_MIDI_TrackPtr": {
+    "addr": "2:09558",
+    "evidence": "audio worker 2026-11-26: MIDI_PlaySong passes address to allocator; StopSong frees and zeroes pointer"
+   },
+   "_MIDI_PlayRoutine": {
+    "addr": "2:09568",
+    "evidence": "audio worker 2026-11-26: MIDI_PlaySong stores task scheduler result; StopSong terminates it"
+   },
+   "Regs": {
+    "addr": "2:1c7f0c",
+    "evidence": "audio worker 2026-11-26: DPMI vector, lock and interrupt services share REGS passed to int386"
+   },
+   "SegRegs": {
+    "addr": "2:1c7f28",
+    "evidence": "audio worker 2026-11-26: real mode call passes SREGS argument to int386x"
+   },
+   "VoiceList": {
+    "addr": "2:1c41f8",
+    "evidence": "audio worker 2026-11-26: callback/removal and init both access active list"
+   },
+   "VoicePool": {
+    "addr": "2:1c44a0",
+    "evidence": "audio worker 2026-11-26: address inserted into LL_AddNode in init and voice callback"
+   },
+   "slotVoice": {
+    "addr": "2:096a4",
+    "evidence": "audio worker 2026-11-26: AL shutdown unlocks 72-byte slot lookup"
+   },
+   "offsetSlot": {
+    "addr": "2:096ec",
+    "evidence": "audio worker 2026-11-26: AL shutdown unlocks 18-byte operator offset table"
+   },
+   "NotePitch": {
+    "addr": "2:09700",
+    "evidence": "audio worker 2026-11-26: AL_CalcPitchInfo initializes fine tune rows; AL lock list uses 0x600 bytes"
+   },
+   "OctavePitch": {
+    "addr": "2:09d00",
+    "evidence": "audio worker 2026-11-26: AL lock record for eight 32-bit octaves"
    }
   }
  }
