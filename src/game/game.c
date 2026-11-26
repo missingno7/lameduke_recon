@@ -49,12 +49,12 @@ extern unsigned char input_text[], input_text_length;
 extern short moustat, menu_mouse, menu_previous_buttons, menu_drag, menu_x, menu_y;
 
 extern long reccnt;
-extern signed char player_avel[], player_vel[], player_svel[];
-extern long player_bits[];
-extern unsigned char script_tics;
-extern signed char demo_avel[16384], demo_vel[16384], demo_svel[16384];
-extern long demo_bits[16384];
-extern unsigned char demo_tics[16384];
+extern signed char syncangvel[], syncsvel[], syncvel[];
+extern long syncbits[];
+extern unsigned char synctics;
+extern signed char recsyncangvel[16384], recsyncsvel[16384], recsyncvel[16384];
+extern long recsyncbits[16384];
+extern unsigned char recsynctics[16384];
 
 extern char file_id_record[];
 /* These two literals belong to an earlier part of the shared GAME pool. */
@@ -75,7 +75,7 @@ typedef char user_settings_size_check[sizeof(struct user_settings) == 21 ? 1 : -
 
 extern struct user_settings userdefs;
 extern char score_names[12][33];
-extern long high_scores[12], demomode;
+extern long high_scores[12], recstat;
 #define userdefs_filename "userdefs.tmp"
 
 /* The packed, 176-byte player record. Field names follow src/game/player.h; GAME's own
@@ -170,8 +170,8 @@ extern void call_level_load_hook(char *name);
 #pragma aux call_level_load_hook "level_load_hook_"
 extern short disable_armor;
 extern unsigned char level_tick_state;
-extern signed char pending_svel[17], pending_vel[17], pending_avel[17];
-extern long pending_bits[17];
+extern signed char osyncvel[17], osyncsvel[17], osyncangvel[17];
+extern long osyncbits[17];
 struct game_sound_voice {
     long x, y, z;
     short sprite;
@@ -309,12 +309,12 @@ extern void qsetmode640350(void);
 #define score_score_title "Score"
 
 
-/* dataown: one object, one name. GLOBAL defines the timer ramps as avel/vel/svel and the 21-byte settings
+/* dataown: one object, one name. GLOBAL defines the timer ramps as angvel/svel/vel and the 21-byte settings
    block as userdefs; the separate spellings used here are its fields. */
-extern long avel, vel, svel;
-#define turn_velocity avel
-#define strafe_velocity vel
-#define forward_velocity svel
+extern long angvel, svel, vel;
+#define turn_velocity angvel
+#define strafe_velocity svel
+#define forward_velocity vel
 #define disable_armor userdefs.debug
 #define gamepaused userdefs.paused
 #define camerasprite userdefs.camera
@@ -465,18 +465,18 @@ void domovethings_multiplayer(void)
     while ((packbufleng = getpacket(&other, (unsigned char *)tempbuf)) > 0) {
         switch (tempbuf[0]) {
             case 2:
-                script_tics = tempbuf[1];
+                synctics = tempbuf[1];
                 j = ((numplayers + 1) >> 1) + 2;
                 k = (2 << 3);
                 for (i = connecthead; i >= 0; i = connectpoint2[i]) {
                     if (((1 << (k & 7)) & tempbuf[k >> 3]) > 0)
-                        player_svel[i] = tempbuf[j++];
+                        syncvel[i] = tempbuf[j++];
                     if (((2 << (k & 7)) & tempbuf[k >> 3]) > 0)
-                        player_vel[i] = tempbuf[j++];
+                        syncsvel[i] = tempbuf[j++];
                     if ((tempbuf[k >> 3] & (4 << (k & 7))) > 0)
-                        player_avel[i] = tempbuf[j++];
+                        syncangvel[i] = tempbuf[j++];
                     if (((8 << (k & 7)) & tempbuf[k >> 3]) > 0) {
-                        player_bits[i] = tempbuf[j] +
+                        syncbits[i] = tempbuf[j] +
                                          (tempbuf[j + 1] << 8) +
                                          (tempbuf[j + 2] << 16) +
                                          (tempbuf[j + 3] << 24);
@@ -489,26 +489,26 @@ void domovethings_multiplayer(void)
             case 3:
                 j = 2;
                 if ((tempbuf[1] & 1) > 0)
-                    player_svel[other] = tempbuf[j++];
+                    syncvel[other] = tempbuf[j++];
                 if ((tempbuf[1] & 2) > 0)
-                    player_vel[other] = tempbuf[j++];
+                    syncsvel[other] = tempbuf[j++];
                 if ((tempbuf[1] & 4) > 0)
-                    player_avel[other] = tempbuf[j++];
+                    syncangvel[other] = tempbuf[j++];
                 if ((tempbuf[1] & 8) > 0) {
-                    player_bits[other] &= 0xffffff00;
-                    player_bits[other] |= tempbuf[j++];
+                    syncbits[other] &= 0xffffff00;
+                    syncbits[other] |= tempbuf[j++];
                 }
                 if ((tempbuf[1] & 16) > 0) {
-                    player_bits[other] &= 0xffff00ff;
-                    player_bits[other] |= tempbuf[j++] << 8;
+                    syncbits[other] &= 0xffff00ff;
+                    syncbits[other] |= tempbuf[j++] << 8;
                 }
                 if ((tempbuf[1] & 32) > 0) {
-                    player_bits[other] &= 0xff00ffff;
-                    player_bits[other] |= tempbuf[j++] << 16;
+                    syncbits[other] &= 0xff00ffff;
+                    syncbits[other] |= tempbuf[j++] << 16;
                 }
                 if ((tempbuf[1] & 64) > 0) {
-                    player_bits[other] &= 0x00ffffff;
-                    player_bits[other] |= tempbuf[j++] << 24;
+                    syncbits[other] &= 0x00ffffff;
+                    syncbits[other] |= tempbuf[j++] << 24;
                 }
                 break;
             case 4:
@@ -573,35 +573,35 @@ void network_move_loop(void)
     if (myconnectindex == connecthead) {
         getinput(myconnectindex);
         domovethings_multiplayer();
-        if (script_tics > 0 && getoutputcirclesize() < 16) {
+        if (synctics > 0 && getoutputcirclesize() < 16) {
             tempbuf[0] = 2;
-            tempbuf[1] = script_tics;
+            tempbuf[1] = synctics;
             j = ((numplayers + 1) >> 1) + 2;
             for (k = 2; k < j; k++)
                 tempbuf[k] = 0;
             k = (2 << 3);
             for (i = connecthead; i >= 0; i = connectpoint2[i]) {
-                if (player_svel[i] != pending_svel[i]) {
-                    tempbuf[j++] = player_svel[i];
-                    pending_svel[i] = player_svel[i];
+                if (syncvel[i] != osyncvel[i]) {
+                    tempbuf[j++] = syncvel[i];
+                    osyncvel[i] = syncvel[i];
                     tempbuf[k >> 3] |= (1 << (k & 7));
                 }
-                if (player_vel[i] != pending_vel[i]) {
-                    tempbuf[j++] = player_vel[i];
-                    pending_vel[i] = player_vel[i];
+                if (syncsvel[i] != osyncsvel[i]) {
+                    tempbuf[j++] = syncsvel[i];
+                    osyncsvel[i] = syncsvel[i];
                     tempbuf[k >> 3] |= (2 << (k & 7));
                 }
-                if (player_avel[i] != pending_avel[i]) {
-                    tempbuf[j++] = player_avel[i];
-                    pending_avel[i] = player_avel[i];
+                if (syncangvel[i] != osyncangvel[i]) {
+                    tempbuf[j++] = syncangvel[i];
+                    osyncangvel[i] = syncangvel[i];
                     tempbuf[k >> 3] |= (4 << (k & 7));
                 }
-                if (player_bits[i] != pending_bits[i]) {
-                    tempbuf[j] = player_bits[i];
-                    tempbuf[j + 1] = (player_bits[i] >> 8) & 255;
-                    tempbuf[j + 2] = (player_bits[i] >> 16) & 255;
-                    tempbuf[j + 3] = (player_bits[i] >> 24) & 255;
-                    pending_bits[i] = player_bits[i];
+                if (syncbits[i] != osyncbits[i]) {
+                    tempbuf[j] = syncbits[i];
+                    tempbuf[j + 1] = (syncbits[i] >> 8) & 255;
+                    tempbuf[j + 2] = (syncbits[i] >> 16) & 255;
+                    tempbuf[j + 3] = (syncbits[i] >> 24) & 255;
+                    osyncbits[i] = syncbits[i];
                     j += 4;
                     tempbuf[k >> 3] |= (8 << (k & 7));
                 }
@@ -611,7 +611,7 @@ void network_move_loop(void)
                 if (i != myconnectindex)
                     sendpacket(i, (unsigned char *)tempbuf, j);
         domovethings();
-            script_tics = 0;
+            synctics = 0;
         }
     } else {
         getinput(16);
@@ -619,38 +619,38 @@ void network_move_loop(void)
             tempbuf[0] = 3;
             tempbuf[1] = 0;
             j = 2;
-            if (player_svel[16] != pending_svel[16]) {
-                tempbuf[j++] = player_svel[16];
-                pending_svel[16] = player_svel[16];
+            if (syncvel[16] != osyncvel[16]) {
+                tempbuf[j++] = syncvel[16];
+                osyncvel[16] = syncvel[16];
                 tempbuf[1] |= 1;
             }
-            if (player_vel[16] != pending_vel[16]) {
-                tempbuf[j++] = player_vel[16];
-                pending_vel[16] = player_vel[16];
+            if (syncsvel[16] != osyncsvel[16]) {
+                tempbuf[j++] = syncsvel[16];
+                osyncsvel[16] = syncsvel[16];
                 tempbuf[1] |= 2;
             }
-            if (player_avel[16] != pending_avel[16]) {
-                tempbuf[j++] = player_avel[16];
-                pending_avel[16] = player_avel[16];
+            if (syncangvel[16] != osyncangvel[16]) {
+                tempbuf[j++] = syncangvel[16];
+                osyncangvel[16] = syncangvel[16];
                 tempbuf[1] |= 4;
             }
-            if ((player_bits[16] & 0xff) != (pending_bits[16] & 0xff)) {
-                tempbuf[j++] = player_bits[16];
+            if ((syncbits[16] & 0xff) != (osyncbits[16] & 0xff)) {
+                tempbuf[j++] = syncbits[16];
                 tempbuf[1] |= 8;
             }
-            if ((player_bits[16] | 0xff) != (pending_bits[16] | 0xff)) {
-                tempbuf[j++] = (player_bits[16] >> 8) & 255;
+            if ((syncbits[16] | 0xff) != (osyncbits[16] | 0xff)) {
+                tempbuf[j++] = (syncbits[16] >> 8) & 255;
                 tempbuf[1] |= 16;
             }
-            if ((player_bits[16] & 0xff0000) != (pending_bits[16] & 0xff0000)) {
-                tempbuf[j++] = (player_bits[16] >> 16) & 255;
+            if ((syncbits[16] & 0xff0000) != (osyncbits[16] & 0xff0000)) {
+                tempbuf[j++] = (syncbits[16] >> 16) & 255;
                 tempbuf[1] |= 32;
             }
-            if ((player_bits[16] | 0xff0000) != (pending_bits[16] | 0xff0000)) {
-                tempbuf[j++] = (player_bits[16] >> 24) & 255;
+            if ((syncbits[16] | 0xff0000) != (osyncbits[16] | 0xff0000)) {
+                tempbuf[j++] = (syncbits[16] >> 24) & 255;
                 tempbuf[1] |= 64;
             }
-            pending_bits[16] = player_bits[16];
+            osyncbits[16] = syncbits[16];
             sendpacket(connecthead, (unsigned char *)tempbuf, j);
         }
         domovethings_multiplayer();
@@ -839,7 +839,7 @@ int strget(long x, long y, long shade, long limit)
                 input_text[input_text_length] = 0;
                 if (keystatus[0xe] < 60)
                 {
-                    keystatus[0xe] += script_tics;
+                    keystatus[0xe] += synctics;
                     if (keystatus[0xe] > 60) keystatus[0xe] = 60;
                 }
             }
@@ -1334,7 +1334,7 @@ void displayrooms(short p)
         draw2dscreen(ps[p].posx, ps[p].posy, ps[p].ang + ps[p].lookang, ps[p].mapzoom, 0);
         return;
     }
-    if ((player_bits[p] & 0x80000) || (player_bits[p] & 0x100000) || (player_bits[p] & 0x400000))
+    if ((syncbits[p] & 0x80000) || (syncbits[p] & 0x100000) || (syncbits[p] & 0x400000))
         permanentwritesprite(0, 0, 0x492, 0, 0, 0, 319, 199);
     animatewalls();
     animatecamsprite(p);
@@ -1498,7 +1498,7 @@ void checkcommandline(int argc, char **argv)
                 break;
             case 'r':
             case 'R':
-                demomode = 1;
+                recstat = 1;
                 puts(demorec_on);
                 break;
             case 'o':
@@ -1802,18 +1802,18 @@ restart:
     if (which == 8)
         which = 0;
     enterlevel(2);
-    demomode = 2;
+    recstat = 2;
     reccnt--;
     i = 0;
     while (i < reccnt) {
         nonsharedkeys();
         while (totalclock > lockclock) {
-            player_svel[0] = demo_svel[i];
-            player_vel[0] = demo_vel[i];
-            player_avel[0] = demo_avel[i];
-            player_bits[0] = demo_bits[i];
-            script_tics = demo_tics[i];
-            player_bits[0] &= ~0x180000;
+            syncvel[0] = recsyncvel[i];
+            syncsvel[0] = recsyncsvel[i];
+            syncangvel[0] = recsyncangvel[i];
+            syncbits[0] = recsyncbits[i];
+            synctics = recsynctics[i];
+            syncbits[0] &= ~0x180000;
             domovethings();
             i++;
         }
@@ -1844,7 +1844,7 @@ restart:
             if (ps[myconnectindex].gm & 4) {
                 if (ps[myconnectindex].gm & 2)
                     goto restart;
-                demomode = 0;
+                recstat = 0;
                 return;
             }
         }
@@ -1854,11 +1854,11 @@ restart:
 
 void record(short player)
 {
-    demo_svel[reccnt] = player_svel[player];
-    demo_vel[reccnt] = player_vel[player];
-    demo_avel[reccnt] = player_avel[player];
-    demo_bits[reccnt] = player_bits[player];
-    demo_tics[reccnt] = script_tics;
+    recsyncvel[reccnt] = syncvel[player];
+    recsyncsvel[reccnt] = syncsvel[player];
+    recsyncangvel[reccnt] = syncangvel[player];
+    recsyncbits[reccnt] = syncbits[player];
+    recsynctics[reccnt] = synctics;
     if (++reccnt > 16383)
         reccnt = 16383;
 }
@@ -1872,10 +1872,10 @@ void domovethings(void)
 
     randomstash = krand();
     userdefs.camera = -1;
-    lockclock += script_tics;
-    doanimations(script_tics);
+    lockclock += synctics;
+    doanimations(synctics);
     if (userdefs.paused == 0) {
-        if (demomode == 1)
+        if (recstat == 1)
             record(0);
         moveeffects();
         move_status9();
@@ -1896,7 +1896,7 @@ void domovethings(void)
         moveactors();
         movemusic();
     }
-    script_tics = 0;
+    synctics = 0;
 }
 
 
@@ -2155,7 +2155,7 @@ void read_userdefs(void)
 {
     int file;
 
-    demomode = 0;
+    recstat = 0;
     file = open(userdefs_filename, O_RDWR | O_BINARY, S_IREAD);
     if (file == -1) {
         userdefs.mouse_sensitivity = 128;
@@ -2243,11 +2243,11 @@ void read_demo(unsigned char slot)
         read(file, &ps[0].skill, sizeof(ps[0].skill));
         newgame(ps[0].volume, ps[0].level, ps[0].skill);
         read(file, &reccnt, sizeof(reccnt));
-        read(file, demo_svel, reccnt);
-        read(file, demo_vel, reccnt);
-        read(file, demo_avel, reccnt);
-        read(file, demo_tics, reccnt);
-        read(file, demo_bits, reccnt * sizeof(demo_bits[0]));
+        read(file, recsyncvel, reccnt);
+        read(file, recsyncsvel, reccnt);
+        read(file, recsyncangvel, reccnt);
+        read(file, recsynctics, reccnt);
+        read(file, recsyncbits, reccnt * sizeof(recsyncbits[0]));
         close(file);
     } else {
         gameexit(demo_missing);
@@ -2259,7 +2259,7 @@ void write_demo(void)
     int file;
     char *filename = demo_filename;
 
-    if (demomode != 1)
+    if (recstat != 1)
         return;
 
     reccnt--;
@@ -2271,11 +2271,11 @@ void write_demo(void)
         write(file, &ps[0].level, sizeof(ps[0].level));
         write(file, &ps[0].skill, sizeof(ps[0].skill));
         write(file, &reccnt, sizeof(reccnt));
-        write(file, demo_svel, reccnt);
-        write(file, demo_vel, reccnt);
-        write(file, demo_avel, reccnt);
-        write(file, demo_tics, reccnt);
-        write(file, demo_bits, reccnt * sizeof(demo_bits[0]));
+        write(file, recsyncvel, reccnt);
+        write(file, recsyncsvel, reccnt);
+        write(file, recsyncangvel, reccnt);
+        write(file, recsynctics, reccnt);
+        write(file, recsyncbits, reccnt * sizeof(recsyncbits[0]));
         close(file);
     }
 }
@@ -2866,7 +2866,7 @@ void moveeffectors(void)
         case 22:
             if (t[1]) {
                 if (getanimationgoal(&sector[t[0]].ceilingz) >= 0)
-                    sector[sect].ceilingz += sprite[i].yvel * script_tics;
+                    sector[sect].ceilingz += sprite[i].yvel * synctics;
                 else
                     t[1] = 0;
             }
@@ -2994,7 +2994,7 @@ void moveeffectors(void)
                 if (t[0] < 0) {
                     t[0]++;
                     camerasprite = i;
-                } else if (demomode == 2 && ps[p].newowner == -1) {
+                } else if (recstat == 2 && ps[p].newowner == -1) {
                     if (cansee(sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum)) {
                         if (x < (unsigned)sprite[i].hitag) {
                             t[0] = 999;

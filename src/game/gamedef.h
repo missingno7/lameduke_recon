@@ -101,10 +101,10 @@ extern long *insptr;
 extern char killit_flag;
 extern short cached_cansee;
 extern unsigned char checking_ifelse;
-extern unsigned char script_tics;
+extern unsigned char synctics;
 extern short disable_armor, facing_sprite;
-extern signed char player_vel[], player_svel[];
-extern unsigned long player_bits[];
+extern signed char syncsvel[], syncvel[];
+extern unsigned long syncbits[];
 
 extern void *bootleg_cache_alloc(long size);
 extern void bootleg_cache_pop(void);

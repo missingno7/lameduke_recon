@@ -126,7 +126,7 @@ void spawn_gib(short i, short tile, short ang, short speed, long zvel)
 #define MOVE_ALONG(i, dz, clip) \
     movesprite((i), (sprite[(i)].xvel * sintable[(sprite[(i)].ang + 512) & 2047]) >> 14, \
         (sintable[(short)(sprite[(i)].ang & 2047)] * sprite[(i)].xvel) >> 14, \
-        (dz), 128, 1024, 1024, (clip), script_tics)
+        (dz), 128, 1024, 1024, (clip), synctics)
 
 short ssp(short i, short cliptype)
 {
@@ -436,7 +436,7 @@ shark_steer:
                 setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
                 sprite[i].cstat &= ~8;
                 sprite[i].ang = pl->ang;
-                if (player_bits[p] & 4) {
+                if (syncbits[p] & 4) {
                     pl->kickback_pic = 0;
                     sprite[i].xvel = 128;
                     sprite[i].zvel = (short)(16 * (100 - pl->horiz) - 512);
@@ -1326,7 +1326,7 @@ void moveplayers(void)
                 sprite[i].yvel++;
                 movesprite(i, (sprite[i].xvel * sintable[(sprite[i].ang + 512) & 2047]) >> 14,
                     (sintable[(short)(sprite[i].ang & 2047)] * sprite[i].xvel) >> 14,
-                    sprite[i].zvel, 128, 1024, 1024, 0, script_tics);
+                    sprite[i].zvel, 128, 1024, 1024, 0, synctics);
             } else {
                 sprite[i].ang = 2047 - ps[sprite[i].yvel].ang;
                 setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);

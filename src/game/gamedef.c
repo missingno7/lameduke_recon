@@ -1014,17 +1014,17 @@ case CON_HITRADIUS:
 case CON_IFP:
     insptr++;
     flags = *insptr;
-    speed = player_vel[p] + player_svel[p];
-    PARSE_IF(((flags & 8) && ps[p].on_ground && (player_bits[p] & 2)) ||
+    speed = syncsvel[p] + syncvel[p];
+    PARSE_IF(((flags & 8) && ps[p].on_ground && (syncbits[p] & 2)) ||
         ((flags & 16) && !ps[p].poszv && !ps[p].on_ground &&
             sector[ps[p].cursectnum].floorz - ps[p].posz > 18432) ||
         ((flags & 32) && ps[p].poszv > 348) ||
         ((flags & 1) && speed >= 0 && speed < 8) ||
-        ((flags & 2) && speed >= 8 && !(player_bits[p] & 32)) ||
-        ((flags & 4) && speed >= 8 && (player_bits[p] & 32)) ||
+        ((flags & 2) && speed >= 8 && !(syncbits[p] & 32)) ||
+        ((flags & 4) && speed >= 8 && (syncbits[p] & 32)) ||
         ((flags & 64) && sprite[i].z - 12288 > ps[p].posz) ||
-        ((flags & 128) && speed <= -8 && !(player_bits[p] & 32)) ||
-        ((flags & 256) && speed <= -8 && (player_bits[p] & 32)) ||
+        ((flags & 128) && speed <= -8 && !(syncbits[p] & 32)) ||
+        ((flags & 256) && speed <= -8 && (syncbits[p] & 32)) ||
         ((flags & 512) && ps[p].horiz < -128) ||
         ((flags & 1024) && ps[p].horiz > 128) ||
         ((flags & 2048) ?
@@ -1099,7 +1099,7 @@ void execute(short i, short p, long x)
     cached_cansee = -1;
     insptr += 4;
     if (hittype[i].action) {
-        sprite[i].lotag += script_tics;
+        sprite[i].lotag += synctics;
         if (sprite[i].lotag > hittype[i].action[4]) {
             hittype[i].actioncount++;
             sprite[i].lotag = 0;

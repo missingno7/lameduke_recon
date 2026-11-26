@@ -55,8 +55,8 @@ extern short sintable[2048];
 extern short headspritestat[], nextspritestat[], headspritesect[], nextspritesect[];
 extern short screenpeek, viewscreen, music_volume;
 extern short randomstash, disable_armor;
-extern unsigned long player_bits[];
-extern unsigned char script_tics, parallaxtype;
+extern unsigned long syncbits[];
+extern unsigned char synctics, parallaxtype;
 extern char music_files[4][10][13], env_music[10][13];
 
 extern long hittype[MAXSPRITES][5], msy[1024], msx[1024];

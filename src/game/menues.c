@@ -5,7 +5,7 @@ extern struct menu menu_main, menu_pause, menu_episode, menu_skill;
 extern struct menu menu_load, menu_save, menu_instructions, menu_options;
 extern struct menu menu_ordering, menu_scores;
 extern long current_menu;
-extern unsigned long player_bits[];
+extern unsigned long syncbits[];
 extern short sound_volume, music_volume, mouse_sensitivity;
 extern void FX_SetVolume(long volume);
 extern void MUSIC_SetVolume(long volume);
@@ -366,10 +366,10 @@ init_cursor:
         break;
 
     case 20:
-        if (player_bits[0] & 1) gametext(10, 100, "Jump", 0);
-        if (player_bits[0] & 2) gametext(10, 115, "Duck", 0);
-        if (player_bits[0] & 4) gametext(10, 130, "Shoot", 0);
-        if (player_bits[0] & 8) gametext(10, 145, "Open\0\0\0", 0);
+        if (syncbits[0] & 1) gametext(10, 100, "Jump", 0);
+        if (syncbits[0] & 2) gametext(10, 115, "Duck", 0);
+        if (syncbits[0] & 4) gametext(10, 130, "Shoot", 0);
+        if (syncbits[0] & 8) gametext(10, 145, "Open\0\0\0", 0);
         action = draw_and_probe(menu_instructions, 4);
         switch (action)
         {

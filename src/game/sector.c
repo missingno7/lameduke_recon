@@ -359,9 +359,9 @@ void operatesectors(short sn, short source)
             else
                 activatewarpelevators(a, 1);
         } else {
-            if (player_bits[b] & 1)
+            if (syncbits[b] & 1)
                 activatewarpelevators(a, -1);
-            if (player_bits[b] & 2)
+            if (syncbits[b] & 2)
                 activatewarpelevators(a, 1);
         }
         break;
@@ -621,15 +621,15 @@ void playerkeys(short p)
 {
     short sn, source;
 
-    if ((player_bits[p] & 0x10000) && ps[p].jump_pressed == 0)
+    if ((syncbits[p] & 0x10000) && ps[p].jump_pressed == 0)
         ps[p].jump_pressed = 1;
     if (ps[p].viewmode == 2) {
-        if ((player_bits[p] & 0x80000) && ps[p].mapzoom < 4096)
+        if ((syncbits[p] & 0x80000) && ps[p].mapzoom < 4096)
             ps[p].mapzoom += ps[p].mapzoom >> 3;
-        if ((player_bits[p] & 0x100000) && ps[p].mapzoom > 48)
+        if ((syncbits[p] & 0x100000) && ps[p].mapzoom > 48)
             ps[p].mapzoom -= ps[p].mapzoom >> 3;
     } else {
-        if (player_bits[p] & 0x80000) {
+        if (syncbits[p] & 0x80000) {
             if (ps[p].screen_size > -4)
                 ps[p].screen_size -= 4;
             if (option[0] == 7)
@@ -637,7 +637,7 @@ void playerkeys(short p)
             else
                 vscrn(p);
         }
-        if (player_bits[p] & 0x100000) {
+        if (syncbits[p] & 0x100000) {
             if (ps[p].screen_size < 64)
                 ps[p].screen_size += 4;
             if (option[0] == 7)
@@ -646,18 +646,18 @@ void playerkeys(short p)
                 vscrn(p);
         }
     }
-    if (player_bits[p] < 255) {
+    if (syncbits[p] < 255) {
         ps[p].keys_pressed = 0;
         return;
     }
     if (ps[p].keys_pressed)
         return;
     ps[p].keys_pressed = 1;
-    if (player_bits[p] & 0x200000)
+    if (syncbits[p] & 0x200000)
         gamepaused = !gamepaused;
     if (gamepaused)
         return;
-    if ((player_bits[p] & 0x80000000UL) && !(ps[p].game_mode & 2) && ps[p].camera == -1) {
+    if ((syncbits[p] & 0x80000000UL) && !(ps[p].game_mode & 2) && ps[p].camera == -1) {
         keystatus[1] = 0;
         menupage = 0;
         ps[p].game_mode |= 1;
@@ -667,7 +667,7 @@ void playerkeys(short p)
                 setgamemode();
         }
     }
-    if (player_bits[p] & 0x400000) {
+    if (syncbits[p] & 0x400000) {
         if (ps[p].viewmode == 3) {
             ps[p].viewmode = 2;
             if (p == screenpeek)
@@ -679,36 +679,36 @@ void playerkeys(short p)
             displayrooms(p);
         }
     }
-    if (player_bits[p] & 0x20000)
+    if (syncbits[p] & 0x20000)
         ps[p].toggle_view ^= 1;
     if ((ps[p].weapon_select & 127) == 6) {
-        if (player_bits[p] & 0x100)
+        if (syncbits[p] & 0x100)
             addweapon(p, 1230, 1);
-        if ((player_bits[p] & 0x200) && (ps[p].gotweapon[0] || disable_armor))
+        if ((syncbits[p] & 0x200) && (ps[p].gotweapon[0] || disable_armor))
             addweapon(p, 191, 1);
-        if ((player_bits[p] & 0x400) && (ps[p].gotweapon[1] || disable_armor))
+        if ((syncbits[p] & 0x400) && (ps[p].gotweapon[1] || disable_armor))
             addweapon(p, 389, 1);
-        if ((player_bits[p] & 0x800) && (ps[p].gotweapon[2] || disable_armor))
+        if ((syncbits[p] & 0x800) && (ps[p].gotweapon[2] || disable_armor))
             addweapon(p, 721, 1);
-        if ((player_bits[p] & 0x1000) && (ps[p].gotweapon[3] || disable_armor))
+        if ((syncbits[p] & 0x1000) && (ps[p].gotweapon[3] || disable_armor))
             addweapon(p, 563, 1);
     }
-    if ((player_bits[p] & 0x1000000) && (ps[p].steroids || disable_armor)) {
+    if ((syncbits[p] & 0x1000000) && (ps[p].steroids || disable_armor)) {
         if (disable_armor)
             ps[p].steroids = 1;
         ps[p].steroids_on = ps[p].steroids_on == 1 ? 0 : 128;
     }
-    if ((player_bits[p] & 0x2000000) && (ps[p].shield || disable_armor)) {
+    if ((syncbits[p] & 0x2000000) && (ps[p].shield || disable_armor)) {
         if (disable_armor)
             ps[p].shield = 1;
         ps[p].nightvision_charge = ps[p].nightvision_charge == 0 ? 32 : 0;
     }
-    if ((player_bits[p] & 0x4000000) && (ps[p].jetpack || disable_armor)) {
+    if ((syncbits[p] & 0x4000000) && (ps[p].jetpack || disable_armor)) {
         if (disable_armor)
             ps[p].jetpack = 1;
         ps[p].jetpack_on ^= 1;
     }
-    if ((player_bits[p] & 0x8000000) && (ps[p].holoduke_charge || disable_armor)) {
+    if ((syncbits[p] & 0x8000000) && (ps[p].holoduke_charge || disable_armor)) {
         if (disable_armor)
             ps[p].holoduke_charge = 1;
         if (ps[p].holoduke)
@@ -719,28 +719,28 @@ void playerkeys(short p)
             hittype[ps[p].holoduke][0] = p;
         }
     }
-    if ((player_bits[p] & 0x10000000) && (ps[p].scuba || disable_armor)) {
+    if ((syncbits[p] & 0x10000000) && (ps[p].scuba || disable_armor)) {
         if (disable_armor)
             ps[p].scuba = 1;
         ps[p].scuba_on = !ps[p].scuba_on;
         spritesound(ps[p].scuba_on ? 18 : 27, ps[p].i);
     }
-    if ((player_bits[p] & 0x40000000) && ps[p].weapon_locked == -1)
+    if ((syncbits[p] & 0x40000000) && ps[p].weapon_locked == -1)
         ps[p].weapon_select = (ps[p].weapon_select & 128) ? 5 : 129;
     if (!disable_armor) {
-        if (player_bits[p] & 0x1000000) {
+        if (syncbits[p] & 0x1000000) {
             menupage = 20;
             ps[p].game_mode |= 1;
         }
-        if (player_bits[p] & 0x2000000) {
+        if (syncbits[p] & 0x2000000) {
             menupage = 50;
             ps[p].game_mode |= 1;
         }
-        if (player_bits[p] & 0x4000000) {
+        if (syncbits[p] & 0x4000000) {
             menupage = 10;
             ps[p].game_mode |= 1;
         }
-    } else if (player_bits[p] & 0x800000) {
+    } else if (syncbits[p] & 0x800000) {
         FTA(11);
         for (sn = 0; sn < numsectors; sn++) {
             switch ((short)(sector[sn].lotag & 0xfff)) {
@@ -977,7 +977,7 @@ void checksectors(short p)
     }
     if (ps[p].game_mode & 16)
         return;
-    if (!(player_bits[p] & (0x80000000UL | 16))) {
+    if (!(syncbits[p] & (0x80000000UL | 16))) {
         ps[p].use_pressed = 0;
         return;
     }
@@ -988,7 +988,7 @@ void checksectors(short p)
     neartag(ps[p].posx, ps[p].posy, ps[p].posz + 5120, ps[p].cursectnum, ps[p].ang,
         &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1024);
     if (wall[neartagwall].picnum == 180 || ps[p].camera >= 0) {
-        if (!(player_bits[p] & 0x80000000UL))
+        if (!(syncbits[p] & 0x80000000UL))
             for (i = headspritestat[1]; i >= 0; i = nextspritestat[i])
                 if (sprite[i].picnum == 265 && sprite[i].yvel == 0) {
                     sprite[i].yvel = 1;

@@ -5032,22 +5032,6 @@
     "addr": "2:b1dfa",
     "evidence": "gamedef worker 2026-11-26: Execute resets to -1 and runtime ifhitweapon stores the returned sprite index. Ifwasweapon tests its tile."
    },
-   "script_tics": {
-    "addr": "2:a57c1",
-    "evidence": "gamedef worker 2026-11-26: Game tick loop and player/actor routines use this 8-bit tick increment. Execute adds the same increment to the sprite animation counter."
-   },
-   "player_vel": {
-    "addr": "2:a53dd",
-    "evidence": "gamedef worker 2026-11-26: Signed player movement byte shared by input and demo handling and read by the CON state predicate."
-   },
-   "player_svel": {
-    "addr": "2:a53ff",
-    "evidence": "gamedef worker 2026-11-26: Second signed player movement byte used by input and demo handling. CON player state uses their sum."
-   },
-   "player_bits": {
-    "addr": "2:a52a0",
-    "evidence": "gamedef worker 2026-11-26: Dword player input bits used by PLAYER, SECTOR, demo and menu code. Runtime ifp checks the duck/run flags."
-   },
    "artsize": {
     "addr": "2:2c08",
     "evidence": "engine worker 2026-11-26: loadpics clears the ART byte total, accumulates per-tile sizes, and copies the total into cachesize. 4 exact-address oracle operands in the engine (loadpics 1:3ac25)."
@@ -5976,22 +5960,6 @@
     "addr": "2:1bde5a",
     "evidence": "engine worker 2026-11-26: getcliplines initializes the short to one alongside clipsectorlist[0] at 1:4266b, then compares it with the traversal index at 1:4267c. getzrange repeats the same setup at 1:45702. Fifteen exact-address LE fixup sites across getcliplines, getzrange and clipmove."
    },
-   "player_avel": {
-    "addr": "2:a53bb",
-    "evidence": "player worker 2026-11-26: Independent GAME demo record and playback cross-references. Same 17 signed turning-input bytes read by PLAYER weapon sway and turn."
-   },
-   "avel": {
-    "addr": "2:a52f8",
-    "evidence": "player worker 2026-11-26: GAME timer interrupt ramps and writes the turn accumulator at 1:002bd. PLAYER mouse X adjusts it."
-   },
-   "vel": {
-    "addr": "2:a52fc",
-    "evidence": "player worker 2026-11-26: GAME timer interrupt ramps and writes the forward accumulator at 1:002b1. The low byte becomes player_vel in getinput."
-   },
-   "svel": {
-    "addr": "2:a5300",
-    "evidence": "player worker 2026-11-26: GAME timer interrupt ramps and writes the strafe accumulator at 1:002b7. PLAYER mouse Y adjusts it."
-   },
    "lockclock": {
     "addr": "2:a5304",
     "evidence": "player worker 2026-11-26: GAME tick advancement and demo timing references at 1:08ec9 and 1:08283. Compared with totalclock in PLAYER."
@@ -6011,26 +5979,6 @@
    "reccnt": {
     "addr": "2:a5254",
     "evidence": "game2 worker 2026-11-26: Shared recording count serialized by both demo file paths, reset at newgame and increased with a 16383 cap by record."
-   },
-   "demo_avel": {
-    "addr": "2:0f6c8",
-    "evidence": "game2 worker 2026-11-26: First motion stream independently transferred by both demo file routines and indexed by playback and record."
-   },
-   "demo_vel": {
-    "addr": "2:136c8",
-    "evidence": "game2 worker 2026-11-26: Second motion stream independently transferred by both demo file routines and indexed by playback and record."
-   },
-   "demo_bits": {
-    "addr": "2:1d6d8",
-    "evidence": "game2 worker 2026-11-26: Both demo file paths transfer this stream at four bytes per frame, as indexed by record and playback."
-   },
-   "demo_tics": {
-    "addr": "2:2d6d8",
-    "evidence": "game2 worker 2026-11-26: Both demo file paths transfer this byte stream, and playback reads it as its tick increment."
-   },
-   "demo_svel": {
-    "addr": "2:316d8",
-    "evidence": "game2 worker 2026-11-26: Third motion stream independently transferred by both demo file routines and indexed by playback and record."
    },
    "file_id_record": {
     "addr": "2:0291c",
@@ -6067,10 +6015,6 @@
    "demo_missing": {
     "addr": "2:00638",
     "evidence": "game2 worker 2026-11-26: Demo-specific diagnostic reached from the open failure branch in read_demo, confirmed by its text and call to gameexit."
-   },
-   "demomode": {
-    "addr": "2:a5258",
-    "evidence": "game2 worker 2026-11-26: Loaded and initialized by main, adjusted by demo playback, tested by the game tick and cleared by demo write and user-stats read."
    },
    "msx": {
     "addr": "2:a2830",
@@ -6143,22 +6087,6 @@
    "quote_text": {
     "addr": "2:02598",
     "evidence": "gameC worker 2026-11-26: FTA at 02674 and displayquotes independently reference the start of the 13 by 32-byte quote table; layout and inbound references are surveyed in docs/units/game.md."
-   },
-   "pending_avel": {
-    "addr": "2:a53aa",
-    "evidence": "gameC worker 2026-11-26: The packet paths at 1:01cfe and 1:0712d use this byte array with the corresponding bound player_avel array. Level entry clears both arrays per player at 1:14b7c."
-   },
-   "pending_vel": {
-    "addr": "2:a53cc",
-    "evidence": "gameC worker 2026-11-26: The packet paths at 1:01cc5 and 1:070f4 use this byte array with the corresponding bound player_vel array. Level entry clears both arrays per player at 1:14b74."
-   },
-   "pending_svel": {
-    "addr": "2:a53ee",
-    "evidence": "gameC worker 2026-11-26: The packet paths at 1:01c8c and 1:070bb use this byte array with the corresponding bound player_svel array. Level entry clears both arrays per player at 1:14b62."
-   },
-   "pending_bits": {
-    "addr": "2:a525c",
-    "evidence": "gameC worker 2026-11-26: The packet paths at 1:01d3e and 1:0716d use this dword array with the corresponding bound player_bits array. Level entry clears both arrays per player at 1:14b8b."
    },
    "msgtime": {
     "addr": "2:a538e",
@@ -6459,6 +6387,78 @@
    "lavabakpic": {
     "addr": "2:adbe0",
     "evidence": "menues worker 2026-11-26: Independent interior-copy, wrap-border writes and filter reads give a 130 by 130 byte workspace with this first corner."
+   },
+   "vel": {
+    "addr": "2:a5300",
+    "evidence": "player worker 2026-11-26: GAME timer interrupt ramps and writes the strafe accumulator at 1:002b7. PLAYER mouse Y adjusts it. | renamed from svel (docs/RENAMES.md)"
+   },
+   "svel": {
+    "addr": "2:a52fc",
+    "evidence": "player worker 2026-11-26: GAME timer interrupt ramps and writes the forward accumulator at 1:002b1. The low byte becomes player_vel in getinput. | renamed from vel (docs/RENAMES.md)"
+   },
+   "angvel": {
+    "addr": "2:a52f8",
+    "evidence": "player worker 2026-11-26: GAME timer interrupt ramps and writes the turn accumulator at 1:002bd. PLAYER mouse X adjusts it. | renamed from avel (docs/RENAMES.md)"
+   },
+   "syncvel": {
+    "addr": "2:a53ff",
+    "evidence": "gamedef worker 2026-11-26: Second signed player movement byte used by input and demo handling. CON player state uses their sum. | renamed from player_svel (docs/RENAMES.md)"
+   },
+   "syncsvel": {
+    "addr": "2:a53dd",
+    "evidence": "gamedef worker 2026-11-26: Signed player movement byte shared by input and demo handling and read by the CON state predicate. | renamed from player_vel (docs/RENAMES.md)"
+   },
+   "syncangvel": {
+    "addr": "2:a53bb",
+    "evidence": "player worker 2026-11-26: Independent GAME demo record and playback cross-references. Same 17 signed turning-input bytes read by PLAYER weapon sway and turn. | renamed from player_avel (docs/RENAMES.md)"
+   },
+   "syncbits": {
+    "addr": "2:a52a0",
+    "evidence": "gamedef worker 2026-11-26: Dword player input bits used by PLAYER, SECTOR, demo and menu code. Runtime ifp checks the duck/run flags. | renamed from player_bits (docs/RENAMES.md)"
+   },
+   "osyncvel": {
+    "addr": "2:a53ee",
+    "evidence": "gameC worker 2026-11-26: The packet paths at 1:01c8c and 1:070bb use this byte array with the corresponding bound player_svel array. Level entry clears both arrays per player at 1:14b62. | renamed from pending_svel (docs/RENAMES.md)"
+   },
+   "osyncsvel": {
+    "addr": "2:a53cc",
+    "evidence": "gameC worker 2026-11-26: The packet paths at 1:01cc5 and 1:070f4 use this byte array with the corresponding bound player_vel array. Level entry clears both arrays per player at 1:14b74. | renamed from pending_vel (docs/RENAMES.md)"
+   },
+   "osyncangvel": {
+    "addr": "2:a53aa",
+    "evidence": "gameC worker 2026-11-26: The packet paths at 1:01cfe and 1:0712d use this byte array with the corresponding bound player_avel array. Level entry clears both arrays per player at 1:14b7c. | renamed from pending_avel (docs/RENAMES.md)"
+   },
+   "osyncbits": {
+    "addr": "2:a525c",
+    "evidence": "gameC worker 2026-11-26: The packet paths at 1:01d3e and 1:0716d use this dword array with the corresponding bound player_bits array. Level entry clears both arrays per player at 1:14b8b. | renamed from pending_bits (docs/RENAMES.md)"
+   },
+   "recsyncvel": {
+    "addr": "2:316d8",
+    "evidence": "game2 worker 2026-11-26: Third motion stream independently transferred by both demo file routines and indexed by playback and record. | renamed from demo_svel (docs/RENAMES.md)"
+   },
+   "recsyncsvel": {
+    "addr": "2:136c8",
+    "evidence": "game2 worker 2026-11-26: Second motion stream independently transferred by both demo file routines and indexed by playback and record. | renamed from demo_vel (docs/RENAMES.md)"
+   },
+   "recsyncangvel": {
+    "addr": "2:0f6c8",
+    "evidence": "game2 worker 2026-11-26: First motion stream independently transferred by both demo file routines and indexed by playback and record. | renamed from demo_avel (docs/RENAMES.md)"
+   },
+   "recsyncbits": {
+    "addr": "2:1d6d8",
+    "evidence": "game2 worker 2026-11-26: Both demo file paths transfer this stream at four bytes per frame, as indexed by record and playback. | renamed from demo_bits (docs/RENAMES.md)"
+   },
+   "recsynctics": {
+    "addr": "2:2d6d8",
+    "evidence": "game2 worker 2026-11-26: Both demo file paths transfer this byte stream, and playback reads it as its tick increment. | renamed from demo_tics (docs/RENAMES.md)"
+   },
+   "recstat": {
+    "addr": "2:a5258",
+    "evidence": "game2 worker 2026-11-26: Loaded and initialized by main, adjusted by demo playback, tested by the game tick and cleared by demo write and user-stats read. | renamed from demomode (docs/RENAMES.md)"
+   },
+   "synctics": {
+    "addr": "2:a57c1",
+    "evidence": "gamedef worker 2026-11-26: Game tick loop and player/actor routines use this 8-bit tick increment. Execute adds the same increment to the sprite animation counter. | renamed from script_tics (docs/RENAMES.md)"
    }
   }
  }

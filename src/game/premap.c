@@ -49,12 +49,12 @@ extern unsigned char input_text[], input_text_length;
 extern short moustat, menu_mouse, menu_previous_buttons, menu_drag, menu_x, menu_y;
 
 extern long reccnt;
-extern signed char player_avel[], player_vel[], player_svel[];
-extern long player_bits[];
-extern unsigned char script_tics;
-extern signed char demo_avel[16384], demo_vel[16384], demo_svel[16384];
-extern long demo_bits[16384];
-extern unsigned char demo_tics[16384];
+extern signed char syncangvel[], syncsvel[], syncvel[];
+extern long syncbits[];
+extern unsigned char synctics;
+extern signed char recsyncangvel[16384], recsyncsvel[16384], recsyncvel[16384];
+extern long recsyncbits[16384];
+extern unsigned char recsynctics[16384];
 
 extern char file_id_record[];
 /* These two literals belong to an earlier part of the shared GAME pool. */
@@ -75,7 +75,7 @@ typedef char user_settings_size_check[sizeof(struct user_settings) == 21 ? 1 : -
 
 extern struct user_settings userdefs;
 extern char score_names[12][33];
-extern long high_scores[12], demomode;
+extern long high_scores[12], recstat;
 extern const char userdefs_filename[];
 
 /* The packed, 176-byte player record. Field names follow src/game/player.h; GAME's own
@@ -170,8 +170,8 @@ extern void call_level_load_hook(char *name);
 #pragma aux call_level_load_hook "level_load_hook_"
 extern short disable_armor;
 extern unsigned char level_tick_state;
-extern signed char pending_svel[17], pending_vel[17], pending_avel[17];
-extern long pending_bits[17];
+extern signed char osyncvel[17], osyncsvel[17], osyncangvel[17];
+extern long osyncbits[17];
 struct game_sound_voice {
     long x, y, z;
     short sprite;
@@ -268,12 +268,12 @@ extern void qsetmode640480(void);
 extern char score_rank_title[], score_quote_title[], score_score_title[];
 
 
-/* dataown: one object, one name. GLOBAL defines the timer ramps as avel/vel/svel and the 21-byte settings
+/* dataown: one object, one name. GLOBAL defines the timer ramps as angvel/svel/vel and the 21-byte settings
    block as userdefs; the separate spellings used here are its fields. */
-extern long avel, vel, svel;
-#define turn_velocity avel
-#define strafe_velocity vel
-#define forward_velocity svel
+extern long angvel, svel, vel;
+#define turn_velocity angvel
+#define strafe_velocity svel
+#define forward_velocity vel
 #define disable_armor userdefs.debug
 #define gamepaused userdefs.paused
 #define camerasprite userdefs.camera
@@ -552,7 +552,7 @@ void spawn(long j, short pn)
         sprite[i].yrepeat = 0;
         switch (sprite[i].lotag) {
         case 27:
-            if (demomode == 1) {
+            if (recstat == 1) {
                 sprite[i].xrepeat = 64;
                 sprite[i].yrepeat = 64;
             }
@@ -1036,10 +1036,10 @@ void enterlevel(unsigned char mode)
     allignwarpelevators();
     for (i = 0; i < 17; i++) {
         memcpy(&ps[i], &ps[0], sizeof(ps[0]));
-        player_svel[i] = pending_svel[i] = 0;
-        player_vel[i] = pending_vel[i] = 0;
-        player_avel[i] = pending_avel[i] = 0;
-        player_bits[i] = pending_bits[i] = 0;
+        syncvel[i] = osyncvel[i] = 0;
+        syncsvel[i] = osyncsvel[i] = 0;
+        syncangvel[i] = osyncangvel[i] = 0;
+        syncbits[i] = osyncbits[i] = 0;
     }
     moveloop();
     if (option[0] == 7)
@@ -1076,7 +1076,7 @@ void enterlevel(unsigned char mode)
     playmusic(ps[myconnectindex].music);
     displaystatus(myconnectindex);
     lockclock = totalclock = 0;
-    level_tick_state = script_tics = 0;
+    level_tick_state = synctics = 0;
     ps[myconnectindex].gm = mode;
 }
 
