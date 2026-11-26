@@ -61,6 +61,9 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
 - `tools/semir.py [--unit UNIT] FUNC` (or `--src CAND.c FUNC`) — earliest semantic difference of a NEAR function:
   SOURCE (fix the C), ALLOCATION-ONLY (same dataflow, register/stack choice), LAYOUT (cross-function displacement),
   UNKNOWN. Run it before editing a NEAR function; docs/NEAR_CENSUS.md lists every NEAR function's class.
+- `tools/cg95/cgtrace95.py` + `tools/cg95/explain95.py` — Watcom 9.5b register-allocator trace (NT compiler under a
+  debugger; identical code to the DOS host) and explanation of the first diverging allocation decision with likely
+  source levers; for ALLOCATION-ONLY functions (docs/CG95.md has commands and validation).
 - `tools/gate.py` — integration gate (tests + fresh rebuild of every unit); run before every commit.
 - Watcom 9.5b compiles run on the canonical DOS host (tools/doshost.py: the original DOS compiler under DOSBox-X,
   ~1.7 s per compile) because CONST padding residue depends on the host; LAMEDUKE_HOST=nt gives the same code
