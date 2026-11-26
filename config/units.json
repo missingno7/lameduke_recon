@@ -1,4 +1,74 @@
 {
  "note": "Integrator-owned registry of reconstructed units. tools/verify.py rebuilds each unit fresh and fails on any status regression.",
- "units": {}
+ "units": {
+  "a_asm": {
+   "source": "src/engine/A.ASM",
+   "profile": "ken_asm",
+   "kind": "asm",
+   "provenance": "ORIGINAL_ASM reconstructed: BINARY_DERIVED mnemonics guided by Ken's BUIL0422 (Apr-94) and buil1995 (May-95) A.ASM and BUIL0624/0719/0801 A.OBJ; worker runtime 2026-11-26",
+   "quality": "readable mnemonics, symbolic operands; Ken's original labels/comments not yet restored",
+   "functions": {
+    "SETHLINESIZES": {
+     "status": "STRICT"
+    },
+    "SETHLINECHAINSIZES": {
+     "status": "STRICT"
+    },
+    "SETPALOOKUPADDRESS": {
+     "status": "STRICT"
+    },
+    "CHAINSETPALOOKUPADDRESS": {
+     "status": "STRICT"
+    },
+    "HLINEASM64": {
+     "status": "STRICT"
+    },
+    "HCHAINASM64": {
+     "status": "STRICT"
+    },
+    "SETVLINEBPL": {
+     "status": "STRICT"
+    },
+    "VLINEASM1": {
+     "status": "STRICT"
+    },
+    "MVLINEASM1": {
+     "status": "STRICT"
+    },
+    "FIXTRANSLUSCENCE": {
+     "status": "STRICT"
+    },
+    "TVLINEASM1": {
+     "status": "STRICT"
+    },
+    "VLINEASM4": {
+     "status": "STRICT"
+    },
+    "MVLINEASM4": {
+     "status": "STRICT"
+    },
+    "SPRITEVLINE": {
+     "status": "STRICT"
+    },
+    "MSETHLINESHIFT": {
+     "status": "STRICT"
+    },
+    "MHLINE": {
+     "status": "STRICT"
+    },
+    "MHLINESKIPMODIFY": {
+     "status": "STRICT"
+    },
+    "TSETHLINESHIFT": {
+     "status": "STRICT"
+    },
+    "THLINE": {
+     "status": "STRICT"
+    },
+    "THLINESKIPMODIFY": {
+     "status": "STRICT"
+    }
+   }
+  }
+ }
 }

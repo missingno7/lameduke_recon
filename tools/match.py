@@ -64,7 +64,7 @@ class Bindings:
     _cache = {}         # (oracle, files with mtime/size) -> (game, lib): parsed once per process per file state
 
     def __init__(self, img):
-        files = [CONFIG / "symbols.json"] + ([Path(self.extra)] if self.extra else []) +             [BUILD / "oracles" / img.name / "libsyms.json"]
+        files = [CONFIG / "symbols.json", CONFIG / "library_symbols.json"] + ([Path(self.extra)] if self.extra else []) +             [BUILD / "oracles" / img.name / "libsyms.json"]
         key = (img.name,) + tuple((str(p), p.stat().st_mtime_ns, p.stat().st_size) if p.exists() else (str(p),)
                                   for p in files)
         if key not in Bindings._cache:
@@ -75,7 +75,7 @@ class Bindings:
 
     def _load(self, img):
         self.game = {}
-        for p in [CONFIG / "symbols.json"] + ([Path(self.extra)] if self.extra else []):
+        for p in [CONFIG / "symbols.json", CONFIG / "library_symbols.json"] + ([Path(self.extra)] if self.extra else []):
             if not p.exists():
                 continue
             for kind in ("functions", "data"):
@@ -99,6 +99,9 @@ class Bindings:
             return self.game[c], "symbols.json"
         if raw in self.game:
             return self.game[raw], "symbols.json"
+        # MASM 5.10 without /mx exports upper-case names (A.ASM); WLINK resolved them case-insensitively
+        if c.lower() in self.game and c.isupper():
+            return self.game[c.lower()], "symbols.json"
         return None, None
 
 
@@ -497,6 +500,14 @@ def verify_object(img, mod, only=None, seg_report=None):
                         break
                     ins_start = ins.address
                 res["diff_view"] = side_by_side(cand, img.obj[pobj][paddr:paddr + len(cand) + 32], ins_start, paddr)
+            # Extent end must be an independently known boundary, or a shorter candidate could pass as a prefix
+            # (game worker 2026-11-26: a truncated ispecial was reported STRICT). Accepted: the next candidate
+            # public bound exactly there, a bound symbol or oracle function start there (tools/funcmap.py), or the
+            # end of the oracle object.
+            oend = paddr + len(cand)
+            nxt_bound = binds.lookup(pubs[k + 1][1])[0] if k + 1 < len(pubs) else None
+            if not (nxt_bound == (pobj, oend) or img.is_boundary(pobj, oend, binds)):
+                res["unverified"].append(f"extent end {pobj}:{oend:05x} is not a confirmed function boundary")
             if diffs or res["problems"]:
                 res["status"] = "NEAR_MATCH"
             elif res["unverified"]:

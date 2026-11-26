@@ -67,3 +67,24 @@ Each entry names the command or artefact that supports it.
   0x62d8d-0x6b685 Watcom 9.5 runtime; ~0x6b685-0x6c445 Ken's A.OBJ (assembly).
 - `tools/funcmap.py`: 1284 candidate function starts, 404 KB reached by recursive descent, 1326 jump-table entries,
   39 KB unreached (dead functions or data in code).
+
+## Worker results 2026-11-26 (verified by the integrator)
+- PROVEN runtime census (docs/RUNTIME_CENSUS.md): obj1:62d8d-6b685 = 125 Watcom 9.5b CLIB3R/MATH387R/EMU387/MATH3R
+  contributions (35,001 bytes) + zero alignment; 46 runtime data contributions in obj2 (2,296 bytes). The three
+  "masked" libscan members were a scanner limitation (OMF target method 4 keeps the addend in the field; Easy OMF
+  LOC=5 fields are dwords), not version differences. libscan.py classify() still has this limitation (OPEN fix).
+- PROVEN obj1:49c84-4e168 = four Creative AWE32 modules (nrpn, sbkload, hardware, midieng) shipped inside ASS 1.04's
+  AUDIO_WF.LIB, compiled by MetaWare High C (dosomf v2.05b, hc2.5k -O6 -386). So the engine ends before 1:49c84.
+- PROVEN MZ stub = Watcom 9.5b BINB/WSTUB.EXE load image + relocations (D3D[0x40:0x28b2] == WSTUB[0x20:]) with the MZ
+  header grown from 64 to 96 bytes (as WLINK writes it). Linker build OPEN.
+- PROVEN MASM 5.10 (`masm a.asm;`, under MS-DOS Player) reproduces BUIL0422/A.OBJ byte-for-byte; reconstructed
+  Dec-94 A.ASM = 20/20 STRICT, 3,520 bytes (unit a_asm). The target's A.OBJ differs from every surviving A.OBJ
+  (Apr/Jun/Jul/Aug-94, Sep-95..Dec-95) as a whole unit.
+- STRONG game layout (docs/GAME_MAP.md): game 1:00010-33e5c in seven TUs ~ GAME(+PREMAP) 00010-14fb0, SECTOR
+  14fb0-1f280, PLAYER 1f280-25160, ACTORS 25160-2ba30, SOUNDS 2ba30-2c1c0, MENUES 2c1c0-2e700, GAMEDEF 2e700-33e5c;
+  engine starts at 1:33e5c (keyhandler IRQ). Map structs (v5): sector 37, wall 35, sprite 38, extra 10 bytes.
+- PROVEN game compiler profile reproducing 9 probe functions: wc95b `-4r -s -otexan` (also -otexa / without -s);
+  -4r alone, -ot, -ox, -3r/-5r fail; wc100/100a/105/106 fail USRHOOKS_GetMem at +1. Packing 1 byte (-zp1 default).
+- FIXED verifier gap found by the game worker: a candidate shorter than the original function could pass as STRICT.
+  match.py now requires the extent end to be a confirmed boundary (bound next public, bound symbol, funcmap start
+  or object end); negative control tests/test_match.py::test_truncated_candidate.

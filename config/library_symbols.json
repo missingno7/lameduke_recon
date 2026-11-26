@@ -1,0 +1,1301 @@
+{
+ "note": "Library-member bindings (Watcom 9.5b runtime, Creative/Apogee library members). Identity evidence only; never reconstruction credit. Source: runtime worker 2026-11-26 (build/workers/runtime/NOTES.md).",
+ "d3d": {
+  "functions": {
+   "AWE32CHANNELPRESSURE": {
+    "addr": "1:4deac",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32CONTROLLER": {
+    "addr": "1:4d9cc",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32DEFINEBANKSIZES": {
+    "addr": "1:4a798",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32DETECT": {
+    "addr": "1:4ba98",
+    "evidence": "104/AUDIO_WF.LIB:hardware.c _TEXT at 1:4ba90, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32INITHARDWARE": {
+    "addr": "1:4c338",
+    "evidence": "104/AUDIO_WF.LIB:hardware.c _TEXT at 1:4ba90, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32INITMIDI": {
+    "addr": "1:4c4fc",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32INITNRPN": {
+    "addr": "1:49c8c",
+    "evidence": "104/AUDIO_WF.LIB:nrpn.c _TEXT at 1:49c84, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32NOTEOFF": {
+    "addr": "1:4d3d4",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32NOTEON": {
+    "addr": "1:4d4f4",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32PITCHBEND": {
+    "addr": "1:4def4",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32POLYKEYPRESSURE": {
+    "addr": "1:4dea4",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32PROGRAMCHANGE": {
+    "addr": "1:4dcec",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32REGDW": {
+    "addr": "1:4c674",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32REGRDW": {
+    "addr": "1:4c6ec",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32REGRW": {
+    "addr": "1:4c60c",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32REGW": {
+    "addr": "1:4c5a4",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32RELEASEALLBANKS": {
+    "addr": "1:4a8f0",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32RELEASEBANK": {
+    "addr": "1:4a858",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32SETPRESETS": {
+    "addr": "1:4add4",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32SFONTLOADREQUEST": {
+    "addr": "1:4b480",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32STREAMSAMPLE": {
+    "addr": "1:4b418",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32SYSEX": {
+    "addr": "1:4e0e0",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32TERMINATE": {
+    "addr": "1:4c480",
+    "evidence": "104/AUDIO_WF.LIB:hardware.c _TEXT at 1:4ba90, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32TOTALPATCHRAM": {
+    "addr": "1:4a784",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32WPBUILDSFONT": {
+    "addr": "1:4b7c0",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32WPLOADREQUEST": {
+    "addr": "1:4b5f8",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32WPLOADWAVE": {
+    "addr": "1:4b6a4",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "AWE32WPSTREAMWAVE": {
+    "addr": "1:4b718",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "IF@ABS": {
+    "addr": "1:6b011",
+    "evidence": "MATH387R.LIB:fabs387 _TEXT at 1:6b004, matched OMF contribution and LE fixup sites"
+   },
+   "IF@DABS": {
+    "addr": "1:6b011",
+    "evidence": "MATH387R.LIB:fabs387 _TEXT at 1:6b004, matched OMF contribution and LE fixup sites"
+   },
+   "IF@DEXP": {
+    "addr": "1:658b8",
+    "evidence": "MATH387R.LIB:exp387 _TEXT at 1:658a0, matched OMF contribution and LE fixup sites"
+   },
+   "IF@DLOG": {
+    "addr": "1:6b014",
+    "evidence": "MATH387R.LIB:log387 _TEXT at 1:6b014, matched OMF contribution and LE fixup sites"
+   },
+   "IF@DLOG10": {
+    "addr": "1:6b05b",
+    "evidence": "MATH387R.LIB:log387 _TEXT at 1:6b014, matched OMF contribution and LE fixup sites"
+   },
+   "IF@DLOG2": {
+    "addr": "1:6b057",
+    "evidence": "MATH387R.LIB:log387 _TEXT at 1:6b014, matched OMF contribution and LE fixup sites"
+   },
+   "IF@DPOW": {
+    "addr": "1:64468",
+    "evidence": "MATH387R.LIB:pow387 _TEXT at 1:64468, matched OMF contribution and LE fixup sites"
+   },
+   "IF@EXP": {
+    "addr": "1:658b8",
+    "evidence": "MATH387R.LIB:exp387 _TEXT at 1:658a0, matched OMF contribution and LE fixup sites"
+   },
+   "IF@LOG": {
+    "addr": "1:6b014",
+    "evidence": "MATH387R.LIB:log387 _TEXT at 1:6b014, matched OMF contribution and LE fixup sites"
+   },
+   "IF@LOG10": {
+    "addr": "1:6b05b",
+    "evidence": "MATH387R.LIB:log387 _TEXT at 1:6b014, matched OMF contribution and LE fixup sites"
+   },
+   "IF@LOG2": {
+    "addr": "1:6b057",
+    "evidence": "MATH387R.LIB:log387 _TEXT at 1:6b014, matched OMF contribution and LE fixup sites"
+   },
+   "IF@POW": {
+    "addr": "1:64468",
+    "evidence": "MATH387R.LIB:pow387 _TEXT at 1:64468, matched OMF contribution and LE fixup sites"
+   },
+   "MHLINE": {
+    "addr": "1:6c1e4",
+    "evidence": "Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f49f"
+   },
+   "MHLINESKIPMODIFY": {
+    "addr": "1:6c234",
+    "evidence": "Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f4fd"
+   },
+   "MSETHLINESHIFT": {
+    "addr": "1:6c1c0",
+    "evidence": "Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f0d4"
+   },
+   "SPRITEVLINE": {
+    "addr": "1:6c130",
+    "evidence": "Original Build sprite-column entry, six-register caller and sprite loop, engine direct call at 1:471fb"
+   },
+   "THLINE": {
+    "addr": "1:6c32e",
+    "evidence": "Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f559"
+   },
+   "THLINESKIPMODIFY": {
+    "addr": "1:6c374",
+    "evidence": "Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f5c1"
+   },
+   "TSETHLINESHIFT": {
+    "addr": "1:6c30a",
+    "evidence": "Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f0fa"
+   },
+   "_@DEXP": {
+    "addr": "1:658ba",
+    "evidence": "MATH387R.LIB:exp387 _TEXT at 1:658a0, matched OMF contribution and LE fixup sites"
+   },
+   "_@DEXP1": {
+    "addr": "1:658b0",
+    "evidence": "MATH387R.LIB:exp387 _TEXT at 1:658a0, matched OMF contribution and LE fixup sites"
+   },
+   "_AWE32ISPLAYING": {
+    "addr": "1:4b9e0",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "_AWE32NOTEOFF": {
+    "addr": "1:4b948",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "_Bin2String": {
+    "addr": "1:6b50d",
+    "evidence": "MATH387R.LIB:i64tos _TEXT at 1:6b468, matched OMF contribution and LE fixup sites"
+   },
+   "_CHK": {
+    "addr": "1:646ef",
+    "evidence": "DOS/CLIB3R.LIB:stk _TEXT at 1:646e8, matched OMF contribution and LE fixup sites"
+   },
+   "_CHP": {
+    "addr": "1:645c0",
+    "evidence": "MATH387R.LIB:fchop _TEXT at 1:645c0, matched OMF contribution and LE fixup sites"
+   },
+   "_CMain": {
+    "addr": "1:6473d",
+    "evidence": "DOS/CLIB3R.LIB:cmain386 _TEXT at 1:6473d, matched OMF contribution and LE fixup sites"
+   },
+   "_CmpBigInt": {
+    "addr": "1:6b468",
+    "evidence": "MATH387R.LIB:i64tos _TEXT at 1:6b468, matched OMF contribution and LE fixup sites"
+   },
+   "_DoINTR_": {
+    "addr": "1:654a3",
+    "evidence": "DOS/CLIB3R.LIB:int386xa _TEXT at 1:65448, matched OMF contribution and LE fixup sites"
+   },
+   "_EFG_Format_": {
+    "addr": "1:674b4",
+    "evidence": "DOS/CLIB3R.LIB:efgfmt _TEXT at 1:674b4, matched OMF contribution and LE fixup sites"
+   },
+   "_FDFS": {
+    "addr": "1:6a90c",
+    "evidence": "DOS/CLIB3R.LIB:fdfs _TEXT at 1:6a90c, matched OMF contribution and LE fixup sites"
+   },
+   "_FiniRtns": {
+    "addr": "1:647cb",
+    "evidence": "DOS/CLIB3R.LIB:initrtns _TEXT at 1:64788, matched OMF contribution and LE fixup sites"
+   },
+   "_FtoS_": {
+    "addr": "1:6abd0",
+    "evidence": "MATH387R.LIB:ftos _TEXT at 1:6aa5c, matched OMF contribution and LE fixup sites"
+   },
+   "_Full_at_exit_rtn_": {
+    "addr": "1:643bd",
+    "evidence": "DOS/CLIB3R.LIB:atexit _TEXT at 1:643bd, matched OMF contribution and LE fixup sites"
+   },
+   "_GETDS": {
+    "addr": "1:63060",
+    "evidence": "DOS/CLIB3R.LIB:cstart _TEXT at 1:62e00, matched OMF contribution and LE fixup sites"
+   },
+   "_GRO": {
+    "addr": "1:646ff",
+    "evidence": "DOS/CLIB3R.LIB:stk _TEXT at 1:646e8, matched OMF contribution and LE fixup sites"
+   },
+   "_InitRtns": {
+    "addr": "1:64788",
+    "evidence": "DOS/CLIB3R.LIB:initrtns _TEXT at 1:64788, matched OMF contribution and LE fixup sites"
+   },
+   "_MemAllocator": {
+    "addr": "1:64fd8",
+    "evidence": "DOS/CLIB3R.LIB:memalloc _TEXT at 1:64fd8, matched OMF contribution and LE fixup sites"
+   },
+   "_MemFree": {
+    "addr": "1:65088",
+    "evidence": "DOS/CLIB3R.LIB:memalloc _TEXT at 1:64fd8, matched OMF contribution and LE fixup sites"
+   },
+   "_ModF": {
+    "addr": "1:6b300",
+    "evidence": "DOS/CLIB3R.LIB:amodf _TEXT at 1:6b300, matched OMF contribution and LE fixup sites"
+   },
+   "_Rnd2Int": {
+    "addr": "1:6b4a2",
+    "evidence": "MATH387R.LIB:i64tos _TEXT at 1:6b468, matched OMF contribution and LE fixup sites"
+   },
+   "_STK": {
+    "addr": "1:64702",
+    "evidence": "DOS/CLIB3R.LIB:stk _TEXT at 1:646e8, matched OMF contribution and LE fixup sites"
+   },
+   "_STOSB": {
+    "addr": "1:63ec0",
+    "evidence": "DOS/CLIB3R.LIB:__stos _TEXT at 1:63ec0, matched OMF contribution and LE fixup sites"
+   },
+   "_STOSD": {
+    "addr": "1:63ef7",
+    "evidence": "DOS/CLIB3R.LIB:__stos _TEXT at 1:63ec0, matched OMF contribution and LE fixup sites"
+   },
+   "_Scale10V_": {
+    "addr": "1:6b0c0",
+    "evidence": "MATH387R.LIB:scale _TEXT at 1:6b083, matched OMF contribution and LE fixup sites"
+   },
+   "_Scale_": {
+    "addr": "1:6b083",
+    "evidence": "MATH387R.LIB:scale _TEXT at 1:6b083, matched OMF contribution and LE fixup sites"
+   },
+   "_SetMaxPrec_": {
+    "addr": "1:6aa5c",
+    "evidence": "MATH387R.LIB:ftos _TEXT at 1:6aa5c, matched OMF contribution and LE fixup sites"
+   },
+   "_ZBuf2F": {
+    "addr": "1:6b390",
+    "evidence": "DOS/CLIB3R.LIB:amodf _TEXT at 1:6b300, matched OMF contribution and LE fixup sites"
+   },
+   "__CommonInit_": {
+    "addr": "1:6672c",
+    "evidence": "DOS/CLIB3R.LIB:cinit _TEXT at 1:6672c, matched OMF contribution and LE fixup sites"
+   },
+   "__EINVAL_": {
+    "addr": "1:6493f",
+    "evidence": "DOS/CLIB3R.LIB:dosret _TEXT at 1:64933, matched OMF contribution and LE fixup sites"
+   },
+   "__ExpandDGROUP_": {
+    "addr": "1:65259",
+    "evidence": "DOS/CLIB3R.LIB:grownear _TEXT at 1:65193, matched OMF contribution and LE fixup sites"
+   },
+   "__FPE_exception_": {
+    "addr": "1:6af89",
+    "evidence": "DOS/CLIB3R.LIB:seterrno _TEXT at 1:6af71, matched OMF contribution and LE fixup sites"
+   },
+   "__IOMode_": {
+    "addr": "1:649bb",
+    "evidence": "DOS/CLIB3R.LIB:iomode _TEXT at 1:649bb, matched OMF contribution and LE fixup sites"
+   },
+   "__InitFiles_": {
+    "addr": "1:66fcc",
+    "evidence": "DOS/CLIB3R.LIB:initfile _TEXT at 1:66fcc, matched OMF contribution and LE fixup sites"
+   },
+   "__Init_Argv_": {
+    "addr": "1:64aa4",
+    "evidence": "DOS/CLIB3R.LIB:initargv _TEXT at 1:64aa4, matched OMF contribution and LE fixup sites"
+   },
+   "__LastFree_": {
+    "addr": "1:65193",
+    "evidence": "DOS/CLIB3R.LIB:grownear _TEXT at 1:65193, matched OMF contribution and LE fixup sites"
+   },
+   "__MkTmpFile_": {
+    "addr": "1:63d0e",
+    "evidence": "DOS/CLIB3R.LIB:fclose _TEXT at 1:63cc3, matched OMF contribution and LE fixup sites"
+   },
+   "__Nan_Inf_": {
+    "addr": "1:6af90",
+    "evidence": "MATH387R.LIB:nan_inf _TEXT at 1:6af90, matched OMF contribution and LE fixup sites"
+   },
+   "__STKOVERFLOW_": {
+    "addr": "1:6471f",
+    "evidence": "DOS/CLIB3R.LIB:stk _TEXT at 1:646e8, matched OMF contribution and LE fixup sites"
+   },
+   "__SetIOMode_": {
+    "addr": "1:64a06",
+    "evidence": "DOS/CLIB3R.LIB:iomode _TEXT at 1:649bb, matched OMF contribution and LE fixup sites"
+   },
+   "__allocfp_": {
+    "addr": "1:64c32",
+    "evidence": "DOS/CLIB3R.LIB:allocfp _TEXT at 1:64c32, matched OMF contribution and LE fixup sites"
+   },
+   "__awe32AllocGChannel": {
+    "addr": "1:4c760",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "__begtext": {
+    "addr": "1:00003",
+    "evidence": "DOS/CLIB3R.LIB:cstart BEGTEXT at 1:00000, matched OMF contribution and LE fixup sites"
+   },
+   "__brk_": {
+    "addr": "1:671cd",
+    "evidence": "DOS/CLIB3R.LIB:sbrk386 _TEXT at 1:67137, matched OMF contribution and LE fixup sites"
+   },
+   "__chk8087_": {
+    "addr": "1:65c85",
+    "evidence": "DOS/CLIB3R.LIB:chk8087 _TEXT at 1:65c49, matched OMF contribution and LE fixup sites"
+   },
+   "__chktty_": {
+    "addr": "1:64d12",
+    "evidence": "DOS/CLIB3R.LIB:chktty _TEXT at 1:64d12, matched OMF contribution and LE fixup sites"
+   },
+   "__cnvs2d_": {
+    "addr": "1:675cf",
+    "evidence": "MATH387R.LIB:cnvs2d _TEXT at 1:675cf, matched OMF contribution and LE fixup sites"
+   },
+   "__cvt_": {
+    "addr": "1:6b193",
+    "evidence": "MATH387R.LIB:cvt _TEXT at 1:6b193, matched OMF contribution and LE fixup sites"
+   },
+   "__doclose_": {
+    "addr": "1:63d79",
+    "evidence": "DOS/CLIB3R.LIB:fclose _TEXT at 1:63cc3, matched OMF contribution and LE fixup sites"
+   },
+   "__doserror_": {
+    "addr": "1:65848",
+    "evidence": "DOS/CLIB3R.LIB:doserror _TEXT at 1:65848, matched OMF contribution and LE fixup sites"
+   },
+   "__exit_": {
+    "addr": "1:6302d",
+    "evidence": "DOS/CLIB3R.LIB:cstart _TEXT at 1:62e00, matched OMF contribution and LE fixup sites"
+   },
+   "__exit_with_msg_": {
+    "addr": "1:6302f",
+    "evidence": "DOS/CLIB3R.LIB:cstart _TEXT at 1:62e00, matched OMF contribution and LE fixup sites"
+   },
+   "__filbuf_": {
+    "addr": "1:64eaa",
+    "evidence": "DOS/CLIB3R.LIB:fgetc _TEXT at 1:64e3c, matched OMF contribution and LE fixup sites"
+   },
+   "__fill_buffer_": {
+    "addr": "1:64ecc",
+    "evidence": "DOS/CLIB3R.LIB:fgetc _TEXT at 1:64e3c, matched OMF contribution and LE fixup sites"
+   },
+   "__flush_": {
+    "addr": "1:64d37",
+    "evidence": "DOS/CLIB3R.LIB:flush _TEXT at 1:64d37, matched OMF contribution and LE fixup sites"
+   },
+   "__flushall_": {
+    "addr": "1:670ed",
+    "evidence": "DOS/CLIB3R.LIB:flushall _TEXT at 1:670e8, matched OMF contribution and LE fixup sites"
+   },
+   "__fprtf_": {
+    "addr": "1:64a28",
+    "evidence": "DOS/CLIB3R.LIB:fprtf _TEXT at 1:64a17, matched OMF contribution and LE fixup sites"
+   },
+   "__freefp_": {
+    "addr": "1:64cc2",
+    "evidence": "DOS/CLIB3R.LIB:allocfp _TEXT at 1:64c32, matched OMF contribution and LE fixup sites"
+   },
+   "__full_io_exit_": {
+    "addr": "1:67013",
+    "evidence": "DOS/CLIB3R.LIB:ioexit _TEXT at 1:67013, matched OMF contribution and LE fixup sites"
+   },
+   "__get_doserrno_ptr_": {
+    "addr": "1:6492d",
+    "evidence": "DOS/CLIB3R.LIB:errno _TEXT at 1:64927, matched OMF contribution and LE fixup sites"
+   },
+   "__get_errno_ptr_": {
+    "addr": "1:64927",
+    "evidence": "DOS/CLIB3R.LIB:errno _TEXT at 1:64927, matched OMF contribution and LE fixup sites"
+   },
+   "__hardware_code": {
+    "addr": "1:4ba90",
+    "evidence": "104/AUDIO_WF.LIB:hardware.c _TEXT at 1:4ba90, matched OMF contribution and LE fixup sites"
+   },
+   "__hardware_ecode": {
+    "addr": "1:4c4ec",
+    "evidence": "104/AUDIO_WF.LIB:hardware.c _TEXT at 1:4ba90, matched OMF contribution and LE fixup sites"
+   },
+   "__init_8087_": {
+    "addr": "1:65c52",
+    "evidence": "DOS/CLIB3R.LIB:chk8087 _TEXT at 1:65c49, matched OMF contribution and LE fixup sites"
+   },
+   "__int386x_": {
+    "addr": "1:65448",
+    "evidence": "DOS/CLIB3R.LIB:int386xa _TEXT at 1:65448, matched OMF contribution and LE fixup sites"
+   },
+   "__ioalloc_": {
+    "addr": "1:64dd1",
+    "evidence": "DOS/CLIB3R.LIB:ioalloc _TEXT at 1:64dd1, matched OMF contribution and LE fixup sites"
+   },
+   "__log87_err_": {
+    "addr": "1:6b431",
+    "evidence": "MATH387R.LIB:log87e _TEXT at 1:6b431, matched OMF contribution and LE fixup sites"
+   },
+   "__math1err_": {
+    "addr": "1:673c4",
+    "evidence": "MATH387R.LIB:math2err _TEXT at 1:673c4, matched OMF contribution and LE fixup sites"
+   },
+   "__math2err_": {
+    "addr": "1:673ce",
+    "evidence": "MATH387R.LIB:math2err _TEXT at 1:673c4, matched OMF contribution and LE fixup sites"
+   },
+   "__math87_err_": {
+    "addr": "1:6734c",
+    "evidence": "MATH387R.LIB:math87e _TEXT at 1:6734c, matched OMF contribution and LE fixup sites"
+   },
+   "__midieng_code": {
+    "addr": "1:4c4f4",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "__midieng_ecode": {
+    "addr": "1:4e160",
+    "evidence": "104/AUDIO_WF.LIB:midieng.c _TEXT at 1:4c4f4, matched OMF contribution and LE fixup sites"
+   },
+   "__nmemneed_": {
+    "addr": "1:65444",
+    "evidence": "DOS/CLIB3R.LIB:nmemneed _TEXT at 1:65444, matched OMF contribution and LE fixup sites"
+   },
+   "__nrpn_code": {
+    "addr": "1:49c84",
+    "evidence": "104/AUDIO_WF.LIB:nrpn.c _TEXT at 1:49c84, matched OMF contribution and LE fixup sites"
+   },
+   "__nrpn_ecode": {
+    "addr": "1:4a774",
+    "evidence": "104/AUDIO_WF.LIB:nrpn.c _TEXT at 1:49c84, matched OMF contribution and LE fixup sites"
+   },
+   "__null_int23_exit_": {
+    "addr": "1:630cf",
+    "evidence": "DOS/CLIB3R.LIB:exit _TEXT at 1:630cf, matched OMF contribution and LE fixup sites"
+   },
+   "__open_flags_": {
+    "addr": "1:63792",
+    "evidence": "DOS/CLIB3R.LIB:fopen _TEXT at 1:63792, matched OMF contribution and LE fixup sites"
+   },
+   "__pow87_err_": {
+    "addr": "1:65968",
+    "evidence": "MATH387R.LIB:pow87e _TEXT at 1:65968, matched OMF contribution and LE fixup sites"
+   },
+   "__prtf_": {
+    "addr": "1:66737",
+    "evidence": "DOS/CLIB3R.LIB:prtf _TEXT at 1:66737, matched OMF contribution and LE fixup sites"
+   },
+   "__purgefp_": {
+    "addr": "1:64cf2",
+    "evidence": "DOS/CLIB3R.LIB:allocfp _TEXT at 1:64c32, matched OMF contribution and LE fixup sites"
+   },
+   "__qread_": {
+    "addr": "1:64fad",
+    "evidence": "DOS/CLIB3R.LIB:qread _TEXT at 1:64fad, matched OMF contribution and LE fixup sites"
+   },
+   "__qwrite_": {
+    "addr": "1:6706b",
+    "evidence": "DOS/CLIB3R.LIB:qwrite _TEXT at 1:6706b, matched OMF contribution and LE fixup sites"
+   },
+   "__sbkload_code": {
+    "addr": "1:4a77c",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "__sbkload_ecode": {
+    "addr": "1:4ba88",
+    "evidence": "104/AUDIO_WF.LIB:sbkload.c _TEXT at 1:4a77c, matched OMF contribution and LE fixup sites"
+   },
+   "__scnf_": {
+    "addr": "1:65cc4",
+    "evidence": "DOS/CLIB3R.LIB:scnf _TEXT at 1:65cc4, matched OMF contribution and LE fixup sites"
+   },
+   "__setEFGfmt_": {
+    "addr": "1:659df",
+    "evidence": "DOS/CLIB3R.LIB:setefg _TEXT at 1:659df, matched OMF contribution and LE fixup sites"
+   },
+   "__set_EDOM_": {
+    "addr": "1:6af71",
+    "evidence": "DOS/CLIB3R.LIB:seterrno _TEXT at 1:6af71, matched OMF contribution and LE fixup sites"
+   },
+   "__set_ERANGE_": {
+    "addr": "1:6af78",
+    "evidence": "DOS/CLIB3R.LIB:seterrno _TEXT at 1:6af71, matched OMF contribution and LE fixup sites"
+   },
+   "__set_binary_": {
+    "addr": "1:6334d",
+    "evidence": "DOS/CLIB3R.LIB:open _TEXT at 1:63184, matched OMF contribution and LE fixup sites"
+   },
+   "__setenvp_": {
+    "addr": "1:67278",
+    "evidence": "DOS/CLIB3R.LIB:setenvp _TEXT at 1:67278, matched OMF contribution and LE fixup sites"
+   },
+   "__shutdown_stream_": {
+    "addr": "1:63ced",
+    "evidence": "DOS/CLIB3R.LIB:fclose _TEXT at 1:63cc3, matched OMF contribution and LE fixup sites"
+   },
+   "_chain_intr_": {
+    "addr": "1:643a4",
+    "evidence": "DOS/CLIB3R.LIB:chainint _TEXT at 1:643a4, matched OMF contribution and LE fixup sites"
+   },
+   "_cstart_": {
+    "addr": "1:62e00",
+    "evidence": "DOS/CLIB3R.LIB:cstart _TEXT at 1:62e00, matched OMF contribution and LE fixup sites"
+   },
+   "_disable_": {
+    "addr": "1:63fe9",
+    "evidence": "DOS/CLIB3R.LIB:disable _TEXT at 1:63fe9, matched OMF contribution and LE fixup sites"
+   },
+   "_dos_close_": {
+    "addr": "1:64134",
+    "evidence": "DOS/CLIB3R.LIB:dosfile _TEXT at 1:64134, matched OMF contribution and LE fixup sites"
+   },
+   "_dos_getvect_": {
+    "addr": "1:62d9b",
+    "evidence": "DOS/CLIB3R.LIB:d_getvec _TEXT at 1:62d9b, matched OMF contribution and LE fixup sites"
+   },
+   "_dos_open_": {
+    "addr": "1:64143",
+    "evidence": "DOS/CLIB3R.LIB:dosfile _TEXT at 1:64134, matched OMF contribution and LE fixup sites"
+   },
+   "_dos_read_": {
+    "addr": "1:64100",
+    "evidence": "DOS/CLIB3R.LIB:dosio _TEXT at 1:64100, matched OMF contribution and LE fixup sites"
+   },
+   "_dos_setdate_": {
+    "addr": "1:6441c",
+    "evidence": "DOS/CLIB3R.LIB:dosstime _TEXT at 1:6441c, matched OMF contribution and LE fixup sites"
+   },
+   "_dos_settime_": {
+    "addr": "1:64441",
+    "evidence": "DOS/CLIB3R.LIB:dosstime _TEXT at 1:6441c, matched OMF contribution and LE fixup sites"
+   },
+   "_dos_setvect_": {
+    "addr": "1:62dd2",
+    "evidence": "DOS/CLIB3R.LIB:d_setvec _TEXT at 1:62dd2, matched OMF contribution and LE fixup sites"
+   },
+   "_dos_write_": {
+    "addr": "1:6412a",
+    "evidence": "DOS/CLIB3R.LIB:dosio _TEXT at 1:64100, matched OMF contribution and LE fixup sites"
+   },
+   "_dosret0_": {
+    "addr": "1:64933",
+    "evidence": "DOS/CLIB3R.LIB:dosret _TEXT at 1:64933, matched OMF contribution and LE fixup sites"
+   },
+   "_dosretax_": {
+    "addr": "1:6493a",
+    "evidence": "DOS/CLIB3R.LIB:dosret _TEXT at 1:64933, matched OMF contribution and LE fixup sites"
+   },
+   "_enable_": {
+    "addr": "1:63feb",
+    "evidence": "DOS/CLIB3R.LIB:enable _TEXT at 1:63feb, matched OMF contribution and LE fixup sites"
+   },
+   "_exit_": {
+    "addr": "1:630e0",
+    "evidence": "DOS/CLIB3R.LIB:exit _TEXT at 1:630cf, matched OMF contribution and LE fixup sites"
+   },
+   "_fini_387_emulator": {
+    "addr": "1:645e5",
+    "evidence": "DOS/EMU387.LIB:386inite _TEXT at 1:645e0, matched OMF contribution and LE fixup sites"
+   },
+   "_fpreset_": {
+    "addr": "1:65c7b",
+    "evidence": "DOS/CLIB3R.LIB:chk8087 _TEXT at 1:65c49, matched OMF contribution and LE fixup sites"
+   },
+   "_fsopen_": {
+    "addr": "1:6390c",
+    "evidence": "DOS/CLIB3R.LIB:fopen _TEXT at 1:63792, matched OMF contribution and LE fixup sites"
+   },
+   "_hook387": {
+    "addr": "1:675dd",
+    "evidence": "DOS/CLIB3R.LIB:hook387 _TEXT at 1:675dd, matched OMF contribution and LE fixup sites"
+   },
+   "_init_387_emulator": {
+    "addr": "1:645e0",
+    "evidence": "DOS/EMU387.LIB:386inite _TEXT at 1:645e0, matched OMF contribution and LE fixup sites"
+   },
+   "_init_80x87": {
+    "addr": "1:6a8dc",
+    "evidence": "DOS/CLIB3R.LIB:init8087 _TEXT at 1:6a8dc, matched OMF contribution and LE fixup sites"
+   },
+   "_int7": {
+    "addr": "1:67aa4",
+    "evidence": "DOS/EMU387.LIB:emu387 _TEXT at 1:67708, matched OMF contribution and LE fixup sites"
+   },
+   "_int7_pl3": {
+    "addr": "1:67a80",
+    "evidence": "DOS/EMU387.LIB:emu387 _TEXT at 1:67708, matched OMF contribution and LE fixup sites"
+   },
+   "_matherr": {
+    "addr": "1:6af6c",
+    "evidence": "MATH387R.LIB:__mtherr _TEXT at 1:6af6c, matched OMF contribution and LE fixup sites"
+   },
+   "_matherr_": {
+    "addr": "1:6a9f9",
+    "evidence": "MATH387R.LIB:_matherr _TEXT at 1:6a9f3, matched OMF contribution and LE fixup sites"
+   },
+   "_nfree_": {
+    "addr": "1:63fed",
+    "evidence": "DOS/CLIB3R.LIB:nfree _TEXT at 1:63fed, matched OMF contribution and LE fixup sites"
+   },
+   "_nmalloc_": {
+    "addr": "1:63f7e",
+    "evidence": "DOS/CLIB3R.LIB:nmalloc _TEXT at 1:63f7e, matched OMF contribution and LE fixup sites"
+   },
+   "_set_errno": {
+    "addr": "1:6af7d",
+    "evidence": "DOS/CLIB3R.LIB:seterrno _TEXT at 1:6af71, matched OMF contribution and LE fixup sites"
+   },
+   "_set_errno_": {
+    "addr": "1:64950",
+    "evidence": "DOS/CLIB3R.LIB:dosret _TEXT at 1:64933, matched OMF contribution and LE fixup sites"
+   },
+   "_set_matherr_": {
+    "addr": "1:6a9f3",
+    "evidence": "MATH387R.LIB:_matherr _TEXT at 1:6a9f3, matched OMF contribution and LE fixup sites"
+   },
+   "_sys_fini_387_emulator": {
+    "addr": "1:65b74",
+    "evidence": "MATH387R.LIB:dosinite _TEXT at 1:659f4, matched OMF contribution and LE fixup sites"
+   },
+   "_sys_init_387_emulator": {
+    "addr": "1:659f4",
+    "evidence": "MATH387R.LIB:dosinite _TEXT at 1:659f4, matched OMF contribution and LE fixup sites"
+   },
+   "_unhook387": {
+    "addr": "1:676ae",
+    "evidence": "DOS/CLIB3R.LIB:hook387 _TEXT at 1:675dd, matched OMF contribution and LE fixup sites"
+   },
+   "atexit": {
+    "addr": "1:643e9",
+    "evidence": "DOS/CLIB3R.LIB:atexit _TEXT at 1:643bd, matched OMF contribution and LE fixup sites"
+   },
+   "close": {
+    "addr": "1:63483",
+    "evidence": "DOS/CLIB3R.LIB:close _TEXT at 1:63483, matched OMF contribution and LE fixup sites"
+   },
+   "exit": {
+    "addr": "1:630d0",
+    "evidence": "DOS/CLIB3R.LIB:exit _TEXT at 1:630cf, matched OMF contribution and LE fixup sites"
+   },
+   "exp": {
+    "addr": "1:6595c",
+    "evidence": "MATH387R.LIB:exp387 _TEXT at 1:658a0, matched OMF contribution and LE fixup sites"
+   },
+   "fabs": {
+    "addr": "1:6b004",
+    "evidence": "MATH387R.LIB:fabs387 _TEXT at 1:6b004, matched OMF contribution and LE fixup sites"
+   },
+   "fclose": {
+    "addr": "1:63cc3",
+    "evidence": "DOS/CLIB3R.LIB:fclose _TEXT at 1:63cc3, matched OMF contribution and LE fixup sites"
+   },
+   "fcloseall": {
+    "addr": "1:6701f",
+    "evidence": "DOS/CLIB3R.LIB:ioexit _TEXT at 1:67013, matched OMF contribution and LE fixup sites"
+   },
+   "fgetc": {
+    "addr": "1:64e3c",
+    "evidence": "DOS/CLIB3R.LIB:fgetc _TEXT at 1:64e3c, matched OMF contribution and LE fixup sites"
+   },
+   "fgets": {
+    "addr": "1:64601",
+    "evidence": "DOS/CLIB3R.LIB:fgets _TEXT at 1:64601, matched OMF contribution and LE fixup sites"
+   },
+   "filelength": {
+    "addr": "1:63755",
+    "evidence": "DOS/CLIB3R.LIB:filelen _TEXT at 1:63755, matched OMF contribution and LE fixup sites"
+   },
+   "flushall": {
+    "addr": "1:670e8",
+    "evidence": "DOS/CLIB3R.LIB:flushall _TEXT at 1:670e8, matched OMF contribution and LE fixup sites"
+   },
+   "fopen": {
+    "addr": "1:63927",
+    "evidence": "DOS/CLIB3R.LIB:fopen _TEXT at 1:63792, matched OMF contribution and LE fixup sites"
+   },
+   "fputc": {
+    "addr": "1:64871",
+    "evidence": "DOS/CLIB3R.LIB:fputc _TEXT at 1:64871, matched OMF contribution and LE fixup sites"
+   },
+   "fputs": {
+    "addr": "1:6480e",
+    "evidence": "DOS/CLIB3R.LIB:fputs _TEXT at 1:6480e, matched OMF contribution and LE fixup sites"
+   },
+   "fread": {
+    "addr": "1:63b67",
+    "evidence": "DOS/CLIB3R.LIB:fread _TEXT at 1:63b67, matched OMF contribution and LE fixup sites"
+   },
+   "free": {
+    "addr": "1:63fed",
+    "evidence": "DOS/CLIB3R.LIB:nfree _TEXT at 1:63fed, matched OMF contribution and LE fixup sites"
+   },
+   "freopen": {
+    "addr": "1:63996",
+    "evidence": "DOS/CLIB3R.LIB:fopen _TEXT at 1:63792, matched OMF contribution and LE fixup sites"
+   },
+   "frexp": {
+    "addr": "1:6b636",
+    "evidence": "MATH387R.LIB:frexp _TEXT at 1:6b636, matched OMF contribution and LE fixup sites"
+   },
+   "fseek": {
+    "addr": "1:639ba",
+    "evidence": "DOS/CLIB3R.LIB:fseek _TEXT at 1:639ba, matched OMF contribution and LE fixup sites"
+   },
+   "ftell": {
+    "addr": "1:63b3b",
+    "evidence": "DOS/CLIB3R.LIB:ftell _TEXT at 1:63b3b, matched OMF contribution and LE fixup sites"
+   },
+   "getch": {
+    "addr": "1:63f63",
+    "evidence": "DOS/CLIB3R.LIB:getch _TEXT at 1:63f63, matched OMF contribution and LE fixup sites"
+   },
+   "getche": {
+    "addr": "1:6711c",
+    "evidence": "DOS/CLIB3R.LIB:getche _TEXT at 1:6711c, matched OMF contribution and LE fixup sites"
+   },
+   "getenv": {
+    "addr": "1:6418b",
+    "evidence": "DOS/CLIB3R.LIB:getenv _TEXT at 1:6418b, matched OMF contribution and LE fixup sites"
+   },
+   "getpid": {
+    "addr": "1:64fcb",
+    "evidence": "DOS/CLIB3R.LIB:getpid _TEXT at 1:64fcb, matched OMF contribution and LE fixup sites"
+   },
+   "inp": {
+    "addr": "1:640b5",
+    "evidence": "DOS/CLIB3R.LIB:inp _TEXT at 1:640b5, matched OMF contribution and LE fixup sites"
+   },
+   "inpw": {
+    "addr": "1:64152",
+    "evidence": "DOS/CLIB3R.LIB:inpw _TEXT at 1:64152, matched OMF contribution and LE fixup sites"
+   },
+   "int386": {
+    "addr": "1:640e2",
+    "evidence": "DOS/CLIB3R.LIB:int386 _TEXT at 1:640e2, matched OMF contribution and LE fixup sites"
+   },
+   "int386x": {
+    "addr": "1:64098",
+    "evidence": "DOS/CLIB3R.LIB:int386x _TEXT at 1:64098, matched OMF contribution and LE fixup sites"
+   },
+   "isatty": {
+    "addr": "1:6490a",
+    "evidence": "DOS/CLIB3R.LIB:isatty _TEXT at 1:6490a, matched OMF contribution and LE fixup sites"
+   },
+   "itoa": {
+    "addr": "1:6a9d8",
+    "evidence": "DOS/CLIB3R.LIB:itoa _TEXT at 1:6a964, matched OMF contribution and LE fixup sites"
+   },
+   "log": {
+    "addr": "1:6b05f",
+    "evidence": "MATH387R.LIB:log387 _TEXT at 1:6b014, matched OMF contribution and LE fixup sites"
+   },
+   "log10": {
+    "addr": "1:6b06b",
+    "evidence": "MATH387R.LIB:log387 _TEXT at 1:6b014, matched OMF contribution and LE fixup sites"
+   },
+   "log2": {
+    "addr": "1:6b077",
+    "evidence": "MATH387R.LIB:log387 _TEXT at 1:6b014, matched OMF contribution and LE fixup sites"
+   },
+   "lseek": {
+    "addr": "1:64011",
+    "evidence": "DOS/CLIB3R.LIB:lseek _TEXT at 1:64011, matched OMF contribution and LE fixup sites"
+   },
+   "ltoa": {
+    "addr": "1:63169",
+    "evidence": "DOS/CLIB3R.LIB:ltoa _TEXT at 1:630f5, matched OMF contribution and LE fixup sites"
+   },
+   "malloc": {
+    "addr": "1:63f7e",
+    "evidence": "DOS/CLIB3R.LIB:nmalloc _TEXT at 1:63f7e, matched OMF contribution and LE fixup sites"
+   },
+   "matherr": {
+    "addr": "1:6b42e",
+    "evidence": "MATH387R.LIB:matherr _TEXT at 1:6b42e, matched OMF contribution and LE fixup sites"
+   },
+   "memcpy": {
+    "addr": "1:640bd",
+    "evidence": "DOS/CLIB3R.LIB:memcpy _TEXT at 1:640bd, matched OMF contribution and LE fixup sites"
+   },
+   "memset": {
+    "addr": "1:64080",
+    "evidence": "DOS/CLIB3R.LIB:memset _TEXT at 1:64080, matched OMF contribution and LE fixup sites"
+   },
+   "mhline": {
+    "addr": "1:6c1e4",
+    "evidence": "Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f49f"
+   },
+   "mhlineskipmodify": {
+    "addr": "1:6c234",
+    "evidence": "Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f4fd"
+   },
+   "msethlineshift": {
+    "addr": "1:6c1c0",
+    "evidence": "Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f0d4"
+   },
+   "open": {
+    "addr": "1:63184",
+    "evidence": "DOS/CLIB3R.LIB:open _TEXT at 1:63184, matched OMF contribution and LE fixup sites"
+   },
+   "outp": {
+    "addr": "1:62d8d",
+    "evidence": "DOS/CLIB3R.LIB:outp _TEXT at 1:62d8d, matched OMF contribution and LE fixup sites"
+   },
+   "outpw": {
+    "addr": "1:6415b",
+    "evidence": "DOS/CLIB3R.LIB:outpw _TEXT at 1:6415b, matched OMF contribution and LE fixup sites"
+   },
+   "pow": {
+    "addr": "1:645b0",
+    "evidence": "MATH387R.LIB:pow387 _TEXT at 1:64468, matched OMF contribution and LE fixup sites"
+   },
+   "printf": {
+    "addr": "1:634b6",
+    "evidence": "DOS/CLIB3R.LIB:printf _TEXT at 1:634b6, matched OMF contribution and LE fixup sites"
+   },
+   "puts": {
+    "addr": "1:63068",
+    "evidence": "DOS/CLIB3R.LIB:puts _TEXT at 1:63068, matched OMF contribution and LE fixup sites"
+   },
+   "rand": {
+    "addr": "1:63721",
+    "evidence": "DOS/CLIB3R.LIB:rand _TEXT at 1:6371b, matched OMF contribution and LE fixup sites"
+   },
+   "read": {
+    "addr": "1:633b3",
+    "evidence": "DOS/CLIB3R.LIB:read _TEXT at 1:633b3, matched OMF contribution and LE fixup sites"
+   },
+   "remove": {
+    "addr": "1:64fd1",
+    "evidence": "DOS/CLIB3R.LIB:remove _TEXT at 1:64fd1, matched OMF contribution and LE fixup sites"
+   },
+   "sbrk": {
+    "addr": "1:67137",
+    "evidence": "DOS/CLIB3R.LIB:sbrk386 _TEXT at 1:67137, matched OMF contribution and LE fixup sites"
+   },
+   "segread": {
+    "addr": "1:65820",
+    "evidence": "DOS/CLIB3R.LIB:segread _TEXT at 1:65820, matched OMF contribution and LE fixup sites"
+   },
+   "sopen": {
+    "addr": "1:631a3",
+    "evidence": "DOS/CLIB3R.LIB:open _TEXT at 1:63184, matched OMF contribution and LE fixup sites"
+   },
+   "spritevline": {
+    "addr": "1:6c130",
+    "evidence": "Original Build sprite-column entry, six-register caller and sprite loop, engine direct call at 1:471fb"
+   },
+   "srand": {
+    "addr": "1:63745",
+    "evidence": "DOS/CLIB3R.LIB:rand _TEXT at 1:6371b, matched OMF contribution and LE fixup sites"
+   },
+   "sscanf": {
+    "addr": "1:646c4",
+    "evidence": "DOS/CLIB3R.LIB:sscanf _TEXT at 1:64680, matched OMF contribution and LE fixup sites"
+   },
+   "stackavail": {
+    "addr": "1:64a9b",
+    "evidence": "DOS/CLIB3R.LIB:stack386 _TEXT at 1:64a9b, matched OMF contribution and LE fixup sites"
+   },
+   "strcmp": {
+    "addr": "1:63e10",
+    "evidence": "DOS/CLIB3R.LIB:_strcmp _TEXT at 1:63e10, matched OMF contribution and LE fixup sites"
+   },
+   "strcmpi": {
+    "addr": "1:6436c",
+    "evidence": "DOS/CLIB3R.LIB:stricmp _TEXT at 1:6436c, matched OMF contribution and LE fixup sites"
+   },
+   "strcpy": {
+    "addr": "1:64043",
+    "evidence": "DOS/CLIB3R.LIB:strcpy _TEXT at 1:64043, matched OMF contribution and LE fixup sites"
+   },
+   "strerror": {
+    "addr": "1:645ea",
+    "evidence": "DOS/CLIB3R.LIB:strerror _TEXT at 1:645ea, matched OMF contribution and LE fixup sites"
+   },
+   "stricmp": {
+    "addr": "1:6436c",
+    "evidence": "DOS/CLIB3R.LIB:stricmp _TEXT at 1:6436c, matched OMF contribution and LE fixup sites"
+   },
+   "strlen": {
+    "addr": "1:64064",
+    "evidence": "DOS/CLIB3R.LIB:strlen _TEXT at 1:64064, matched OMF contribution and LE fixup sites"
+   },
+   "strncmp": {
+    "addr": "1:64166",
+    "evidence": "DOS/CLIB3R.LIB:strncmp _TEXT at 1:64166, matched OMF contribution and LE fixup sites"
+   },
+   "strnicmp": {
+    "addr": "1:6585b",
+    "evidence": "DOS/CLIB3R.LIB:strnicmp _TEXT at 1:6585b, matched OMF contribution and LE fixup sites"
+   },
+   "strtod": {
+    "addr": "1:6adc0",
+    "evidence": "MATH387R.LIB:strtod _TEXT at 1:6adc0, matched OMF contribution and LE fixup sites"
+   },
+   "strtol": {
+    "addr": "1:64314",
+    "evidence": "DOS/CLIB3R.LIB:strtol _TEXT at 1:641dc, matched OMF contribution and LE fixup sites"
+   },
+   "strtoul": {
+    "addr": "1:6430a",
+    "evidence": "DOS/CLIB3R.LIB:strtol _TEXT at 1:641dc, matched OMF contribution and LE fixup sites"
+   },
+   "tell": {
+    "addr": "1:64f6b",
+    "evidence": "DOS/CLIB3R.LIB:tell _TEXT at 1:64f6b, matched OMF contribution and LE fixup sites"
+   },
+   "thline": {
+    "addr": "1:6c32e",
+    "evidence": "Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f559"
+   },
+   "thlineskipmodify": {
+    "addr": "1:6c374",
+    "evidence": "Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f5c1"
+   },
+   "tolower": {
+    "addr": "1:64c24",
+    "evidence": "DOS/CLIB3R.LIB:tolower _TEXT at 1:64c24, matched OMF contribution and LE fixup sites"
+   },
+   "toupper": {
+    "addr": "1:6472e",
+    "evidence": "DOS/CLIB3R.LIB:toupper _TEXT at 1:6472e, matched OMF contribution and LE fixup sites"
+   },
+   "tsethlineshift": {
+    "addr": "1:6c30a",
+    "evidence": "Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f0fa"
+   },
+   "ultoa": {
+    "addr": "1:6311a",
+    "evidence": "DOS/CLIB3R.LIB:ltoa _TEXT at 1:630f5, matched OMF contribution and LE fixup sites"
+   },
+   "unlink": {
+    "addr": "1:6352b",
+    "evidence": "DOS/CLIB3R.LIB:unlink _TEXT at 1:6352b, matched OMF contribution and LE fixup sites"
+   },
+   "utoa": {
+    "addr": "1:6a989",
+    "evidence": "DOS/CLIB3R.LIB:itoa _TEXT at 1:6a964, matched OMF contribution and LE fixup sites"
+   },
+   "vsscanf": {
+    "addr": "1:646a1",
+    "evidence": "DOS/CLIB3R.LIB:sscanf _TEXT at 1:64680, matched OMF contribution and LE fixup sites"
+   },
+   "write": {
+    "addr": "1:63548",
+    "evidence": "DOS/CLIB3R.LIB:write _TEXT at 1:63548, matched OMF contribution and LE fixup sites"
+   }
+  },
+  "data": {
+   "_8087": {
+    "addr": "2:0a76c",
+    "evidence": "DOS/CLIB3R.LIB:_8087 _DATA at 2:0a76c, matched OMF contribution and LE fixup sites"
+   },
+   "_8087cw": {
+    "addr": "2:0ab48",
+    "evidence": "DOS/CLIB3R.LIB:8087cw _DATA at 2:0ab48, matched OMF contribution and LE fixup sites"
+   },
+   "_ASTACKPTR": {
+    "addr": "2:0a7e8",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_ASTACKSIZ": {
+    "addr": "2:0a7e4",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_BigPow10Table": {
+    "addr": "2:022b4",
+    "evidence": "MATH387R.LIB:fpow10 CONST2 at 2:022b4, matched OMF contribution and LE fixup sites"
+   },
+   "_D16Infoseg": {
+    "addr": "2:0a720",
+    "evidence": "DOS/CLIB3R.LIB:cstart _DATA at 2:0a71c, matched OMF contribution and LE fixup sites"
+   },
+   "_Envptr": {
+    "addr": "2:0a7fc",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_Envseg": {
+    "addr": "2:0a800",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_Extender": {
+    "addr": "2:0a7fa",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_FPE_handler": {
+    "addr": "2:0a804",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_GDAptr": {
+    "addr": "2:0a71c",
+    "evidence": "DOS/CLIB3R.LIB:cstart _DATA at 2:0a71c, matched OMF contribution and LE fixup sites"
+   },
+   "_HugeValue": {
+    "addr": "2:02270",
+    "evidence": "DOS/CLIB3R.LIB:hugeval CONST2 at 2:02270, matched OMF contribution and LE fixup sites"
+   },
+   "_IsTable": {
+    "addr": "2:02164",
+    "evidence": "DOS/CLIB3R.LIB:istable CONST2 at 2:02164, matched OMF contribution and LE fixup sites"
+   },
+   "_LpCmdLine": {
+    "addr": "2:0a7d0",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_LpPgmName": {
+    "addr": "2:0a7d4",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_RWD_matherr": {
+    "addr": "2:0abd4",
+    "evidence": "MATH387R.LIB:_matherr _DATA at 2:0abd4, matched OMF contribution and LE fixup sites"
+   },
+   "_STACKLOW": {
+    "addr": "2:0a7dc",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_STACKTOP": {
+    "addr": "2:0a7e0",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_X32VM": {
+    "addr": "2:0a7fb",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "__EFG_printf": {
+    "addr": "2:0ab40",
+    "evidence": "DOS/CLIB3R.LIB:noefgfmt _DATA at 2:0ab40, matched OMF contribution and LE fixup sites"
+   },
+   "__EFG_scanf": {
+    "addr": "2:0ab44",
+    "evidence": "DOS/CLIB3R.LIB:noefgfmt _DATA at 2:0ab40, matched OMF contribution and LE fixup sites"
+   },
+   "__FPE_handler": {
+    "addr": "2:0a804",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "__FPE_handler_exit": {
+    "addr": "2:0a72c",
+    "evidence": "DOS/CLIB3R.LIB:exit _DATA at 2:0a724, matched OMF contribution and LE fixup sites"
+   },
+   "__NFiles": {
+    "addr": "2:0aa34",
+    "evidence": "DOS/CLIB3R.LIB:iomode _DATA at 2:0aa34, matched OMF contribution and LE fixup sites"
+   },
+   "__Rest8087": {
+    "addr": "2:0abd0",
+    "evidence": "DOS/CLIB3R.LIB:save8087 _DATA at 2:0abcc, matched OMF contribution and LE fixup sites"
+   },
+   "__Save8087": {
+    "addr": "2:0abcc",
+    "evidence": "DOS/CLIB3R.LIB:save8087 _DATA at 2:0abcc, matched OMF contribution and LE fixup sites"
+   },
+   "__atexit": {
+    "addr": "2:0a724",
+    "evidence": "DOS/CLIB3R.LIB:exit _DATA at 2:0a724, matched OMF contribution and LE fixup sites"
+   },
+   "__doserrno": {
+    "addr": "2:1c892c",
+    "evidence": "DOS/CLIB3R.LIB:errno _BSS symbol and matched pointer getter"
+   },
+   "__env_mask": {
+    "addr": "2:0aa90",
+    "evidence": "DOS/CLIB3R.LIB:environ _DATA at 2:0aa8c, matched OMF contribution and LE fixup sites"
+   },
+   "__init_mode": {
+    "addr": "2:0aa38",
+    "evidence": "DOS/CLIB3R.LIB:iomode _DATA at 2:0aa34, matched OMF contribution and LE fixup sites"
+   },
+   "__int23_exit": {
+    "addr": "2:0a728",
+    "evidence": "DOS/CLIB3R.LIB:exit _DATA at 2:0a724, matched OMF contribution and LE fixup sites"
+   },
+   "__iob": {
+    "addr": "2:0a808",
+    "evidence": "DOS/CLIB3R.LIB:iob _DATA at 2:0a808, matched OMF contribution and LE fixup sites"
+   },
+   "__midivar_data": {
+    "addr": "2:03ad8",
+    "evidence": "104/AUDIO_WF.LIB:midivar.c _DATA at 2:03ad8, matched OMF contribution and LE fixup sites"
+   },
+   "__midivar_edata": {
+    "addr": "2:04430",
+    "evidence": "104/AUDIO_WF.LIB:midivar.c _DATA at 2:03ad8, matched OMF contribution and LE fixup sites"
+   },
+   "__nheap": {
+    "addr": "2:0a73c",
+    "evidence": "DOS/CLIB3R.LIB:nmalloc _DATA at 2:0a73c, matched OMF contribution and LE fixup sites"
+   },
+   "__nheapbeg": {
+    "addr": "2:0a740",
+    "evidence": "DOS/CLIB3R.LIB:nmalloc _DATA at 2:0a73c, matched OMF contribution and LE fixup sites"
+   },
+   "__nheapblk": {
+    "addr": "2:0a744",
+    "evidence": "DOS/CLIB3R.LIB:nmalloc _DATA at 2:0a73c, matched OMF contribution and LE fixup sites"
+   },
+   "__nrpnvar_data": {
+    "addr": "2:02e7c",
+    "evidence": "104/AUDIO_WF.LIB:nrpnvar.c _DATA at 2:02e7c, matched OMF contribution and LE fixup sites"
+   },
+   "__nrpnvar_edata": {
+    "addr": "2:03480",
+    "evidence": "104/AUDIO_WF.LIB:nrpnvar.c _DATA at 2:02e7c, matched OMF contribution and LE fixup sites"
+   },
+   "__tmpfnext": {
+    "addr": "2:0aa10",
+    "evidence": "DOS/CLIB3R.LIB:iob _DATA at 2:0a808, matched OMF contribution and LE fixup sites"
+   },
+   "__umaskval": {
+    "addr": "2:0aa30",
+    "evidence": "DOS/CLIB3R.LIB:umaskval _DATA at 2:0aa30, matched OMF contribution and LE fixup sites"
+   },
+   "_amblksiz": {
+    "addr": "2:0aae0",
+    "evidence": "DOS/CLIB3R.LIB:amblksiz _DATA at 2:0aae0, matched OMF contribution and LE fixup sites"
+   },
+   "_argc": {
+    "addr": "2:0a730",
+    "evidence": "DOS/CLIB3R.LIB:argcargv _DATA at 2:0a730, matched OMF contribution and LE fixup sites"
+   },
+   "_argv": {
+    "addr": "2:0a734",
+    "evidence": "DOS/CLIB3R.LIB:argcargv _DATA at 2:0a730, matched OMF contribution and LE fixup sites"
+   },
+   "_cbyte": {
+    "addr": "2:0a7ec",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_cbyte2": {
+    "addr": "2:0a7f0",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_child": {
+    "addr": "2:0a7f4",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_curbrk": {
+    "addr": "2:0a7cc",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_dynend": {
+    "addr": "2:0a7c8",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_fmode": {
+    "addr": "2:0aa11",
+    "evidence": "DOS/CLIB3R.LIB:iob _DATA at 2:0a808, matched OMF contribution and LE fixup sites"
+   },
+   "_iomode": {
+    "addr": "2:0aa88",
+    "evidence": "DOS/CLIB3R.LIB:iomode _DATA at 2:0aa34, matched OMF contribution and LE fixup sites"
+   },
+   "_no87": {
+    "addr": "2:0a7f8",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_nullarea": {
+    "addr": "2:00000",
+    "evidence": "DOS/CLIB3R.LIB:cstart _NULL at 2:00000, matched OMF contribution and LE fixup sites"
+   },
+   "_osmajor": {
+    "addr": "2:0a802",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_osminor": {
+    "addr": "2:0a803",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_psp": {
+    "addr": "2:0a7d8",
+    "evidence": "DOS/CLIB3R.LIB:crwdata _DATA at 2:0a7c8, matched OMF contribution and LE fixup sites"
+   },
+   "_real87": {
+    "addr": "2:0a76d",
+    "evidence": "DOS/CLIB3R.LIB:_8087 _DATA at 2:0a76c, matched OMF contribution and LE fixup sites"
+   },
+   "_x386_zero_base_selector": {
+    "addr": "2:0a722",
+    "evidence": "DOS/CLIB3R.LIB:cstart _DATA at 2:0a71c, matched OMF contribution and LE fixup sites"
+   },
+   "awe32BaseAddx": {
+    "addr": "2:03ade",
+    "evidence": "104/AUDIO_WF.LIB:midivar.c _DATA at 2:03ad8, matched OMF contribution and LE fixup sites"
+   },
+   "awe32DramSize": {
+    "addr": "2:03ae0",
+    "evidence": "104/AUDIO_WF.LIB:midivar.c _DATA at 2:03ad8, matched OMF contribution and LE fixup sites"
+   },
+   "awe32GChannel": {
+    "addr": "2:03f94",
+    "evidence": "104/AUDIO_WF.LIB:midivar.c _DATA at 2:03ad8, matched OMF contribution and LE fixup sites"
+   },
+   "awe32MIDIChannel": {
+    "addr": "2:04214",
+    "evidence": "104/AUDIO_WF.LIB:midivar.c _DATA at 2:03ad8, matched OMF contribution and LE fixup sites"
+   },
+   "awe32NRPNChannel": {
+    "addr": "2:02e80",
+    "evidence": "104/AUDIO_WF.LIB:nrpnvar.c _DATA at 2:02e7c, matched OMF contribution and LE fixup sites"
+   },
+   "awe32NumG": {
+    "addr": "2:03adc",
+    "evidence": "104/AUDIO_WF.LIB:midivar.c _DATA at 2:03ad8, matched OMF contribution and LE fixup sites"
+   },
+   "awe32SFont": {
+    "addr": "2:03da4",
+    "evidence": "104/AUDIO_WF.LIB:midivar.c _DATA at 2:03ad8, matched OMF contribution and LE fixup sites"
+   },
+   "awe32Scratch": {
+    "addr": "2:03ae4",
+    "evidence": "104/AUDIO_WF.LIB:midivar.c _DATA at 2:03ad8, matched OMF contribution and LE fixup sites"
+   },
+   "awe32SoundPad": {
+    "addr": "2:04414",
+    "evidence": "104/AUDIO_WF.LIB:midivar.c _DATA at 2:03ad8, matched OMF contribution and LE fixup sites"
+   },
+   "environ": {
+    "addr": "2:0aa8c",
+    "evidence": "DOS/CLIB3R.LIB:environ _DATA at 2:0aa8c, matched OMF contribution and LE fixup sites"
+   },
+   "errno": {
+    "addr": "2:1c8928",
+    "evidence": "DOS/CLIB3R.LIB:errno _BSS symbol and matched pointer getter"
+   },
+   "sys_errlist": {
+    "addr": "2:0a774",
+    "evidence": "DOS/CLIB3R.LIB:strerror _DATA at 2:0a770, matched OMF contribution and LE fixup sites"
+   },
+   "sys_nerr": {
+    "addr": "2:0a770",
+    "evidence": "DOS/CLIB3R.LIB:strerror _DATA at 2:0a770, matched OMF contribution and LE fixup sites"
+   }
+  }
+ }
+}

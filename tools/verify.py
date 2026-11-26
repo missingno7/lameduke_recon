@@ -27,6 +27,14 @@ def build_unit(name, ent):
     prof = wcc.profile(ent["profile"])
     out = BUILD / "verify" / f"{name}.obj"
     out.parent.mkdir(parents=True, exist_ok=True)
+    if out.exists():
+        out.unlink()
+    if ent.get("kind") == "asm":
+        import masm
+        rc, text = masm.assemble(src, out, prof["install"])
+        if rc:
+            raise RuntimeError(f"{name}: assembly failed\n{text}")
+        return out
     inc = [ROOT / p for p in ent.get("include", [])] + [src.parent]
     rc, text = wcc.compile_c(src, out, list(prof["flags"]) + ent.get("extra_flags", []), prof["install"], inc)
     if rc:

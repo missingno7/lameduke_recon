@@ -1,4 +1,105 @@
 {
  "note": "Canonical symbol bindings (integrator-owned). addr = obj:offset. evidence says how the binding was established.",
- "d3d": {"functions": {}, "data": {}}
+ "d3d": {
+  "functions": {
+   "chainsetpalookupaddress": {
+    "addr": "1:6b797",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:37038"
+   },
+   "fixtransluscence": {
+    "addr": "1:6bc5d",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:396d0"
+   },
+   "hchainasm64": {
+    "addr": "1:6b931",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:39dd8"
+   },
+   "hlineasm64": {
+    "addr": "1:6b7bb",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:39e38"
+   },
+   "mhline": {
+    "addr": "1:6c1e4",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f49f"
+   },
+   "mhlineskipmodify": {
+    "addr": "1:6c234",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f4fd"
+   },
+   "msethlineshift": {
+    "addr": "1:6c1c0",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f0d4"
+   },
+   "mvlineasm1": {
+    "addr": "1:6bc24",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:38aab"
+   },
+   "mvlineasm4": {
+    "addr": "1:6bde9",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:38cae"
+   },
+   "sethlinechainsizes": {
+    "addr": "1:6b6fc",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:37344"
+   },
+   "sethlinesizes": {
+    "addr": "1:6b685",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:37370"
+   },
+   "setpalookupaddress": {
+    "addr": "1:6b773",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:37045"
+   },
+   "setvlinebpl": {
+    "addr": "1:6bb28",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3a2ea"
+   },
+   "spritevline": {
+    "addr": "1:6c130",
+    "evidence": "A.OBJ public; Original Build sprite-column entry, six-register caller and sprite loop, engine direct call at 1:471fb"
+   },
+   "thline": {
+    "addr": "1:6c32e",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f559"
+   },
+   "thlineskipmodify": {
+    "addr": "1:6c374",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f5c1"
+   },
+   "tsethlineshift": {
+    "addr": "1:6c30a",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3f0fa"
+   },
+   "tvlineasm1": {
+    "addr": "1:6bc72",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3a092"
+   },
+   "vlineasm1": {
+    "addr": "1:6bbe7",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:37f5e"
+   },
+   "vlineasm4": {
+    "addr": "1:6bcb5",
+    "evidence": "A.OBJ public; Original Build rasterizer entry, historical A.OBJ/A.ASM and March 1995 ENGINE.C signatures, engine direct call at 1:3814f"
+   }
+  },
+  "data": {
+   "asm1": {
+    "addr": "2:1bc3b0",
+    "evidence": "Independent engine store operand at 1:471cb before the sprite-column call, historical BUIL0719/BUIL1211 ENGINE.OBJ four-slot order and historical A.OBJ consumers"
+   },
+   "asm2": {
+    "addr": "2:1bc3b4",
+    "evidence": "Independent engine store operand at 1:471e7 before the sprite-column call, historical BUIL0719/BUIL1211 ENGINE.OBJ four-slot order and historical A.OBJ consumers"
+   },
+   "asm3": {
+    "addr": "2:1bc3b8",
+    "evidence": "Independent engine store operand at 1:471e1 before the sprite-column call, historical BUIL0719/BUIL1211 ENGINE.OBJ four-slot order and historical A.OBJ consumers"
+   },
+   "asm4": {
+    "addr": "2:1bc3bc",
+    "evidence": "Independent engine store operand at 1:471d3 before the sprite-column call, historical BUIL0719/BUIL1211 ENGINE.OBJ four-slot order and historical A.OBJ consumers"
+   }
+  }
+ }
 }

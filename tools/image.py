@@ -34,3 +34,21 @@ class Image:
     def sites_in(self, obj, start, end):
         v = self._sites.get(obj, [])
         return v[bisect.bisect_left(v, start):bisect.bisect_left(v, end)]
+
+    _starts = None
+
+    def is_boundary(self, obj, off, binds=None):
+        """True when obj:off is an independently known function start or the end of the object."""
+        if off == len(self.obj[obj]):
+            return True
+        if Image._starts is None:
+            import funcmap
+            _le, funcs, _r, _u, _jt = funcmap.analyse()
+            Image._starts = {f["start"] for f in funcs}
+        if obj == 1 and off in Image._starts:
+            return True
+        if binds is not None:
+            for table in (binds.game, binds.lib):
+                if (obj, off) in table.values():
+                    return True
+        return False

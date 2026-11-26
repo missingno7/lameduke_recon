@@ -103,6 +103,14 @@ class MatchControls(unittest.TestCase):
         r = self.run_with(FUNCS, DATA, mod, only=("ksqrt",))
         self.assertNotIn(r["ksqrt"]["status"], ("STRICT", "CODE_BYTES_MATCH"))
 
+    def test_truncated_candidate(self):
+        # a candidate whose public extent ends early (prefix of the real function) must not be STRICT
+        mod = copy.deepcopy(self.mod)
+        pubs = {n: o for n, s, o, _ in mod.publics}
+        mod.publics.append(("fake_cut_", 1, pubs["krand_"] + 0x10, False))
+        r = self.run_with(FUNCS, DATA, mod, only=("krand",))
+        self.assertNotEqual(r["krand"]["status"], "STRICT")
+
 
 if __name__ == "__main__":
     unittest.main()
