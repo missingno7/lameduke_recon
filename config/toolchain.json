@@ -2,7 +2,7 @@
  "note": "Pinned historical toolchains under LAMEDUKE_TOOLS (default C:/tools); never in git. tools/wcc.py checks key-file hashes before compiling. A profile that reproduces original bytes is a 'reproducing configuration'; docs/TOOLCHAIN.md records what the evidence says about the historical toolchain.",
  "installs": {
   "wc95b": {
-   "product": "WATCOM C32 Optimizing Compiler Version 9.5 (9.5b patch level install), banner 'Version 9.5', CLIB banner 1988-1993",
+   "product": "WATCOM C32 Optimizing Compiler Version 9.5 (9.5b patch level install), banner 'Version 9.5', CLIB banner 1988-1993 NOTE: BPATCH -q reports its BINNT/WCC386.EXE as unpatched (9.5 GA compiler); its libraries are 9.5b",
    "dir": "watcom-9.5b",
    "wcc386": {
     "nt": "BINNT/WCC386.EXE"
@@ -68,6 +68,36 @@
    "key_files": {
     "masm-5.10/files/MASM.EXE": "233120302473749eafe9a54a30f8bda0127140c44346e5bcc047d113828a741e",
     "nmlgcdos/msdos.exe": "f7f6cb0a3e816c5edb13112d327c1bddbf7463fe7bf9a005ca1eb5317751bd02"
+   }
+  },
+  "wc95a": {
+   "product": "Watcom C32 9.5 NT compiler patched to level .a (derived; see watcom-9.5a-nt/PROVENANCE.txt)",
+   "dir": "watcom-9.5a-nt",
+   "wcc386": {
+    "nt": "BINNT/WCC386.EXE"
+   },
+   "key_files": {
+    "BINNT/WCC386.EXE": "5569a3684722193e782abde83f81886b6b307cc8f9583e3be4c8ca9cfb5b7073"
+   }
+  },
+  "wc95b_p": {
+   "product": "Watcom C32 9.5 NT compiler patched to level .b (derived; see watcom-9.5b-patched-nt/PROVENANCE.txt)",
+   "dir": "watcom-9.5b-patched-nt",
+   "wcc386": {
+    "nt": "BINNT/WCC386.EXE"
+   },
+   "key_files": {
+    "BINNT/WCC386.EXE": "7a077cd0b87159d484889997d08571e87f22370a8f980e101c0156df9f657a5b"
+   }
+  },
+  "wc95c": {
+   "product": "Watcom C32 9.5 NT compiler patched to level .c (derived; see watcom-9.5c-nt/PROVENANCE.txt)",
+   "dir": "watcom-9.5c-nt",
+   "wcc386": {
+    "nt": "BINNT/WCC386.EXE"
+   },
+   "key_files": {
+    "BINNT/WCC386.EXE": "41ec02dcb943f2c0a2d3575a019d572011e787924d572e052ea71b62a7167907"
    }
   }
  },

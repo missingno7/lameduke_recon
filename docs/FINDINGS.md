@@ -24,7 +24,7 @@ Each entry names the command or artefact that supports it.
   (10.0/10.0a say 1988-1994, 10.5+ 1988-1995). `libscan.py --compare` 9.5b vs 10.0 CLIB3R: 9.5b has 86 exact+sites
   whole-member hits, 10.0 only trivially small ones. With MATH387R/MATH3R: 104 exact+sites members, 20,790 bytes
   (`build/scan/clib95b.json`). Runtime occupies roughly obj1:0x62d8d-0x6b685, cstart at 0x62e00.
-- PROVEN runtime patch level is 9.5b, not 9.5c: the 9.5c (1994-06-30) CLIB3R replacement library (c32_c.zip
+- SUPERSEDED (2026-11-26, see 'Patch level' below: the runtime is 9.5 GA, the install named watcom-9.5b is unpatched) runtime patch level is 9.5b, not 9.5c: the 9.5c (1994-06-30) CLIB3R replacement library (c32_c.zip
   3CRDL.C, an OMF library) has changed versions of scnf, sbrk386, nmalloc, grownear, fputs; none of them occurs in the
   target while their 9.5b versions match exact+sites. (close and fclose are unchanged and match in both.)
 - OPEN 3 masked (sites-differ) members: sscanf, initrtns, chk8087; unexplained runtime gaps in 0x62d8d-0x6b685.
@@ -180,3 +180,17 @@ Each entry names the command or artefact that supports it.
   move them. Lever to try: replay the sorter (cg95 replay reproduces it) to find how many/which extra equal-priority
   values flip a tie, then look for natural source elsewhere in the function that creates them (the original may
   differ upstream). Large SOURCE-class functions are the better investment meanwhile.
+
+## Patch level: everything is unpatched Watcom 9.5 GA (2026-11-26, integrator) — CORRECTS earlier "9.5b" claims
+- PROVEN BPATCH -q (C:/tools/watcom-9.5b/BINB/BPATCH.EXE under MS-DOS Player) reports both C:/tools/watcom-9.5b
+  BINNT/WCC386.EXE and BIN/WCC386.EXE (the canonical DOS host) as "has not been patched": the install is 9.5 GA
+  despite its directory name. Its CLIB3R lacks the liballoc/heapen modules added by patch a and has the pre-patch
+  versions of all 23 members patch a replaced; the target contains those pre-patch versions and none of the a or c
+  replacements. So the target's runtime library is 9.5 GA (unpatched), not 9.5b.
+- PROVEN the official patch kits (archive.org Watcom_C_9.5 c32_a/b/c; WCC386NT.A/.B/.C applied in order with BPATCH)
+  give compilers 9.5a/9.5b/9.5c (derived installs C:/tools/watcom-9.5a-nt, watcom-9.5b-patched-nt, watcom-9.5c-nt;
+  toolchain installs wc95a, wc95b_p, wc95c). On Ken's untouched BUIL0422 ENGINE.C -4r they reproduce only 38/38/36 of
+  88 functions versus 88/88 for GA: Ken compiled with the unpatched GA compiler in April 1994. On all integrated game
+  units the patched compilers also give fewer STRICT functions than GA (e.g. GAME 19 vs 26). NEGATIVE: the patch level
+  does not explain the remaining read-modify-write / allocation residue in GAME.
+- Consequence: the profile name wc95b means "the 9.5 GA install in C:/tools/watcom-9.5b" (kept for hash pinning).
