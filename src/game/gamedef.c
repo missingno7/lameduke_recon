@@ -857,7 +857,7 @@ case CON_RBRACE:
 
 case CON_ADDBATTERYAMMO:
     insptr++;
-    ps[p].batteryammo += *insptr;
+    ps[p].ammo_bat_amount += *insptr;
     insptr++;
     CON_NEXT();
 
@@ -981,7 +981,7 @@ case CON_IFINWATER:
 
 case CON_IFPLAYERSWEAPON:
     insptr++;
-    PARSE_IF(ps[p].curr_weapon == *insptr);
+    PARSE_IF(ps[p].current_weapon == *insptr);
     CON_NEXT();
 
 case CON_IFMOVECOUNT:
@@ -1008,7 +1008,7 @@ case CON_ADDINVENTORY:
 
 case CON_ADDAMMO:
     insptr++;
-    ps[p].ammo += *insptr;
+    ps[p].ammo_amount += *insptr;
     insptr++;
     CON_NEXT();
 
@@ -1035,14 +1035,14 @@ case CON_IFP:
         ((flags & 1024) && ps[p].look_ang > 128) ||
         ((flags & 2048) ?
             ((((sprite[i].ang + 3200 - sprite[ud.camerasprite].ang) & 2047) >> 8) < 2) :
-            (((flags & 4096) && ps[p].shooting) ||
+            (((flags & 4096) && ps[p].fire_flag) ||
              ((flags & 8192) && ps[p].on_ground) ||
              ((flags & 16384) && ps[p].jetpack_on))));
     CON_NEXT();
 
 case CON_ADDRAMMO:
     insptr++;
-    ps[p].rocket_ammo += *insptr;
+    ps[p].ammo_r_amount += *insptr;
     insptr++;
     CON_NEXT();
 

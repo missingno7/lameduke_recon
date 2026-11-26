@@ -5948,10 +5948,6 @@
     "addr": "2:a5304",
     "evidence": "player worker 2026-11-26: GAME tick advancement and demo timing references at 1:08ec9 and 1:08283. Compared with totalclock in PLAYER."
    },
-   "knee_frames": {
-    "addr": "2:02364",
-    "evidence": "player worker 2026-11-26: Three display references and one processinput reference, each indexing 20 times the player's sequence byte plus the frame. The same 0xff-terminated sequences recover independently from the image."
-   },
    "oldtimerhandler": {
     "addr": "2:0ac50",
     "evidence": "game2 worker 2026-11-26: Far pointer stored at main's _dos_getvect and reloaded in gameexit's _dos_setvect, split into offset at 0ac50 and selector at 0ac54."
@@ -5963,10 +5959,6 @@
    "reccnt": {
     "addr": "2:a5254",
     "evidence": "game2 worker 2026-11-26: Shared recording count serialized by both demo file paths, reset at newgame and increased with a 16383 cap by record."
-   },
-   "file_id_record": {
-    "addr": "2:0291c",
-    "evidence": "game2 worker 2026-11-26: The check's two indexed operands use this base. File-backed record begins with correctly positioned marker bytes at line boundaries consistent with the separate FILE_ID.DIZ asset."
    },
    "lookup_filename": {
     "addr": "2:000f8",
@@ -6043,14 +6035,6 @@
    "menu_previous_buttons": {
     "addr": "2:a5396",
     "evidence": "game2 worker 2026-11-26: The cursor updater saves the previous value of independently bound menu_drag here before asking the mouse driver for fresh buttons. On release, the saved word becomes menu_mouse. Located between independently named menu_mouse and menu_drag."
-   },
-   "msgtime": {
-    "addr": "2:a538e",
-    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: displayquotes tests, decrements and stores this short at 1:02412/0244e/0245f before drawing the message line; Raynorpat view.h word_12538E | gameB2 worker 2026-11-26: short set to input_text_length<<4 in wait_for_players (1:05af9), tested and decremented before the message is drawn (1:06e9b, 1:08c7d)"
-   },
-   "msgtext": {
-    "addr": "2:a5248",
-    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: displayquotes loads this dword pointer at 1:02438 as the drawn message text; Raynorpat view.h dword_125248 | gameB2 worker 2026-11-26: dword pointer set to input_text by the packet-4 case of wait_for_players (1:05aee) and passed to minitext at 1:06ea8/1:08c9d"
    },
    "playerreadyflag": {
     "addr": "2:1d6c8",
@@ -6264,10 +6248,6 @@
     "addr": "2:0ee78",
     "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: byte buffer filled by checkcommandline /o from the argument tail (1:056bf), NUL-terminated (1:056e4) and passed to printf with the rerouted message (1:056d3)"
    },
-   "bonus_marks": {
-    "addr": "2:02304",
-    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: short (x,y) pairs, 32 bytes per episode: dobonus indexes +0/+2 with i*4 + episode*32 (1:097b4/097bc, 1:09804/0980c) for tiles 1133/1134; only dobonus references 2:02304/02306 (docs/units/game.md)"
-   },
    "fx_device": {
     "addr": "2:a52e4",
     "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: address passed as the second FX_SetupCard argument at 1:05c9d (ASS fx_device *device)"
@@ -6459,6 +6439,26 @@
    "typemessageleng": {
     "addr": "2:a57c2",
     "evidence": "game2 worker 2026-11-26: Byte used for append and termination in strget. In 1:01120 and 1:018c0 incoming text bytes increment the same length and use it to index the bound input buffer. | renamed from input_text_length (docs/RENAMES.md)"
+   },
+   "clubframes": {
+    "addr": "2:02364",
+    "evidence": "player worker 2026-11-26: Three display references and one processinput reference, each indexing 20 times the player's sequence byte plus the frame. The same 0xff-terminated sequences recover independently from the image. | renamed from knee_frames: extras GAMERBG.H/RGAME.H: // extern signed char clubframes[6][20]; same type and shape as knee_frames (120 B at 2:02364)"
+   },
+   "bonus_xy": {
+    "addr": "2:02304",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameB2 worker 2026-11-26: short (x,y) pairs, 32 bytes per episode: dobonus indexes +0/+2 with i*4 + episode*32 (1:097b4/097bc, 1:09804/0980c) for tiles 1133/1134; only dobonus references 2:02304/02306 (docs/units/game.md) | renamed from bonus_marks: extras GAMERBG.H: extern short bonus_xy[3][16]; same shape as bonus_marks (96 B _DATA at 2:02304, dobonus x/y pairs)"
+   },
+   "diz": {
+    "addr": "2:0291c",
+    "evidence": "game2 worker 2026-11-26: The check's two indexed operands use this base. File-backed record begins with correctly positioned marker bytes at line boundaries consistent with the separate FILE_ID.DIZ asset. | renamed from file_id_record: extras GAMERBG.H: extern char diz[500]; same size as file_id_record (FILE_ID.DIZ record at 2:0291c)"
+   },
+   "user_quote": {
+    "addr": "2:a5248",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: displayquotes loads this dword pointer at 1:02438 as the drawn message text; Raynorpat view.h dword_125248 | gameB2 worker 2026-11-26: dword pointer set to input_text by the packet-4 case of wait_for_players (1:05aee) and passed to minitext at 1:06ea8/1:08c9d | renamed from msgtext: extras GAMERBG.H: extern char *user_quote; char pointer drawn as the message line (msgtext)"
+   },
+   "user_quote_time": {
+    "addr": "2:a538e",
+    "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: displayquotes tests, decrements and stores this short at 1:02412/0244e/0245f before drawing the message line; Raynorpat view.h word_12538E | gameB2 worker 2026-11-26: short set to input_text_length<<4 in wait_for_players (1:05af9), tested and decremented before the message is drawn (1:06e9b, 1:08c7d) | renamed from msgtime: extras GAMERBG.H: extern short user_quote_time; short countdown before the message line (msgtime)"
    }
   }
  }

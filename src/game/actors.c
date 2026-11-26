@@ -51,40 +51,40 @@ void addweapon(short p, unsigned short weapon, unsigned char force)
     case CLUB:
         if (ps[p].gotweapon[0] == 0 || force) {
             ps[p].weapon_pos = 5;
-            ps[p].last_weapon = ps[p].curr_weapon;
-            ps[p].curr_weapon = CLUB;
+            ps[p].last_weapon = ps[p].current_weapon;
+            ps[p].current_weapon = CLUB;
         }
         ps[p].gotweapon[0] = 1;
         break;
     case SHOTSPARK1:
         if (ps[p].gotweapon[1] == 0 || force) {
             ps[p].weapon_pos = 5;
-            ps[p].last_weapon = ps[p].curr_weapon;
-            ps[p].curr_weapon = SHOTSPARK1;
+            ps[p].last_weapon = ps[p].current_weapon;
+            ps[p].current_weapon = SHOTSPARK1;
         }
         ps[p].gotweapon[1] = 1;
         break;
     case BULLET:
         if (ps[p].gotweapon[2] == 0 || force) {
             ps[p].weapon_pos = 5;
-            ps[p].last_weapon = ps[p].curr_weapon;
-            ps[p].curr_weapon = BULLET;
+            ps[p].last_weapon = ps[p].current_weapon;
+            ps[p].current_weapon = BULLET;
         }
         ps[p].gotweapon[2] = 1;
         break;
     case HEAVYHBOMB:
         if (ps[p].gotweapon[3] == 0 || force) {
             ps[p].weapon_pos = 5;
-            ps[p].last_weapon = ps[p].curr_weapon;
-            ps[p].curr_weapon = HEAVYHBOMB;
+            ps[p].last_weapon = ps[p].current_weapon;
+            ps[p].current_weapon = HEAVYHBOMB;
         }
         ps[p].gotweapon[3] = 1;
         break;
     case RPG:
         if (ps[p].gotweapon[4] == 0 || force) {
             ps[p].weapon_pos = 5;
-            ps[p].last_weapon = ps[p].curr_weapon;
-            ps[p].curr_weapon = RPG;
+            ps[p].last_weapon = ps[p].current_weapon;
+            ps[p].current_weapon = RPG;
         }
         ps[p].gotweapon[4] = 1;
         break;
@@ -223,14 +223,14 @@ short ifsquished(short i, short p)
         sprite[i].z = sector[sprite[i].sectnum].floorz;
         switch ((unsigned short)sprite[i].picnum) {
         case 408: case 490: case 631: case 1536: case 1680: case 1820:
-            ps[p].actors_squashed++;
+            ps[p].squashable++;
             sprite[result].xvel = 0;
             sprite[result].cstat &= ~1;
             FTA(10);
             return result;
         case 579:
             sprite[i].xvel = 0;
-            ps[p].actors_squashed++;
+            ps[p].squashable++;
             FTA(10);
             return i;
         }
@@ -752,12 +752,12 @@ shark_steer:
                 case 408: case 490: case 631: case 1536: case 1680: case 1820:
                     sprite[i].xvel = 0;
                     sprite[i].cstat &= ~1;
-                    ps[p].actors_squashed++;
+                    ps[p].squashable++;
                     FTA(10);
                     break;
                 case 579:
                     sprite[i].xvel = 0;
-                    ps[p].actors_squashed++;
+                    ps[p].squashable++;
                     FTA(10);
                     break;
                 }
@@ -775,7 +775,7 @@ shark_steer:
             MOVE_ALONG(i, sprite[i].zvel, 0);
             if (ps[own].hbomb_on || ps[own].i != sprite[i].owner) {
                 if (dist > 512 && dist < 768) {
-                    ps[p].remote_ammo++, addweapon(p, 721, 1);
+                    ps[p].ammo_h_amount++, addweapon(p, 721, 1);
                     deletesprite(i);
                 }
                 continue;
@@ -1307,7 +1307,7 @@ void moveplayers(void)
                 sprite[i].ang = ps[sprite[i].yvel].oang;
             } else {
                 execute(i, sprite[i].yvel, 0);
-                ps[sprite[i].yvel].shooting = 0;
+                ps[sprite[i].yvel].fire_flag = 0;
                 sprite[i].x = ps[sprite[i].yvel].posx;
                 sprite[i].y = ps[sprite[i].yvel].posy;
                 sprite[i].z = ps[sprite[i].yvel].posz + (36 << 8);

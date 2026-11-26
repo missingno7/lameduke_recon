@@ -123,7 +123,7 @@ void loadsounds(void)
             data = bootleg_cache_alloc(l);
             read(fp, data, l);
             close(fp);
-            sound_file_table[i].data = data;
+            sound_file_table[i].ptr = data;
         }
     }
 }
@@ -152,7 +152,7 @@ void xyzsound(short num, short i, long x, long y, long z)
     long cx, cy, sndist, voice;
     short ca, sndang, priority;
 
-    if (SoundToggle == 0 || sound_voices[num].active > 2)
+    if (SoundToggle == 0 || sound_voices[num].num > 2)
         return;
 
     if (camerasprite == -1) {
@@ -176,7 +176,7 @@ void xyzsound(short num, short i, long x, long y, long z)
     if ((sndist >> 6) > 255)
         return;
 
-    voice = FX_PlayVOC3D(sound_file_table[num].data, 0, sndang >> 4,
+    voice = FX_PlayVOC3D(sound_file_table[num].ptr, 0, sndang >> 4,
                          sndist >> 6, priority, num);
     if (voice > 0) {
         /* The prototype also stores Z in the Y field. */
@@ -184,11 +184,11 @@ void xyzsound(short num, short i, long x, long y, long z)
         sound_voices[num].y = z;
         sound_voices[num].x = x;
         if (i == -1)
-            sound_voices[num].sprite = ps[0].i;
+            sound_voices[num].i = ps[0].i;
         else
-            sound_voices[num].sprite = i;
-        sound_voices[num].handle = voice;
-        sound_voices[num].active++;
+            sound_voices[num].i = i;
+        sound_voices[num].voice = voice;
+        sound_voices[num].num++;
     }
 }
 
@@ -206,7 +206,7 @@ void spritesound(int number, int source)
     y = sprite[i].y;
     z = sprite[i].z;
 
-    if (SoundToggle == 0 || sound_voices[num].active > 2)
+    if (SoundToggle == 0 || sound_voices[num].num > 2)
         return;
 
     if (camerasprite == -1) {
@@ -231,25 +231,25 @@ void spritesound(int number, int source)
     if (scaled > 255)
         return;
 
-    voice = FX_PlayVOC3D(sound_file_table[num].data, 0, sndang >> 4,
+    voice = FX_PlayVOC3D(sound_file_table[num].ptr, 0, sndang >> 4,
                          scaled, priority, num);
     if (voice > 0) {
         /* The prototype also stores Z in the Y field. */
         sound_voices[num].y = y;
         sound_voices[num].y = z;
         sound_voices[num].x = x;
-        sound_voices[num].sprite = i == -1 ? ps[0].i : i;
-        sound_voices[num].handle = voice;
-        sound_voices[num].active++;
+        sound_voices[num].i = i == -1 ? ps[0].i : i;
+        sound_voices[num].voice = voice;
+        sound_voices[num].num++;
     }
 }
 
 /* Stop sound num (its last voice). */
 void stopsound(short num)
 {
-    FX_StopSound(sound_voices[num].handle);
-    if (sound_voices[(unsigned long)num].active > 0)
-        sound_voices[(unsigned long)num].active--;
+    FX_StopSound(sound_voices[num].voice);
+    if (sound_voices[(unsigned long)num].num > 0)
+        sound_voices[(unsigned long)num].num--;
 }
 
 /* Re-pan all playing sounds to their owners (call once per frame). */
@@ -270,13 +270,13 @@ void pan3dsound(void)
     }
 
     for (j = 0; j < NUM_SOUNDS; j++) {
-        if (sound_voices[j].active) {
-            dx = sprite[sound_voices[j].sprite].x;
-            dy = sprite[sound_voices[j].sprite].y;
+        if (sound_voices[j].num) {
+            dx = sprite[sound_voices[j].i].x;
+            dy = sprite[sound_voices[j].i].y;
             sndang = 2048 + ca - getangle(cx - dx, cy - dy);
             sndang &= 2047;
             sndist = klabs(cx - dx) + klabs(cy - dy);
-            FX_Pan3D(sound_voices[j].handle, sndang >> 4, sndist >> 6);
+            FX_Pan3D(sound_voices[j].voice, sndang >> 4, sndist >> 6);
         }
     }
 }
@@ -284,8 +284,8 @@ void pan3dsound(void)
 /* FX callback: a voice of sound num finished. */
 void TestCallBack(long num)
 {
-    if (sound_voices[num].active > 0)
-        sound_voices[num].active--;
+    if (sound_voices[num].num > 0)
+        sound_voices[num].num--;
 }
 
 

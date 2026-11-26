@@ -22,7 +22,7 @@ long lavadropx[16], lavadropy[16];
 
 /* FILE_ID.DIZ notice compared by check_file_id (2:0291c, 500-byte initialised record). Owner by
    link position (after SOUNDS _DATA, before GAMEDEF _DATA): HYPOTHESIS. */
-char file_id_record[500] =
+char diz[500] =
     "ллллВБА ALERT THE SYSOP IMMEDIATELY! АБВлллл*ллллллллллллллл"
     "ллллллллллллллллллллллллллллл*THIS FILE IS NOT SHAREWARE -- "
     "it is ILLEGAL*and forbidden to upload this copyrighted*softw"

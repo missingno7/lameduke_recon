@@ -472,3 +472,20 @@ Each entry names the command or artefact that supports it.
   option bytes and 17 scancodes; no ASS code in SETUP.
 - NEGATIVE 50 TS_SetTimerToMaxTaskRate variants (best 7 bytes), 33 AL_SetVoiceTimbre forms, released and al_104
   donor rebuilds: no further STRICT gains; ErrorString bodies stay held by whole-CONST verification.
+
+## Duke3D extras/ as a donor corpus (extras worker, 2026-11-27; build/workers/extras/NOTES.md)
+- PROVEN 89 of the 110 extras files duplicate Duke 1.5 / the 1.3D tree once line endings and the 3DR banner are
+  ignored; none duplicates Ken's archives. GAME/MENUES/SOUNDS/PREMAP/GAMEDEF/GLOBAL/DUKE3D.H are 1996 Duke 1.5
+  snapshots (some later than the release: VERSION "1.5", BYTEVERSION 28/117, UK and TEN builds). CAVE.C and GRUNT.C
+  predate LameDuke but target a different engine; GAMEN.C/PLAYERN.C are Ken's 1996 patch notes; BB.C, FRAGMENT.C,
+  SE40.C, CD.C, TESTDRV.C are 1996-97. Only GAMERBG.H (1995: MAXANIMATES 512, recsync[16384], hittype[1536]) and the
+  later RGAME.H sit between LameDuke and 1.3D.
+- NEGATIVE no extras implementation is closer than our source or Duke 1.5 for any of the 56 non-STRICT game
+  functions (best extras donor 0.517; same-name donors within +-0.008 of Duke 1.5). WATER.C DoWater scores 0.312
+  vs draw_water_distortion, whose code is already identical: its last 0x44 bytes are displayrooms' jump tables, so
+  it becomes STRICT only together with displayrooms (NEAR_CENSUS "ALLOCATION-ONLY" for it is stale).
+- STRONG names from GAMERBG.H (same offsets/types/shapes; applied, byte-neutral): player fields current_weapon,
+  ammo_amount, ammo_bat_amount, ammo_h_amount, ammo_r_amount, fire_flag, max_squashable, squashable; the 19-byte
+  SOUNDOWNER voice record (i, voice, num) and SAMPLE ptr; data clubframes[6][20], bonus_xy[3][16], diz[500],
+  user_quote, user_quote_time (formerly knee_frames, bonus_marks, file_id_record, msgtext, msgtime).
+  HYPOTHESIS: temp_data as the pre-struct name of hittype[][5]; MusicPtr, typebuf/typebuflen; player_orig fields.

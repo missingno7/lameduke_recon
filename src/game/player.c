@@ -115,7 +115,7 @@ void shoot(short i, short atwith, unsigned char impact)
         if (atwith == RPG)
             sa += ps[sprite[i].yvel].look_ang;
         sect = ps[sprite[i].yvel].cursectnum;
-        ps[sprite[i].yvel].shooting = 1;
+        ps[sprite[i].yvel].fire_flag = 1;
         switch (atwith) {
         case SHOTSPARK1:
             zvel = (100 - ps[sprite[i].yvel].horiz) * 31;
@@ -194,7 +194,7 @@ unsigned char animateknuckles(short gs, short snum)
         spritesound(7, ps[snum].i);
     return 1;
 }
-signed char knee_frames[6][20] = {
+signed char clubframes[6][20] = {
     { 0, 0, 1, 2, 3, 4, 4, 3, 2, -1 },
     { 0, 0, 1, 2, 3, 4, 4, 5, 6, 7, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1 },
     { 0, 0, 1, 2, 3, 4, 3, 2, -1 },
@@ -235,11 +235,11 @@ void displayweapon(short snum)
     if (ps[snum].last_weapon >= 0)
         cw = ps[snum].last_weapon;
     else
-        cw = ps[snum].curr_weapon;
+        cw = ps[snum].current_weapon;
 
     switch (cw) {
     case CLUB: {
-        short frame = knee_frames[ps[snum].knee_sequence][ps[snum].kickback_pic];  /* oracle keeps it in DH; see NOTES (r2pam) */
+        short frame = clubframes[ps[snum].knee_sequence][ps[snum].kickback_pic];  /* oracle keeps it in DH; see NOTES (r2pam) */
 
         switch (frame) {
         case 0:
@@ -258,9 +258,9 @@ void displayweapon(short snum)
         if (ps[snum].kickback_pic) {
             myos((syncangvel[snum] >> 4) + weapon_xoffset + 180 - (ps[snum].look_ang >> 1),
                 looking_arc + 280 - gun_pos - (ps[snum].horiz >> 4),
-                CLUB + knee_frames[ps[snum].knee_sequence][ps[snum].kickback_pic], gs, 3);
-            if (knee_frames[ps[snum].knee_sequence][ps[snum].kickback_pic] == 2) {
-                if (ps[snum].batteryammo && (sector[ps[snum].cursectnum].lotag & 32767) != 2) {
+                CLUB + clubframes[ps[snum].knee_sequence][ps[snum].kickback_pic], gs, 3);
+            if (clubframes[ps[snum].knee_sequence][ps[snum].kickback_pic] == 2) {
+                if (ps[snum].ammo_bat_amount && (sector[ps[snum].cursectnum].lotag & 32767) != 2) {
                     draw_x = (syncangvel[snum] >> 4) + weapon_xoffset + 229 - (ps[snum].look_ang >> 1);
                     draw_y = looking_arc + 207 - gun_pos - (ps[snum].horiz >> 4);
                     tile = 1240 + ps[snum].knee_flash % 3;
@@ -742,9 +742,9 @@ domove:
     updatesector(ps[snum].posx, ps[snum].posy, &ps[snum].cursectnum);
     clipmove(&ps[snum].posx, &ps[snum].posy, &ps[snum].posz, &ps[snum].cursectnum, xvect, yvect, 144, 1024, 1024, 0);
     setsprite(ps[snum].i, ps[snum].posx, ps[snum].posy, ps[snum].posz);
-    if ((syncbits[snum] & SB_CENTER_VIEW) || ps[snum].jetpack_on || ps[snum].curr_weapon == RPG || ps[snum].hard_landing) {
+    if ((syncbits[snum] & SB_CENTER_VIEW) || ps[snum].jetpack_on || ps[snum].current_weapon == RPG || ps[snum].hard_landing) {
         ps[snum].horiz += 32 - ps[snum].horiz / 3;
-        if (ps[snum].curr_weapon == RPG || ps[snum].jetpack_on) {
+        if (ps[snum].current_weapon == RPG || ps[snum].jetpack_on) {
             if (syncbits[snum] & SB_LOOK_UP)
                 ps[snum].horiz += 64;
             else if (syncbits[snum] & SB_LOOK_DOWN)
@@ -774,7 +774,7 @@ domove:
         return;
     }
     wpos = ps[snum].weapon_pos;
-    if ((wpos & 0x7F) > 2 && ps[snum].curr_weapon == SHOTSPARK1 && ps[snum].kickback_pic < 5) {
+    if ((wpos & 0x7F) > 2 && ps[snum].current_weapon == SHOTSPARK1 && ps[snum].kickback_pic < 5) {
         spawn_pistol_tracer(snum);
     }
     if ((wpos & 0x7F) && (wpos & 0x7F) != 6) {
@@ -790,25 +790,25 @@ domove:
     if ((syncbits[snum] & SB_FIRE) && ps[snum].kickback_pic == 0 && ps[snum].last_weapon == -1) {
         if ((ps[snum].weapon_pos & 0x7F) != 6)
             ps[snum].weapon_pos = 0x81;
-        switch (ps[snum].curr_weapon) {
+        switch (ps[snum].current_weapon) {
         case SHOTSPARK1:
-            if (ps[snum].ammo > 0) {
+            if (ps[snum].ammo_amount > 0) {
                 ps[snum].kickback_pic = 1;
-                ps[snum].ammo--;
+                ps[snum].ammo_amount--;
             }
             break;
         case BULLET:
-            if (ps[snum].batteryammo > 0) {
+            if (ps[snum].ammo_bat_amount > 0) {
                 ps[snum].kickback_pic = 2;
-                ps[snum].batteryammo--;
+                ps[snum].ammo_bat_amount--;
             }
             break;
         case RPG:
             ps[snum].kickback_pic = 1;
             break;
         case CLUB:
-            if (ps[snum].curr_weapon == CLUB) {
-                if (ps[snum].batteryammo)
+            if (ps[snum].current_weapon == CLUB) {
+                if (ps[snum].ammo_bat_amount)
                     ps[snum].knee_sequence = 5;
                 else
                     ps[snum].knee_sequence = krand() % 5;
@@ -825,18 +825,18 @@ domove:
     if (ps[snum].kickback_pic == 0 || lockclock - ps[snum].weapon_clock <= 7)
         return;
     ps[snum].weapon_clock = (unsigned char)lockclock;
-    switch (ps[snum].curr_weapon) {
+    switch (ps[snum].current_weapon) {
     case HEAVYHBOMB:
         if (++ps[snum].kickback_pic == 11) {
-            if (ps[snum].remote_ammo > 0)
-                ps[snum].remote_ammo--;
+            if (ps[snum].ammo_h_amount > 0)
+                ps[snum].ammo_h_amount--;
             EGS(ps[snum].cursectnum, (sintable[(ps[snum].ang + 512) & 2047] >> 4) + ps[snum].posx,
                 (sintable[ps[snum].ang & 2047] >> 4) + ps[snum].posy, ps[snum].posz + 1024, 1, HEAVYHBOMB, -16, 16, 16,
                 ps[snum].ang, 128, -348, ps[snum].i, 1);
             ps[snum].hbomb_on = 1;
         }
         if (ps[snum].kickback_pic > 19) {
-            ps[snum].curr_weapon = HANDREMOTE;
+            ps[snum].current_weapon = HANDREMOTE;
             ps[snum].kickback_pic = 0;
         }
         break;
@@ -845,8 +845,8 @@ domove:
             ps[snum].hbomb_on = 0;
         if (ps[snum].kickback_pic == 10) {
             ps[snum].kickback_pic = 0;
-            if (ps[snum].remote_ammo)
-                ps[snum].curr_weapon = HEAVYHBOMB;
+            if (ps[snum].ammo_h_amount)
+                ps[snum].current_weapon = HEAVYHBOMB;
             else
                 addweapon(snum, SHOTSPARK1, 0);
         }
@@ -857,7 +857,7 @@ domove:
         } else if (ps[snum].kickback_pic == 2)
             spawn(ps[snum].i, 1165);
         ps[snum].kickback_pic++;
-        if (ps[snum].kickback_pic >= 5 && (ps[snum].ammo % 12 != 0 || ps[snum].ammo == 0))
+        if (ps[snum].kickback_pic >= 5 && (ps[snum].ammo_amount % 12 != 0 || ps[snum].ammo_amount == 0))
             ps[snum].kickback_pic = 0;
         if (ps[snum].kickback_pic == 27)
             ps[snum].kickback_pic = 0;
@@ -873,17 +873,17 @@ domove:
         unsigned char frame;
 
         ps[snum].kickback_pic++;
-        frame = knee_frames[ps[snum].knee_sequence][ps[snum].kickback_pic];
+        frame = clubframes[ps[snum].knee_sequence][ps[snum].kickback_pic];
         switch (frame) {
         case 255:
             ps[snum].kickback_pic = 0;
             break;
         case 3:
-            if (ps[snum].kickback_pic == 4 && ps[snum].batteryammo && (syncbits[snum] & SB_FIRE)
+            if (ps[snum].kickback_pic == 4 && ps[snum].ammo_bat_amount && (syncbits[snum] & SB_FIRE)
                 && (sector[ps[snum].cursectnum].lotag & 0x7FFF) != 2) {
                 shoot(ps[snum].i, CLUB, 0);
                 spritesound(24, ps[snum].i);
-                ps[snum].batteryammo--;
+                ps[snum].ammo_bat_amount--;
                 ps[snum].kickback_pic--;
                 ps[snum].knee_flash++;
             }
@@ -895,9 +895,9 @@ domove:
         break;
     }
     case RPG:
-        if (ps[snum].rocket_ammo > 0 && (syncbits[snum] & SB_FIRE) && ps[snum].kickback_pic == 10) {
+        if (ps[snum].ammo_r_amount > 0 && (syncbits[snum] & SB_FIRE) && ps[snum].kickback_pic == 10) {
             ps[snum].kickback_pic = 11;
-            ps[snum].rocket_ammo--;
+            ps[snum].ammo_r_amount--;
             shoot(ps[snum].i, RPG, 0);
             ps[snum].horiz += 64;
         }

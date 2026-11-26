@@ -75,10 +75,10 @@ struct player_struct {
     short startsectnum;                 /* 46 respawn sector */
     short look_ang;                     /* 48 look left/right offset, decays by 1/3 per tick */
     short screen_size;                  /* 4a view border -4..64; >= 0 draws the status bar */
-    short ammo;                         /* 4c pistol (SHOTSPARK1) */
-    short batteryammo;                  /* 4e BULLET gun and club zaps */
-    short remote_ammo;                  /* 50 hand bombs (HEAVYHBOMB) */
-    short rocket_ammo;                  /* 52 RPG */
+    short ammo_amount;                         /* 4c pistol (SHOTSPARK1) */
+    short ammo_bat_amount;                  /* 4e BULLET gun and club zaps */
+    short ammo_h_amount;                  /* 50 hand bombs (HEAVYHBOMB) */
+    short ammo_r_amount;                  /* 52 RPG */
     short health;                       /* 54 */
     short newowner;                     /* 56 camera sprite being viewed, -1 = none */
     short holoduke_on;                  /* 58 holoduke decoy sprite, -1 reset, 0 = off */
@@ -88,7 +88,7 @@ struct player_struct {
     short fta[13];                      /* 60 display timer per 'first time active' quote */
     short ftq;                          /* 7a quote on screen */
     short kickback_pic;                 /* 7c weapon animation frame, 0 = idle */
-    short curr_weapon;                  /* 7e weapon as a TILE number (CLUB, SHOTSPARK1, ...) */
+    short current_weapon;                  /* 7e weapon as a TILE number (CLUB, SHOTSPARK1, ...) */
     short somethingonplayer;            /* 80 GREENSLIME on the player's face, -1 = none */
     short on_crane;                     /* 82 CRANE carrying the player, -1 = none */
     short one_parallax_sectnum;         /* 84 first sky sector (ps[0] only) */
@@ -118,9 +118,9 @@ struct player_struct {
     unsigned char hard_landing;         /* a8 landing countdown */
     unsigned char max_secret_rooms;     /* a9 */
     unsigned char secret_rooms;         /* aa */
-    unsigned char shooting;             /* ab fired this tick (CON ifp pshooting) */
-    unsigned char max_squashed;         /* ac bonus-screen tallies */
-    unsigned char actors_squashed;      /* ad */
+    unsigned char fire_flag;             /* ab fired this tick (CON ifp pshooting) */
+    unsigned char max_squashable;         /* ac bonus-screen tallies */
+    unsigned char squashable;      /* ad */
     unsigned char max_actors_killed;    /* ae */
     unsigned char actors_killed;        /* af */
 };
@@ -209,15 +209,15 @@ struct menu {
 
 /* SOUNDS: one loaded VOC file and one playing voice (Duke 1.5 SoundOwner analogue). */
 struct sound_file {
-    char *data;
+    char *ptr;
     long length;
 };
 
 struct sound_voice {
     long x, y, z;
-    short sprite;
-    long handle;
-    unsigned char active;
+    short i;
+    long voice;
+    unsigned char num;
 };
 
 /* Animated wall entry (Duke 1.5 struct animwalltype). */

@@ -64,7 +64,7 @@ extern signed char recsyncangvel[16384], recsyncsvel[16384], recsyncvel[16384];
 extern long recsyncbits[16384];
 extern unsigned char recsynctics[16384];
 
-extern char file_id_record[];
+extern char diz[];
 /* These two literals belong to an earlier part of the shared GAME pool. */
 extern const char lookup_filename[];
 extern char lookup_missing[];
@@ -158,8 +158,8 @@ extern void copybuf(void *source, void *dest, long count);
 #pragma aux copybuf = "rep movsd" parm [esi] [edi] [ecx];
 
 
-extern short msgtime;
-extern unsigned char *msgtext;
+extern short user_quote_time;
+extern unsigned char *user_quote;
 extern short thesprite[], spritepicnum[];
 extern char spritepal[];
 extern long spritesortcnt;
@@ -216,7 +216,7 @@ extern int MUSIC_Init(int card, int address);
 extern void TestCallBack(unsigned long number);
 extern void draw_pause_sign(void);
 /* Bonus-screen tally marks, x/y pairs, eight per episode (2:02304, GAME _DATA). */
-extern short bonus_marks[3][16];
+extern short bonus_xy[3][16];
 extern char bonus_press_space[], bonus_title[], bonus_secrets[], bonus_percent[];
 extern char bonus_points[], bonus_squashed[], bonus_killed[];
 extern long current_menu;
@@ -427,7 +427,7 @@ void spawn(long j, short pn)
         changespritestat(i, STAT_ACTOR);
         break;
     case 408: case 490: case 579: case 1536: case 1680: case 1820:
-        ps[0].max_squashed++;
+        ps[0].max_squashable++;
         ps[0].max_actors_killed++;
         /* fall through */
     case 631:
@@ -820,8 +820,8 @@ void resetprestat(short snum)
     ps[snum].toggle_key_flag = 0;
     ps[snum].secret_rooms = 0;
     ps[snum].max_secret_rooms = 0;
-    ps[snum].actors_squashed = 0;
-    ps[snum].max_squashed = 0;
+    ps[snum].squashable = 0;
+    ps[snum].max_squashable = 0;
     ps[snum].actors_killed = 0;
     ps[snum].max_actors_killed = 0;
     ps[snum].walking_snd_toggle = 0;
@@ -970,18 +970,18 @@ void newgame(unsigned char vn, unsigned char ln, unsigned char sk)
     ps[0].gotweapon[1] = 1;
     ps[0].score = 0;
     if (ud.debug) {
-        ps[0].rocket_ammo = 99;
-        ps[0].remote_ammo = 696;
-        ps[0].ammo = 144;
-        ps[0].batteryammo = 120;
+        ps[0].ammo_r_amount = 99;
+        ps[0].ammo_h_amount = 696;
+        ps[0].ammo_amount = 144;
+        ps[0].ammo_bat_amount = 120;
     } else {
-        ps[0].rocket_ammo = 5;
-        ps[0].remote_ammo = 2;
-        ps[0].ammo = 24;
-        ps[0].batteryammo = 9;
+        ps[0].ammo_r_amount = 5;
+        ps[0].ammo_h_amount = 2;
+        ps[0].ammo_amount = 24;
+        ps[0].ammo_bat_amount = 9;
     }
     ps[0].last_weapon = -1;
-    ps[0].curr_weapon = 191;
+    ps[0].current_weapon = 191;
     reccnt = 0;
 }
 
@@ -1077,11 +1077,11 @@ unsigned char check_file_id(void)
     read(fil, tempbuf, 450);
     bufpos = 0;
     for (recpos = 0; recpos < 400; recpos++, bufpos++) {
-        if (file_id_record[recpos] == '*') {
+        if (diz[recpos] == '*') {
             recpos++;
             bufpos += 2;
         }
-        if (tempbuf[bufpos] != file_id_record[recpos]) {
+        if (tempbuf[bufpos] != diz[recpos]) {
             close(fil);
             return 1;
         }

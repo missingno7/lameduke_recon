@@ -61,7 +61,7 @@ extern signed char recsyncangvel[16384], recsyncsvel[16384], recsyncvel[16384];
 extern long recsyncbits[16384];
 extern unsigned char recsynctics[16384];
 
-extern char file_id_record[];
+extern char diz[];
 /* These two literals belong to an earlier part of the shared GAME pool. */
 #define lookup_filename "lookup.dat"
 #define lookup_missing "Palette remaps not found."
@@ -155,8 +155,8 @@ extern void copybuf(void *source, void *dest, long count);
 #pragma aux copybuf = "rep movsd" parm [esi] [edi] [ecx];
 
 
-extern short msgtime;
-extern unsigned char *msgtext;
+extern short user_quote_time;
+extern unsigned char *user_quote;
 extern short thesprite[], spritepicnum[];
 extern char spritepal[];
 extern long spritesortcnt;
@@ -241,7 +241,7 @@ extern int MUSIC_Init(int card, int address);
 extern void TestCallBack(unsigned long number);
 extern void draw_pause_sign(void);
 /* Bonus-screen tally marks, x/y pairs, eight per episode (2:02304, GAME _DATA). */
-short bonus_marks[3][16] = {
+short bonus_xy[3][16] = {
     { 9, 60, 61, 82, 84, 57, 85, 112, 300, 64, 261, 83, 223, 97, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
@@ -476,8 +476,8 @@ void getpackets(void)
                 typemessageleng = 0; /* 9.5b keeps only the xor, as in the oracle */
                 for (j = 1; j < tempbufleng; j++)
                     typemessage[typemessageleng++] = tempbuf[j];
-                msgtext = typemessage;
-                msgtime = typemessageleng << 4;
+                user_quote = typemessage;
+                user_quote_time = typemessageleng << 4;
                 typemessage[0] = 0;
                 break;
             case 5:
@@ -638,9 +638,9 @@ void operatefta(short snum)
 {
     long offset = 0;
 
-    if (msgtime > 0) {
-        msgtime--;
-        minitext(8, 162, msgtext, 0);
+    if (user_quote_time > 0) {
+        user_quote_time--;
+        minitext(8, 162, user_quote, 0);
     }
     if (ps[snum].fta[ps[snum].ftq] > 0) {
         ps[snum].fta[ps[snum].ftq]--;
@@ -1719,35 +1719,35 @@ void displaystatus(short snum)
         for (i = 0; i < 25; i++)
             if (i < ps[snum].health >> 2)
                 overwritesprite(i * 3 + 30, 186, 1392, 0, 0, 0);
-        switch (ps[snum].curr_weapon) {
+        switch (ps[snum].current_weapon) {
         case 389:
         case 1230:
-            numtext_fixed(209, 186, ps[snum].batteryammo, 0);
+            numtext_fixed(209, 186, ps[snum].ammo_bat_amount, 0);
             overwritesprite(160, 192, 1400, 0, 1, 0);
             for (i = 0; i < 25; i++)
-                if (i < ps[snum].batteryammo >> 2)
+                if (i < ps[snum].ammo_bat_amount >> 2)
                     overwritesprite(i * 3 + 216, 186, 1392, 0, 0, 0);
             break;
         case 191:
-            numtext_fixed(209, 186, ps[snum].ammo, 0);
+            numtext_fixed(209, 186, ps[snum].ammo_amount, 0);
             overwritesprite(160, 192, 1401, 0, 1, 0);
             for (i = 0; i < 25; i++)
-                if (i < ps[snum].ammo >> 2)
+                if (i < ps[snum].ammo_amount >> 2)
                     overwritesprite(i * 3 + 216, 186, 1392, 0, 0, 0);
             break;
         case 721:
         case 1140:
-            numtext_fixed(209, 186, ps[snum].remote_ammo, 0);
+            numtext_fixed(209, 186, ps[snum].ammo_h_amount, 0);
             overwritesprite(160, 192, 1402, 0, 1, 0);
             for (i = 0; i < 25; i++)
-                if (i < ps[snum].remote_ammo >> 2)
+                if (i < ps[snum].ammo_h_amount >> 2)
                     overwritesprite(i * 3 + 216, 186, 1392, 0, 0, 0);
             break;
         case 563:
-            numtext_fixed(209, 186, ps[snum].rocket_ammo, 0);
+            numtext_fixed(209, 186, ps[snum].ammo_r_amount, 0);
             overwritesprite(160, 192, 1403, 0, 1, 0);
             for (i = 0; i < 25; i++)
-                if (i < ps[snum].rocket_ammo >> 2)
+                if (i < ps[snum].ammo_r_amount >> 2)
                     overwritesprite(i * 3 + 216, 186, 1392, 0, 0, 0);
             break;
         }
@@ -1913,9 +1913,9 @@ void dobonus(void)
         }
         gametext(36, 160, bonus_press_space, shade);
         for (i = 0; i < ps[0].level; i++)
-            overwritesprite(bonus_marks[ps[0].volume][i * 2], bonus_marks[ps[0].volume][i * 2 + 1],
+            overwritesprite(bonus_xy[ps[0].volume][i * 2], bonus_xy[ps[0].volume][i * 2 + 1],
                             1133, shade, 0, 0);
-        overwritesprite(bonus_marks[ps[0].volume][i * 2], bonus_marks[ps[0].volume][i * 2 + 1],
+        overwritesprite(bonus_xy[ps[0].volume][i * 2], bonus_xy[ps[0].volume][i * 2 + 1],
                         1134, shade, 0, 0);
         if (ps[myconnectindex].gm == MODE_EOL) {
             gametext(32, 10, bonus_title, 0);
@@ -1930,8 +1930,8 @@ void dobonus(void)
                 ps[screenpeek].score += (short)pct * 10000;
             }
             if (start + 480 < totalclock) {
-                if (ps[0].max_squashed)
-                    pct = (ps[0].actors_squashed * 100) / ps[0].max_squashed;
+                if (ps[0].max_squashable)
+                    pct = (ps[0].squashable * 100) / ps[0].max_squashable;
                 minitext(60, 80, bonus_squashed, shade);
                 numtext(60, 90, (short)pct, shade);
                 minitext(72, 90, bonus_percent, shade);
@@ -2487,7 +2487,7 @@ void moveeffectors(void)
                 q = getincangle(sprite[i].ang, x, 3);
                 t[2] += q;
                 sprite[i].ang += q;
-                if (sprite[i].xvel == 256 && sound_voices[32].active == 0) {
+                if (sprite[i].xvel == 256 && sound_voices[32].num == 0) {
                     d = 1;
                     if (!(sector[sect].floorstat & 1) && !(sector[sect].ceilingstat & 1))
                         spritesound(32, i);
