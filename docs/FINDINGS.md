@@ -28,8 +28,10 @@ Each entry names the command or artefact that supports it.
   `kenbuild-20241213/BUIL0422/ENGINE.C` (+ its BUILD.H, NAMES.H) into an object identical to Ken's original
   `BUIL0422/ENGINE.OBJ`: all segments, 2950/2950 fixups, 88/88 functions (`tools/objcmp.py … --funcs`).
   Ken's makefiles say `wcc386 engine /4r` and `masm a.asm;`.
-- OPEN whether Watcom 10.0 -4r also reproduces BUIL0422 (discriminating probe pending) and which flags the Duke
-  game code used.
+- PROVEN discriminating probe: the same BUIL0422 source with `-4r` under wc100 / wc100a / wc105 / wc106 reproduces only
+  13 / 11 / 13 / 13 of 88 functions. Watcom 9.5 code generation is distinguishable from 10.x, so any byte-exact
+  match of 1994 engine code identifies the 9.5 code generator.
+- OPEN which flags the Duke game code used.
 
 ## Engine (2026-11-26)
 - PROVEN target map version 5 (all assets/*.MAP start with 05 00 00 00). Per buil1995/BUILD.TXT: map v5 introduced
