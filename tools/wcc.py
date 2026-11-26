@@ -36,7 +36,12 @@ def profile(name):
 
 
 def compile_c(src, out, flags, inst="wc95b", include=(), tool="wcc386"):
-    """Compile src to out. include: extra include dirs searched before the install's H/."""
+    """Compile src to out. include: extra include dirs searched before the install's H/.
+
+    wc95b compiles run on the canonical DOS host (tools/doshost.py, DOSBox-X) unless LAMEDUKE_HOST=nt."""
+    if inst == "wc95b" and tool == "wcc386" and os.environ.get("LAMEDUKE_HOST", "dos") == "dos":
+        import doshost
+        return doshost.compile_c(src, out, flags, inst, include)
     ent, base = install(inst)
     out = Path(out).resolve()
     if out.exists():

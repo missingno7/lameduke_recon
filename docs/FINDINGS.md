@@ -143,3 +143,14 @@ Each entry names the command or artefact that supports it.
   MS-DOS Player fails with "HDPMI32: insufficient memory" (-x). Prior evaluation (C:/tools/dos-backends/REPORT.md)
   also found MS-DOS Player has no DPMI host. MS-DOS Player stays the backend for 16-bit real-mode tools (MASM 5.10);
   the extended compiler needs DOSBox-X (worker doshost).
+
+## Canonical DOS host (doshost worker 2026-11-26, adopted)
+- PROVEN Watcom 9.5b's DOS compiler (BIN/WCC386.EXE, bound Phar Lap extender; DOS/4GW rejects it) under DOSBox-X
+  reproduces Ken's BUIL0422 ENGINE.OBJ completely: code, data, all 2,950 fixups, THEADR engine.c and all 16 dependency
+  paths (D:\engine.c, c:\watcom\h...); only the dependency timestamps differ. Its CONST residue is stable under path
+  and mtime changes (50 builds). It is the canonical wc95b host (tools/doshost.py via tools/wcc.py; median 1.7 s per
+  compile; LAMEDUKE_HOST=nt selects the fast NT compiler for exploration, which gives identical code).
+- PROVEN under the DOS host, SOUNDS CONST verifies (12 STRICT) and GAMEDEF's CONST picked up 50 bytes of the
+  worker's con_dispatch.inc: inlining both .inc files into gamedef.c restores the verified CONST (9 STRICT). The
+  record buffer residue therefore constrains source-file structure: the original GAMEDEF was a single file
+  (no such includes). Avoid private .inc splits in reconstructed sources.

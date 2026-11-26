@@ -59,8 +59,11 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
   names, LE relocations and the Watcom register convention. Seeds for reading only, never matching evidence.
 - `tools/bssrule.py` — predicts Watcom 9.5b _BSS/_DATA offsets from declaration order and names (docs/BSS_LAYOUT.md).
 - `tools/gate.py` — integration gate (tests + fresh rebuild of every unit); run before every commit.
-- C compiles are staged by tools/wcc.py into build/cc (fixed paths/timestamps) because Watcom 9.5 CONST padding
-  residue depends on the compile environment; never bypass the wrapper.
+- Watcom 9.5b compiles run on the canonical DOS host (tools/doshost.py: the original DOS compiler under DOSBox-X,
+  ~1.7 s per compile) because CONST padding residue depends on the host; LAMEDUKE_HOST=nt gives the same code
+  ~40x faster for exploration, but only DOS-host results count. Never bypass tools/wcc.py.
+- Do not split a translation unit into private .inc files: the original files' text leaks into CONST padding
+  (GAMEDEF proved it); write each original object as one .c file plus genuine headers.
 
 ## Worker final answer
 First line `STATUS: done | partial | blocked | failed`, then <=15 lines: scope, hypotheses tested, results
