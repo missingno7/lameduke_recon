@@ -172,3 +172,11 @@ Each entry names the command or artefact that supports it.
 - Dead code: wait_for_players, playback_demo and spawn_random_effects have no inbound reference in obj1.
 - Verifier fix: own data-segment placement could be locked by a reference from a still-NEAR function; match.py now
   presets the unique content-verified base when references imply conflicting bases (all references still checked).
+
+## Allocation ties (gamefix2 round 2, 2026-11-26)
+- PROVEN (cg95 traces) the last few bytes of movemusic, getinput, update_air, wakeactors, hitradius are register
+  ties among equal-priority temporaries (~45-60 per function) broken by the 9.5b sorter's order over the whole
+  function. Local spelling searches (270 and 360 combinations) and all 720 declaration orders (movesector) do not
+  move them. Lever to try: replay the sorter (cg95 replay reproduces it) to find how many/which extra equal-priority
+  values flip a tie, then look for natural source elsewhere in the function that creates them (the original may
+  differ upstream). Large SOURCE-class functions are the better investment meanwhile.

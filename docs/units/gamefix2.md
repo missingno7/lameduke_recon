@@ -106,3 +106,46 @@ wakeactors_shl,movemusic,activatewarpelevators}.json and *-explain.json.
   (NT host for speed), report verdicts; `SAVE=name` keeps a variant. Variant files are in `v/`.
 - `colours.py TRACE.json` — compact listing of the 9.5b colour decisions in a cg95 trace.
 - `search_init.py` — hill climb for initmenus field order (negative).
+
+# Round 2 (src2/ = fresh copy of integrated src/game; no source change kept)
+
+Tracer now runs directly (`tools/cg95/cgtrace95.py --unit game_actors|game_player <src2 file> FUNC`); traces in
+build/cg95/gamefix2/r2_*.json. No round-2 candidate beat the integrated source, so src2/ is identical to
+src/game and the round-1 DOS results (actors 8/1,936, menues 7/1,546, player 1/304, sector 9/2,462,
+gamedef 9/1,712) still describe it.
+
+## movemusic (158 B) — trace r2_movemusic.json
+- t175 = the sum `klabs(x)+klabs(y)` of the first branch (a temp, not `dist`), savings 884, scores eax 2u / ebp 2u;
+  tie keeps the incumbent EAX. The oracle needs EBP (sum kept in the first klabs register), which only happens if
+  EAX is already taken by an overlapping conflict: t25 (movsx of `sprite[i].hitag`, same savings 884) is coloured
+  20 records later (index 81 vs 61). So the lever is the equal-savings sort order (gap sort over ~45 records with
+  savings 884), not a local spelling.
+- Song pointer: `song` (id 1) takes EDX (tie EDX/EBX, incumbent EDX); oracle uses EBX, which also lets both song
+  branches cross-jump the common `add ebx,eax` tail (this is the 1 byte that shifts moveplayers' table targets).
+- Negative: combo.py random search, 270 combinations of 8 slots (4 branch-1 dist spellings, 2 branch-3 spellings,
+  `!x` vs `x == 0` x3, `-= 12` x3 forms, `++` form, declaration order): best 152 B (v/mmc.py).
+
+## update_air (4 B) — r2_update_air.json
+The health-path conversion of p (t24, block 12) scores eax 4u, ebx 0u; the oracle's EBX requires EAX blocked.
+explain95: no unique anchor. No new spelling tried beyond round 1.
+
+## getinput (4 B) — r2_getinput.json
+PROVEN mechanism: every `(keystatus[a] | keystatus[b])` line has two conversion temps of savings 8; whichever is
+coloured first takes EDX (tie, incumbent), the other EBX. The oracle needs the second load coloured first for every
+OR line; in the candidate the <<5 line (t56 at index 14 before t55 at index 39) is reversed. The relative order
+comes from the gap sort over ~60 equal-savings (8) temps, so only changes in the number/order of equal-savings
+conflicts move it (the chain-vs-separate zeroing flips the reversal between the <<5 and <<20 lines).
+Negative: combo.py over 10 slots (zeroing chains, `+=` vs explicit, clamps if/else vs two ifs, casts, elapsed cast,
+condition spelling), 360 combinations: none below 4 B (v/gic.py).
+
+## movesector (106 B) — r2_movesector.json
+explain95: stack-home order. Candidate homes w -4, i -8, end -12, ry -16, rx -20; oracle end, w, i, rx, ry.
+rx/ry order follows declaration order (IDs are assigned in reverse declaration order), but all 720 declaration
+permutations of ry/rx/sn/w/end/j give only two outcomes (106 B or 134 B): the w/i/end order is not
+declaration-driven. Oracle also computes `i*38` before the rotatepoint call (kept in EDI across it) where the
+candidate computes it after; natural `rotatepoint(0, 0, msx[j], msy[j], ...); j++;` spellings produce identical
+code to the `wx` form. Not solved.
+
+## Tools added
+- `combo.py UNIT FUNC SLOTS.py [N] [seed]` — random/exhaustive search over independent source slots.
+- `colours.py` handles choices without a score.
