@@ -363,8 +363,8 @@
     "evidence": "engine worker 2026-11-26: Watcom 9.5 -4r -or candidate uniquely placed by code and relocation-site fingerprint, corroborated by engine order/calls"
    },
    "qsetmode640480": {
-    "addr": "1:43f42",
-    "evidence": "engine worker 2026-11-26: Target call graph and function order with matching historical or reconstructed instruction blocks; placement provisional for verification"
+    "addr": "1:43ff8",
+    "evidence": "engfix worker 2026-11-26: BIOS mode 0x12 (640x480) routine after the preceding return at 1:43ff7; corrects the provisional 1:43f42, which is qsetmode640350 (BIOS mode 0x10); June-95 source bodies identify both"
    },
    "raytrace": {
     "addr": "1:43532",
@@ -3277,6 +3277,26 @@
    "MIDI_ServiceRoutine": {
     "addr": "1:5b6a0",
     "evidence": "libfix worker 2026-11-26: The LE fixup at 1:5bfdc is the immediate operand of the instruction at 1:5bfdb, which passes the task callback in EAX to TS_ScheduleTask at 1:5bfe5. The seven jump-table fixups at 1:5b684 through 1:5b69c precede the push ebp; mov ebp,esp prologue at 1:5b6a0. | supersedes the earlier binding _MIDI_ServiceRoutine_ at 1:5b6a3 (after the prologue; wrong)"
+   },
+   "qsetmode640350": {
+    "addr": "1:43f42",
+    "evidence": "engfix worker 2026-11-26: BIOS mode 0x10 and 350-line state, 1:43f69 and 1:43fe9"
+   },
+   "printext16": {
+    "addr": "1:450e0",
+    "evidence": "engfix worker 2026-11-26: VGA 16-color latch setup, two font references at 1:4511e and 1:45132, and call from 1:45417 in the documented 56-character status text wrapper; June 1995 ENGINE.C"
+   },
+   "printmessage16": {
+    "addr": "1:453cc",
+    "evidence": "engfix worker 2026-11-26: 56-character copy and space-fill loops and the text call at 1:45417 with x=184, y=8, col=0, backcol=6; BUIL0422 BUILD.C"
+   },
+   "getspritescreencoord": {
+    "addr": "1:45423",
+    "evidence": "engfix worker 2026-11-26: short sort index and two pointer outputs at 1:45427-45433, 1:45457, and 1:454c0; sorted sprite arrays and the documented getspritescreencoord API in BUILD.TXT"
+   },
+   "printext256": {
+    "addr": "1:454c7",
+    "evidence": "engfix worker 2026-11-26: font dispatch, planar/chained VGA path and linear path, and strlen at 1:45632; June 1995 ENGINE.C"
    }
   },
   "data": {

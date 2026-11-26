@@ -83,7 +83,7 @@
      "status": "STRICT"
     },
     "drawrooms": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "scansector": {
      "status": "NEAR_MATCH"
@@ -215,7 +215,7 @@
      "status": "NEAR_MATCH"
     },
     "ceilspritehline": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "overwritesprite": {
      "status": "NEAR_MATCH"
@@ -278,7 +278,7 @@
      "status": "NEAR_MATCH"
     },
     "lintersect": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "dragpoint": {
      "status": "STRICT"
@@ -317,7 +317,7 @@
      "status": "NEAR_MATCH"
     },
     "qsetmode640480": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "clear2dscreen": {
      "status": "STRICT"
@@ -372,6 +372,18 @@
     },
     "setbrightness": {
      "status": "STRICT"
+    },
+    "qsetmode640350": {
+     "status": "STRICT"
+    },
+    "printmessage16": {
+     "status": "STRICT"
+    },
+    "getspritescreencoord": {
+     "status": "STRICT"
+    },
+    "printext256": {
+     "status": "NEAR_MATCH"
     }
    }
   },

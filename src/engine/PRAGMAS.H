@@ -1084,17 +1084,19 @@
 	modify [eax esi]\
 
 #pragma aux drawpixel16 =\
-	"mov ecx, edi",\
-	"mov eax, 0x00008008",\
+	"mov cx, di",\
+	"and cl, 7",\
+	"xor cl, 7",\
+	"mov ah, 1",\
+	"shl ah, cl",\
 	"mov dx, 0x3ce",\
-	"ror ah, cl",\
-	"shr edi, 3",\
+	"mov al, 8",\
 	"out dx, ax",\
-	"mov cl, byte ptr [edi+0xa0000]",\
+	"shr edi, 3",\
+	"mov al, byte ptr [edi+0xa0000]",\
 	"mov byte ptr [edi+0xa0000], al",\
 	parm [edi]\
-	modify [eax ecx edx esi]\
-	//IF ESI IS NOT IN THE MODIFY LINE, IT WILL SCREW UP, BUT WHY?
+	modify [eax ecx edx]
 
 #pragma aux fillscreen16 =\
 	"mov dx, 0x3ce",\
