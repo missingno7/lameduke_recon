@@ -388,3 +388,16 @@ Each entry names the command or artefact that supports it.
   displacements depended on it). rotatesprite itself stays NEAR (1,225 bytes differ); setvesamode is
   CODE_BYTES_MATCH (eight unverified _BSS references). All three edits are marked COMPILER_STEERED in ENGINE.C.
 - NEGATIVE scansector: declaration-order and use-count trials leave the 7 register bytes.
+
+## Block-level diagnostic (tools/blockdiff.py, 2026-11-26; ported from jng_recon blockdiff + blupi_recon residues)
+- Diagnostic only. Self-test: all 558 STRICT functions score 1.0 on every measure (tests/test_blockdiff.py).
+  Porting needed three LameDuke rules: per-function code base for references outside the extent (shared tails,
+  a neighbour's jump table), MASM relocated intra-segment jumps, and Watcom filler instructions ending in zero
+  bytes (only whole zero instructions before an unconfirmed boundary are linker padding).
+- First census (108 non-STRICT functions, 228,420 B): 7.1% code written with only order/registers left, 2.4% only
+  register/stack homes, 14.0% nearly written (fuzzy >= 0.95), 76.3% statements missing or wrong. Byte-weighted
+  block content 0.53, fuzzy 0.83. Skeletons (calls/globals/constants) are 0.92-1.00 even for the large functions,
+  so their statements are mostly present but differ in shape: e.g. checksectors' frame is 0xa8 in the oracle vs
+  0x78 ours (missing locals) and it uses sector+0xc/+0x1f where ours uses +0x20/+0x23.
+- The extra "loose" measure (register and stack-slot operands unified) moves only 5 KB out of "statements
+  missing": Watcom spill choices are not the main residue.

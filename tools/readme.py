@@ -70,6 +70,16 @@ def main():
     lines.append(f"- Identified library code, not counted as reconstruction: {lib}.")
     lines.append(f"- Every compiled object of the program already has candidate source; the code object is "
                  f"{OBJ1:,} bytes in total.")
+    bd = ROOT / "build/blockdiff.json"
+    if bd.exists():
+        s = json.load(open(bd, encoding="utf-8"))["summary"]
+        lines += ["", f"Code that does not match yet ({s['functions']} functions, {s['bytes']:,} bytes), by how much "
+                  "of each function's basic blocks already have the original's content (`tools/blockdiff.py`; a "
+                  "diagnostic, never counted as matched):", ""]
+        for cat, b in sorted(s["categories"].items(), key=lambda x: -x[1]):
+            lines.append(f"- {cat}: {b:,} bytes ({100 * b / s['bytes']:.1f}%)")
+        lines.append(f"- byte-weighted share of blocks already right: {100 * s['content_weighted']:.1f}% exact, "
+                     f"{100 * s['fuzzy_weighted']:.1f}% counting near-identical blocks")
     lines += ["", END]
     text = README.read_text(encoding="utf-8")
     a, b = text.index(BEGIN), text.index(END) + len(END)
