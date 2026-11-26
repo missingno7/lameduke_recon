@@ -245,3 +245,14 @@ Each entry names the command or artefact that supports it.
 - STRONG Watcom 9.5 never inlines a function containing a string literal (explains the kept calls to gameexit,
   show_help, read/write_userdefs, loadlookup); functions defined after their caller can still be inlined.
 - copybuf pragma is Ken's 1994 form without a modify clause (BUIL0422).
+
+## Link layout rules (link2 worker 2026-11-26, docs/LINK2_REPORT.md)
+- PROVEN Watcom 9.5 GA emits a paragraph-aligned _BSS under -ot when the unit defines a double or a far function
+  pointer; WLINK honours each contribution's OMF alignment. Which early units had such a definition: OPEN (40 bytes).
+- PROVEN FILE order controls same-named segment order (CONST starts with GAME's pool once its literals exist); DOSSEG
+  is redundant here; the stack is the stock 0x1000 after paragraph-rounded _end (2:1c89c4 -> ESP 0x1c99d0 exact).
+- PROVEN string merging: Watcom 9.5 merges duplicate literals within a unit (reuse_duplicate_strings). With real
+  literals and `#pragma off(reuse_duplicate_strings)` scoped at prelevel, undefined symbols 58 -> 2 and file-backed obj2
+  agreement 15% -> 99.4%, but GAME loses 10 STRICT (pool differs by 110 bytes). Not adopted. HYPOTHESIS (preferred):
+  the duplicates are natural because GAME's range holds two objects (second from ~1:0f160 with its own pool
+  2:00648-006a8); literals are merged only within one object.
