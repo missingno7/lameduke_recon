@@ -2842,10 +2842,6 @@
     "addr": "1:5b634",
     "evidence": "audio worker 2026-11-26: resets track cursor and reads initial delta"
    },
-   "_MIDI_ServiceRoutine_": {
-    "addr": "1:5b6a3",
-    "evidence": "audio worker 2026-11-26: scheduled by MIDI_PlaySong; parses per-track events"
-   },
    "_MIDI_SendControlChange_": {
     "addr": "1:5b9ec",
     "evidence": "audio worker 2026-11-26: MIDI_Reset and AllNotesOff call event router"
@@ -3277,6 +3273,10 @@
    "cacheit": {
     "addr": "1:02fb0",
     "evidence": "gameC worker 2026-11-26: Called after precache in enterlevel; loops over required tiles and loads them, as surveyed in docs/units/game.md."
+   },
+   "MIDI_ServiceRoutine": {
+    "addr": "1:5b6a0",
+    "evidence": "libfix worker 2026-11-26: The LE fixup at 1:5bfdc is the immediate operand of the instruction at 1:5bfdb, which passes the task callback in EAX to TS_ScheduleTask at 1:5bfe5. The seven jump-table fixups at 1:5b684 through 1:5b69c precede the push ebp; mov ebp,esp prologue at 1:5b6a0. | supersedes the earlier binding _MIDI_ServiceRoutine_ at 1:5b6a3 (after the prologue; wrong)"
    }
   },
   "data": {

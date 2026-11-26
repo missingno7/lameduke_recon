@@ -822,8 +822,8 @@ int MV_Kill
       MV_CallBackFunc( callbackval );
       }
 
-   MV_SetErrorCode( MV_Ok );
    voice->DemandFeed = NULL;
+   MV_SetErrorCode( MV_Ok );
    return( MV_Ok );
    }
 
@@ -1276,8 +1276,8 @@ int MV_StartRecording
 
    MV_StopPlayback();
    ClearBuffer_DW( MV_MixBuffer[ 0 ], SILENCE_8BIT, TotalBufferSize >> 2 );
-   MV_MixPage = 0;
    MV_PlayPage = 0;
+   MV_MixPage = 0;
    MV_RecordFunc = function;
 
    switch( MV_SoundCard )
@@ -1366,18 +1366,16 @@ void MV_StopRecord
 
 int MV_StartDemandFeedPlayback
    (
-   void ( *function )( char **ptr, unsigned long *length ),
    int rate,
-   int pitchoffset,
    int vol,
    int left,
    int right,
-   int priority,
-   unsigned long callbackval
+   void ( *function )( char **ptr, unsigned long *length )
    )
 
    {
    VoiceNode *voice;
+   int buffer;
    unsigned flags;
 
    voice = MV_AllocVoice( 0x7ffffff );
@@ -1388,11 +1386,11 @@ int MV_StartDemandFeedPlayback
       }
 
    voice->NextBlock = NULL;
+   voice->DemandFeed = function;
    voice->LoopStart = NULL;
    voice->LoopCount = 0;
-   voice->DemandFeed = function;
    voice->BlockLength = 0;
-   voice->PitchScale = PITCH_GetScale( pitchoffset );
+   voice->PitchScale = PITCH_GetScale( 0 );
    voice->SamplingRate = rate;
    voice->RateScale = ( voice->SamplingRate * voice->PitchScale ) / MV_MixRate;
    voice->position = 0;
@@ -1403,7 +1401,10 @@ int MV_StartDemandFeedPlayback
    MV_GetNextVOCBlock( voice );
    voice->next = NULL;
    voice->prev = NULL;
-   memset( voice->Active, 1, sizeof( voice->Active ) );
+   for( buffer = 0; buffer < NumberOfBuffers; buffer++ )
+      {
+      voice->Active[ buffer ] = TRUE;
+      }
    voice->Volume = MIX_VOLUME( vol );
    if ( MV_SwapLeftRight )
       {
@@ -1415,8 +1416,7 @@ int MV_StartDemandFeedPlayback
       voice->LeftVolume = MIX_VOLUME( left );
       voice->RightVolume = MIX_VOLUME( right );
       }
-   voice->priority = priority;
-   voice->callbackval = callbackval;
+   voice->priority = 0x7fffffff;
    flags = DisableInterrupts();
    LL_AddToTail( VoiceNode, &MV_VoiceList, voice );
    RestoreInterrupts( flags );
@@ -1465,8 +1465,8 @@ void MV_GetNextVOCBlock
       voice->position = 0;
       voice->DemandFeed( &voice->sound, &voice->BlockLength );
       voice->length = min( voice->BlockLength, MAX_BLOCK_LENGTH );
-      voice->Playing = TRUE;
       voice->BlockLength -= voice->length;
+      voice->Playing = TRUE;
       voice->length <<= 16;
       return;
       }
@@ -1631,6 +1631,7 @@ void MV_GetNextVOCBlock
    priority.
 ---------------------------------------------------------------------*/
 
+#pragma aux MV_PlayVOC frame;
 int MV_PlayVOC
    (
    char *ptr,
@@ -1645,6 +1646,7 @@ int MV_PlayVOC
    {
    VoiceNode   *voice;
    int         buffer;
+   unsigned    offset;
    unsigned    flags;
 
    if ( !MV_Installed )
@@ -1661,9 +1663,11 @@ int MV_PlayVOC
       return( MV_Error );
       }
 
-   voice->NextBlock   = ptr + *( unsigned short int * )( ptr + 0x14 );
+   offset = *( unsigned short int * )( ptr + 0x14 );
+   voice->DemandFeed  = NULL;
    voice->LoopStart   = NULL;
    voice->LoopCount   = 0;
+   voice->NextBlock   = ptr + offset;
    voice->BlockLength = 0;
    voice->PitchScale  = PITCH_GetScale( pitchoffset );
 
@@ -1698,8 +1702,9 @@ int MV_PlayVOC
    LL_AddToTail( VoiceNode, &MV_VoiceList, voice );
    RestoreInterrupts( flags );
 
+   buffer = voice->handle;
    MV_SetErrorCode( MV_Ok );
-   return( voice->handle );
+   return( buffer );
    }
 
 
@@ -2130,6 +2135,7 @@ int MV_Shutdown
 
    {
    unsigned flags;
+   int i;
 
    if ( !MV_Installed )
       {
@@ -2184,7 +2190,10 @@ int MV_Shutdown
 
    // Release the descriptor from our mix buffer
    DPMI_FreeDOSMemory( MV_BufferDescriptor );
-   memset( MV_MixBuffer, 0, sizeof( MV_MixBuffer ) );
+   for( i = 0; i < NumberOfBuffers; i++ )
+      {
+      MV_MixBuffer[ i ] = NULL;
+      }
 
    return( MV_Ok );
    }

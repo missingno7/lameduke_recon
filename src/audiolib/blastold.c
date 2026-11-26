@@ -2191,26 +2191,27 @@ int BLASTER_Init
       {
       if ( BLASTER_CardHasMixer() )
          {
+         // The function-pointer casts preserve the original mixer calls.
          switch( BLASTER_MixerType )
             {
             case SBPro :
             case SBPro2 :
                BLASTER_OriginalVoiceVolumeLeft =
-                  BLASTER_ReadMixer( MIXER_SBProVoice );
+                  ((int (*)(int))BLASTER_ReadMixer)( MIXER_SBProVoice );
                break;
    
             case SB16 :
                BLASTER_OriginalVoiceVolumeLeft =
-                  BLASTER_ReadMixer( MIXER_SB16VoiceLeft );
+                  ((int (*)(int))BLASTER_ReadMixer)( MIXER_SB16VoiceLeft );
                BLASTER_OriginalVoiceVolumeRight =
-                  BLASTER_ReadMixer( MIXER_SB16VoiceRight );
+                  ((int (*)(int))BLASTER_ReadMixer)( MIXER_SB16VoiceRight );
                break;
             }
          }
 
       BLASTER_SoundPlaying = FALSE;
 
-      BLASTER_SetCallBack( NULL );
+      BLASTER_CallBack = NULL;
 
       BLASTER_DMABuffer = NULL;
 

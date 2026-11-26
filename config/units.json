@@ -455,7 +455,7 @@
      "status": "STRICT"
     },
     "AL_SetVoicePitch": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "AL_SetChannelVolume": {
      "status": "STRICT"
@@ -680,7 +680,7 @@
      "status": "STRICT"
     },
     "BLASTER_Init": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "BLASTER_Shutdown": {
      "status": "CODE_BYTES_MATCH"
@@ -1129,7 +1129,7 @@
      "status": "STRICT"
     },
     "MIDI_PlaySong": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MIDI_GetPosition": {
      "status": "STRICT"
@@ -1141,10 +1141,7 @@
      "status": "STRICT"
     },
     "_MIDI_ResetTracks_": {
-     "status": "NEAR_MATCH"
-    },
-    "_MIDI_ServiceRoutine_": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "_MIDI_SendControlChange_": {
      "status": "STRICT"
@@ -1166,6 +1163,9 @@
     },
     "MIDI_LockMemory": {
      "status": "CODE_BYTES_MATCH"
+    },
+    "MIDI_ServiceRoutine": {
+     "status": "STRICT"
     }
    }
   },
@@ -1270,7 +1270,7 @@
      "status": "STRICT"
     },
     "MV_Shutdown": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_UnlockMemory": {
      "status": "STRICT"
@@ -1291,31 +1291,31 @@
      "status": "STRICT"
     },
     "MV_DeleteDeadVoices": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_ServiceVoc": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_GetVoice": {
      "status": "STRICT"
     },
     "MV_Kill": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_AllocVoice": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_SetPitch": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_SetMixMode": {
      "status": "NEAR_MATCH"
     },
     "MV_StopPlayback": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_StartRecording": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_LockEnd": {
      "status": "STRICT"
@@ -1327,10 +1327,10 @@
      "status": "STRICT"
     },
     "MV_StartDemandFeedPlayback": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_GetNextVOCBlock": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "MV_PlayVOC": {
      "status": "NEAR_MATCH"

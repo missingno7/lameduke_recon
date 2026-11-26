@@ -168,15 +168,23 @@ typedef struct
    unsigned char Wave[ 2 ];
    unsigned char Feedback;
    // *** VERSIONS RESTORATION ***
-#if (LIBVER_ASSREV < 19950821L)
-   unsigned char Transpose;
-#else
+#if (LIBVER_ASSREV >= 19950821L)
    signed   char Transpose;
    signed   char Velocity;
 #endif
    } TIMBRE;
 
 extern TIMBRE ADLIB_TimbreBank[ 256 ];
+
+#if (LIBVER_ASSREV < 19950821L)
+typedef struct
+   {
+   unsigned char Timbre;
+   unsigned char Key;
+   } DRUM_MAP;
+
+extern DRUM_MAP PercussionTable[ 128 ];
+#endif
 
 static void AL_ResetVoices( void );
 static void AL_CalcPitchInfo( void );

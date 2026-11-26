@@ -257,17 +257,28 @@ static void AL_SetVoiceTimbre
 
    if ( channel == 9 )
       {
+      #if (LIBVER_ASSREV < 19950821L)
+      patch = PercussionTable[ Voice[ voice ].key ].Timbre;
+      if ( Voice[ voice ].timbre == patch ) return;
+#else
       patch = Voice[ voice ].key + 128;
+#endif
       }
    else
       {
       patch = Channel[ channel ].Timbre;
+#if (LIBVER_ASSREV < 19950821L)
+      if ( Voice[ voice ].timbre == patch ) return;
+#endif
       }
 
+#if (LIBVER_ASSREV >= 19950821L)
    if ( Voice[ voice ].timbre == patch )
       {
       return;
       }
+
+#endif
 
    Voice[ voice ].timbre = patch;
    timbre = &ADLIB_TimbreBank[ patch ];
@@ -299,7 +310,7 @@ static void AL_SetVoiceTimbre
 
    // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV < 19950821L)
-   if ( AL_OPL3 )
+   if ( AL_SendStereo )
 #else
    if ( AL_SendStereo )
 #endif
@@ -359,6 +370,57 @@ static void AL_SetVoiceVolume
    )
 
    {
+#if (LIBVER_ASSREV < 19950821L)
+   int channel;
+   int velocity;
+   int slot;
+   int pan;
+   unsigned long level;
+   unsigned long volume;
+
+   channel = Voice[ voice ].channel;
+   velocity = Voice[ voice ].velocity + Channel[ channel ].Velocity;
+   if ( velocity <= MAX_VELOCITY )
+      {
+      velocity = MAX_VELOCITY;
+      }
+
+   slot = slotVoice[ voice ][ 1 ];
+   level = ( unsigned )VoiceLevel[ slot ][ 0 ];
+   level *= velocity + 0x80;
+   level = ( Channel[ channel ].Volume * level ) >> 15;
+
+   if ( !AL_SendStereo )
+      {
+      volume = level ^ 63;
+      volume |= ( unsigned )VoiceKsl[ slot ][ 0 ];
+      AL_SendOutputToPort( ADLIB_PORT, 0x40 + offsetSlot[ slot ], volume );
+      }
+   else
+      {
+      volume = level;
+      if ( Channel[ channel ].Pan < 64 )
+         {
+         volume *= Channel[ channel ].Pan;
+         volume >>= 6;
+         }
+      volume ^= 63;
+      volume |= ( unsigned )VoiceKsl[ slot ][ 0 ];
+      AL_SendOutputToPort( AL_LeftPort, 0x40 + offsetSlot[ slot ], volume );
+
+      volume = level;
+      pan = Channel[ channel ].Pan;
+      if ( pan > 64 )
+         {
+         volume = 127 - pan;
+         volume *= level;
+         volume >>= 6;
+         }
+      volume ^= 63;
+      volume |= ( unsigned )VoiceKsl[ slot ][ 0 ];
+      AL_SendOutputToPort( AL_RightPort, 0x40 + offsetSlot[ slot ], volume );
+      }
+#else
    int channel;
    int velocity;
    int slot;
@@ -510,6 +572,7 @@ static void AL_SetVoiceVolume
 #undef port
 #undef voc
 #endif
+#endif
    }
 
 
@@ -607,13 +670,21 @@ static void AL_SetVoicePitch
 
    if ( channel == 9 )
       {
+#if (LIBVER_ASSREV < 19950821L)
+      note = PercussionTable[ Voice[ voice ].key ].Key;
+#else
       patch = Voice[ voice ].key + 128;
       note  = ADLIB_TimbreBank[ patch ].Transpose;
+#endif
       }
    else
       {
+#if (LIBVER_ASSREV < 19950821L)
+      note = Voice[ voice ].key;
+#else
       patch = Channel[ channel ].Timbre;
       note  = Voice[ voice ].key + ADLIB_TimbreBank[ patch ].Transpose;
+#endif
       }
 
    // *** VERSIONS RESTORATION ***

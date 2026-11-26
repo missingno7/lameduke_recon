@@ -416,15 +416,24 @@ void __interrupt __far comhandler(void)
 int netinitconnection(long newconnectnum, unsigned char *newcompaddr)
 {
     long i, j, k, newindex, templong;
+    int result;
     unsigned char tempchar;
 
     for (i = 0; i < MAXPLAYERS; i++)
-        if (connectnum[i] == newconnectnum) return -1;
+        if (connectnum[i] == newconnectnum)
+        {
+            result = -1;
+            goto done;
+        }
 
     newindex = 0;
     while (connectnum[newindex] != 0x7fffffff && newindex < MAXPLAYERS)
         newindex++;
-    if (newindex >= MAXPLAYERS) return -1;
+    if (newindex >= MAXPLAYERS)
+    {
+        result = -1;
+        goto done;
+    }
     connectnum[newindex] = newconnectnum;
     numplayers++;
 
@@ -464,7 +473,10 @@ int netinitconnection(long newconnectnum, unsigned char *newcompaddr)
     connectpoint2[numplayers - 1] = -1;
     for (i = 0; i < numplayers; i++)
         if (connectnum[i] == myconnectnum) myconnectindex = i;
-    return 1;
+    result = 1;
+
+done:
+    return result;
 }
 
 int netuninitconnection(short goneindex)
@@ -559,7 +571,8 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
     else if (multioption >= 5)
     {
         i = 262144;
-        while (ecbput[8] != 0 && i > 0) i--;
+        while (ecbput[8] != 0)
+            if (--i <= 0) break;
         messout[0] = myconnectindex;
         j = 1;
 

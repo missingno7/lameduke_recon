@@ -574,30 +574,31 @@ static int _MIDI_InterpretControllerInfo
 
 
 /*---------------------------------------------------------------------
-   Function: _MIDI_ServiceRoutine
+   Function: MIDI_ServiceRoutine
 
    Task that interperates the MIDI data.
 ---------------------------------------------------------------------*/
 // NOTE: We have to use a stack frame here because of a strange bug
 // that occurs with Watcom.  This means that we cannot access Task!
-//Turned off to test if it works with Watcom 10a
-//#pragma aux _MIDI_ServiceRoutine frame;
+#if (LIBVER_ASSREV < 19950821L)
+#pragma aux MIDI_ServiceRoutine frame;
+#endif
 /*
 static void test
    (
    task *Task
    )
    {
-   _MIDI_ServiceRoutine( Task );
-   _MIDI_ServiceRoutine( Task );
-   _MIDI_ServiceRoutine( Task );
-   _MIDI_ServiceRoutine( Task );
+   MIDI_ServiceRoutine( Task );
+   MIDI_ServiceRoutine( Task );
+   MIDI_ServiceRoutine( Task );
+   MIDI_ServiceRoutine( Task );
    }
 */
 #if (LIBVER_ASSREV >= 19960108L) && (LIBVER_ASSREV < 19960116L) // ** VERSIONS RESTORATION
-void _MIDI_ServiceRoutine
+void MIDI_ServiceRoutine
 #else
-static void _MIDI_ServiceRoutine
+static void MIDI_ServiceRoutine
 #endif
    (
    task *Task
@@ -1365,12 +1366,13 @@ int MIDI_PlaySong
       }
 
 #if (LIBVER_ASSREV < 19950821L)
+   ptr = song + headersize;
    _MIDI_TrackList.start = NULL;
    _MIDI_TrackList.end = NULL;
 #else
    _MIDI_NumTracks = numtracks;
-#endif
    ptr = song + headersize;
+#endif
 
    if ( numtracks == 0 )
       {
@@ -1449,9 +1451,9 @@ int MIDI_PlaySong
 
    // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV < 19950821L)
-   _MIDI_PlayRoutine = TS_ScheduleTask( _MIDI_ServiceRoutine, ( _MIDI_Division * 120 ) / 60, 1, NULL );
+   _MIDI_PlayRoutine = TS_ScheduleTask( MIDI_ServiceRoutine, ( _MIDI_Division * 120 ) / 60, 1, NULL );
 #else
-   _MIDI_PlayRoutine = TS_ScheduleTask( _MIDI_ServiceRoutine, 100, 1, NULL );
+   _MIDI_PlayRoutine = TS_ScheduleTask( MIDI_ServiceRoutine, 100, 1, NULL );
 //   _MIDI_PlayRoutine = TS_ScheduleTask( test, 100, 1, NULL );
    MIDI_SetTempo( 120 );
 #endif
@@ -1524,13 +1526,13 @@ void MIDI_SetPosition
       while( Track )
          {
          // RESTORATION - More-or-less a copy-and-paste
-         // from (an earlier revision of) _MIDI_ServiceRoutine
+         // from (an earlier revision of) MIDI_ServiceRoutine
          while ( ( Track->active ) && ( Track->delay == 0 ) )
             {
             GET_NEXT_EVENT( Track, event );
 
             // *** VERSIONS RESTORATION ***
-            // Based on code from (earlier revision of) _MIDI_ServiceRoutine
+            // Based on code from (earlier revision of) MIDI_ServiceRoutine
             if ( event == MIDI_META_EVENT )
                {
                GET_NEXT_EVENT( Track, event );
@@ -1606,7 +1608,7 @@ void MIDI_SetPosition
                case MIDI_CONTROL_CHANGE :
                   // *** VERSIONS RESTORATION ***
                   // Looks like an earlier revision of _MIDI_InterpretControllerInfo
-                  // - mostly a duplicate copy and paste from _MIDI_ServiceRoutine,
+                  // - mostly a duplicate copy and paste from MIDI_ServiceRoutine,
                   // albeit covering less cases
                   if ( c1 == MIDI_MONO_MODE_ON )
                      {
