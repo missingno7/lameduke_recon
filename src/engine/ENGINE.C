@@ -27,7 +27,6 @@
 #define MAXCLIPDIST 1024
 
 static unsigned char tempbuf[MAXWALLS];
-static long chainplace, chainnumpages;
 static long globaluclip, globaldclip;
 
 long artversion, mapversion;
@@ -68,7 +67,7 @@ static long ydimen, viewoffset;
 static long ytop, ybot;
 
 static long rxi[8], ryi[8], rzi[8], rxi2[8], ryi2[8], rzi2[8];
-static long xsi[8], ysi[8], horizlookup[1280], horizlookup2[1280];
+static long xsi[8], ysi[8], horizlookup[1024];
 
 static long globalposx, globalposy, globalposz, globalhoriz, dahorizbak;
 static short globalang, globalcursectnum;
@@ -106,7 +105,7 @@ static short clipsectorlist[MAXCLIPNUM], clipsectnum;
 static short clipobjectval[MAXCLIPNUM];
 
 short numscans, numhits, numbunches;
-static short posfil, capturecount = 0, hitcnt;
+static short posfil, capturecount, hitcnt;
 
 static char pcxheader[128] =
 {
@@ -143,7 +142,7 @@ short searchsector, searchwall, searchstat;     //search output
 
 static char artfilename[20];
 static long localtilestart[MAXTILEFILES], localtileend[MAXTILEFILES];
-static long numtilefiles, artfil = -1, artfilnum;
+static long numtilefiles, artfil, artfilnum;
 
 static long totalclocklock;
 
@@ -413,39 +412,37 @@ drawrooms(long daposx, long daposy, long daposz,
 scansector (short sectnum)
 {
 	short z, zz, startwall, endwall, numscansbefore, scanfirst, bunchfrst;
-	long i, xs, ys, xp, yp;
-	struct spritetype *spr;
+	long xs, ys, xp, yp;
 
-	if (sectnum < 0) return;
+	if (sectnum == -1) return;
 
 	sectorborder[0] = sectnum, sectorbordercnt = 1;
 	while (sectorbordercnt > 0)
 	{
 		sectnum = sectorborder[--sectorbordercnt];
 
-		for(z=headspritesect[sectnum];z>=0;z=nextspritesect[z])
+		for(z=headspritesect[sectnum];z!=-1;z=nextspritesect[z])
 		{
-			spr = &sprite[z];
-			xs = spr->x - globalposx;
-			ys = spr->y - globalposy;
+			xs = sprite[z].x-globalposx;
+			ys = sprite[z].y-globalposy;
 			yp = ((xs*cosglobalang+ys*singlobalang)>>6);
-			if ((yp > (4<<8)) || ((spr->cstat&48) > 0))
-				if ((spr->xrepeat > 0) && (spr->yrepeat > 0))
-				{
-					xp = ((ys*cosglobalang-xs*singlobalang)>>6);
-
-					if (yp > (4<<8))
-						 spritex[spritesortcnt] = (xdimen<<7)+scale(xp,xdimen<<7,yp);
-					spritey[spritesortcnt] = yp;
-					spritepicnum[spritesortcnt] = spr->picnum;
-					thesprite[spritesortcnt] = z;
-					spritesortcnt++;
-				}
+			if ((yp > (4<<8)) || ((sprite[z].cstat&48) > 0))
+			{
+				xp = ((ys*cosglobalang-xs*singlobalang)>>6);
+				if (yp > (4<<8))
+					spritex[spritesortcnt] = (xdimen<<7)+scale(xp,xdimen<<7,yp);
+				spritepicnum[spritesortcnt] = sprite[z].picnum;
+				spritey[spritesortcnt] = yp;
+				if ((sector[sectnum].ceilingstat&1) != 0)
+					spritepal[spritesortcnt] = sector[sectnum].ceilingpal;
+				else
+					spritepal[spritesortcnt] = sector[sectnum].floorpal;
+				thesprite[spritesortcnt++] = z;
+			}
 		}
 
 		gotsector[sectnum>>3] |= (1<<(sectnum&7));
 
-		bunchfrst = numbunches;
 		numscansbefore = numscans;
 
 		startwall = sector[sectnum].wallptr;
@@ -453,11 +450,15 @@ scansector (short sectnum)
 		scanfirst = numscans;
 		for(z=startwall;z<=endwall;z++)
 		{
-			if (addboxlinum(sectnum, z) > 0) p2[numscans-1] = numscans;
-			if ((wall[z].point2 < z) && (scanfirst < numscans))
-				p2[numscans-1] = scanfirst, scanfirst = numscans;
+			if (addboxlinum(sectnum,z) == 1) p2[numscans-1] = numscans;
+			if (z > wall[z].point2)
+			{
+				if (scanfirst < numscans) p2[numscans-1] = scanfirst;
+				scanfirst = numscans;
+			}
 		}
 
+		bunchfrst = numbunches;
 		for(z=numscansbefore;z<numscans;z++)
 			if ((wall[thewall[z]].point2 != thewall[p2[z]]) || (xb2[z] >= xb1[p2[z]]))
 				bunchfirst[numbunches++] = p2[z], p2[z] = -1;
@@ -517,15 +518,18 @@ wallfront (short l1, short l2)
 spritewallfront(short s, short w)
 {
 	short p;
-	long x1, y1, x2, y2, side;
+	long x1, y1, x2, y2, x, y;
 
 	p = wall[w].point2;
 	x1 = wall[w].x;
 	y1 = wall[w].y;
 	x2 = wall[p].x;
 	y2 = wall[p].y;
-	side = (sprite[s].x-x1)*(y2-y1);
-	return ((sprite[s].y-y1)*(x2-x1) >= side);
+	x = sprite[s].x-x1;
+	y = sprite[s].y-y1;
+	x2 -= x1;
+	y2 -= y1;
+	return (y*x2 >= x*y2);
 }
 
 bunchfront (short b1, short b2)
@@ -2348,55 +2352,65 @@ modeset:
 
 hline (long xl, long xr, long yp, short sectnum)
 {
-	long x, y, tempx, tempy, r, p, shade;
+	long x, y, xinc, yinc, tempx, tempy, r, p, shade;
 
 	if (xl > xr) return;
-	r = mulscale(globalzd,horizlookup2[yp-globalhoriz+640],10);
-	asm1 = mulscale(r,singlobalang,4);
-	asm2 = mulscale(r,cosglobalang,4);
-	x = asm1*xl - (asm1+asm2)*halfxdimen + (globalposx<<20);
-	y = asm2*xl + (asm1-asm2)*halfxdimen - (globalposy<<20);
-
-	shade = (klabs(r)>>visibility)+globalshade;
-	if (shade < 0) shade = 0;
-	if (shade >= numpalookups) shade = numpalookups-1;
+	if (yp == globalhoriz-1)
+		r = divscale(globalzd,160L,14);
+	else
+		r = divscale(globalzd,320L*klabs(globalhoriz-1-yp),14);
+	xinc = mulscale(r,singlobalang,4);
+	yinc = mulscale(r,cosglobalang,4);
+	x = xinc*xl - (xinc+yinc)*(xdimen>>1) + (globalposx<<20);
+	y = yinc*xl + (xinc-yinc)*(xdimen>>1) - (globalposy<<20);
 
 	if ((globalorientation&0x74) > 0)
 	{
 		if ((globalorientation&0x40) > 0)
 		{
-			tempx = doublemulscale(asm1,xl-halfxdimen,-asm2,halfxdimen,8) - globalx1;
-			tempy = doublemulscale(-asm1,halfxdimen,-asm2,xl-halfxdimen,8) - globaly1;
-			x = doublemulscale(globalx2,tempx,tempy,globaly2,12);
-			y = doublemulscale(globalx2,tempy,-tempx,globaly2,12);
-			tempx = asm1;
-			tempy = -asm2;
-			asm1 = doublemulscale(globalx2,tempx,tempy,globaly2,20);
-			asm2 = doublemulscale(globalx2,tempy,-tempx,globaly2,20);
+			tempx = mulscale(xinc,xl-(xdimen>>1),8) - mulscale(yinc,xdimen>>1,8) - globalx1;
+			tempy = -mulscale(yinc,xl-(xdimen>>1),8) - mulscale(xinc,xdimen>>1,8) - globaly1;
+			x = mulscale(globalx2,tempx,12) + mulscale(tempy,globaly2,12);
+			y = mulscale(globalx2,tempy,12) - mulscale(tempx,globaly2,12);
+			tempx = xinc;
+			tempy = -yinc;
+			xinc = mulscale(globalx2,tempx,20) + mulscale(tempy,globaly2,20);
+			yinc = mulscale(globalx2,tempy,20) - mulscale(tempx,globaly2,20);
 		}
 
 		if ((globalorientation&0x4) > 0)
 		{
 			r = x; x = y; y = r;
-			r = asm1; asm1 = asm2; asm2 = r;
+			r = xinc; xinc = yinc; yinc = r;
 		}
-		if ((globalorientation&0x10) > 0) x ^= 0xffffffff, asm1 ^= 0xffffffff;
-		if ((globalorientation&0x20) > 0) y ^= 0xffffffff, asm2 ^= 0xffffffff;
+		if ((globalorientation&0x10) > 0) x ^= 0xffffffff, xinc ^= 0xffffffff;
+		if ((globalorientation&0x20) > 0) y ^= 0xffffffff, yinc ^= 0xffffffff;
 	}
+
+	if (yp > globalhoriz) y ^= 0xffffffff, yinc ^= 0xffffffff;
 
 	x = (x<<globalxshift)+globalxpanning;
 	y = (y<<globalyshift)+globalypanning;
-	asm1 <<= globalxshift;
-	asm2 <<= globalyshift;
+	xinc <<= globalxshift;
+	yinc <<= globalyshift;
+
+	shade = (klabs(r)>>visibility)+globalshade;
+	if (shade < 0) shade = 0;
+	if (shade >= numpalookups) shade = numpalookups-1;
+	asm1 = xinc;
+	asm2 = yinc;
 
 	if (option[0] == 0)
 	{
-		p = mul80(yp)+((xl+viewoffset)>>2)+chainoffset;
+		p = mul80(yp)+((xl+viewoffset)>>2)+0xa0000+(page<<14);
 		asm3 = xr-xl;
 		hchainasm64((long)(((xr+1)&3)<<8)+((xl+viewoffset)&3),y,shade<<8,0L,x,p);
 		return;
 	}
-	p = (mul320(yp)<<(option[0]==7))+xl+frameplace+viewoffset;
+	if (option[0] != 7)
+		p = mul320(yp)+xl+frameplace+viewoffset;
+	else
+		p = mul640(yp)+xl+frameplace+viewoffset;
 	asm3 = xr-xl+1;
 	hlineasm64(0L,0L,shade,y,x,p);
 }
@@ -2462,18 +2476,9 @@ initengine()
 	searchx = halfxdimen; searchy = (YDIM>>1); searchit = 0; searchstat = -1;
 	scaredfallz = (64<<8);
 
-	for(i=0;i<1280;i++)
-		if (i != 639)
-			horizlookup[i] = 65536 / (i-639);
-	for(i=0;i<1280;i++)
-	{
-		if (i == 639)
-			horizlookup2[i] = 16777216 / (XDIM>>1);
-		else if (i < 639)
-			horizlookup2[i] = 16777216 / (XDIM*(639-i));
-		else
-			horizlookup2[i] = 16777216 / (XDIM*(i-639));
-	}
+	for(i=0;i<1024;i++)
+		if (i != 511)
+			horizlookup[i] = 65536 / (i-511);
 
 	for(i=0;i<MAXPALOOKUPS;i++)
 		palookup[i] = NULL;
@@ -2514,6 +2519,7 @@ initengine()
 	_disable(); _dos_setvect(0x9, keyhandler); _enable();
 
 	resettiming();
+	capturecount = 0;
 	visibility = 13;
 	clearbuf((long)(&keystatus[0]),64L,0L);
 	page = 0;
@@ -2804,6 +2810,10 @@ loadtile(short tilenume)
 	read(artfil,ptr,walsiz[tilenume]);
 }
 
+// The ART loader uses the library entry even with the capture copy intrinsic.
+extern char *artstrcpy(char *, const char *);
+#pragma aux artstrcpy "strcpy_"
+
 loadpics(char *filename)
 {
 	long offscount, siz;
@@ -2813,7 +2823,7 @@ loadpics(char *filename)
 		walsiz[i] = 0;
 	initcache();
 
-	strcpy(artfilename,filename);
+	artstrcpy(artfilename,filename);
 
 	for(i=0;i<MAXTILES;i++)
 	{
@@ -2863,10 +2873,7 @@ loadpics(char *filename)
 
 	cachesize = artsize;
 	while ((pic = (char *)malloc(cachesize)) == NULL)
-	{
 		cachesize -= 65536L;
-		if (cachesize < 65536) return(-1);
-	}
 
 	for(i=0;i<MAXTILES;i++)
 	{
@@ -2982,13 +2989,15 @@ getpixel16(long p)
 	return(dat);
 }
 
+#pragma intrinsic(strcpy)
 screencapture()
 {
-	char *ptr, filename[] = "captxxxx.pcx";
+	char *ptr, filename[13];
 	long count;
 	long fil, i, bufplc, p, col, ncol, leng, numbytes, xres, inverseit;
 
 	inverseit = (keystatus[0x2a]|keystatus[0x36]);
+	strcpy(filename,"captxxxx.pcx");
 
 	count = capturecount;
 	filename[4] = ((count/1000)%10)+48;
@@ -3372,10 +3381,12 @@ printext(long x, long y, char buffer[42], short tilenum, char invisiblecol)
 	if (option[0] == 4) koutp(0x3d4,0x35), koutp(0x3d5,page);
 }
 
+void drawsprite(long, long, short, short, char);
+
 drawmasks()
 {
 	char tempchar;
-	short tempshort;
+	short tempshort, tempnum;
 	long i, j, k, gap, temp, templong;
 
 	gap = (spritesortcnt>>1);  //Sort sprite list
@@ -3384,12 +3395,13 @@ drawmasks()
 		for(i=0;i<spritesortcnt-gap;i++)
 		{
 			temp = i;
-			while ((spritey[temp] > spritey[temp+gap]) && (temp >= 0))
+			while ((spritey[temp+gap] < spritey[temp]) && (temp >= 0))
 			{
 				templong = spritex[temp]; spritex[temp] = spritex[temp+gap]; spritex[temp+gap] = templong;
 				templong = spritey[temp]; spritey[temp] = spritey[temp+gap]; spritey[temp+gap] = templong;
 				tempshort = spritepicnum[temp]; spritepicnum[temp] = spritepicnum[temp+gap]; spritepicnum[temp+gap] = tempshort;
-				tempshort = thesprite[temp]; thesprite[temp] = thesprite[temp+gap]; thesprite[temp+gap] = tempshort;
+				tempchar = spritepal[temp]; spritepal[temp] = spritepal[temp+gap]; spritepal[temp+gap] = tempchar;
+				tempnum = thesprite[temp]; thesprite[temp] = thesprite[temp+gap]; thesprite[temp+gap] = tempnum;
 				temp -= gap;
 			}
 		}
@@ -3400,10 +3412,10 @@ drawmasks()
 	while ((spritesortcnt > 0) && (maskwallcnt > 0))  //While BOTH > 0
 	{
 		j = maskwall[maskwallcnt-1];
-		if (spritewallfront((long)thesprite[spritesortcnt-1],(long)thewall[j]) == 0)
+		if (spritewallfront(thesprite[spritesortcnt-1],thewall[j]) == 0)
 		{
 			spritesortcnt--;
-			drawsprite(spritex[spritesortcnt],spritey[spritesortcnt],spritepicnum[spritesortcnt],thesprite[spritesortcnt]);
+			drawsprite(spritex[spritesortcnt],spritey[spritesortcnt],spritepicnum[spritesortcnt],thesprite[spritesortcnt],spritepal[spritesortcnt]);
 		}
 		else
 		{
@@ -3411,10 +3423,10 @@ drawmasks()
 			k = -1;
 			gap = 0;
 			for(i=spritesortcnt-2;i>=0;i--)
-				if ((xb1[j] <= (spritex[i]>>8)) && ((spritex[i]>>8) <= xb2[j]))
-					if (spritewallfront((long)thesprite[i],(long)thewall[j]) == 0)
+				if (((spritex[i]>>8) >= xb1[j]) && ((spritex[i]>>8) <= xb2[j]))
+					if (spritewallfront(thesprite[i],thewall[j]) == 0)
 					{
-						drawsprite(spritex[i],spritey[i],spritepicnum[i],thesprite[i]);
+						drawsprite(spritex[i],spritey[i],spritepicnum[i],thesprite[i],spritepal[i]);
 						thesprite[i] = -1;
 						k = i;
 						gap++;
@@ -3430,6 +3442,7 @@ drawmasks()
 							spritey[k] = spritey[i];
 							spritepicnum[k] = spritepicnum[i];
 							thesprite[k] = thesprite[i];
+							spritepal[k] = spritepal[i];
 						}
 						k++;
 					}
@@ -3444,7 +3457,7 @@ drawmasks()
 	while (spritesortcnt > 0)                //Finish them off
 	{
 		spritesortcnt--;
-		drawsprite(spritex[spritesortcnt],spritey[spritesortcnt],spritepicnum[spritesortcnt],thesprite[spritesortcnt]);
+		drawsprite(spritex[spritesortcnt],spritey[spritesortcnt],spritepicnum[spritesortcnt],thesprite[spritesortcnt],spritepal[spritesortcnt]);
 	}
 	while (maskwallcnt > 0)                  //Finish them off
 	{
@@ -3462,6 +3475,7 @@ drawmaskwall(short damaskwallcnt)
 	z = maskwall[damaskwallcnt];
 	wallnum = thewall[z];
 	sectnum = thesector[z];
+	globalpal = (long)sector[sectnum].floorpal;
 	nextwallnum = wall[wallnum].nextwall1;
 	nextsectnum = wall[wallnum].nextsector1;
 	z1 = sector[nextsectnum].ceilingz;
@@ -3520,8 +3534,7 @@ drawmaskwall(short damaskwallcnt)
 	if ((picanm[globalpicnum]&192) != 0)
 		globalpicnum += animateoffs(globalpicnum);
 	globalshade = (long)wall[wallnum].shade;
-	globalpal = 0;
-	globalshiftval = (picsiz[globalpicnum]>>4);
+		globalshiftval = (picsiz[globalpicnum]>>4);
 	if ((1<<globalshiftval) != tilesizy[globalpicnum]) globalshiftval++;
 	globalshiftval = 32-globalshiftval;
 	globalyscale = (wall[wallnum].yrepeat<<(globalshiftval-19));
@@ -3586,7 +3599,7 @@ drawmaskwall(short damaskwallcnt)
 		transmaskwallscan(xb1[z],xb2[z]);
 }
 
-drawsprite (long xb, long yp, short tilenum, short spritenum)
+void drawsprite (long xb, long yp, short tilenum, short spritenum, char dapalnum)
 {
 	char cstat, seesprite, swapped, palnum;
 	signed short shade;
@@ -3613,7 +3626,7 @@ drawsprite (long xb, long yp, short tilenum, short spritenum)
 
 	sectnum = spr->sectnum; sec = &sector[sectnum];
 	cstat = spr->cstat;
-	palnum = spritepal[spritenum];
+	palnum = dapalnum;
 	if (((cstat&2) > 0) && (translucloaded == 0)) cstat &= ~2;
 
 	xoff = (long)((signed char)((picanm[tilenum]>>8)&255));
@@ -4393,7 +4406,7 @@ ceilspritehline (long x1, long x2, long y)
 
 	if (x2 < x1) return;
 
-	v = mulscale(globalzd,horizlookup[y-globalhoriz+640],16);
+	v = mulscale(globalzd,horizlookup[y-globalhoriz+512],16);
 	a = v*halfxdimen - globalypanning;
 	b = v*(x1-halfxdimen) - globalxpanning;
 	bx = doublemulscale(globalx1,a,globalx2,b,6);
@@ -5130,28 +5143,30 @@ changespritestat(short spritenum, short newstatnum)
 
 nextsectorneighborz(short sectnum, long thez, short topbottom, short direction)
 {
-	long i, testz, nextz;
-	short sectortouse;
-	struct walltype *wal;
+	long testz, nextz;
+	short i, startwall, endwall, sectortouse;
 
-	if (direction == 1) nextz = 0x7fffffff; else nextz = 0x80000000;
+	if (direction == 1)
+		nextz = 0x7fffffff;
+	else
+		nextz = 0x80000000;
 
 	sectortouse = -1;
 
-	wal = &wall[sector[sectnum].wallptr];
-	for(i=sector[sectnum].wallnum;i>0;i--)
-	{
-		if (wal->nextsector1 >= 0)
+	startwall = sector[sectnum].wallptr;
+	endwall = startwall + sector[sectnum].wallnum - 1;
+	for(i=startwall;i<=endwall;i++)
+		if (wall[i].nextsector1 >= 0)
 		{
 			if (topbottom == 1)
 			{
-				testz = sector[wal->nextsector1].floorz;
+				testz = sector[wall[i].nextsector1].floorz;
 				if (direction == 1)
 				{
 					if ((testz > thez) && (testz < nextz))
 					{
 						nextz = testz;
-						sectortouse = wal->nextsector1;
+						sectortouse = wall[i].nextsector1;
 					}
 				}
 				else
@@ -5159,19 +5174,19 @@ nextsectorneighborz(short sectnum, long thez, short topbottom, short direction)
 					if ((testz < thez) && (testz > nextz))
 					{
 						nextz = testz;
-						sectortouse = wal->nextsector1;
+						sectortouse = wall[i].nextsector1;
 					}
 				}
 			}
 			else
 			{
-				testz = sector[wal->nextsector1].ceilingz;
+				testz = sector[wall[i].nextsector1].ceilingz;
 				if (direction == 1)
 				{
 					if ((testz > thez) && (testz < nextz))
 					{
 						nextz = testz;
-						sectortouse = wal->nextsector1;
+						sectortouse = wall[i].nextsector1;
 					}
 				}
 				else
@@ -5179,13 +5194,11 @@ nextsectorneighborz(short sectnum, long thez, short topbottom, short direction)
 					if ((testz < thez) && (testz > nextz))
 					{
 						nextz = testz;
-						sectortouse = wal->nextsector1;
+						sectortouse = wall[i].nextsector1;
 					}
 				}
 			}
 		}
-		wal++;
-	}
 
 	return(sectortouse);
 }
@@ -6039,19 +6052,19 @@ raytrace (long x3, long y3, long *x4, long *y4)
 
 updatesector(long x, long y, short *sectnum)
 {
-	walltype *wal;
-	long i, j;
+	short i, j, startwall, endwall;
 
 	if (inside(x,y,*sectnum) == 1) return;
 
 	if ((*sectnum >= 0) && (*sectnum < numsectors))
 	{
-		wal = &wall[sector[*sectnum].wallptr];
-		for(j=sector[*sectnum].wallnum;j>0;j--,wal++)
+		startwall = sector[*sectnum].wallptr;
+		endwall = startwall+sector[*sectnum].wallnum-1;
+		for(j=startwall;j<=endwall;j++)
 		{
-			i = wal->nextsector1;
+			i = wall[j].nextsector1;
 			if (i >= 0)
-				if (inside(x,y,(short)i) == 1)
+				if (inside(x,y,i) == 1)
 				{
 					*sectnum = i;
 					return;
@@ -6059,8 +6072,8 @@ updatesector(long x, long y, short *sectnum)
 		}
 	}
 
-	for(i=numsectors-1;i>=0;i--)
-		if (inside(x,y,(short)i) == 1)
+	for(i=0;i<numsectors;i++)
+		if (inside(x,y,i) == 1)
 		{
 			*sectnum = i;
 			return;
@@ -6690,8 +6703,8 @@ makeradarang(long xdime)
 	else maxj = 512;
 	for(i=0;i<=(xdime>>1);i++)
 	{
-		x = divscale(i,xdime>>1,15)-32768;
-		ang = x;
+		ang = divscale(i,xdime>>1,15)-32768;
+		x = ang;
 		xmul = -mulscale(x,x,15);
 		for(j=3;j<maxj-((i>>1)<<2);j+=2)
 		{
@@ -6881,203 +6894,152 @@ wallmost(long *mostbuf, long w, long z)
 	return(bad);
 }
 
-rotatesprite (long sx, long sy, long z, short a, short picnum, signed char dashade, char dapalnum, char dastat)
+rotatesprite(long sx, long sy, long z, short a, short picnum)
 {
-	long cosang, sinang, v, nextv, dax1, dax2, oy, bx, by;
-	long i, x, y, x1, y1, x2, y2, gx1, gy1, p, bufplc, palookupoffs;
-	long xsiz, ysiz, xoff, yoff, npoints, yplc, yinc, lx, rx;
-	long xv, yv, xv2, yv2, cx1, cy1, cx2, cy2;
+	long xsiz, ysiz, cosang, sinang, xstep, ystep;
+	long gx, gy, t, firstx, lastx, x, y1, y2, yoffs;
+	long umin, umax, vmin, vmax, u, v, du, dv, i, k;
+	long bufplc, p, pitch, buf, frac, inc, stride;
+	short count;
 
-	if (z <= 16) return;
-
+	if (z <= 16) return(0);
+	if ((tilesizx[picnum]|tilesizy[picnum]) == 0) return(0);
 	if ((picanm[picnum]&192) != 0) picnum += animateoffs(picnum);
+	xsiz = tilesizx[picnum]; ysiz = tilesizy[picnum];
 
-	xsiz = tilesizx[picnum]; if (xsiz <= 0) return;
-	ysiz = tilesizy[picnum]; if (ysiz <= 0) return;
-	xoff = (long)((signed char)((picanm[picnum]>>8)&255))+(xsiz>>1);
-	yoff = (long)((signed char)((picanm[picnum]>>16)&255))+(ysiz>>1);
+	t = mulscale(z,xsiz+ysiz,1);
+	if ((sx+t < 0) || (sy+t < 0) || (sx-t > (320L<<16)) ||
+		 (sy-t > (200L<<16))) return(0);
 
-	cosang = sintable[(a+512)&2047]; sinang = sintable[a&2047];
+	cosang = sintable[(a+2560)&2047];
+	sinang = sintable[(a+2048)&2047];
+	i = divscale(65536L,z,16);
+	ystep = mulscale(cosang,i,14);
+	xstep = mulscale(sinang,i,14);
 
-	if ((dastat&8) == 0)
-	{
-		cx1 = windowx1; cy1 = windowy1;
-		cx2 = windowx2; cy2 = windowy2;
-	}
-	else
-	{
-		cx1 = 0; cy1 = 0;
-		cx2 = xdim-1; cy2 = ydim-1;
-	}
+	gx = sx-mulscale(cosang*xsiz-sinang*ysiz,z,15);
+	gy = sy-mulscale(sinang*xsiz+cosang*ysiz,z,15);
 
-	if ((dastat&2) != 0)  //Auto window size scaling
-	{
-		if ((dastat&8) == 0)
-			x = xdimenscale;
-		else
-			x = scale(xdim,yxaspect,320);
-		sx = ((cx1+cx2+1)<<15)+mulscale(sx-(320<<15),x,16);
-		sy = ((cy1+cy2+1)<<15)+mulscale(sy-(200<<15),x,16);
-		z = mulscale(z,x,16);
-	}
+	umin = 0; umax = ysiz<<16;
+	vmin = 0; vmax = xsiz<<16;
+	du = mulscale(cosang*xsiz,z,22);
+	dv = mulscale((-sinang)*ysiz,z,22);
+	firstx = 0; lastx = 0;
+	if (du < firstx) firstx = du-1;
+	if (du > lastx) lastx = du+1;
+	if (dv < firstx) firstx = dv-1;
+	if (dv > lastx) lastx = dv+1;
+	dv += du;
+	if (dv < firstx) firstx = dv-1;
+	if (dv > lastx) lastx = dv+1;
 
-	xv = mulscale(cosang,z,14); xv2 = mulscale(xv,xyaspect,16);
-	yv = mulscale(sinang,z,14); yv2 = mulscale(yv,xyaspect,16);
+	firstx += gx>>16; lastx += gx>>16;
+	if (firstx < 0) firstx = 0;
+	if (lastx >= 320) lastx = 319;
+	if (firstx > lastx) return(0);
 
-	ry1[0] = sy - (yv*xoff + xv*yoff);
-	ry1[1] = ry1[0] + yv*xsiz;
-	ry1[3] = ry1[0] + xv*ysiz;
-	ry1[2] = ry1[1]+ry1[3]-ry1[0];
-	i = (cy1<<16); if ((ry1[0]<i) && (ry1[1]<i) && (ry1[2]<i) && (ry1[3]<i)) return;
-	i = (cy2<<16); if ((ry1[0]>i) && (ry1[1]>i) && (ry1[2]>i) && (ry1[3]>i)) return;
-
-	rx1[0] = sx - (xv2*xoff - yv2*yoff);
-	rx1[1] = rx1[0] + xv2*xsiz;
-	rx1[3] = rx1[0] - yv2*ysiz;
-	rx1[2] = rx1[1]+rx1[3]-rx1[0];
-	i = (cx1<<16); if ((rx1[0]<i) && (rx1[1]<i) && (rx1[2]<i) && (rx1[3]<i)) return;
-	i = (cx2<<16); if ((rx1[0]>i) && (rx1[1]>i) && (rx1[2]>i) && (rx1[3]>i)) return;
-
-	gx1 = rx1[0]; gy1 = ry1[0];   //back up these before clipping
-
-	if ((npoints = clippoly4(cx1,cy1,cx2+1,cy2+1)) < 3) return;
-
-	lx = rx1[0]; rx = rx1[0];
-
-	nextv = 0;
-	for(v=npoints-1;v>=0;v--)
-	{
-		x1 = rx1[v]; x2 = rx1[nextv];
-		dax1 = (x1>>16); lx = min(lx,x1);
-		dax2 = (x2>>16); rx = max(rx,x1);
-		if (dax1 != dax2)
-		{
-			y1 = ry1[v]; y2 = ry1[nextv];
-			yinc = divscale(y2-y1,x2-x1,16);
-			if (dax2 > dax1)
-			{
-				yplc = y1 + mulscale((dax1<<16)+65535-x1,yinc,16);
-				qinterpolatedown16((long)(&uplc[dax1]),dax2-dax1-1,yplc,yinc);
-			}
-			else
-			{
-				yplc = y2 + mulscale((dax2<<16)+65535-x2,yinc,16);
-				qinterpolatedown16((long)(&dplc[dax2]),dax1-dax2-1,yplc,yinc);
-			}
-		}
-		nextv = v;
-	}
-
-	if (waloff[picnum] == 0) loadtile(picnum);
+	if (waloff[picnum] == -1) loadtile(picnum);
 	setgotpic(picnum);
 	bufplc = waloff[picnum];
+	if (option[0] == 0) koutp(0x3c4,2);
 
-	dashade = max(min(dashade,numpalookups-1),0);
-	palookupoffs = FP_OFF(palookup[dapalnum]) + (((long)dashade)<<8);
+	yoffs = (YDIM>>1)-((windowy1+windowy2+1)>>1);
+	i = (firstx<<16)-gx; k = -gy;
+	v = mulscale(ystep,k,16)-mulscale(i,xstep,16);
+	u = mulscale(ystep,i,16)+mulscale(k,xstep,16);
 
-	i = divscale32(1L,z);
-	xv = mulscale(cosang,i,14); xv2 = mulscale(xv,yxaspect,16);
-	yv = mulscale(sinang,i,14); yv2 = mulscale(yv,yxaspect,16);
-
-	if ((dastat&4) == 0) i = xv; else i = -xv;
-	if ((dastat&1) == 0)
-		setupspritevline(palookupoffs,(yv>>16)*ysiz,yv<<16,ysiz,i,0L);
-	else
-		tsetupspritevline(palookupoffs,(yv>>16)*ysiz,yv<<16,ysiz,i,0L);
-
-	x1 = (lx>>16); x2 = (rx>>16);
-
-	oy = 0;
-	x = (x1<<16)+65535-gx1; y = (oy<<16)+65535-gy1;
-	bx = doublemulscale(x,xv2,y,yv,16);
-	by = doublemulscale(-x,yv2,y,xv,16);
-
-	for(x=x1;x<x2;x++)
+	for(x=firstx;x<=lastx;x++)
 	{
-		y1 = uplc[x];
-		y2 = dplc[x];
-		if ((dastat&8) == 0)
-		{
-			y1 = max(y1,startumost[x]);
-			y2 = min(y2,startdmost[x]);
-		}
+		y1 = startumost[x-windowx1]-yoffs;
+		y2 = startdmost[x-windowx1]-yoffs-1;
 
-		if (y2 > y1)
+		if (ystep > 0)
 		{
-			if (oy != y1) i = y1-oy, oy = y1, bx += yv*i, by += xv*i;
-
-			if (chainnumpages >= 2)
+			if (v >= umax) y2 = -1;
+			else
 			{
-				koutpw(0x3c4,(256<<(x&3))+2);
-				if ((dastat&1) != 0) koutpw(0x3ce,4+((x&3)<<8));
-				p = ylookup[y1] + (x>>2) + chainplace;
+				i = (umax-v)/ystep-1; if (i < y2) y2 = i;
+				if (v < umin) { i = (umin-v)/ystep+1; if (i > y1) y1 = i; }
+			}
+		}
+		else if (ystep < 0)
+		{
+			if (v < umin) y2 = -1;
+			else
+			{
+				i = (umin-v)/ystep-1; if (i < y2) y2 = i;
+				if (v >= umax) { i = (umax-v)/ystep+1; if (i > y1) y1 = i; }
+			}
+		}
+		else if ((v < umin) || (v >= umax)) y2 = -1;
+
+		if (xstep > 0)
+		{
+			if (u >= vmax) y2 = -1;
+			else
+			{
+				i = (vmax-u)/xstep-1; if (i < y2) y2 = i;
+				if (u < vmin) { i = (vmin-u)/xstep+1; if (i > y1) y1 = i; }
+			}
+		}
+		else if (xstep < 0)
+		{
+			if (u < vmin) y2 = -1;
+			else
+			{
+				i = (vmin-u)/xstep-1; if (i < y2) y2 = i;
+				if (u >= vmax) { i = (vmax-u)/xstep+1; if (i > y1) y1 = i; }
+			}
+		}
+		else if ((u < vmin) || (u >= vmax)) y2 = -1;
+
+		if ((y1 <= y2) && (y2 >= 0) && (y1 < YDIM))
+		{
+			i = v+ystep*y1;
+			k = u+xstep*y1;
+			count = y2-y1;
+
+			if (option[0] == 0)
+			{
+				koutp(0x3c5,1<<(x&3));
+				p = y1*80+(x>>2)+chainoffset;
+				pitch = 80;
+			}
+			else if (option[0] != 7)
+			{
+				p = y1*320+x+frameplace;
+				pitch = 320;
 			}
 			else
-				p = ylookup[y1] + x+frameplace;
+			{
+				p = y1*640+x+frameplace;
+				pitch = 640;
+			}
 
-			if ((dastat&4) == 0) i = by; else i = (ysiz<<16)-1-by;
-			if ((dastat&1) == 0)
-				spritevline(0L,i<<16,y2-y1+1,bx<<16,(bx>>16)*ysiz+(i>>16)+bufplc,p);
+			buf = bufplc+(k>>16)*ysiz;
+			if (xstep > 0)
+			{
+				inc = (xstep>>16)*ysiz;
+				frac = xstep&65535;
+				k &= 65535;
+				stride = ysiz;
+			}
 			else
-				tspritevline(0L,i<<16,y2-y1+1,bx<<16,(bx>>16)*ysiz+(i>>16)+bufplc,p);
+			{
+				inc = -((-xstep)>>16)*ysiz;
+				frac = (-xstep)&65535;
+				k = (-k)&65535;
+				stride = -ysiz;
+			}
+			asm1 = pitch;
+			asm4 = stride;
+			asm3 = frac<<16;
+			asm2 = inc;
+			spritevline(ystep,i,count,k<<16,buf,p);
 		}
-		bx += xv2; by -= yv2;
+		v -= xstep; u += ystep;
 	}
-
-}
-
-	//Assume npoints=4 with polygon on &rx1,&ry1
-clippoly4(long cx1, long cy1, long cx2, long cy2)
-{
-	long n, nn, z, zz, x, x1, x2, y, y1, y2, t;
-
-	cx1 <<= 16; cy1 <<= 16; cx2 <<= 16; cy2 <<= 16;
-
-	nn = 0; z = 0;
-	do
-	{
-		zz = ((z+1)&3);
-		x1 = rx1[z]; x2 = rx1[zz]-x1;
-
-		if ((cx1 <= x1) && (x1 <= cx2))
-			rx2[nn] = x1, ry2[nn] = ry1[z], nn++;
-
-		if (x2 <= 0) x = cx2; else x = cx1;
-		t = x-x1;
-		if (((t-x2)^t) < 0)
-			rx2[nn] = x, ry2[nn] = ry1[z]+scale(t,ry1[zz]-ry1[z],x2), nn++;
-
-		if (x2 <= 0) x = cx1; else x = cx2;
-		t = x-x1;
-		if (((t-x2)^t) < 0)
-			rx2[nn] = x, ry2[nn] = ry1[z]+scale(t,ry1[zz]-ry1[z],x2), nn++;
-
-		z = zz;
-	} while (z != 0);
-	if (nn < 3) return(0);
-
-	n = 0; z = 0;
-	do
-	{
-		zz = z+1; if (zz == nn) zz = 0;
-		y1 = ry2[z]; y2 = ry2[zz]-y1;
-
-		if ((cy1 <= y1) && (y1 <= cy2))
-			ry1[n] = y1, rx1[n] = rx2[z], n++;
-
-		if (y2 <= 0) y = cy2; else y = cy1;
-		t = y-y1;
-		if (((t-y2)^t) < 0)
-			ry1[n] = y, rx1[n] = rx2[z]+scale(t,rx2[zz]-rx2[z],y2), n++;
-
-		if (y2 <= 0) y = cy1; else y = cy2;
-		t = y-y1;
-		if (((t-y2)^t) < 0)
-			ry1[n] = y, rx1[n] = rx2[z]+scale(t,rx2[zz]-rx2[z],y2), n++;
-
-		z = zz;
-	} while (z != 0);
-	return(n);
+	return(0);
 }
 
 makepalookup(long palnum, char *remapbuf, signed char r, signed char g, signed char b)

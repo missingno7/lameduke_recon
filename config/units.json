@@ -164,7 +164,7 @@
      "status": "STRICT"
     },
     "loadpics": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "showengineinfo": {
      "status": "STRICT"
@@ -263,7 +263,7 @@
      "status": "STRICT"
     },
     "nextsectorneighborz": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "zerohandler": {
      "status": "STRICT"
@@ -302,7 +302,7 @@
      "status": "NEAR_MATCH"
     },
     "updatesector": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "rotatepoint": {
      "status": "NEAR_MATCH"

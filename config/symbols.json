@@ -4211,6 +4211,158 @@
    "player_bits": {
     "addr": "2:a52a0",
     "evidence": "gamedef worker 2026-11-26: Dword player input bits used by PLAYER, SECTOR, demo and menu code. Runtime ifp checks the duck/run flags."
+   },
+   "artsize": {
+    "addr": "2:2c08",
+    "evidence": "engine worker 2026-11-26: loadpics clears the ART byte total, accumulates per-tile sizes, and copies the total into cachesize. 4 exact-address oracle operands in the engine (loadpics 1:3ac25)."
+   },
+   "artversion": {
+    "addr": "2:1bce14",
+    "evidence": "engine worker 2026-11-26: loadpics reads the ART version field and compares it to 1. 2 exact-address oracle operands in the engine (loadpics 1:3acb5)."
+   },
+   "automapping": {
+    "addr": "2:1bde9c",
+    "evidence": "engine worker 2026-11-26: initengine clears the flag; drawrooms and drawsprite conditionally update show2d arrays. 3 exact-address oracle operands in the engine (drawrooms 1:34240, initengine 1:3a1cc, drawsprite 1:3d352)."
+   },
+   "capturecount": {
+    "addr": "2:1bde58",
+    "evidence": "engine worker 2026-11-26: initengine zeroes the short; screencapture formats it into the PCX filename and increments it. 15 exact-address oracle operands in the engine (initengine 1:3a2a1, screencapture 1:3b3bd)."
+   },
+   "dahorizbak": {
+    "addr": "2:1bc3c0",
+    "evidence": "engine worker 2026-11-26: drawrooms saves the supplied horizon here while processing the adjusted render horizon separately. 8 exact-address oracle operands in the engine (drawrooms 1:33f84, drawsprite 1:3e649, wallmost 1:464e6)."
+   },
+   "globalcursectnum": {
+    "addr": "2:1bde70",
+    "evidence": "engine worker 2026-11-26: drawrooms stores the caller's current sector here, passes its address to updatesector, and seeds scansector with the resulting short. 3 exact-address oracle operands in the engine (drawrooms 1:33f46)."
+   },
+   "highlightcnt": {
+    "addr": "2:1bde60",
+    "evidence": "engine worker 2026-11-26: initengine clears the highlight selection count beside pointhighlight and linehighlight. 3 exact-address oracle operands in the engine (initengine 1:3a20d, draw2dscreen 1:44825)."
+   },
+   "hitwalls": {
+    "addr": "2:b4e00",
+    "evidence": "engine worker 2026-11-26: clipmove loads an old clip line from the short array and records each new hit line. Two exact-address operands at 1:42401 and 1:424d1. Its eight bytes fit the gap between clipsectorlist and lastx."
+   },
+   "horizlookup": {
+    "addr": "2:b5ad0",
+    "evidence": "engine worker 2026-11-26: initengine initializes 1024 signed reciprocals; ceilspritehline reads the same table at displacement 0x800 (operand at 1:3f2d3). 1 exact-address oracle operands in the engine (initengine 1:3a173)."
+   },
+   "localtileend": {
+    "addr": "2:b2200",
+    "evidence": "engine worker 2026-11-26: loadpics reads the upper ART tile bound and tests it as the inclusive loop end. 6 exact-address oracle operands in the engine (loadpics 1:3ad00)."
+   },
+   "localtilestart": {
+    "addr": "2:b1e00",
+    "evidence": "engine worker 2026-11-26: loadpics reads the lower ART tile bound and uses it as the first tile index. 7 exact-address oracle operands in the engine (loadpics 1:3aced)."
+   },
+   "maskwall": {
+    "addr": "2:fa590",
+    "evidence": "engine worker 2026-11-26: drawalls adds masked wall indices; drawmaskwall resolves one index to its real wall. 2 exact-address oracle operands in the engine (drawalls 1:35fa5, drawmaskwall 1:3c332)."
+   },
+   "moustat": {
+    "addr": "2:1bde7c",
+    "evidence": "engine worker 2026-11-26: initengine clears this word and sets it after successful mouse interrupt 0x33 initialization. 2 exact-address oracle operands in the engine (initengine 1:3a21a)."
+   },
+   "numbunches": {
+    "addr": "2:1bde56",
+    "evidence": "engine worker 2026-11-26: drawrooms initializes and counts down wall bunches; scansector appends bunches through this short. 10 exact-address oracle operands in the engine (drawrooms 1:34152, scansector 1:343c3)."
+   },
+   "numtilefiles": {
+    "addr": "2:1bc318",
+    "evidence": "engine worker 2026-11-26: loadpics clears, reads and increments the ART file count. 4 exact-address oracle operands in the engine (loadpics 1:3ac2b)."
+   },
+   "numtiles": {
+    "addr": "2:1bce10",
+    "evidence": "engine worker 2026-11-26: loadpics reads the next ART header field after artversion. 1 exact-address oracle operands in the engine (loadpics 1:3acd9)."
+   },
+   "parallaxyoffs": {
+    "addr": "2:1bce20",
+    "evidence": "engine worker 2026-11-26: initengine clears the vertical sky offset; calcwalls adds it to the sky texture origin. 3 exact-address oracle operands in the engine (calcwalls 1:35148, initengine 1:3a146)."
+   },
+   "pcxheader": {
+    "addr": "2:2c24",
+    "evidence": "engine worker 2026-11-26: 128 bytes of PCX header match the verified _DATA image; screencapture passes this address to write. 1 exact-address oracle operands in the engine (screencapture 1:3b586)."
+   },
+   "pointhighlight": {
+    "addr": "2:1bde66",
+    "evidence": "engine worker 2026-11-26: initengine sets the short to -1 beside linehighlight, and draw2dscreen compares the highlight against each wall endpoint. 3 exact-address oracle operands in the engine (initengine 1:3a200, draw2dscreen 1:44817)."
+   },
+   "pskyoff": {
+    "addr": "2:13a410",
+    "evidence": "engine worker 2026-11-26: initengine clears element zero and calcwalls indexes the short tile offsets with the parallax sky slice. 13 exact-address oracle operands in the engine (calcwalls 1:35448, initengine 1:3a109)."
+   },
+   "scaredfallz": {
+    "addr": "2:1bce2c",
+    "evidence": "engine worker 2026-11-26: initengine writes the 64-unit fixed-point drop threshold; getcliplines and getzrange read the threshold during clipping. 3 exact-address oracle operands in the engine (initengine 1:3a140, getcliplines 1:42936, getzrange 1:45990)."
+   },
+   "searchstat": {
+    "addr": "2:1bde48",
+    "evidence": "engine worker 2026-11-26: initengine initializes the short to -1, then calcwalls and drawmaskwall report editor hit kinds here. 11 exact-address oracle operands in the engine (calcwalls 1:34df5, initengine 1:3a126, drawmaskwall 1:3ca1f, drawsprite 1:3d1e7)."
+   },
+   "sectorborder": {
+    "addr": "2:b5590",
+    "evidence": "engine worker 2026-11-26: scansector seeds and pops the short stack; addboxlinum pushes its next sector. 3 exact-address oracle operands in the engine (scansector 1:342d6, addboxlinum 1:36ce7)."
+   },
+   "sectorbordercnt": {
+    "addr": "2:1bde62",
+    "evidence": "engine worker 2026-11-26: scansector checks and decrements the stack count; addboxlinum increments it. 6 exact-address oracle operands in the engine (scansector 1:342dd, addboxlinum 1:36cdb)."
+   },
+   "smost": {
+    "addr": "2:bc590",
+    "evidence": "engine worker 2026-11-26: drawalls saves short clip samples; drawmaskwall and drawsprite read them using smoststart. 12 exact-address oracle operands in the engine (drawalls 1:360f8, drawmaskwall 1:3c95c, drawsprite 1:3d128)."
+   },
+   "smoststart": {
+    "addr": "2:dc590",
+    "evidence": "engine worker 2026-11-26: drawalls stores smost offsets; drawmaskwall and drawsprite read them by occluding scan index. 12 exact-address oracle operands in the engine (drawalls 1:360b7, drawmaskwall 1:3c944, drawsprite 1:3d10e)."
+   },
+   "smostwall": {
+    "addr": "2:fc590",
+    "evidence": "engine worker 2026-11-26: drawalls stores scan indices and occlusion flags; drawmaskwall and drawsprite decode those flags. 13 exact-address oracle operands in the engine (drawalls 1:360cd, drawmaskwall 1:3c880, drawsprite 1:3d011)."
+   },
+   "spritepal": {
+    "addr": "2:137010",
+    "evidence": "engine worker 2026-11-26: scansector stores the selected sector palette; drawmasks sorts and forwards the byte as drawsprite's fifth argument. 10 exact-address oracle operands in the engine (scansector 1:342f4, drawmasks 1:3c068)."
+   },
+   "spritepicnum": {
+    "addr": "2:138410",
+    "evidence": "engine worker 2026-11-26: scansector stores the animated tile number; drawmasks sorts the short and passes it to drawsprite. 11 exact-address oracle operands in the engine (scansector 1:34567, drawmasks 1:3c052, draw2dscreen 1:45486)."
+   },
+   "spritex": {
+    "addr": "2:d0590",
+    "evidence": "engine worker 2026-11-26: scansector stores camera-space X; drawmasks swaps this long array as part of sorting and passes X to drawsprite. 12 exact-address oracle operands in the engine (scansector 1:3454d, drawmasks 1:3c020, draw2dscreen 1:45450)."
+   },
+   "spritey": {
+    "addr": "2:d4590",
+    "evidence": "engine worker 2026-11-26: scansector stores camera-space depth; drawmasks compares this depth and passes it to drawsprite. 13 exact-address oracle operands in the engine (scansector 1:34572, drawmasks 1:3c006, draw2dscreen 1:45436)."
+   },
+   "stereowidth": {
+    "addr": "2:1bc34c",
+    "evidence": "engine worker 2026-11-26: initengine sets the stereo screen width for modes 5 and 6, and drawrooms adjusts the width when changing eyes. 8 exact-address oracle operands in the engine (drawrooms 1:33ffd, initengine 1:3a3bf)."
+   },
+   "thesprite": {
+    "addr": "2:134f90",
+    "evidence": "engine worker 2026-11-26: scansector records the sprite index including element zero; drawmasks sorts and forwards the index to drawsprite. 14 exact-address oracle operands in the engine (drawmasks 1:3c086, draw2dscreen 1:45460)."
+   },
+   "vgapal16": {
+    "addr": "2:2ca4",
+    "evidence": "engine worker 2026-11-26: 48 bytes of VGA RGB entries match the verified _DATA image; screencapture reads indexed components. 1 exact-address oracle operands in the engine (screencapture 1:3b8f1)."
+   },
+   "windowx1": {
+    "addr": "2:1bc3e0",
+    "evidence": "engine worker 2026-11-26: setview stores the first X argument. 6 exact-address oracle operands in the engine (overwritesprite 1:3f79d, setview 1:462d0, rotatesprite 1:46f99)."
+   },
+   "windowx2": {
+    "addr": "2:1bc3e4",
+    "evidence": "engine worker 2026-11-26: setview stores the second X argument. 3 exact-address oracle operands in the engine (overwritesprite 1:3f7a3, setview 1:462d6)."
+   },
+   "xdimenoffs": {
+    "addr": "2:1bc3d8",
+    "evidence": "engine worker 2026-11-26: setview copies x1 to the horizontal viewport offset before calling makeradarang. 1 exact-address oracle operands in the engine (setview 1:4633e)."
+   },
+   "ydimen": {
+    "addr": "2:1bc3d0",
+    "evidence": "engine worker 2026-11-26: setview computes the inclusive viewport height and reads it again for the bottom row. 2 exact-address oracle operands in the engine (setview 1:462f4)."
    }
   }
  }
