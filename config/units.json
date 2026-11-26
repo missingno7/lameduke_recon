@@ -2263,12 +2263,12 @@
   },
   "game_game": {
    "source": "src/game/game.c",
-   "profile": "game",
+   "profile": "game_oe",
    "include": [
     "src/game"
    ],
    "kind": "c",
-   "provenance": "BINARY_DERIVED with raynorpat/lameduke and Duke3D 1.5 semantics; game2 worker 2026-11-26 (partial: 15 of 61 functions written); split at 1:11380 (gamesplit 2026-11-26): this object is 1:00010-11380",
+   "provenance": "BINARY_DERIVED with raynorpat/lameduke and Duke3D semantics; natural calls compiled with -oe=3000 reproduce the original inlining (oeprobe 2026-11-26); object 1:00010-0f160",
    "functions": {
     "inittimer": {
      "status": "STRICT"
@@ -2339,9 +2339,6 @@
     "moveeffectors": {
      "status": "NEAR_MATCH"
     },
-    "spawn": {
-     "status": "NEAR_MATCH"
-    },
     "timerhandler": {
      "status": "STRICT"
     },
@@ -2391,7 +2388,7 @@
      "status": "NEAR_MATCH"
     },
     "displaystatus": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "playback_demo": {
      "status": "NEAR_MATCH"
@@ -2421,7 +2418,6 @@
      "status": "STRICT"
     }
    },
-   "quality": "COMPILER_STEERED in places: getscorename, next_text_shade, newscore and check_file_id are called through #pragma aux aliases so -oe does not inline them where the oracle keeps calls (docs/units/gamefix6.md); written-out macro copies model the original's expanded bodies",
    "segments": {
     "CONST": "VERIFIED",
     "_DATA": "VERIFIED",
@@ -2430,12 +2426,12 @@
   },
   "game_premap": {
    "source": "src/game/premap.c",
-   "profile": "game",
+   "profile": "game_oe",
    "include": [
     "src/game"
    ],
    "kind": "c",
-   "provenance": "Split of the GAME address range (gamesplit worker 2026-11-26): second object 1:11380-14fad (xyzmirror ... prelevel, enterlevel, check_file_id); boundary STRONG (separate CONST pool 2:00648-006a8, _BSS mspos 2:0ac60, Duke 1.5 PREMAP.C function order); file name HYPOTHESIS",
+   "provenance": "Second object of the GAME range 1:0f160-14fad (spawn ... prelevel, enterlevel, check_file_id): boundary PROVEN by the inliner (prelevel inlines spawn; nothing is inlined across objects; oeprobe 2026-11-26); file name HYPOTHESIS",
    "functions": {
     "check_file_id": {
      "status": "STRICT"
@@ -2469,6 +2465,9 @@
     },
     "enterlevel": {
      "status": "STRICT"
+    },
+    "spawn": {
+     "status": "NEAR_MATCH"
     }
    },
    "segments": {

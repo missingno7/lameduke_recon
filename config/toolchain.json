@@ -152,6 +152,16 @@
     "-s"
    ],
    "evidence": "MULTI.OBJ (split from the engine 1994-09-15): same source gives 18 STRICT with -4r -s and 2 STRICT with -4r -s -or (multi worker 2026-11-26)"
+  },
+  "game_oe": {
+   "install": "wc95b",
+   "flags": [
+    "-4r",
+    "-s",
+    "-otexan",
+    "-oe=3000"
+   ],
+   "evidence": "oeprobe worker 2026-11-26: with ordinary calls, any -oe>=2500 reproduces GAME's complete intra-object call/inline pattern (0 differences over all caller/callee pairs); 9.5 inliner rules in docs/FINDINGS.md"
   }
  }
 }

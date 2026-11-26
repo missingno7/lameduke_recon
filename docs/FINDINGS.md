@@ -266,3 +266,19 @@ Each entry names the command or artefact that supports it.
   verified); the natural link has 2 undefined symbols (SoundToggle, camerasprite) and file-backed obj2 agreement
   99.67%, 2:00000-01490 byte-identical. OPEN: why 9.5 keeps two identical banner/unknown_parameter literals apart in one
   unit but merges bonus_percent/bonus_points.
+
+## GAME's inlining is real compiler inlining (oeprobe worker 2026-11-26) — supersedes the macro model
+- PROVEN GAME written with ordinary function calls and compiled with Watcom 9.5 GA `-4r -s -otexan -oe=N`, N >= 2500,
+  reproduces the oracle's complete intra-object call/inline pattern (0 differences over all caller/callee pairs),
+  given (a) the two-object split at 1:0f160 (nothing is inlined across objects; prelevel inlines spawn, so spawn is in
+  object 2 — this decides the boundary over 11380) and (b) real string literals. New profile game_oe (-oe=3000) for
+  GAME and PREMAP; 30 STRICT (was 29), timerhandler STRICT as six plain calls, displaystatus newly STRICT.
+- 9.5 inliner rules (mini tests / A/B): a callee is inlined if its expression-tree node count <= N (plain -oe = 20;
+  -oe=N overrides the e in -otexan; no per-caller budget); depth 1 (copies keep inner calls); never inlined: functions
+  owning static data (string literals, static locals, initialised local arrays) and recursive functions; definition
+  order, static, parameter count do not matter; a call stays a call when run-time address arithmetic precedes it in the
+  same expression (sprite[i].owner = findlocator(...)).
+- Functions with no callers (wait_for_players, playback_demo, strget, network_move_loop, numtext copies,
+  spawn_random_effects, reset_player_motion, render_camera_tile copies) are inline sources, not dead code.
+- Other units: PLAYER/SOUNDS unaffected by N; MENUES/ACTORS change at N>=100 (untested); GAMEDEF crashes wcc386 at
+  N>=1500 (recursive parse); SECTOR not explained by large N (open). wcc386 9.5 can hang: always use timeouts.
