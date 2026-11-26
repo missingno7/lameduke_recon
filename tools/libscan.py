@@ -14,6 +14,8 @@ Hits are identity evidence only (LIBRARY_MEMBER / HISTORICAL_OBJECT), never reco
     python tools/libscan.py --json OUT.json LIB_OR_OBJ [...]   also write the hits
     python tools/libscan.py --compare A.LIB B.LIB              members found with only one release
     python tools/libscan.py --split ...                        compare each public's extent separately
+    python tools/libscan.py --symbols LIB [...]                write build/oracles/d3d/libsyms.json: publics of
+                                                               whole members found exactly once as exact+sites
     python tools/libscan.py --min N ...                        ignore segments smaller than N bytes (default 8)
 """
 import struct
@@ -163,6 +165,26 @@ def main(argv):
             print(f"  only A: 1:{k[1]:05x} {k[0]} {k[2]}")
         for k in sorted(kb - ka, key=lambda x: x[1]):
             print(f"  only B: 1:{k[1]:05x} {k[0]} {k[2]}")
+        return 0
+    if argv and argv[0] == "--symbols":
+        res = scan(argv[1:], min_size, False)
+        count = {}
+        for r in res:
+            count[(r["lib"], r["module"], r["seg"])] = count.get((r["lib"], r["module"], r["seg"]), 0) + 1
+        syms, clash = {}, set()
+        for r in res:
+            if r["class"] != "exact+sites" or count[(r["lib"], r["module"], r["seg"])] != 1:
+                continue
+            for n, a in r["publics"].items():
+                if n in syms and syms[n]["addr"] != f"1:{a:05x}":
+                    clash.add(n)
+                syms[n] = {"addr": f"1:{a:05x}", "evidence": f"LIBRARY_MEMBER {Path(r['lib']).as_posix()}:{r['module']}"}
+        for n in clash:
+            del syms[n]
+        from common import BUILD
+        out = BUILD / "oracles" / "d3d" / "libsyms.json"
+        dump_json(out, syms)
+        print(f"{len(syms)} library symbols -> {out} ({len(clash)} clashing names dropped)")
         return 0
     res = scan(argv, min_size, split)
     for r in sorted(res, key=lambda r: r["at"]):

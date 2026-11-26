@@ -1,0 +1,81 @@
+"""Run a pinned Watcom compiler natively in an isolated environment.
+
+    python tools/wcc.py [--install wc95b] [--profile engine] [FLAGS...] SRC.c -fo=OUT.obj [-i=DIR ...]
+
+Key files of the install are hash-checked once per process. The environment is reduced to WATCOM, INCLUDE
+(install H/ plus explicit include dirs), PATH (install BINNT) and TMP/TEMP inside a private build/tmp directory.
+Adapted from rayman_recon/tools/wcc.py (GPLv2).
+"""
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from common import BUILD, CONFIG, TOOLS_DIR, load_json, sha256_file  # noqa: E402
+
+_checked = set()
+
+
+def install(name):
+    ent = load_json(CONFIG / "toolchain.json")["installs"][name]
+    base = TOOLS_DIR / ent["dir"]
+    if name not in _checked:
+        for rel, want in ent.get("key_files", {}).items():
+            got = sha256_file(base / rel)
+            if got != want:
+                raise SystemExit(f"{name}: {rel} sha256 {got} != pinned {want}")
+        _checked.add(name)
+    return ent, base
+
+
+def profile(name):
+    return load_json(CONFIG / "toolchain.json")["profiles"][name]
+
+
+def compile_c(src, out, flags, inst="wc95b", include=(), tool="wcc386"):
+    """Compile src to out. include: extra include dirs searched before the install's H/."""
+    ent, base = install(inst)
+    tmp_root = BUILD / "tmp"
+    tmp_root.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="w", dir=tmp_root) as tmp:
+        inc = [str(Path(p).resolve()) for p in include] + [str(base / "H")]
+        env = {"SYSTEMROOT": os.environ.get("SYSTEMROOT", "C:\Windows"), "WATCOM": str(base),
+               "INCLUDE": ";".join(inc), "PATH": str(base / "BINNT"), "TMP": tmp, "TEMP": tmp}
+        exe = base / ent[tool]["nt"]
+        out = Path(out).resolve()
+        if out.exists():
+            out.unlink()
+        cmd = [str(exe)] + list(flags) + [str(Path(src).resolve()), f"-fo={out}"]
+        r = subprocess.run(cmd, env=env, capture_output=True, text=True, timeout=300, cwd=tmp)
+    text = r.stdout + r.stderr
+    if r.returncode == 0 and not out.is_file():
+        return 1, text + "\nno object produced"
+    return r.returncode, text
+
+
+def main(argv):
+    argv = list(argv[1:])
+    inst, flags, include = "wc95b", [], []
+    if "--install" in argv:
+        i = argv.index("--install"); inst = argv[i + 1]; del argv[i:i + 2]
+    if "--profile" in argv:
+        i = argv.index("--profile"); p = profile(argv[i + 1]); inst, flags = p["install"], list(p["flags"]); del argv[i:i + 2]
+    for a in list(argv):
+        if a.startswith("-i="):
+            include.append(a[3:]); argv.remove(a)
+    out = [a for a in argv if a.startswith("-fo=")]
+    srcs = [a for a in argv if not a.startswith("-")]
+    flags += [a for a in argv if a.startswith("-") and not a.startswith("-fo=")]
+    if len(srcs) != 1 or len(out) != 1:
+        print(__doc__)
+        return 2
+    rc, text = compile_c(srcs[0], out[0][4:], flags, inst, include)
+    print(text, end="")
+    return rc
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

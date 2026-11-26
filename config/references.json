@@ -1,0 +1,38 @@
+{
+ "note": "Inventory of external reference material. Everything lives under external/ (git-ignored, read-only). Extracted archives: external/x/<archive stem>/. Re-create with the URLs and verify the hashes.",
+ "archives": {
+  "kenbuild-20241213": {
+   "url": "https://ny.duke4.net/files/stuff/kenbuild-related-archives-20241213.7z",
+   "local": "external/dl/kenbuild-20241213.7z",
+   "sha256": "08666b77e36f3033a6f3f3b2bf1c43fa655923705cac8d97df0249ce4a2891bd",
+   "announcement": "https://forums.duke4.net/topic/12612-release-historical-snapshots-of-ken-silvermans-works/",
+   "license": "Ken Silverman BUILDLIC.TXT (+2DRAWLIC/CUBESLIC); SPW_INT.H/SPWINT.OBJ third-party, no rights assumed",
+   "relevance": "Build engine snapshots 1993-1996. BUIL0422: ENGINE.C+ENGINE.OBJ pair (compiler calibration). BUIL0801: Aug-94 ENGINE.OBJ/A.OBJ. buildold_12_30_94: Aug/Sep-94 GAME.C+EXEs (NOT a Dec-94 engine). buil1995: Jun-95 ENGINE.C/A.ASM/PRAGMAS.H and BUILD.TXT changelog (dates every engine change)."
+  },
+  "kenbuild-20260331": {
+   "url": "https://ny.duke4.net/files/stuff/kenbuild-related-archives-20260331.7z",
+   "local": "external/dl/kenbuild-20260331.7z",
+   "sha256": "ec61cf99bad7df5ee0d71b0bfa9abbb55e902897a6cee47cc6b37fce3fdf661f",
+   "announcement": "https://forums.duke4.net/topic/12980-release-more-historical-snapshots-of-ken-silvermans-works/",
+   "license": "Ken Silverman BUILDLIC.TXT",
+   "relevance": "build_1994_10_17_partial: Oct-94 BUILD.H (map v5, the target's map version). build_1995_03_28_partial: Mar-95 ENGINE.C (nearest later engine source, map v6). SRC_9403: Mar-94 ENGINE.OBJ (FILESLST date 1995 is misleading)."
+  },
+  "buildsrc-20190520": {
+   "url": "https://dukeworld.com/2001-current/source/buildsrc-20190520.7z",
+   "local": "external/dl/buildsrc-20190520.7z",
+   "sha256": "a908c39cc48424516220dd51b1282586063289008c95933ded89261620aa806e",
+   "announcement": "https://forums.duke4.net/topic/10589-release-historical-build-engine-object-files-and-sources/",
+   "license": "Ken Silverman BUILDLIC.TXT",
+   "relevance": "1995-1997 engine objects/sources (SRC_9505 A.OBJ/ENGINE.OBJ). Later than the target."
+  }
+ },
+ "repositories": {
+  "duke3d-1.3d": {"url": "https://github.com/abedegno/duke3d-1.3d", "commit": "69037cb710a2017f55da983754fc72e225789cc0", "path": "external/duke3d-1.3d", "license": "mixed, see its LICENSE.md (GPL game code, BUILDLIC engine)", "relevance": "Byte-identical Duke3D v1.3D reconstruction (Watcom 10.0, 1996). Infrastructure and research reference; code is ~1 year later than the target."},
+  "exhume": {"url": "https://github.com/abedegno/Exhume.git", "commit": "d566d00f70c6a162d3a35fef8d0aa8c2455f2b20", "path": "external/duke3d-1.3d/exhume"},
+  "dukenukem3d": {"url": "https://github.com/videogamepreservation/dukenukem3d.git", "commit": "ef609159bd352985a0c63734a11241d86c873fe5", "path": "external/duke3d-1.3d/dukenukem3d", "license": "GPLv2 (game) / BUILDLIC (engine)", "relevance": "Duke3D 1.5 released source: semantic reference for game code names and logic."},
+  "audiolib-reconstructions": {"url": "https://github.com/gamesrc-ver-recreation/audiolib.git", "commit": "c363124d376d373441a21b3304eb44d32c0a69f7", "path": "external/duke3d-1.3d/reference/audiolib-reconstructions", "license": "GPLv2", "relevance": "Apogee Sound System 1.04-1.12 reconstructions + original LIBs. ASS 1.04 AUDIO_WF.LIB gives 337 exact function hits in the target."},
+  "build-reconstructions": {"url": "https://github.com/gamesrc-ver-recreation/build.git", "commit": "88ffca1bdb8d93c731f6d02e62ae5119393bc73b", "path": "external/duke3d-1.3d/reference/build-reconstructions", "license": "BUILDLIC", "relevance": "1996-97 engine reconstructions; A.OBJ needs MASM 5.10."},
+  "duke3d-reconstructions": {"url": "https://github.com/gamesrc-ver-recreation/duke3d.git", "commit": "fdb214ceea671341aa03d54d09fb7fe47940d3b7", "path": "external/duke3d-1.3d/reference/duke3d-reconstructions", "license": "GPLv2"},
+  "rayman_recon": {"url": "https://github.com/missingno7/rayman_recon", "commit": "d94c23386860a64f0804c5407ff9e1def7f81400", "path": "external/rayman_recon", "license": "GPLv2", "relevance": "Watcom matching infrastructure; tools/omf.py, match.py, libscan.py, wcc.py adapted here."}
+ }
+}
