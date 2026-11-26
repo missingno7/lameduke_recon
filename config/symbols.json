@@ -4715,6 +4715,10 @@
    "compaddr": {
     "addr": "2:1be514",
     "evidence": "multi worker 2026-11-26: netinitconnection records the 12-byte peer address here. netsend copies it into the IPX header, as in BUIL0801 ENGINE.OBJ and later MULTI.C."
+   },
+   "last_used_text": {
+    "addr": "2:b1df0",
+    "evidence": "gamedef worker 2026-11-26: Private CON state packing: the seven independently located tail fields at 2:b1df4\u00e2\u20ac\u201cb1dfe occupy offsets 4,6,8,10,12,13,14 of a 15-byte pointer/short/char group. The next engine BSS starts at 2:b1e00. Watcom 9.5b -4r -s -otexan emits the sole pointer at offset zero in eight static/public, forward/reverse and renamed controls. Duke 1.5 GAMEDEF.C independently declares the file-buffer pointer in the private CON state. This predicts 2:b1df0 before checking the loader's lone store."
    }
   }
  }

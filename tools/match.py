@@ -40,6 +40,19 @@ from image import Image, parse_addr  # noqa: E402
 
 MD = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
 
+# Linker model for bytes a DATA segment leaves uncovered (no LEDATA): Watcom 9.5 WLINK `system dos4g` writes zeros
+# there (PROVEN by a natural link of the GAMEDEF object, docs/FINDINGS.md 2026-11-26). Holes therefore compare as 0
+# against the oracle (OMF segment buffers are zero-initialised). CODE extents must still be fully covered.
+DATA_HOLES_ARE_ZERO = True
+
+
+def data_covered(seg, a=0, b=None):
+    """True when [a, b) of a data segment is defined: emitted bytes, or holes the linker zero-fills."""
+    b = seg.size if b is None else b
+    if seg.cls.upper() == "CODE":
+        return bytes(seg.covered[a:b]) == b"\x01" * (b - a)
+    return DATA_HOLES_ARE_ZERO or bytes(seg.covered[a:b]) == b"\x01" * (b - a)
+
 
 def oracle_sites_in(img, obj, start, end):
     """Oracle fixup sites of obj in [start, end): indexed on a real Image, plain scan for minimal test doubles."""
@@ -258,7 +271,7 @@ def segment_report(img, mod, seg_base, binds):
                 ent["problem"] = f"segment ({seg.size} bytes at {o}:{b:x}) extends past the initialised bytes of oracle object {o}"
                 out.append(ent)
                 continue
-            covered =bytes(seg.covered) == b"\x01" * seg.size
+            covered = data_covered(seg)
             problems = []
             masked = set()
             cand_sites = set()
@@ -333,7 +346,7 @@ def code_prefix_problems(img, mod, si, base, binds, seg_base):
             tseg = mod.segments[f.target[1]]
             implied = (tobj, toff - addend)
             if tseg.size and tseg.cls.upper() not in ("BSS", "CODE") and \
-                    bytes(tseg.covered) == b"\x01" * tseg.size and \
+                    data_covered(tseg) and \
                     img.obj[implied[0]][implied[1]:implied[1] + tseg.size] == bytes(tseg.data):
                 taddr = implied
         if taddr is None or (taddr[0], taddr[1] + addend) != (tobj, toff):
@@ -362,7 +375,7 @@ def verify_object(img, mod, only=None, seg_report=None):
 
     def segment_contents_ok(si_, base_):
         s_ = mod.segments[si_]
-        return (s_.size > 0 and s_.cls.upper() != "BSS" and bytes(s_.covered) == b"\x01" * s_.size and
+        return (s_.size > 0 and s_.cls.upper() != "BSS" and data_covered(s_) and
                 img.obj[base_[0]][base_[1]:base_[1] + s_.size] == bytes(s_.data))
     for si in code_si:
         seg = mod.segments[si]
@@ -463,7 +476,7 @@ def verify_object(img, mod, only=None, seg_report=None):
                             continue
                         seg_base[tseg] = base
                         ok = cseg.size > 0 and cseg.cls.upper() != "BSS" and \
-                            bytes(cseg.covered) == b"\x01" * cseg.size and \
+                            data_covered(cseg) and \
                             img.obj[tobj][base[1]:base[1] + cseg.size] == bytes(cseg.data)
                         if ok:
                             ref["verified_by"] = f"segment {cseg.name} contents ({cseg.size} bytes) equal oracle"

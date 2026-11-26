@@ -100,3 +100,13 @@ Each entry names the command or artefact that supports it.
 - PROVEN the target library predates 1.04: earlier MULTIVOC voice layout, GUSWAVE 84-byte voices (VOC only),
   GUSMIDI reads ULTRASND.INI, 12-card FX enum without SoundScape, no *_VoiceAvailable, PITCH table computed with pow.
 - Creative and Gravis members are binary vendor libraries: identity only (config/library_symbols.json).
+
+## Data padding and holes (gamedef worker 2026-11-26, PROVEN)
+- Watcom 9.5b CONST padding: within an LEDATA record, alignment gaps keep the bytes at the same positions of the
+  reused record buffer (e.g. "cto" from "actor"). Replaying the buffer explains all 123 padding bytes of GAMEDEF's
+  CONST pool (66 nonzero) from the ordinary source literals: natural literals reproduce it; no steering needed.
+- Alignment at a record transition leaves an OMF hole (no LEDATA); Watcom 9.5 WLINK `system dos4g` writes zeros
+  there (natural link check). tools/match.py now models data-segment holes as linker zero fill (DATA_HOLES_ARE_ZERO;
+  CODE holes still rejected; control tests/test_match.py::test_data_hole_model). SOUNDS' explicit trailing NULs are
+  probably unnecessary under this model (to re-check).
+- GAMEDEF private state: last_used_text = 2:b1df0 (STRONG, BSS group-layout controls).
