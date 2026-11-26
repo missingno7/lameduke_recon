@@ -275,7 +275,8 @@ Each entry names the command or artefact that supports it.
   GAME and PREMAP; 30 STRICT (was 29), timerhandler STRICT as six plain calls, displaystatus newly STRICT.
 - 9.5 inliner rules (mini tests / A/B): a callee is inlined if its expression-tree node count <= N (plain -oe = 20;
   -oe=N overrides the e in -otexan; no per-caller budget); depth 1 (copies keep inner calls); never inlined: functions
-  owning static data (string literals, static locals, initialised local arrays) and recursive functions; definition
+  owning static data (string literals, static locals, initialised local arrays); CORRECTED (oeunits): recursive functions ARE
+  inlined one level deep, the copy keeping its self-calls as calls; definition
   order, static, parameter count do not matter; a call stays a call when run-time address arithmetic precedes it in the
   same expression (sprite[i].owner = findlocator(...)).
 - Functions with no callers (wait_for_players, playback_demo, strget, network_move_loop, numtext copies,
@@ -292,3 +293,12 @@ Each entry names the command or artefact that supports it.
 - STRONG semantic correspondences: update_timer_input = Ken's keytimerstuff, domovethings_multiplayer = getpackets,
   network_move_loop = sync, record/playback/wait_for_players/findplayer/operatesectors case 9 follow Ken's code.
   Naming hazard: our svel/player_svel is Ken's vel/syncvel (forward) and our vel is Ken's svel (strafe).
+
+## All game units are -oe=3000 natural-call sources (oeunits worker 2026-11-26)
+- PROVEN MENUES (N>=90), PLAYER (>=485), SECTOR (>=~1520), GAMEDEF (>=~1330), SOUNDS (any) and ACTORS (>=101, one comma
+  steer for addweapon) compile with natural calls under -oe=3000 to the same STRICT sets and verified data as their
+  macro/alias versions: draw_and_probe, draw_menu_slider, shoot, update_air, spawn_pistol_tracer, operatesectors,
+  checkhitswitch, getlabel, keyword, parse/move_actor, ifhitbyweapon, spawn_blood, guts are inline sources. One N fits
+  the whole game; operate_helpers.h and the #pragma aux aliases are gone.
+- PROVEN recursive functions are inlined one level deep and the copy keeps its self-calls (oracle self-calls:
+  operatesectors 2, parse 40, parsecommand 5) — the earlier "recursive callees are not inlined" was wrong.

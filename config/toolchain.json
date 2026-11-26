@@ -161,7 +161,7 @@
     "-otexan",
     "-oe=3000"
    ],
-   "evidence": "oeprobe worker 2026-11-26: with ordinary calls, any -oe>=2500 reproduces GAME's complete intra-object call/inline pattern (0 differences over all caller/callee pairs); 9.5 inliner rules in docs/FINDINGS.md"
+   "evidence": "oeprobe worker 2026-11-26: with ordinary calls, any -oe>=2500 reproduces GAME's complete intra-object call/inline pattern (0 differences over all caller/callee pairs); 9.5 inliner rules in docs/FINDINGS.md; all game units fit (oeunits 2026-11-26: MENUES N>=90, PLAYER >=485, SECTOR >=~1520, GAMEDEF >=~1330, SOUNDS any, ACTORS >=101 with one steer)"
   }
  }
 }

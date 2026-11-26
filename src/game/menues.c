@@ -121,54 +121,7 @@ void initmenus(void)
     menu_scores.flags = 7;
 }
 
-/* The options page contains three inlined copies of the slider loop. */
-#define SLIDER_BODY(x, y, value, shade)                                         \
-    if (menu_y > y - 2 && menu_y < y + 14)                                      \
-    {                                                                           \
-        if (keystatus[0x4b])                                                    \
-        {                                                                       \
-            menu_x -= 8;                                                        \
-            if (menu_x < x)                                                     \
-                *value = 0;                                                     \
-            else                                                                \
-                *value = -32 + menu_x;                                          \
-        }                                                                       \
-        if (keystatus[0x4d])                                                    \
-        {                                                                       \
-            menu_x += 8;                                                        \
-            if (menu_x > x + 256)                                               \
-                *value = 255;                                                   \
-            else                                                                \
-                *value = -32 + menu_x;                                          \
-        }                                                                       \
-        if (menu_drag)                                                          \
-        {                                                                       \
-            if (menu_x > x + 256)                                               \
-                *value = 255;                                                   \
-            else if (menu_x < x)                                                \
-                *value = 0;                                                     \
-            else                                                                \
-                *value = -32 + menu_x;                                          \
-            shade = 0;                                                          \
-        }                                                                       \
-    }                                                                           \
-    for (i = 0; i < 32; i++)                                                    \
-        if (i <= (*value >> 3))                                                 \
-            overwritesprite(x + i * 8, y, 678, (short)shade, 0, 0);             \
-        else                                                                    \
-            overwritesprite(x + i * 8, y + 4, 679, (short)shade, 0, 0);
 
-#define DRAW_SLIDER(left, top, control, color)                                  \
-    {                                                                           \
-        short i;                                                                \
-        short x, y;                                                             \
-        short *value = (control);                                               \
-        short shade = (color);                                                  \
-                                                                                \
-        x = (left);                                                             \
-        y = (top);                                                              \
-        SLIDER_BODY(x, y, value, shade)                                         \
-    }
 
 long lavaradcnt[32], lavaradx[32][128], lavarady[32][128];
 
@@ -176,35 +129,42 @@ void draw_menu_slider(short x, short y, short *value, short shade)
 {
     short i;
 
-    SLIDER_BODY(x, y, value, shade)
+        if (menu_y > y - 2 && menu_y < y + 14)
+        {
+            if (keystatus[0x4b])
+            {
+                menu_x -= 8;
+                if (menu_x < x)
+                    *value = 0;
+                else
+                    *value = -32 + menu_x;
+            }
+            if (keystatus[0x4d])
+            {
+                menu_x += 8;
+                if (menu_x > x + 256)
+                    *value = 255;
+                else
+                    *value = -32 + menu_x;
+            }
+            if (menu_drag)
+            {
+                if (menu_x > x + 256)
+                    *value = 255;
+                else if (menu_x < x)
+                    *value = 0;
+                else
+                    *value = -32 + menu_x;
+                shade = 0;
+            }
+        }
+        for (i = 0; i < 32; i++)
+            if (i <= (*value >> 3))
+                overwritesprite(x + i * 8, y, 678, (short)shade, 0, 0);
+            else
+                overwritesprite(x + i * 8, y + 4, 679, (short)shade, 0, 0);
 }
 
-#define DRAW_MENU_TEXT(x, y, text, shade, base_shade, cursor)                   \
-    while (*text) {                                                             \
-        if (*text == '\n') {                                                    \
-            x = start_x;                                                        \
-            y += 16;                                                            \
-            ++text;                                                             \
-            continue;                                                           \
-        }                                                                       \
-        if (klabs(y - cursor + 8) < 8) {                                        \
-            shade = next_text_shade();                                          \
-            if (menu_drag) shade -= 4;                                          \
-        }                                                                       \
-        else shade = base_shade;                                                \
-        if (*text == ' ') {                                                     \
-            x += 5;                                                             \
-            ++text;                                                             \
-            continue;                                                           \
-        }                                                                       \
-        if (*text >= '0' && *text <= '9') tile = *text + 101;                   \
-        if (*text >= 'a' && *text <= 'z') tile = *text + 26;                    \
-        if (*text >= 'A' && *text <= 'Z') tile = *text + 32;                    \
-        overwritesprite(x, y, tile, (unsigned char)shade, 0,                    \
-            sector[ps[screenpeek].cursectnum].floorpal);                        \
-        x += tilesizx[tile] + 1;                                                \
-        ++text;                                                                 \
-    }
 
 long drawmenu(long x, long y, unsigned char *text, short shade0,
     short cursor)
@@ -217,7 +177,31 @@ long drawmenu(long x, long y, unsigned char *text, short shade0,
     if (ps[0].display_mode == 2) return 0;
     start_x = x;
     base_shade = (unsigned char)shade0;
-    DRAW_MENU_TEXT(x, y, text, shade, base_shade, cursor)
+        while (*text) {
+            if (*text == '\n') {
+                x = start_x;
+                y += 16;
+                ++text;
+                continue;
+            }
+            if (klabs(y - cursor + 8) < 8) {
+                shade = next_text_shade();
+                if (menu_drag) shade -= 4;
+            }
+            else shade = base_shade;
+            if (*text == ' ') {
+                x += 5;
+                ++text;
+                continue;
+            }
+            if (*text >= '0' && *text <= '9') tile = *text + 101;
+            if (*text >= 'a' && *text <= 'z') tile = *text + 26;
+            if (*text >= 'A' && *text <= 'Z') tile = *text + 32;
+            overwritesprite(x, y, tile, (unsigned char)shade, 0,
+                sector[ps[screenpeek].cursectnum].floorpal);
+            x += tilesizx[tile] + 1;
+            ++text;
+        }
     return x;
 }
 
@@ -227,105 +211,68 @@ long drawmenu(long x, long y, unsigned char *text, short shade0,
                        keystatus[0xc8] | keystatus[0xd0])
 
 /* The descriptor flags use the original bitwise OR tests. */
-#define MENU_INPUT(item)                                                        \
-    {                                                                           \
-        if (item.flags | 4)                                                     \
-        {                                                                       \
-            if (keystatus[0x10] || menu_mouse == 2)                             \
-            {                                                                   \
-                keystatus[0x10] = 0;                                            \
-                return -1;                                                      \
-            }                                                                   \
-            if (keystatus[0x01] || menu_mouse == 2)                             \
-            {                                                                   \
-                keystatus[0x01] = 0;                                            \
-                return -2;                                                      \
-            }                                                                   \
-        }                                                                       \
-        if (item.flags | 2)                                                     \
-        {                                                                       \
-            if (keystatus[0x1c] || keystatus[0x39] || menu_mouse == 1)          \
-            {                                                                   \
-                keystatus[0x1c] = 0;                                            \
-                keystatus[0x39] = 0;                                            \
-                return ((long)menu_y - item.y) / 16 + 1;                        \
-            }                                                                   \
-        }                                                                       \
-        if (item.flags | 1)                                                     \
-        {                                                                       \
-            if (PRESSED_UP) menu_y -= 16;                                       \
-            if (PRESSED_DOWN) menu_y += 16;                                     \
-            if (MOVED_CURSOR)                                                   \
-            {                                                                   \
-                keystatus[0x48] = 0;                                            \
-                keystatus[0x50] = 0;                                            \
-                keystatus[0xc8] = 0;                                            \
-                keystatus[0xd0] = 0;                                            \
-                menu_x = item.x;                                                \
-                if (menu_y < item.y + 8) menu_y = item.y + (item.lines << 4) - 8; \
-                if (menu_y > item.y + (item.lines << 4) - 8) menu_y = item.y + 8; \
-            }                                                                   \
-        }                                                                       \
-        return 0;                                                               \
-    }
 
 long lavadropsizlookup[16];
 unsigned char lavainc[128];
 
 long probe(struct menu item)
 {
-    MENU_INPUT(item)
+        {
+            if (item.flags | 4)
+            {
+                if (keystatus[0x10] || menu_mouse == 2)
+                {
+                    keystatus[0x10] = 0;
+                    return -1;
+                }
+                if (keystatus[0x01] || menu_mouse == 2)
+                {
+                    keystatus[0x01] = 0;
+                    return -2;
+                }
+            }
+            if (item.flags | 2)
+            {
+                if (keystatus[0x1c] || keystatus[0x39] || menu_mouse == 1)
+                {
+                    keystatus[0x1c] = 0;
+                    keystatus[0x39] = 0;
+                    return ((long)menu_y - item.y) / 16 + 1;
+                }
+            }
+            if (item.flags | 1)
+            {
+                if (PRESSED_UP) menu_y -= 16;
+                if (PRESSED_DOWN) menu_y += 16;
+                if (MOVED_CURSOR)
+                {
+                    keystatus[0x48] = 0;
+                    keystatus[0x50] = 0;
+                    keystatus[0xc8] = 0;
+                    keystatus[0xd0] = 0;
+                    menu_x = item.x;
+                    if (menu_y < item.y + 8) menu_y = item.y + (item.lines << 4) - 8;
+                    if (menu_y > item.y + (item.lines << 4) - 8) menu_y = item.y + 8;
+                }
+            }
+            return 0;
+        }
 }
 
-#define DRAW_MENU_TITLE(item)                                                   \
-    if (menu_zoom < 8192 - 348) menu_zoom += 348; else menu_zoom = 8192;        \
-    rotatesprite(160L << 16, ((item).y - tilesizy[(item).tile] / 2L - 8) << 16, \
-        ((long)menu_zoom << 3) - 4096, menu_zoom, (item).tile)
 
 long draw_and_probe(struct menu item, unsigned char color)
 {
-    long x, y;
-    unsigned char *text;
-    unsigned char shade;
-    short tile, cursor, start_x, base_shade;
-
-    DRAW_MENU_TITLE(item);
-    cursor = menu_y;
-    x = item.x;
-    y = item.y;
-    text = item.text;
-    if (ps[0].display_mode != 2)
-    {
-        start_x = x;
-        base_shade = color;
-        DRAW_MENU_TEXT(x, y, text, shade, base_shade, cursor)
-    }
-    {
-        struct menu argument = item;
-        struct menu selected = argument;
-        MENU_INPUT(selected)
-    }
+        if (menu_zoom < 8192 - 348) menu_zoom += 348; else menu_zoom = 8192;
+        rotatesprite(160L << 16, ((item).y - tilesizy[(item).tile] / 2L - 8) << 16,
+            ((long)menu_zoom << 3) - 4096, menu_zoom, (item).tile);
+    drawmenu(item.x, item.y, item.text, color, menu_y);
+    return probe(item);
 }
-
-/* Preserve the by-value descriptor copies at each menu title/probe site. */
-#define MENU_ACTION(action, source)                                             \
-    {                                                                           \
-        struct menu selected;                                                   \
-        short cursor;                                                           \
-        short color = 4;                                                        \
-        argument = (source);                                                    \
-        selected = argument;                                                    \
-        DRAW_MENU_TITLE(selected);                                              \
-        cursor = menu_y;                                                        \
-        drawmenu(selected.x, selected.y, selected.text, color, cursor);         \
-        (action) = probe(selected);                                             \
-    }
 
 long lavadropsiz[16];
 
 void menus(void)
 {
-    struct menu argument;
     long action;
 
     if (current_menu == 0 && (ps[myconnectindex].game_mode & 4))
@@ -346,7 +293,7 @@ init_cursor:
     switch (current_menu & 127)
     {
     case 0:
-        MENU_ACTION(action, menu_main)
+        action = draw_and_probe(menu_main, 4);
         switch (action)
         {
         case -2: case -1: case 8:
@@ -363,7 +310,7 @@ init_cursor:
         break;
 
     case 1:
-        MENU_ACTION(action, menu_episode)
+        action = draw_and_probe(menu_episode, 4);
         switch (action)
         {
         case -2: case -1: case 5: current_menu = 0; break;
@@ -375,7 +322,7 @@ init_cursor:
         break;
 
     case 2:
-        MENU_ACTION(action, menu_skill)
+        action = draw_and_probe(menu_skill, 4);
         switch (action)
         {
         case -2: case -1: case 5: current_menu = 1; break;
@@ -403,7 +350,7 @@ init_cursor:
         break;
 
     case 10:
-        MENU_ACTION(action, menu_load)
+        action = draw_and_probe(menu_load, 4);
         switch (action)
         {
         case -2: case -1: case 9: current_menu = 0; break;
@@ -423,7 +370,7 @@ init_cursor:
         if (player_bits[0] & 2) gametext(10, 115, "Duck", 0);
         if (player_bits[0] & 4) gametext(10, 130, "Shoot", 0);
         if (player_bits[0] & 8) gametext(10, 145, "Open\0\0\0", 0);
-        MENU_ACTION(action, menu_instructions)
+        action = draw_and_probe(menu_instructions, 4);
         switch (action)
         {
         case -2: case -1: case 1: current_menu = 0; break;
@@ -431,12 +378,12 @@ init_cursor:
         break;
 
     case 30:
-        DRAW_SLIDER(32, menu_options.y, &sound_volume, 16)
+        draw_menu_slider(32, menu_options.y, &sound_volume, 16);
         FX_SetVolume(sound_volume);
-        DRAW_SLIDER(32, (short)(menu_options.y + 16), &music_volume, 16)
+        draw_menu_slider(32, (short)(menu_options.y + 16), &music_volume, 16);
         MUSIC_SetVolume(music_volume);
-        DRAW_SLIDER(32, (short)(menu_options.y + 32), &mouse_sensitivity, 16)
-        MENU_ACTION(action, menu_options)
+        draw_menu_slider(32, (short)(menu_options.y + 32), &mouse_sensitivity, 16);
+        action = draw_and_probe(menu_options, 4);
         switch (action)
         {
         case -2: case -1: case 5: current_menu = 0; break;
@@ -444,7 +391,7 @@ init_cursor:
         break;
 
     case 40:
-        MENU_ACTION(action, menu_ordering)
+        action = draw_and_probe(menu_ordering, 4);
         switch (action)
         {
         case -2: case -1: case 1: current_menu = 0; break;
@@ -452,7 +399,7 @@ init_cursor:
         break;
 
     case 50:
-        MENU_ACTION(action, menu_save)
+        action = draw_and_probe(menu_save, 4);
         switch (action)
         {
         case -2: case -1: case 9: current_menu = 0; break;
@@ -468,7 +415,7 @@ init_cursor:
         break;
 
     case 60:
-        MENU_ACTION(action, menu_scores)
+        action = draw_and_probe(menu_scores, 4);
         if ((unsigned long)action >= (unsigned long)-2)
             current_menu = 0;
         else
@@ -476,7 +423,7 @@ init_cursor:
         return;
 
     case 100:
-        MENU_ACTION(action, menu_pause)
+        action = draw_and_probe(menu_pause, 4);
         switch (action)
         {
         case -2: case 1:

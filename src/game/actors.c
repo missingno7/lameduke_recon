@@ -267,41 +267,14 @@ short ifhitbyweapon(short i)
 
 void guts(short i)
 {
-    long z;
-    short ang;
-
-    EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (36 << 8),
-        0, ARMPIECE, -16, 24, 24, (short)(sprite[i].ang + 1536), 64, -623, i, 5);
-    EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (36 << 8),
-        0, ARMPIECE, -16, 24, 24, (short)(sprite[i].ang - 512), 48, -447, i, 5);
-    z = sprite[i].z += 8 << 8;
-    EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, z - (36 << 8),
-        0, LEGPIECE, -16, 24, 24, (short)(sprite[i].ang + 512), 32, -508, i, 5);
-    EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (36 << 8),
-        0, LEGPIECE, -16, 24, 24, (short)(sprite[i].ang - 512), 24, -768, i, 5);
-    ang = sprite[i].ang - 1024;
-    z = sprite[i].z -= 8 << 8;
-    EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, z - (36 << 8),
-        0, HEADPIECE, -16, 24, 24, ang, 32, -768, i, 5);
+    spawn_gib(i, ARMPIECE, sprite[i].ang + 1536, 64, -623);
+    spawn_gib(i, ARMPIECE, sprite[i].ang - 512, 48, -447);
+    sprite[i].z += 8 << 8;
+    spawn_gib(i, LEGPIECE, sprite[i].ang + 512, 32, -508);
+    spawn_gib(i, LEGPIECE, sprite[i].ang - 512, 24, -768);
+    sprite[i].z -= 8 << 8;
+    spawn_gib(i, HEADPIECE, sprite[i].ang - 1024, 32, -768);
 }
-
-/* The actor and standable dispatchers contain expanded copies of this scan. */
-#define HIT_BY_WEAPON(i, hit) do { \
-    for ((hit) = headspritestat[4]; (hit) >= 0; (hit) = nextspritestat[(hit)]) \
-        if (i != (hit) && i != sprite[(hit)].owner \
-            && klabs(sprite[i].x - sprite[(hit)].x) + klabs(sprite[i].y - sprite[(hit)].y) < 768 \
-            && klabs((sprite[i].z - sprite[(hit)].z) >> 8) <= 48) { \
-            if (sprite[i].statnum != 3) { \
-                sprite[i].extra -= sprite[(hit)].extra; \
-                sprite[i].xvel = sprite[(hit)].xvel; \
-                sprite[i].ang = sprite[(hit)].ang; \
-                if ((sprite[i].statnum == 1 || sprite[i].statnum == 10) \
-                    && sprite[(hit)].picnum == BULLET) \
-                    spawn(i, STICKSPARK); \
-            } \
-            break; \
-        } \
-} while (0)
 
 #define FIND_IN_SECTOR(sn, tile, j) do { \
     for ((j) = headspritesect[(sn)]; (j) >= 0; (j) = nextspritesect[(j)]) \
@@ -328,11 +301,6 @@ void guts(short i)
     else \
         ps[(p)].health = 0; \
 } while (0)
-
-#define THROW_BLOOD(i, at, ang, speed) \
-    EGS(sprite[(i)].sectnum, sprite[(i)].x, sprite[(i)].y, sprite[(at)].z, \
-        0, BLOOD, -16, 24, 13, (ang) + (krand() & 127), \
-        (speed) + (krand() & 31), -(krand() & 511), (i), 5)
 
 void moveactors(void)
 {
@@ -379,7 +347,7 @@ void moveactors(void)
             if (MOVE_ALONG(i, sprite[i].zvel, 0))
                 sprite[i].ang += 1024;
             hittype[i][1]++;
-            HIT_BY_WEAPON(i, turn);
+            turn = ifhitbyweapon(i);
             if (turn >= 0) {
                 if (sprite[i].extra < 0) {
                     ps[screenpeek].score += 5000;
@@ -512,7 +480,7 @@ shark_steer:
                     deletesprite(i);
                 continue;
             }
-            HIT_BY_WEAPON(i, j);
+            j = ifhitbyweapon(i);
             if (j >= 0) {
                 pl->score += 1000;
                 if (sprite[j].picnum == BULLET) {
@@ -527,15 +495,8 @@ shark_steer:
                 FALL(&sprite[i]);
                 sprite[i].picnum = 965;
                 sprite[i].cstat &= 0xF7;
-                if (sprite[i].yrepeat > 62) {
-                    spawn_gib(i, ARMPIECE, sprite[i].ang + 1536, 64, -623);
-                    spawn_gib(i, ARMPIECE, sprite[i].ang - 512, 48, -447);
-                    sprite[i].z += 8 << 8;
-                    spawn_gib(i, LEGPIECE, sprite[i].ang + 512, 32, -508);
-                    spawn_gib(i, LEGPIECE, sprite[i].ang - 512, 24, -768);
-                    sprite[i].z -= 8 << 8;
-                    spawn_gib(i, HEADPIECE, sprite[i].ang - 1024, 32, -768);
-                }
+                if (sprite[i].yrepeat > 62)
+                    guts(i);
                 if (sprite[i].xrepeat > 32)
                     sprite[i].xrepeat -= krand() & 7;
                 if (sprite[i].yrepeat <= 16) {
@@ -683,7 +644,7 @@ shark_steer:
             {
                 playertype *pl = &ps[p];
 
-                HIT_BY_WEAPON(i, hit);
+                hit = ifhitbyweapon(i);
                 if (hit >= 0) {
                     hittype[i][4] = 0;
                     if (sprite[i].extra < 0) {
@@ -805,8 +766,7 @@ shark_steer:
             MOVE_ALONG(i, sprite[i].zvel, 0);
             if (ps[own].remote_active || ps[own].i != sprite[i].owner) {
                 if (dist > 512 && dist < 768) {
-                    ps[p].remote_ammo++;
-                    addweapon(p, 721, 1);
+                    ps[p].remote_ammo++, addweapon(p, 721, 1);
                     deletesprite(i);
                 }
                 continue;
@@ -929,7 +889,7 @@ shark_steer:
                 }
             }
             if (hittype[i][1] == 0) {
-                HIT_BY_WEAPON(i, hit);
+                hit = ifhitbyweapon(i);
                 if (hit >= 0 && sprite[i].extra < 0)
                     hittype[i][1] = 1;
             }
@@ -951,7 +911,7 @@ shark_steer:
 
                 if (dist > 4096)
                     continue;
-                HIT_BY_WEAPON(i, hit);
+                hit = ifhitbyweapon(i);
                 if (hit >= 0 && sprite[i].extra < 0) {
                     sprite[i].picnum = 273;
                     t[0] = 0;
@@ -1211,7 +1171,7 @@ void moveeffects(void)
             if ((krand() >> 8) >= 239) {
                 long speed = krand() & 32;
 
-                THROW_BLOOD(i, i, (short)t[0], speed);
+                spawn_blood(i, i, (short)t[0], speed);
             }
             if (sprite[i].z + 2048 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 871;
@@ -1242,7 +1202,7 @@ void moveeffects(void)
             if ((krand() >> 8) >= 239) {
                 long speed = krand() & 32;
 
-                THROW_BLOOD(i, i, (short)t[0] << 7, speed);
+                spawn_blood(i, i, (short)t[0] << 7, speed);
             }
             if (sprite[i].z + 2048 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 875;
@@ -1273,7 +1233,7 @@ void moveeffects(void)
             if ((krand() >> 8) >= 239) {
                 long speed = krand() & 32;
 
-                THROW_BLOOD(i, i, (short)t[0] << 7, speed);
+                spawn_blood(i, i, (short)t[0] << 7, speed);
             }
             if (sprite[i].z + 4096 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 879;
@@ -1452,7 +1412,7 @@ void movestandables(void)
                 spawn(i, EXPLOSION);
                 deletesprite(i);
             } else {
-                HIT_BY_WEAPON(i, j);
+                j = ifhitbyweapon(i);
                 if ((j >= 0 && sprite[i].extra < 0) || sprite[i].shade == -31) {
                     for (j = headspritestat[6]; j >= 0; j = nextspritestat[j])
                         if (sprite[i].hitag == sprite[j].hitag && sprite[j].picnum == SEENINE)
@@ -1547,7 +1507,7 @@ void movestandables(void)
             if (sprite[i].owner == -1)
                 continue;
             p = findplayer(i, &d);
-            HIT_BY_WEAPON(i, j);
+            j = ifhitbyweapon(i);
             if (j >= 0) {
                 if (sprite[i].owner == -2 && ps[p].crane == i)
                     ps[p].crane = -1;
@@ -1569,7 +1529,7 @@ void movestandables(void)
             }
         } else if (sprite[i].picnum == CANWITHSOMETHING) {
             FALL(&sprite[i]);
-            HIT_BY_WEAPON(i, j);
+            j = ifhitbyweapon(i);
             if (j >= 0) {
                 if (sprite[i].lotag)
                     EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z - 4096, 1, sprite[i].lotag, -16, 32, 32, 0, 0, -1536, sprite[j].owner, 1);

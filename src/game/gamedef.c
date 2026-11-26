@@ -94,17 +94,17 @@ void getlabel(void)
 long keyword(void)
 {
     long i;
-    char *p, c;
+    char *p;
 
     p = textptr;
-    while (!(c = *p, TOKEN_CHAR(c))) {
+    while (!isaltok(*p)) {
         p++;
         if (*p == 0)
             return 0;
     }
 
     i = 0;
-    while ((c = *p, TOKEN_CHAR(c))) {
+    while (isaltok(*p)) {
         tempbuf[i] = *p++;
         i++;
     }
@@ -201,50 +201,6 @@ void transnum(void)
 
 
 
-/* The parsecommand copies call the character classifiers out of line. */
-extern char special_char(char c);
-extern char token_char(char c);
-#pragma aux special_char "ispecial_";
-#pragma aux token_char "isaltok_";
-/* getlabel written out at each parsecommand site */
-#define GET_LABEL(done) do { \
-    long n; \
-    while (!isalnum(*textptr)) { \
-        if (*textptr == '\n') \
-            line_number++; \
-        textptr++; \
-        if (*textptr == 0) \
-            goto done; \
-    } \
-    n = 0; \
-    while (!special_char(*textptr)) \
-        label[(labelcnt << 6) + n++] = *textptr++; \
-    label[(labelcnt << 6) + n] = 0; \
-done: ; \
-} while (0)
-
-
-/* keyword lookahead written out at each parsecommand site: result in k_, done_ ends the copy */
-#define KEYWORD(k_, done_) do { \
-    char *p = textptr; \
-    long n; \
-    while (!token_char(*p)) { \
-        p++; \
-        if (*p == 0) { \
-            (k_) = 0; \
-            goto done_; \
-        } \
-    } \
-    n = 0; \
-    while (token_char(*p)) \
-        tempbuf[n++] = *p++; \
-    tempbuf[n] = 0; \
-    for ((k_) = 0; (k_) < NUMKEYWORDS; (k_)++) \
-        if (strcmp(tempbuf, keyw[(k_)]) == 0) \
-            goto done_; \
-    (k_) = -1; \
-done_: ; \
-} while (0)
 
 char parsecommand(void)
 {
@@ -278,12 +234,12 @@ char parsecommand(void)
 
     case CON_STATE:
         if (!actor_header && !parsing_state) {
-            GET_LABEL(label_done1);
+            getlabel();
             parsing_state = 1;
             labelcode[labelcnt++] = (long)--scriptptr;
             return 0;
         }
-        GET_LABEL(label_done2);
+        getlabel();
         for (i = 0; i < labelcnt; i++) {
             if (!strcmp(CURRENT_LABEL, label + (i << 6))) {
                 *scriptptr = labelcode[i];
@@ -298,7 +254,7 @@ char parsecommand(void)
         return 0;
 
     case CON_SOUND:
-        GET_LABEL(label_done3);
+        getlabel();
         for (i = 0; i < 39; i++) {
             if (!strcmp(sound_names[i], CURRENT_LABEL)) {
                 *scriptptr++ = i;
@@ -321,7 +277,7 @@ char parsecommand(void)
         return 0;
 
     case CON_DEFINE:
-        GET_LABEL(label_done4);
+        getlabel();
         for (i = 0; i < labelcnt; i++) {
             if (!strcmp(CURRENT_LABEL, label + (i << 6))) {
                 warning++;
@@ -346,7 +302,7 @@ char parsecommand(void)
             transnum();
             j = 0;
             for (;;) {
-                KEYWORD(k, move_flags);
+                k = keyword();
                 if (k != -1)
                     break;
                 transnum();
@@ -356,7 +312,7 @@ char parsecommand(void)
             return 0;
         }
         scriptptr--;
-        GET_LABEL(label_done5);
+        getlabel();
         for (i = 0; i < labelcnt; i++) {
             if (!strcmp(CURRENT_LABEL, label + (i << 6))) {
                 warning++;
@@ -368,7 +324,7 @@ char parsecommand(void)
         if (i == labelcnt)
             labelcode[labelcnt++] = (long)scriptptr;
         for (i = 0; i < 2; i++) {
-            KEYWORD(k, move_args);
+            k = keyword();
             if (k >= 0)
                 break;
             transnum();
@@ -383,7 +339,7 @@ char parsecommand(void)
         k = *--scriptptr - 1;
         if (k >= 0) {
             for (j = 0; j < 10; j++) {
-                KEYWORD(i, music_level);
+                i = keyword();
                 if (i != -1)
                     break;
                 while (!(c = *textptr, TOKEN_CHAR(c))) {
@@ -404,7 +360,7 @@ char parsecommand(void)
                 strcpy(music_files[k][i], music_files[k][j]);
         } else {
             for (j = 0; j < 10; j++) {
-                KEYWORD(i, music_env);
+                i = keyword();
                 if (i != -1)
                     break;
                 while (!(c = *textptr, TOKEN_CHAR(c))) {
@@ -467,7 +423,7 @@ char parsecommand(void)
             return 0;
         }
         scriptptr--;
-        GET_LABEL(label_done6);
+        getlabel();
         for (i = 0; i < labelcnt; i++) {
             if (!strcmp(CURRENT_LABEL, label + (i << 6))) {
                 warning++;
@@ -479,7 +435,7 @@ char parsecommand(void)
         if (i == labelcnt)
             labelcode[labelcnt++] = (long)scriptptr;
         for (i = 0; i < 5; i++) {
-            KEYWORD(k, action_args);
+            k = keyword();
             if (k >= 0)
                 break;
             transnum();
@@ -507,7 +463,7 @@ char parsecommand(void)
             if (i == 3) {
                 j = 0;
                 for (;;) {
-                    KEYWORD(k, actor_flags);
+                    k = keyword();
                     if (k != -1)
                         break;
                     transnum();
@@ -516,7 +472,7 @@ char parsecommand(void)
                 *scriptptr++ = j;
                 break;
             }
-            KEYWORD(k, actor_args);
+            k = keyword();
             if (k >= 0) {
                 scriptptr += 4 - i;
                 break;
@@ -561,7 +517,7 @@ char parsecommand(void)
         if (tw == CON_IFP) {
             j = 0;
             for (;;) {
-                KEYWORD(k, ifp_flags);
+                k = keyword();
                 if (k != -1)
                     break;
                 transnum();
@@ -571,7 +527,7 @@ char parsecommand(void)
         }
         branch = scriptptr++;
         do {
-            KEYWORD(k, if_comment);
+            k = keyword();
             if (k == CON_LINECOMMENT || k == CON_BLOCKCOMMENT)
                 parsecommand();
         } while (k == CON_LINECOMMENT || k == CON_BLOCKCOMMENT);
@@ -1153,419 +1109,11 @@ void execute(short i, short p, long x)
             hittype[i].actionframe = 0;
     }
 
-    {
-    for (;;) {
-        short i2 = i, p2 = p;
-        long x2 = x;
-        long j, flags, speed, *resume;
-        short angle, difference;
-
-        if (killit_flag)
-            break;
-
-#define PARSE_ARGS i2, p2, x2
-#define CON_NEXT() continue
-#define CON_STOP() goto end_script
-/* Shared opcode bodies. The caller supplies its continuation and exit. */
-switch (*insptr) {
-case CON_IFRND:
-    insptr++;
-    PARSE_IF((krand() >> 8) >= 255 - *insptr);
-    CON_NEXT();
-
-case CON_IFCANSEE:
-    if (cached_cansee == -1) {
-        angle = getangle(ps[p2].posx - sprite[i2].x, ps[p2].posy - sprite[i2].y);
-        difference = getincangle_shift(sprite[i2].ang, angle, 0);
-        if (difference > -128 && difference < 128)
-            cached_cansee = cansee(sprite[i2].x, sprite[i2].y,
-                sprite[i2].z - (sprite[i2].yrepeat << 7), sprite[i2].sectnum,
-                ps[p2].posx, ps[p2].posy, ps[p2].posz - (16 << 8), ps[p2].cursectnum);
-        else
-            cached_cansee = 0;
-    }
-    PARSE_IF(cached_cansee);
-    CON_NEXT();
-
-case CON_IFHITWEAPON:
-    hit_sprite = ifhitbyweapon(i2);
-    PARSE_IF(hit_sprite >= 0);
-    CON_NEXT();
-
-case CON_IFSQUISHED:
-    PARSE_IF(ifsquished(i2, p2) >= 0);
-    CON_NEXT();
-
-case CON_IFDEAD:
-    if (sprite[i2].picnum == APLAYER)
-        j = ps[sprite[i2].yvel].health - 1;
-    else
-        j = sprite[i2].extra;
-    PARSE_IF(j < 0);
-    CON_NEXT();
-
-case CON_ACTION:
-    hittype[i2].actioncount = 0;
-    hittype[i2].actionframe = 0;
-    insptr++;
-    hittype[i2].action = (long *)*insptr;
-    insptr++;
-    CON_NEXT();
-
-case CON_IFPDISTL:
-    insptr++;
-    PARSE_IF(x2 < *insptr);
-    CON_NEXT();
-
-case CON_IFPDISTG:
-    insptr++;
-    PARSE_IF(x2 > *insptr);
-    CON_NEXT();
-
-case CON_ELSE:
-    insptr = (long *)insptr[1];
-    CON_NEXT();
-
-case CON_STRENGTH:
-    insptr++;
-    if (sprite[i2].picnum == APLAYER)
-        ps[sprite[i2].yvel].health = *insptr;
-    else
-        sprite[i2].extra = *insptr;
-    insptr++;
-    CON_NEXT();
-
-case CON_CACTOR:
-    insptr++;
-    sprite[i2].picnum = *insptr++;
-    CON_NEXT();
-
-case CON_SHOOT:
-    insptr++;
-    shoot(i2, *insptr);
-    insptr++;
-    CON_NEXT();
-
-case CON_ADDSCORE:
-    insptr++;
-    ps[p2].score += *insptr;
-    insptr++;
-    CON_NEXT();
-
-case CON_SOUND:
-    insptr++;
-    spritesound(*insptr, i2);
-    insptr++;
-    CON_NEXT();
-
-case CON_FALL:
-    insptr++;
-    if (sprite[i2].z < sector[sprite[i2].sectnum].floorz) {
-        if (sprite[i2].zvel < 2048)
-            sprite[i2].zvel += 256;
-        sprite[i2].z += sprite[i2].zvel;
-    } else {
-        sprite[i2].zvel = 0;
-        sprite[i2].z = sector[sprite[i2].sectnum].floorz;
-    }
-    CON_NEXT();
-
-case CON_RBRACE:
-    insptr++;
-    CON_STOP();
-
-case CON_ADDBATTERYAMMO:
-    insptr++;
-    ps[p2].batteryammo += *insptr;
-    insptr++;
-    CON_NEXT();
-
-case CON_NUKE:
-    insptr++;
-    nuke(sprite[i2].x, sprite[i2].y, sprite[i2].z, i2);
-    CON_NEXT();
-
-case CON_KILLIT:
-    killit_flag = 1;
-    insptr++;
-    CON_NEXT();
-
-case CON_ADDWEAPON:
-    insptr++;
-    addweapon(p2, *insptr, 0);
-    insptr++;
-    CON_NEXT();
-
-case CON_WEAPON:
-    insptr += 2;
-    CON_NEXT();
-
-case CON_ADDHEALTH:
-    insptr++;
-    if (!disable_armor && ps[p2].armor)
-        ps[p2].armor -= 4;
-    else if (ps[p2].health > 0)
-        ps[p2].health += *insptr;
-    else
-        ps[p2].health = 0;
-    insptr++;
-    CON_NEXT();
-
-case CON_STATE:
-    resume = insptr + 2;
-    insptr = (long *)insptr[1];
-    while (!parse(i2, p2, x2))
+    while (!parse(i, p, x))
         ;
-    insptr = resume;
-    CON_NEXT();
-
-case CON_LBRACE:
-    insptr++;
-    while (!parse(i2, p2, x2))
-        ;
-    CON_NEXT();
-
-case CON_MOVE:
-    hittype[i2].movecount = 0;
-    insptr++;
-    hittype[i2].move = (long *)*insptr++;
-    sprite[i2].hitag = *insptr++;
-    if (sprite[i2].hitag & FACE_EXIT)
-        sprite[i2].ang = furthestangle(i2, 8);
-    CON_NEXT();
-
-case CON_SPAWN:
-    insptr++;
-    spawn(i2, *insptr);
-    insptr++;
-    CON_NEXT();
-
-case CON_IFWASWEAPON:
-    insptr++;
-    PARSE_IF(hit_sprite >= 0 && sprite[hit_sprite].picnum == *insptr);
-    CON_NEXT();
-
-case CON_IFACTION:
-    insptr++;
-    PARSE_IF((long)hittype[i2].action == *insptr);
-    CON_NEXT();
-
-case CON_IFACTIONCOUNT:
-    insptr++;
-    PARSE_IF(hittype[i2].actioncount >= *insptr);
-    CON_NEXT();
-
-case CON_RESETACTIONCOUNT:
-    insptr++;
-    hittype[i2].actioncount = 0;
-    CON_NEXT();
-
-case CON_DEBRIS:
-    insptr++;
-    for (j = 0; j < *insptr; j++)
-        EGS(sprite[i2].sectnum, sprite[i2].x, sprite[i2].y, sprite[i2].z, 0,
-            SCRAP1 + krand() % 11, -8, 32, 32, krand() & 2047,
-            64 + (krand() & 128), -512 - (krand() & 511), i2, 5);
-    insptr++;
-    CON_NEXT();
-
-case CON_IFSKILL:
-    insptr++;
-    PARSE_IF(ps[p2].skill < *insptr);
-    CON_NEXT();
-
-case CON_CSTAT:
-    insptr++;
-    sprite[i2].cstat = *insptr++;
-    CON_NEXT();
-
-case CON_IFMOVE:
-    insptr++;
-    PARSE_IF((long)hittype[i2].move == *insptr);
-    CON_NEXT();
-
-case CON_RESETPLAYER:
-    insptr++;
-    resetplayer(p2);
-    CON_NEXT();
-
-case CON_IFONWATER:
-    PARSE_IF((sector[sprite[i2].sectnum].lotag & 32767) == 1 &&
-        sector[sprite[i2].sectnum].floorz - sprite[i2].z < (sprite[i2].yrepeat << 7));
-    CON_NEXT();
-
-case CON_IFINWATER:
-    PARSE_IF((sector[sprite[i2].sectnum].lotag & 32767) == 2);
-    CON_NEXT();
-
-case CON_IFPLAYERSWEAPON:
-    insptr++;
-    PARSE_IF(ps[p2].curr_weapon == *insptr);
-    CON_NEXT();
-
-case CON_IFMOVECOUNT:
-    insptr++;
-    PARSE_IF(hittype[i2].movecount >= *insptr);
-    CON_NEXT();
-
-case CON_RESETMOVECOUNT:
-    insptr++;
-    hittype[i2].movecount = 0;
-    CON_NEXT();
-
-case CON_ADDINVENTORY:
-    insptr++;
-    switch (*insptr) {
-    case 0: ps[p2].inventory[2] = 1; break;
-    case 1: ps[p2].inventory[3] = 1; break;
-    case 2: ps[p2].inventory[0] = 1; break;
-    case 3: ps[p2].inventory[4] = 1; break;
-    case 4: ps[p2].inventory[1] = 1; break;
-    }
-    insptr++;
-    CON_NEXT();
-
-case CON_ADDAMMO:
-    insptr++;
-    ps[p2].ammo += *insptr;
-    insptr++;
-    CON_NEXT();
-
-case CON_HITRADIUS:
-    hitradius(i2, insptr[1], insptr[2]);
-    insptr += 3;
-    CON_NEXT();
-
-case CON_IFP:
-    insptr++;
-    flags = *insptr;
-    speed = player_vel[p2] + player_svel[p2];
-    PARSE_IF(((flags & 8) && ps[p2].on_ground && (player_bits[p2] & 2)) ||
-        ((flags & 16) && !ps[p2].poszv && !ps[p2].on_ground &&
-            sector[ps[p2].cursectnum].floorz - ps[p2].posz > 18432) ||
-        ((flags & 32) && ps[p2].poszv > 348) ||
-        ((flags & 1) && speed >= 0 && speed < 8) ||
-        ((flags & 2) && speed >= 8 && !(player_bits[p2] & 32)) ||
-        ((flags & 4) && speed >= 8 && (player_bits[p2] & 32)) ||
-        ((flags & 64) && sprite[i2].z - 12288 > ps[p2].posz) ||
-        ((flags & 128) && speed <= -8 && !(player_bits[p2] & 32)) ||
-        ((flags & 256) && speed <= -8 && (player_bits[p2] & 32)) ||
-        ((flags & 512) && ps[p2].horiz < -128) ||
-        ((flags & 1024) && ps[p2].horiz > 128) ||
-        ((flags & 2048) ?
-            ((((sprite[i2].ang + 3200 - sprite[facing_sprite].ang) & 2047) >> 8) < 2) :
-            (((flags & 4096) && ps[p2].shooting) ||
-             ((flags & 8192) && ps[p2].on_ground) ||
-             ((flags & 16384) && ps[p2].jetpack_on))));
-    CON_NEXT();
-
-case CON_ADDRAMMO:
-    insptr++;
-    ps[p2].rammo += *insptr;
-    insptr++;
-    CON_NEXT();
-
-case CON_SINK:
-    sprite[i2].z += 4096;
-    sprite[i2].xvel >>= 1;
-    insptr++;
-    CON_NEXT();
-
-case CON_IFSTRENGTH:
-    insptr++;
-    if (sprite[i2].picnum == APLAYER)
-        j = ps[sprite[i2].yvel].health;
-    else
-        j = sprite[i2].extra;
-    PARSE_IF(j <= *insptr);
-    CON_NEXT();
-
-case CON_BLOOD:
-    insptr++;
-    for (j = 0; j < *insptr; j++)
-        EGS(sprite[i2].sectnum, sprite[i2].x, sprite[i2].y, sprite[i2].z - 8192,
-            krand() & 2, BLOOD, -16, 8 + (krand() & 7), 8 + (krand() & 7),
-            sprite[i2].ang + (krand() & 127), 0, -1024 - (krand() & 255), i2, 5);
-    insptr++;
-    CON_NEXT();
-
-case CON_GUTS:
-    insptr++;
-    guts(i2);
-    CON_NEXT();
-
-case CON_IFSPAWNEDBY:
-    insptr++;
-    PARSE_IF(sprite[i2].owner >= 0 && sprite[i2].owner == *insptr);
-    CON_NEXT();
-
-case CON_ENDA:
-case CON_BREAK:
-case CON_ENDS:
-    CON_STOP();
-
-default:
-    gameexit(ltoa(sprite[i2].picnum, tempbuf, 10));
-    CON_STOP();
-}
-#undef CON_STOP
-#undef CON_NEXT
-#undef PARSE_ARGS
-    }
-
-    }
-
-end_script:
     if (killit_flag) {
         deletesprite(i);
         return;
     }
-    {
-/* Post-script sprite movement. The includer supplies i and p. */
-short flags, owner, goal;
-long *movement;
-
-flags = sprite[i].hitag;
-if (!hittype[i].move || !flags)
-    return;
-
-hittype[i].movecount++;
-movement = hittype[i].move;
-if (flags & ON_OWNER) {
-    owner = sprite[i].owner;
-    if (owner >= 0 && sprite[owner].statnum == 1) {
-        sprite[i].x = sprite[sprite[i].owner].x;
-        sprite[i].y = sprite[sprite[i].owner].y;
-        sprite[i].z = sprite[sprite[i].owner].z;
-    }
-}
-if (flags & SLOW_TO_STOP)
-    sprite[i].xvel >>= 1;
-if (flags & FACE_PLAYER)
-    sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-if (flags & GET_H)
-    sprite[i].xvel += (movement[0] - sprite[i].xvel) >> 1;
-if (flags & GET_V)
-    sprite[i].zvel += ((movement[1] << 4) - sprite[i].zvel) >> 1;
-if (flags & HOVER) {
-    if (sprite[i].z + 8192 < sector[sprite[i].sectnum].floorz)
-        sprite[i].zvel += movement[1] << 4;
-    else if (sprite[i].z + 8192 > sector[sprite[i].sectnum].floorz)
-        sprite[i].zvel -= movement[1] << 4;
-}
-if (flags & STICK_TO_CEILING)
-    sprite[i].z = sector[sprite[i].sectnum].ceilingz + 2048;
-if (flags & STICK_TO_FLOOR)
-    sprite[i].z = sector[sprite[i].sectnum].floorz - 2048;
-if (flags & FACE_TO_PLAYER) {
-    goal = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-    sprite[i].ang += getincangle_shift(sprite[i].ang, goal, 1);
-}
-if (sprite[i].xvel | sprite[i].zvel) {
-    if (!ssp(i, 1) && (flags & RHR) && (sector[sprite[i].sectnum].lotag & 32767) != 1) {
-        sprite[i].ang += 256;
-        ssp(i, 1);
-    }
-}
-    }
+    move_actor(i, p, x);
 }

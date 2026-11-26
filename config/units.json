@@ -1890,13 +1890,12 @@
   },
   "game_sounds": {
    "source": "src/game/sounds.c",
-   "profile": "game",
+   "profile": "game_oe",
    "include": [
     "src/game"
    ],
    "kind": "c",
    "provenance": "BINARY_DERIVED with Duke3D 1.5 SOUNDS.C semantics; names partly INVENTED (bootleg_cache_*); sounds worker 2026-11-26",
-   "quality": "COMPILER_STEERED: explicit trailing NULs in three string literals reproduce CONST padding",
    "functions": {
     "bootleg_cache_alloc": {
      "status": "STRICT",
@@ -1945,11 +1944,12 @@
     "CONST": "VERIFIED",
     "_DATA": "VERIFIED",
     "_BSS": "VERIFIED"
-   }
+   },
+   "quality": "COMPILER_STEERED: explicit trailing NULs in three string literals"
   },
   "game_gamedef": {
    "source": "src/game/gamedef.c",
-   "profile": "game",
+   "profile": "game_oe",
    "include": [
     "src/game"
    ],
@@ -1999,12 +1999,12 @@
      "status": "NEAR_MATCH"
     }
    },
-   "quality": "COMPILER_STEERED: parsecommand calls ispecial/isaltok through #pragma aux aliases so the written-out GET_LABEL/KEYWORD copies keep them as calls (as the original does) under -oe; see docs/units/gamefix5.md",
    "segments": {
     "CONST": "VERIFIED",
     "_DATA": "VERIFIED",
     "_BSS": "VERIFIED"
-   }
+   },
+   "quality": "PARSE_IF and TOKEN_CHAR macros remain (TOKEN_CHAR as isaltok calls costs transword STRICT)"
   },
   "multi": {
    "source": "src/multi/multi.c",
@@ -2110,7 +2110,7 @@
   },
   "game_menues": {
    "source": "src/game/menues.c",
-   "profile": "game",
+   "profile": "game_oe",
    "include": [
     "src/game"
    ],
@@ -2159,7 +2159,7 @@
   },
   "game_sector": {
    "source": "src/game/sector.c",
-   "profile": "game",
+   "profile": "game_oe",
    "include": [
     "src/game"
    ],
@@ -2225,7 +2225,7 @@
   },
   "game_player": {
    "source": "src/game/player.c",
-   "profile": "game",
+   "profile": "game_oe",
    "include": [
     "src/game"
    ],
@@ -2477,7 +2477,7 @@
   },
   "game_actors": {
    "source": "src/game/actors.c",
-   "profile": "game",
+   "profile": "game_oe",
    "include": [
     "src/game"
    ],
@@ -2539,7 +2539,8 @@
      "status": "NEAR_MATCH"
     }
    },
-   "segments": {}
+   "segments": {},
+   "quality": "COMPILER_STEERED: one comma expression (`ps[p].remote_ammo++, addweapon(p, 721, 1);`) keeps addweapon a call under -oe=3000 (natural ACTORS alone fits only N 101-168); alternatives: separate N or a 1:25600 object split (docs/units/oeunits.md)"
   },
   "global": {
    "source": "src/global/global.c",

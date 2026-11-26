@@ -1,111 +1,4 @@
 #include "player.h"
-/* Shared C projectile dispatch used at the original inlining sites. */
-#define SHOOT_BODY(i, tile, move_to_hit) \
-do { \
-    long zvel; \
-    long y; \
-    short sect; \
-    long z; \
-    long x; \
-    long distance; \
-    short p; \
-    short angle; \
-    short hitsprite; \
-    short j; \
-    short hitwall; \
- \
-    if (move_to_hit) { \
-        hitscan(sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum, \
-            sintable[(sprite[i].ang + 512) & 2047], sintable[sprite[i].ang & 2047], 0, \
-            &sect, &hitwall, &hitsprite, &x, &y, &z); \
-        if (ksqrt((sprite[i].x - x) * (sprite[i].x - x) \
-            + (sprite[i].y - y) * (sprite[i].y - y)) > 512) \
-            break; \
-        if (sector[sprite[i].sectnum].ceilingz + 2560 <= sprite[i].z \
-            || checkhitceiling(sprite[i].sectnum) == 0) { \
-            setsprite(i, x, y, z); \
-            if (hitwall >= 0) { \
-                checkhitswitch(hitwall); \
-                checkhitwall(hitwall, x, y, z, tile); \
-            } \
-        } \
-        break; \
-    } \
- \
-    if (sprite[i].picnum == APLAYER) { \
-        p = sprite[i].yvel; \
-        x = ps[p].posx + (player_avel[p] >> 4); \
-        y = ps[p].posy + (player_avel[p] >> 4); \
-        z = ps[p].posz + 3584; \
-        angle = ps[p].ang - 8; \
-        if (tile == RPG) \
-            angle += ps[p].lookang; \
-        p = sprite[i].yvel; \
-        sect = ps[p].cursectnum; \
-        ps[p].muzzle_flash = 1; \
-        switch (tile) { \
-        case SHOTSPARK1: \
-            zvel = (100 - ps[p].horiz) * 31; \
-            break; \
-        case RPG: \
-            zvel = (100 - ps[p].horiz) * 15; \
-            z -= 1536; \
-            break; \
-        default: \
-            zvel = (100 - ps[sprite[i].yvel].horiz) * 22; \
-            break; \
-        } \
-        if (ps[sprite[i].yvel].flash_sprite) \
-            sprite[ps[sprite[i].yvel].flash_sprite].shade = 0; \
-    } else { \
-        x = sprite[i].x; \
-        y = sprite[i].y; \
-        z = sprite[i].z - 8192; \
-        angle = sprite[i].ang; \
-        p = findplayer(i, &distance); \
-        j = ps[p].i; \
-        zvel = ((ps[p].posz - sprite[i].z) << 7) \
-            / (klabs(sprite[j].x - sprite[i].x) + klabs(sprite[j].y - sprite[i].y)); \
-        sect = sprite[i].sectnum; \
-    } \
- \
-    switch ((long)(unsigned short)tile) { \
-    case CLUB: \
-        x += sintable[(angle + 544) & 2047] >> 7; \
-        y += sintable[(angle + 32) & 2047] >> 7; \
-        z -= 2048; \
-        EGS(sect, x, y, z, 0, 46, -16, 0, 0, angle, 32, 0, i, 4); \
-        if (actorscrptr[CLUB]) \
-            sprite[i].extra = *actorscrptr[CLUB]; \
-        break; \
-    case SHOTSPARK1: \
-        angle -= 8; \
-        hitscan(x, y, z, sect, sintable[(angle + 512) & 2047], \
-            sintable[angle & 2047], zvel << 6, &sect, &hitwall, &hitsprite, &x, &y, &z); \
-        spritesound(31, i); \
-        if (sector[sect].ceilingz + 1024 > z) \
-            z = sector[sect].ceilingz + 2048; \
-        if (sprite[i].picnum == APLAYER) { \
-            j = EGS(sect, x, y, z - 2816, 0, OTHERSHOTSPARK, -16, 10, 10, angle, 64, zvel, i, 4); \
-            sprite[j].yvel = hitwall; \
-        } else \
-            EGS(sect, x, y, z - 2304, 0, SHOTSPARK1, -16, 16, 16, angle, 64, zvel, i, 4); \
-        break; \
-    case BULLET: \
-        spritesound(1, i); \
-        spritesound(24, i); \
-        EGS(sect, x + (sintable[(angle + 512) & 2047] >> 6), \
-            y + (sintable[angle & 2047] >> 6), z - 2048, \
-            1, BULLET, -127, 12, 12, angle, 0, zvel, i, 4); \
-        break; \
-    case RPG: \
-        spritesound(38, i); \
-        EGS(sect, x + (sintable[(angle + 640) & 2047] >> 5), \
-            y + (sintable[(angle + 128) & 2047] >> 5), z - 2304, \
-            65, RPG, -16, 16, 16, angle, 0, zvel, i, 4); \
-        break; \
-    } \
-} while (0)
 
 /* The tile IDs used by the prototype and its DEFS.CON. */
 #define SHOTSPARK1 191
@@ -153,7 +46,6 @@ void kickview(short p, short i)
 
 void spawn_pistol_tracer(short p)
 {
-/* Shared pistol tracer body. The caller supplies short p. */
     short hitsprite, hitwall, hitsect, i;
     short ang;
     long hitz, hity, hitx, size;
@@ -185,7 +77,109 @@ void spawn_pistol_tracer(short p)
 
 void shoot(short i, short tile, unsigned char move_to_hit)
 {
-    SHOOT_BODY(i, tile, move_to_hit);
+    long zvel;
+    long y;
+    short sect;
+    long z;
+    long x;
+    long distance;
+    short p;
+    short angle;
+    short hitsprite;
+    short j;
+    short hitwall;
+
+    if (move_to_hit) {
+        hitscan(sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum,
+            sintable[(sprite[i].ang + 512) & 2047], sintable[sprite[i].ang & 2047], 0,
+            &sect, &hitwall, &hitsprite, &x, &y, &z);
+        if (ksqrt((sprite[i].x - x) * (sprite[i].x - x)
+            + (sprite[i].y - y) * (sprite[i].y - y)) > 512)
+            return;
+        if (sector[sprite[i].sectnum].ceilingz + 2560 <= sprite[i].z
+            || checkhitceiling(sprite[i].sectnum) == 0) {
+            setsprite(i, x, y, z);
+            if (hitwall >= 0) {
+                checkhitswitch(hitwall);
+                checkhitwall(hitwall, x, y, z, tile);
+            }
+        }
+        return;
+    }
+
+    if (sprite[i].picnum == APLAYER) {
+        p = sprite[i].yvel;
+        x = ps[p].posx + (player_avel[p] >> 4);
+        y = ps[p].posy + (player_avel[p] >> 4);
+        z = ps[p].posz + 3584;
+        angle = ps[p].ang - 8;
+        if (tile == RPG)
+            angle += ps[p].lookang;
+        p = sprite[i].yvel;
+        sect = ps[p].cursectnum;
+        ps[p].muzzle_flash = 1;
+        switch (tile) {
+        case SHOTSPARK1:
+            zvel = (100 - ps[p].horiz) * 31;
+            break;
+        case RPG:
+            zvel = (100 - ps[p].horiz) * 15;
+            z -= 1536;
+            break;
+        default:
+            zvel = (100 - ps[sprite[i].yvel].horiz) * 22;
+            break;
+        }
+        if (ps[sprite[i].yvel].flash_sprite)
+            sprite[ps[sprite[i].yvel].flash_sprite].shade = 0;
+    } else {
+        x = sprite[i].x;
+        y = sprite[i].y;
+        z = sprite[i].z - 8192;
+        angle = sprite[i].ang;
+        p = findplayer(i, &distance);
+        j = ps[p].i;
+        zvel = ((ps[p].posz - sprite[i].z) << 7)
+            / (klabs(sprite[j].x - sprite[i].x) + klabs(sprite[j].y - sprite[i].y));
+        sect = sprite[i].sectnum;
+    }
+
+    switch ((long)(unsigned short)tile) {
+    case CLUB:
+        x += sintable[(angle + 544) & 2047] >> 7;
+        y += sintable[(angle + 32) & 2047] >> 7;
+        z -= 2048;
+        EGS(sect, x, y, z, 0, 46, -16, 0, 0, angle, 32, 0, i, 4);
+        if (actorscrptr[CLUB])
+            sprite[i].extra = *actorscrptr[CLUB];
+        break;
+    case SHOTSPARK1:
+        angle -= 8;
+        hitscan(x, y, z, sect, sintable[(angle + 512) & 2047],
+            sintable[angle & 2047], zvel << 6, &sect, &hitwall, &hitsprite, &x, &y, &z);
+        spritesound(31, i);
+        if (sector[sect].ceilingz + 1024 > z)
+            z = sector[sect].ceilingz + 2048;
+        if (sprite[i].picnum == APLAYER) {
+            j = EGS(sect, x, y, z - 2816, 0, OTHERSHOTSPARK, -16, 10, 10, angle, 64, zvel, i, 4);
+            sprite[j].yvel = hitwall;
+        } else
+            EGS(sect, x, y, z - 2304, 0, SHOTSPARK1, -16, 16, 16, angle, 64, zvel, i, 4);
+        break;
+    case BULLET:
+        spritesound(1, i);
+        spritesound(24, i);
+        EGS(sect, x + (sintable[(angle + 512) & 2047] >> 6),
+            y + (sintable[angle & 2047] >> 6), z - 2048,
+            1, BULLET, -127, 12, 12, angle, 0, zvel, i, 4);
+        break;
+    case RPG:
+        spritesound(38, i);
+        EGS(sect, x + (sintable[(angle + 640) & 2047] >> 5),
+            y + (sintable[(angle + 128) & 2047] >> 5), z - 2304,
+            65, RPG, -16, 16, 16, angle, 0, zvel, i, 4);
+        break;
+    }
 }
 
 unsigned char displayraise(short shade, short p)
@@ -478,7 +472,6 @@ void getinput(short p)
 
 void update_air(short p)
 {
-/* Shared air update body. The caller supplies short p. */
     if ((sector[ps[p].cursectnum].lotag & 32767) == 2) {
         if ((krand() >> 8) >= 239)
             spritesound(10, ps[p].i);
@@ -557,36 +550,7 @@ void processinput(short snum)
     if (ps[snum].state95)
         ps[snum].state95--;
 
-    {
-        short p = snum;
-
-/* Shared air update body. The caller supplies short p. */
-    if ((sector[ps[p].cursectnum].lotag & 32767) == 2) {
-        if ((krand() >> 8) >= 239)
-            spritesound(10, ps[p].i);
-        if (ps[p].scuba_on == 0) {
-            if (ps[p].airleft > 0)
-                ps[p].airleft -= 32;
-            else if (disable_armor == 0 && ps[p].armor > 0)
-                ps[p].armor -= 4;
-            else if (ps[p].health > 0)
-                ps[p].health--;
-            else
-                ps[p].health = 0;
-            FX_SetVolume(sound_volume);
-        } else {
-            FX_SetVolume(sound_volume - 32);
-            if (--ps[p].airleft < 1) {
-                ps[p].scuba_on = 0;
-                ps[p].airleft = 1728;
-            }
-        }
-    } else {
-        FX_SetVolume(sound_volume);
-        if (ps[p].scuba_on == 0)
-            ps[p].airleft = 1728;
-    }
-    }
+    update_air(snum);
 
     lotag = sector[ps[snum].cursectnum].lotag & 0x7FFF;
     if (lotag == 2) {
@@ -804,36 +768,7 @@ domove:
     }
     kick = ps[snum].weapon_pos;
     if ((kick & 0x7F) > 2 && ps[snum].curr_weapon == SHOTSPARK1 && ps[snum].kickback_pic < 5) {
-        short p = snum;
-
-/* Shared pistol tracer body. The caller supplies short p. */
-    short hitsprite, hitwall, hitsect, i;
-    short ang;
-    long hitz, hity, hitx, size;
-    long weapon_pos;
-
-    weapon_pos = ps[p].weapon_pos & 127;
-    ang = ps[p].ang - 16 + ((6 - weapon_pos) << 4);
-    hitscan(ps[p].posx + (sintable[(ang + 512) & 2047] >> 8),
-        ps[p].posy + (sintable[ang & 2047] >> 8),
-        ps[p].posz - (weapon_pos << 10) + 5376, ps[p].cursectnum,
-        sintable[(ang + (player_avel[p] >> 3) + 512) & 2047],
-        sintable[(ang + (player_avel[p] >> 3)) & 2047],
-        (100 - ps[p].horiz) << 11, &hitsect, &hitwall, &hitsprite,
-        &hitx, &hity, &hitz);
-
-    ang += 1024;
-    i = EGS(hitsect, hitx + (sintable[(ang + 512) & 2047] >> 8),
-        hity + (sintable[ang & 2047] >> 8),
-        hitz + 1024 + (sintable[ps[p].bobcounter & 2047] >> 8),
-        0, LASERSITE, -16, 12, 12, ang, 0, 0, ps[p].i, 5);
-    size = (ksqrt((ps[screenpeek].posx - sprite[i].x) * (ps[screenpeek].posx - sprite[i].x)
-        + (ps[screenpeek].posy - sprite[i].y) * (ps[screenpeek].posy - sprite[i].y)) >> 8) + 1;
-    if (size > 32)
-        size = 32;
-    sprite[i].xrepeat = sprite[i].yrepeat = size;
-    if (sector[sprite[i].sectnum].floorz - 768 < sprite[i].z)
-        sprite[i].z -= 768;
+        spawn_pistol_tracer(snum);
     }
     if ((kick & 0x7F) && (kick & 0x7F) != 6) {
         if (kick & 0x80)
@@ -906,11 +841,7 @@ domove:
         break;
     case SHOTSPARK1:
         if (ps[snum].kickback_pic == 1) {
-            i = ps[snum].i;
-            tile = SHOTSPARK1;
-            move_to_hit = 0;
-
-            SHOOT_BODY(i, tile, move_to_hit);
+            shoot(ps[snum].i, SHOTSPARK1, 0);
         } else if (ps[snum].kickback_pic == 2)
             spawn(ps[snum].i, 1165);
         ps[snum].kickback_pic++;
@@ -923,11 +854,7 @@ domove:
         if (++ps[snum].kickback_pic >= 6)
             ps[snum].kickback_pic = 0;
         if (ps[snum].kickback_pic == 3) {
-            i = ps[snum].i;
-            tile = BULLET;
-            move_to_hit = 0;
-
-            SHOOT_BODY(i, tile, move_to_hit);
+            shoot(ps[snum].i, BULLET, 0);
         }
         break;
     case CLUB: {
@@ -938,26 +865,14 @@ domove:
         if (frame < 4) {
             if (frame == 3 && ps[snum].kickback_pic == 4 && ps[snum].batteryammo && (player_bits[snum] & 4)
                 && (sector[ps[snum].cursectnum].lotag & 0x7FFF) != 2) {
-                {
-                    i = ps[snum].i;
-                    tile = CLUB;
-                    move_to_hit = 0;
-
-                    SHOOT_BODY(i, tile, move_to_hit);
-                }
+                shoot(ps[snum].i, CLUB, 0);
                 spritesound(24, ps[snum].i);
                 ps[snum].batteryammo--;
                 ps[snum].kickback_pic--;
                 ps[snum].knee_flash++;
             }
         } else if (frame == 4) {
-            {
-                i = ps[snum].i;
-                tile = CLUB;
-                move_to_hit = 0;
-
-                SHOOT_BODY(i, tile, move_to_hit);
-            }
+            shoot(ps[snum].i, CLUB, 0);
         } else if (frame == 255) {
             ps[snum].kickback_pic = 0;
         }
@@ -967,13 +882,7 @@ domove:
         if (ps[snum].rocket_ammo > 0 && (player_bits[snum] & 4) && ps[snum].kickback_pic == 10) {
             ps[snum].kickback_pic = 11;
             ps[snum].rocket_ammo--;
-            {
-                i = ps[snum].i;
-                tile = RPG;
-                move_to_hit = 0;
-
-                SHOOT_BODY(i, tile, move_to_hit);
-            }
+            shoot(ps[snum].i, RPG, 0);
             ps[snum].horiz += 64;
         }
         if (ps[snum].kickback_pic <= 10) {
