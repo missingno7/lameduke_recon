@@ -212,7 +212,7 @@
      "status": "NEAR_MATCH"
     },
     "ceilspritescan": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "ceilspritehline": {
      "status": "STRICT"
@@ -221,7 +221,7 @@
      "status": "NEAR_MATCH"
     },
     "permanentwritesprite": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "grouvline": {
      "status": "NEAR_MATCH"
@@ -287,7 +287,7 @@
      "status": "STRICT"
     },
     "clipmove": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "getcliplines": {
      "status": "NEAR_MATCH"
