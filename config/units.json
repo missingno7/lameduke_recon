@@ -92,7 +92,7 @@
      "status": "NEAR_MATCH"
     },
     "spritewallfront": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "bunchfront": {
      "status": "STRICT"
@@ -236,25 +236,25 @@
      "status": "STRICT"
     },
     "initspritelists": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "insertsprite": {
      "status": "STRICT"
     },
     "insertspritesect": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "insertspritestat": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "deletesprite": {
      "status": "STRICT"
     },
     "deletespritesect": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "deletespritestat": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "changespritesect": {
      "status": "STRICT"
@@ -269,7 +269,7 @@
      "status": "STRICT"
     },
     "cansee": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "hitscan": {
      "status": "NEAR_MATCH"

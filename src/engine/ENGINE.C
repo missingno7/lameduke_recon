@@ -405,6 +405,8 @@ scansector (short sectnum)
 {
 	short z, zz, startwall, endwall, numscansbefore, scanfirst, bunchfrst;
 	long xs, ys, xp, yp;
+	long screenright;
+	short point2;
 
 	if (sectnum == -1) return;
 
@@ -440,7 +442,7 @@ scansector (short sectnum)
 
 		startwall = sector[sectnum].wallptr;
 		endwall = startwall + sector[sectnum].wallnum - 1;
-		numscansbefore = scanfirst = numscans;
+		scanfirst = numscansbefore = numscans;
 		for(z=startwall;z<=endwall;z++)
 		{
 			if (addboxlinum(sectnum,z) == 1) p2[numscans-1] = numscans;
@@ -453,8 +455,11 @@ scansector (short sectnum)
 
 		bunchfrst = numbunches;
 		for(z=numscansbefore;z<numscans;z++)
-			if ((wall[thewall[z]].point2 != thewall[p2[z]]) || (xb2[z] >= xb1[p2[z]]))
+		{
+			point2 = wall[thewall[z]].point2;
+			if ((point2 != thewall[p2[z]]) || (screenright = xb2[z], screenright >= xb1[p2[z]]))
 				bunchfirst[numbunches++] = p2[z], p2[z] = -1;
+		}
 
 		for(z=bunchfrst;z<numbunches;z++)
 		{
@@ -510,13 +515,18 @@ spritewallfront(short s, short w)
 {
 	short p;
 	long x1, y1, x2, y2;
+	long sdx, wdy, sdy, wdx;
 
 	p = wall[w].point2;
 	x1 = wall[w].x;
 	y1 = wall[w].y;
 	x2 = wall[p].x;
 	y2 = wall[p].y;
-	return ((x2-x1)*(sprite[s].y-y1) >= (y2-y1)*(sprite[s].x-x1));
+	wdy = y2-y1;
+	sdx = sprite[s].x-x1;
+	sdy = sprite[s].y-y1;
+	wdx = x2-x1;
+	return (sdy*wdx >= wdy*sdx);
 }
 
 bunchfront (short b1, short b2)
@@ -3425,8 +3435,9 @@ drawmasks()
 drawmaskwall(short damaskwallcnt)
 {
 	long i, j, k, x, z, wallnum, sectnum, nextsectnum;
-	long z1, z2, llin, rlin, top, topinc, bot, botinc;
+	long z2, z1, llin, rlin, top, topinc, bot, botinc;
 	long hplc, hinc, dax, lx, rx;
+	long xrepeat;
 
 	z = maskwall[damaskwallcnt];
 	wallnum = thewall[z];
@@ -3439,8 +3450,10 @@ drawmaskwall(short damaskwallcnt)
 	if (sector[sectnum].floorz < z2) z2 = sector[sectnum].floorz;
 	if (z1 >= z2) return;
 
-	topinc = -ry1[z] * wall[wallnum].xrepeat;
-	top = (mulscale(rx1[z],xdimen,2) - mulscale(xb1[z]-halfxdimen,ry1[z],1)) * wall[wallnum].xrepeat;
+	xrepeat = wall[wallnum].xrepeat;
+	topinc = xrepeat * -ry1[z];
+	top = mulscale(rx1[z],xdimen,2)-mulscale(xb1[z]-(xdimen>>1),ry1[z],1);
+	top *= xrepeat;
 	botinc = ((ry2[z]-ry1[z])>>1);
 	bot = mulscale(rx1[z]-rx2[z],xdimen,3) + mulscale(xb1[z]-halfxdimen,botinc,1);
 
@@ -3608,8 +3621,8 @@ void drawsprite (long xb, long yp, short tilenum, short spritenum, char dapalnum
 
 		y1 = mulscale(sprite[spritenum].z-globalposz,siz,16);
 		y1 -= mulscale(siz,sprite[spritenum].yrepeat*yoff,14);
-		y1 += (globalhoriz<<8)-ysiz;
-		if (cstat&128) y1 += (ysiz>>1);
+		templong = (globalhoriz<<8)-ysiz;
+		y1 += templong;
 
 		x2 = x1+xsiz;
 		y2 = y1+ysiz;
@@ -3852,8 +3865,8 @@ void drawsprite (long xb, long yp, short tilenum, short spritenum, char dapalnum
 			hinc = mulscale(hinc,xdimenscale,16);
 		}
 
-		z2 = sprite[spritenum].z - ((yoff*sprite[spritenum].yrepeat)<<2);
-		if (cstat&128) z2 += ((yspan*sprite[spritenum].yrepeat)<<1);
+		z2 = sprite[spritenum].z;
+		z2 -= (yoff*sprite[spritenum].yrepeat)<<2;
 		z1 = z2 - ((yspan*sprite[spritenum].yrepeat)<<2);
 
 		globalpal = dapalnum;
@@ -4473,7 +4486,8 @@ overwritesprite (long thex, long they, short tilenum, signed char shade, char or
 	}
 
 	lm = x1;
-	rm = x2-1;
+	rm = x2;
+	rm--;
 	if ((orientation&2) > 0)
 	{
 		if (lm < windowx1) lm = windowx1;
@@ -4676,7 +4690,7 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 	signed char shade;
 	short dir[2], index;
 	long dist[2], dinc[2], incr[2], p, pinc, lastdist;
-	long grid[2], tempx, tempy, x1, y1, x2, y2, stx, sty, cnt, dend, temp;
+	long gx, gy, grid[2], tempx, tempy, x1, y1, x2, y2, stx, sty, cnt, dend, temp;
 	long tilebufoffs, heibufoffs, zoffs, they, um, dm, y, zx, dat, col;
 
 	d1 >>= 6;
@@ -4710,15 +4724,18 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 		pinc = 640;
 	}
 
+	gx = globalposx<<6; gy = globalposy<<6;
 	zx = xscr-(xdimen>>1);
 	tempy = (d1*zx)/(xdimen<<1); tempx = (d1>>2);
-	x1 = (globalposx<<6) + ((tempx*cosglobalang-tempy*singlobalang)>>12);
-	y1 = (globalposy<<6) + ((tempy*cosglobalang+tempx*singlobalang)>>12);
+	x1 = (cosglobalang*tempx-singlobalang*tempy)>>12;
+	x1 += gx;
+	y1 = (cosglobalang*tempy+singlobalang*tempx)>>12;
+	y1 += gy;
 	tempy = (d2*zx)/(xdimen<<1); tempx = (d2>>2);
 	incr[0] = ((tempx*cosglobalang-tempy*singlobalang)>>12);
 	incr[1] = ((tempy*cosglobalang+tempx*singlobalang)>>12);
-	x2 = incr[0] + (globalposx<<6);
-	y2 = incr[1] + (globalposy<<6);
+	x2 = incr[0] + gx;
+	y2 = incr[1] + gy;
 
 	dir[0] = ksgn(incr[0]); incr[0] = klabs(incr[0]);
 	dir[1] = ksgn(incr[1]); incr[1] = klabs(incr[1]);
@@ -5590,14 +5607,12 @@ clipmove (long *x, long *y, long *z, short *sectnum,
 			 long walldist, long ceildist, long flordist, char cliptype)
 {
 	long i, j, templong1, templong2;
-	long oxvect, oyvect, goalx, goaly, intx, inty, lx, ly, retval;
+	long oxvect = xvect, oyvect = yvect;
+	long goalx, goaly, intx, inty, lx, ly, retval;
 	short hitwall, cnt, bad;
 
 	retval = 0;
 	if ((xvect|yvect) == 0) return(retval);
-
-	oxvect = xvect;
-	oyvect = yvect;
 
 	goalx = *x + (xvect>>14);
 	goaly = *y + (yvect>>14);
@@ -5622,9 +5637,9 @@ clipmove (long *x, long *y, long *z, short *sectnum,
 			}
 
 			templong1 = lx*(oxvect>>6)+ly*(oyvect>>6);
-			for(i=cnt;i<3;)
+			for(i=cnt+1;i<=3;i++)
 			{
-				j = hitwalls[++i];
+				j = hitwalls[i];
 				templong2 = (clipx2[j]-clipx1[j])*(oxvect>>6) + (clipy2[j]-clipy1[j])*(oyvect>>6);
 				if ((templong1<0) != (templong2<0)) return(retval);
 			}
@@ -6557,7 +6572,7 @@ getzrange(long x, long y, long z, short sectnum,
 				if (dx*(y-y1) < (x-x1)*dy) continue; //back
 				if (dx > 0) dax = dx*(ymin-y1); else dax = dx*(ymax-y1);
 				if (dy > 0) day = dy*(xmax-x1); else day = dy*(xmin-x1);
-				if (dax >= day) continue;
+				if (dax-day >= 0) continue;
 
 				if (((cliptype == 0) || (cliptype == 2)) && ((wal->cstat&1) != 0)) continue;
 				if ((cliptype == 1) && ((wal->cstat&64) != 0)) continue;
@@ -6585,7 +6600,7 @@ getzrange(long x, long y, long z, short sectnum,
 				if ((y1 > ymax-walldist) && (y2 > ymax-walldist)) continue;
 				if (dx > 0) dax += dx*walldist; else dax -= dx*walldist;
 				if (dy > 0) day -= dy*walldist; else day += dy*walldist;
-				if (dax >= day) continue;
+				if (dax-day >= 0) continue;
 
 					//It actually got here, through all the continue's!!!
 				if (sec->ceilingz > *ceilz)
@@ -7069,10 +7084,11 @@ makepalookup(long palnum, char *remapbuf, signed char r, signed char g, signed c
 	{
 		for(i=0;i<256;i++)
 		{
+			j = 0;
 			ptr = palookup[0];
 			ptr += (remapbuf[i]&255);
 			ptr2 = palookup[palnum]+i;
-			for(j=0;j<numpalookups;j++)
+			for(;j<numpalookups;j++)
 			{
 				*ptr2 = *ptr;
 				ptr += 256;
