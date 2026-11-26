@@ -1054,6 +1054,16 @@
 	"out dx, ax",\
 	parm [eax]\
 
+#pragma aux hlin16 =\
+	"mov eax, ecx",\
+	"shr ecx, 2",\
+	"rep stosd",\
+	"mov ecx, eax",\
+	"and ecx, 3",\
+	"rep stosb",\
+	"mov eax, edi",\
+	parm [edi][ecx]\
+
 #pragma aux vlin16first =\
 	"mov al, byte ptr [edi]",\
 	"mov eax, ecx",\

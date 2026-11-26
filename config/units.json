@@ -296,7 +296,7 @@
      "status": "STRICT"
     },
     "keepaway": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "raytrace": {
      "status": "NEAR_MATCH"
@@ -305,7 +305,7 @@
      "status": "STRICT"
     },
     "rotatepoint": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "getmousevalues": {
      "status": "STRICT"
@@ -323,7 +323,7 @@
      "status": "STRICT"
     },
     "draw2dgrid": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "draw2dscreen": {
      "status": "NEAR_MATCH"
