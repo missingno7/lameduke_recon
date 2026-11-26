@@ -16,10 +16,10 @@ extern void gameexit(char *message);
 extern void makepalookup(long palnum, char *remap, signed char red,
                         signed char green, signed char blue);
 extern void bootleg_cache_pop(void);
-extern int strget(long x, long y, long shade, long limit);
 extern void newgame(unsigned char episode, unsigned char level, unsigned char skill);
 extern void overwritesprite(long x, long y, long tile, long shade,
                             long orientation, long palette);
+extern void getmousevalues(short *dx, short *dy, short *buttons);
 
 /* US PC set-1 printable keys, with zero entries for non-text keys. */
 unsigned char scan_ascii[128] =
@@ -46,7 +46,10 @@ extern long turn_velocity, strafe_velocity, forward_velocity;
 extern char tempbuf[];
 extern long frameplace;
 extern short screenpeek;
+extern short myconnectindex;
 extern short tilesizx[4096];
+extern unsigned char input_text[], input_text_length;
+extern short moustat, menu_mouse, menu_previous_buttons, menu_drag, menu_x, menu_y;
 
 extern long reccnt;
 extern signed char player_avel[], player_vel[], player_svel[];
@@ -81,9 +84,15 @@ extern const char userdefs_filename[];
 struct player_view {
     short sprite_index;
     long viewmode;
-    unsigned char before_demo_fields[0x86];
+    unsigned char before_score[0x30];
+    unsigned long score;
+    unsigned char before_sector[0x0a];
+    short cursectnum;
+    unsigned char before_demo_fields[0x46];
     unsigned char skill, level, episode;
-    unsigned char after_demo_fields[0x21];
+    unsigned char before_palette[0x18];
+    unsigned char palette;
+    unsigned char tail[8];
 };
 #pragma pack()
 
@@ -203,6 +212,20 @@ long next_text_shade(void)
     return shade + 16;
 }
 
+void draw_weapon_tile(short x, short y, short tile, unsigned char shade,
+                      unsigned char flags)
+{
+    unsigned char palette;
+
+    if (ps[screenpeek].viewmode == 3) {
+        palette = sector[ps[screenpeek].cursectnum].floorpal;
+        if (palette)
+            overwritesprite(x, y, tile, shade, flags, palette);
+        else
+            overwritesprite(x, y, tile, shade, flags, ps[screenpeek].palette);
+    }
+}
+
 long gametext(long x, long y, unsigned char *text, unsigned char shade)
 {
     if (ps[screenpeek].viewmode == 2)
@@ -316,6 +339,127 @@ void numtext_relative(long x, long y, long value, unsigned char shade)
     }
 }
     }
+}
+
+int strget(long x, long y, long shade, long limit)
+{
+    enum {
+        KEY_BACKSPACE = 0x0e,
+        KEY_LEFT_SHIFT = 0x2a,
+        KEY_RIGHT_SHIFT = 0x36,
+        KEY_ACCEPT = 0x1c,
+        KEY_EXTENDED_ACCEPT = 0x9c,
+        REPEAT_THRESHOLD = 60,
+        LARGE_FONT_FLAG = 128
+    };
+    unsigned char maxlen = limit, drawshade = shade;
+    unsigned char palette, ch;
+    short scan;
+    short left = x, top = y;
+    short tile, descender;
+    long column = left, row = top;
+    unsigned char *text;
+
+    for (scan = 0; scan < 128; scan++) {
+        if (keystatus[scan] != 0) {
+            if (keystatus[KEY_LEFT_SHIFT] | keystatus[KEY_RIGHT_SHIFT]) {
+                ch = scan_ascii_shift[scan];
+                if (ch != 0) {
+                    if (input_text_length < 79)
+                        input_text[input_text_length++] = ch;
+                    keystatus[scan] = 0;
+                }
+            } else if (scan_ascii[scan] != 0) {
+                if (input_text_length < 159)
+                    input_text[input_text_length++] = scan_ascii[scan];
+                keystatus[scan] = 0;
+            }
+
+            if (input_text_length > maxlen)
+                input_text_length = maxlen;
+            if (keystatus[KEY_BACKSPACE] != 0) {
+                if (keystatus[KEY_BACKSPACE] == 1 ||
+                    keystatus[KEY_BACKSPACE] == REPEAT_THRESHOLD) {
+                    if (input_text_length != 0)
+                        input_text_length--;
+                }
+                input_text[input_text_length] = 0;
+                if (keystatus[KEY_BACKSPACE] < REPEAT_THRESHOLD) {
+                    keystatus[KEY_BACKSPACE] += script_tics;
+                    if (keystatus[KEY_BACKSPACE] > REPEAT_THRESHOLD)
+                        keystatus[KEY_BACKSPACE] = REPEAT_THRESHOLD;
+                }
+            }
+        }
+    }
+
+    text = input_text;
+    if (drawshade & LARGE_FONT_FLAG) {
+        if (ps[screenpeek].viewmode == 2) {
+            column = 0;
+        } else {
+            tile = -1;
+            while (*text) {
+                descender = 2;
+                if (*text == '\n') {
+                    column = left;
+                    row += 16;
+                } else if (*text == ' ') {
+                    column += 5;
+                } else {
+                    if (*text >= '0' && *text <= '9')
+                        tile = *text + 101;
+                    if (*text >= 'a' && *text <= 'z')
+                        tile = *text + 26;
+                    if (*text >= 'A' && *text <= 'Z') {
+                        tile = *text + 32;
+                        descender = 0;
+                    }
+                    if (tile >= 0) {
+                        overwritesprite(column, row + descender, tile, drawshade & 127, 0, 0);
+                        column += tilesizx[tile] + 1;
+                    }
+                }
+                text++;
+            }
+        }
+        if (ps[screenpeek].viewmode == 3) {
+            palette = sector[ps[screenpeek].cursectnum].floorpal;
+            if (palette)
+                overwritesprite((short)column, top, 1022, drawshade, 0, palette);
+            else
+                overwritesprite((short)column, top, 1022, drawshade, 0, ps[screenpeek].palette);
+        }
+    } else {
+        if (ps[screenpeek].viewmode == 2) {
+            column = 0;
+        } else {
+            while (*text) {
+                if (*text == '\n') {
+                    column = left;
+                    row += 8;
+                } else if (*text == ' ') {
+                    column += 2;
+                } else {
+                    tile = *text + 991;
+                    descender = 0;
+                    if (*text >= 'a' && *text <= 'z')
+                        descender = 2;
+                    overwritesprite(column, row + descender, tile, drawshade & 127, 0, 0);
+                    column += tilesizx[tile] + 1;
+                }
+                text++;
+            }
+        }
+        if (ps[screenpeek].viewmode == 3) {
+            palette = sector[ps[screenpeek].cursectnum].floorpal;
+            if (palette)
+                overwritesprite((short)column, top, 1023, drawshade, 0, palette);
+            else
+                overwritesprite((short)column, top, 1023, drawshade, 0, ps[screenpeek].palette);
+        }
+    }
+    return (keystatus[KEY_ACCEPT] | keystatus[KEY_EXTENDED_ACCEPT]) != 0;
 }
 
 short findlocator(short tag, short sector)
@@ -456,6 +600,48 @@ void record(short player)
         reccnt = 16383;
 }
 
+void update_menu_cursor(short tile)
+{
+    short dx, dy, draw_x, draw_y;
+    short phase = hudpulse + 128;
+    unsigned char shade = (sintable[phase & 2047] >> 10) + 16;
+    unsigned char palette;
+    long scale;
+
+    hudpulse = phase;
+    menu_previous_buttons = menu_drag;
+    getmousevalues(&dx, &dy, &menu_drag);
+
+    if (menu_drag == 0 && menu_previous_buttons != 0)
+        menu_mouse = menu_previous_buttons;
+    else if (menu_drag == 0 && menu_previous_buttons == 0)
+        menu_mouse = menu_drag;
+
+    if (moustat != 0) {
+        scale = userdefs.mouse_sensitivity + 129;
+        menu_x += (dx * scale) >> 9;
+        menu_y += (dy * scale) >> 9;
+        if (menu_x < 0)
+            menu_x = 0;
+        else if (menu_x > 319)
+            menu_x = 319;
+        if (menu_y < 0)
+            menu_y = 0;
+        else if (menu_y > 199)
+            menu_y = 199;
+    }
+
+    draw_y = menu_y;
+    draw_x = menu_x;
+    if (ps[screenpeek].viewmode == 3) {
+        palette = sector[ps[screenpeek].cursectnum].floorpal;
+        if (palette)
+            overwritesprite(draw_x, draw_y, tile, shade, 1, palette);
+        else
+            overwritesprite(draw_x, draw_y, tile, shade, 1, ps[screenpeek].palette);
+    }
+}
+
 void read_userdefs(void)
 {
     int file;
@@ -563,6 +749,29 @@ unsigned char check_file_id(void)
     close(file);
     bootleg_cache_pop();
     return 0;
+}
+
+/* Keep the local shade update as a call in this routine. */
+extern long score_text_shade(void);
+#pragma aux score_text_shade "next_text_shade_"
+
+short newscore(void)
+{
+    short i, j;
+
+    score_text_shade();
+    for (i = 0; i < 12; i++) {
+        if (ps[myconnectindex].score > (unsigned long)high_scores[i]) {
+            for (j = 10; j > i; j--) {
+                high_scores[j + 1] = high_scores[j];
+                memcpy(score_names[j + 1], score_names[j], 31);
+            }
+            score_names[i][0] = 0;
+            high_scores[i] = ps[myconnectindex].score;
+            return i;
+        }
+    }
+    return -1;
 }
 
 unsigned char getscorename(short row)

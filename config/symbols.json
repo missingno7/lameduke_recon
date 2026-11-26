@@ -3237,6 +3237,10 @@
    "draw_meter": {
     "addr": "1:03970",
     "evidence": "game2 worker 2026-11-26: Entry after 03969 return and alignment. Uses five-unit groups, the bound tile blitter and width table, then returns at 039f8 before the animatesprites table. Descriptive name."
+   },
+   "newscore": {
+    "addr": "1:14e80",
+    "evidence": "game2 worker 2026-11-26: Main calls this entry after the result screen and passes the selected row to name entry. The callee compares the current dword score with the independently bound score array, then shifts both persisted score arrays down."
    }
   },
   "data": {
@@ -6119,6 +6123,18 @@
    "ysi": {
     "addr": "2:b6ad0",
     "evidence": "engine worker 2026-11-26: drawsprite stores projected Y at 1:3ea44 after adding globalhoriz shifted by 16. The next checks clamp this array to the top and bottom screen rows. 11 exact-address LE fixup sites."
+   },
+   "input_text": {
+    "addr": "2:9d3e0",
+    "evidence": "game2 worker 2026-11-26: Both arms of the US scan-code lookup append here in strget. The synchronous text paths at 1:00d10, 1:01120 and 1:018c0 deposit text at the same base."
+   },
+   "input_text_length": {
+    "addr": "2:a57c2",
+    "evidence": "game2 worker 2026-11-26: Byte used for append and termination in strget. In 1:01120 and 1:018c0 incoming text bytes increment the same length and use it to index the bound input buffer."
+   },
+   "menu_previous_buttons": {
+    "addr": "2:a5396",
+    "evidence": "game2 worker 2026-11-26: The cursor updater saves the previous value of independently bound menu_drag here before asking the mouse driver for fresh buttons. On release, the saved word becomes menu_mouse. Located between independently named menu_mouse and menu_drag."
    }
   }
  }

@@ -2218,6 +2218,18 @@
     },
     "draw_meter": {
      "status": "NEAR_MATCH"
+    },
+    "draw_weapon_tile": {
+     "status": "STRICT"
+    },
+    "strget": {
+     "status": "NEAR_MATCH"
+    },
+    "update_menu_cursor": {
+     "status": "NEAR_MATCH"
+    },
+    "newscore": {
+     "status": "STRICT"
     }
    }
   },
