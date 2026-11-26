@@ -77,22 +77,22 @@ void shoot(short i, short atwith, unsigned char impact)
 {
     /* COMPILER_STEERED: declaration order (stack homes); p is long (the oracle
        uses the sign-extended yvel directly). */
-    long sy;
-    long sz;
-    long p;
-    long zvel;
-    long sx;
-    short hitspr;
-    short hitwall;
-    short sect;
     long distance;
+    short sect;
     short sa;
-    short j;
+    short hitspr;
+    long sy;
+    long j;
+    long sz;
+    short hitwall;
+    long zvel;
+    long p;
+    long sx;
 
     if (impact) {
         hitscan(sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum,
             sintable[(sprite[i].ang + 512) & 2047], sintable[sprite[i].ang & 2047], 0,
-            &sect, &hitwall, &hitspr, &sx, &sy, &sz);
+            &sect, &hitwall, &j, &sx, &sy, &sz);
         if (ksqrt((sprite[i].x - sx) * (sprite[i].x - sx)
             + (sprite[i].y - sy) * (sprite[i].y - sy)) > 512)
             return;
@@ -108,22 +108,20 @@ void shoot(short i, short atwith, unsigned char impact)
     }
 
     if (sprite[i].picnum == APLAYER) {
-        p = sprite[i].yvel;
-        sx = ps[p].posx + (syncangvel[p] >> 4);
-        sy = ps[p].posy + (syncangvel[p] >> 4);
-        sz = ps[p].posz + 3584;
-        sa = ps[p].ang - 8;
+        sx = ps[sprite[i].yvel].posx + (syncangvel[sprite[i].yvel] >> 4);
+        sy = ps[sprite[i].yvel].posy + (syncangvel[sprite[i].yvel] >> 4);
+        sz = ps[sprite[i].yvel].posz + 3584;
+        sa = ps[sprite[i].yvel].ang - 8;
         if (atwith == RPG)
-            sa += ps[p].look_ang;
-        p = sprite[i].yvel;
-        sect = ps[p].cursectnum;
-        ps[p].shooting = 1;
+            sa += ps[sprite[i].yvel].look_ang;
+        sect = ps[sprite[i].yvel].cursectnum;
+        ps[sprite[i].yvel].shooting = 1;
         switch (atwith) {
         case SHOTSPARK1:
-            zvel = (100 - ps[p].horiz) * 31;
+            zvel = (100 - ps[sprite[i].yvel].horiz) * 31;
             break;
         case RPG:
-            zvel = (100 - ps[p].horiz) * 15;
+            zvel = (100 - ps[sprite[i].yvel].horiz) * 15;
             sz -= 1536;
             break;
         default:
@@ -138,18 +136,17 @@ void shoot(short i, short atwith, unsigned char impact)
         sz = sprite[i].z - 8192;
         sa = sprite[i].ang;
         p = findplayer(i, &distance);
-        j = ps[p].i;
         zvel = ((ps[p].posz - sprite[i].z) << 7)
-            / (klabs(sprite[j].x - sprite[i].x) + klabs(sprite[j].y - sprite[i].y));
+            / (klabs(sprite[ps[p].i].x - sprite[i].x) + klabs(sprite[ps[p].i].y - sprite[i].y));
         sect = sprite[i].sectnum;
     }
 
-    switch ((long)(unsigned short)atwith) {
+    switch (atwith & 0xffff) {
     case CLUB:
         sx += sintable[(sa + 544) & 2047] >> 7;
         sy += sintable[(sa + 32) & 2047] >> 7;
+        j = EGS(sect, sx, sy, sz, 0, 46, -16, 0, 0, sa, 32, 0, i, 4);
         sz -= 2048;
-        EGS(sect, sx, sy, sz, 0, 46, -16, 0, 0, sa, 32, 0, i, 4);
         if (actorscrptr[CLUB])
             sprite[i].extra = *actorscrptr[CLUB];
         break;
@@ -161,8 +158,7 @@ void shoot(short i, short atwith, unsigned char impact)
         if (sector[sect].ceilingz + 1024 > sz)
             sz = sector[sect].ceilingz + 2048;
         if (sprite[i].picnum == APLAYER) {
-            j = EGS(sect, sx, sy, sz - 2816, 0, OTHERSHOTSPARK, -16, 10, 10, sa, 64, zvel, i, 4);
-            sprite[j].yvel = hitwall;
+            sprite[EGS(sect, sx, sy, sz - 2816, 0, OTHERSHOTSPARK, -16, 10, 10, sa, 64, zvel, i, 4)].yvel = hitwall;
         } else
             EGS(sect, sx, sy, sz - 2304, 0, SHOTSPARK1, -16, 16, 16, sa, 64, zvel, i, 4);
         break;
@@ -807,11 +803,16 @@ domove:
                 ps[snum].batteryammo--;
             }
             break;
-        case CLUB:
-            ps[snum].knee_sequence = (unsigned char)(ps[snum].batteryammo ? 5 : krand() % 5);
+        case RPG:
             ps[snum].kickback_pic = 1;
             break;
-        case RPG:
+        case CLUB:
+            if (ps[snum].curr_weapon == CLUB) {
+                if (ps[snum].batteryammo)
+                    ps[snum].knee_sequence = 5;
+                else
+                    ps[snum].knee_sequence = krand() % 5;
+            }
         case HEAVYHBOMB:
         case HANDREMOTE:
             ps[snum].kickback_pic = 1;
@@ -873,8 +874,12 @@ domove:
 
         ps[snum].kickback_pic++;
         frame = knee_frames[ps[snum].knee_sequence][ps[snum].kickback_pic];
-        if (frame < 4) {
-            if (frame == 3 && ps[snum].kickback_pic == 4 && ps[snum].batteryammo && (syncbits[snum] & SB_FIRE)
+        switch (frame) {
+        case 255:
+            ps[snum].kickback_pic = 0;
+            break;
+        case 3:
+            if (ps[snum].kickback_pic == 4 && ps[snum].batteryammo && (syncbits[snum] & SB_FIRE)
                 && (sector[ps[snum].cursectnum].lotag & 0x7FFF) != 2) {
                 shoot(ps[snum].i, CLUB, 0);
                 spritesound(24, ps[snum].i);
@@ -882,10 +887,10 @@ domove:
                 ps[snum].kickback_pic--;
                 ps[snum].knee_flash++;
             }
-        } else if (frame == 4) {
+            break;
+        case 4:
             shoot(ps[snum].i, CLUB, 0);
-        } else if (frame == 255) {
-            ps[snum].kickback_pic = 0;
+            break;
         }
         break;
     }
@@ -896,14 +901,13 @@ domove:
             shoot(ps[snum].i, RPG, 0);
             ps[snum].horiz += 64;
         }
-        if (ps[snum].kickback_pic <= 10) {
-            if (ps[snum].kickback_pic != 0 && ps[snum].kickback_pic < 10)
+        if (ps[snum].kickback_pic > 10) {
+            if (ps[snum].kickback_pic < 18)
                 ps[snum].kickback_pic++;
-        } else if (ps[snum].kickback_pic >= 18) {
-            ps[snum].kickback_pic = 10;
-        } else {
+            else
+                ps[snum].kickback_pic = 10;
+        } else if (ps[snum].kickback_pic != 0 && ps[snum].kickback_pic < 10)
             ps[snum].kickback_pic++;
-        }
         break;
     }
 }

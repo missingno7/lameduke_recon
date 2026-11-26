@@ -401,3 +401,20 @@ Each entry names the command or artefact that supports it.
   0x78 ours (missing locals) and it uses sector+0xc/+0x1f where ours uses +0x20/+0x23.
 - The extra "loose" measure (register and stack-slot operands unified) moves only 5 KB out of "statements
   missing": Watcom spill choices are not the main residue.
+
+## PLAYER round 3 (r3player, 2026-11-26; build/workers/r3player/NOTES.md, integrated)
+- STRONG `EGS` was called without a prototype in the original game units: GAMEDEF (round 2) and PLAYER both need
+  `extern short EGS();` (32-bit argument building without narrowing); in PLAYER alone it cut processinput's
+  structural residue 5892 -> 2077 B. Declared old-style in gamedef.h and player.h only (OPEN: the other units).
+- PROVEN by compare tree and case-body order: processinput's fire switch (`case RPG: kp=1; break; case CLUB: ...
+  case HEAVYHBOMB: case HANDREMOTE: kp=1; break;`) and the knee dispatch `switch(frame){case 255: case 3: case 4:}`.
+- shoot: `switch(atwith & 0xffff)`, zvel from `sprite[ps[p].i]`, APLAYER branch via `sprite[i].yvel`, SHOTSPARK1
+  `sprite[EGS(...)].yvel = hitwall`, address-taken `long j` shared with CLUB; declaration order COMPILER_STEERED
+  (hill climb) restores size 1728 and keeps animateknuckles STRICT.
+- Progress (tools/blockdiff.py): processinput content 0.395 -> 0.586, fuzzy 0.722 -> 0.894, skeleton 0.997;
+  shoot content 0.522 -> 0.846. No STRICT change (4/8). Remaining processinput residue is allocation (frame 0x110
+  vs 0x100, tics2 spilled).
+- NEGATIVE jetpack `++` forms and ksqrt operand order compile identically; nothing reproduces the oracle's sz store
+  hoisted before the CLUB call (8 B, OPEN); spawn_pistol_tracer `long sa` + unsigned char weapon_pos is closer but
+  32 B short and costs animateknuckles; displayweapon with `myos()` unprototyped reaches exact size but
+  `unsigned char frame` loses animateknuckles' case offsets.

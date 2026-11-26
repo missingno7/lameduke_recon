@@ -35,9 +35,7 @@ extern void myos(long x, long y, long tile, short shade, long flags);
 extern void getmousevalues(short *x, short *y, short *buttons);
 extern void hitscan(long x, long y, long z, short sectnum, long xv, long yv, long zv,
     short *hitsect, short *hitwall, short *hitsprite, long *hitx, long *hity, long *hitz);
-extern short EGS(short sect, long x, long y, long z, unsigned char cstat, short picnum,
-    signed char shade, unsigned char xrepeat, unsigned char yrepeat,
-    short ang, short xvel, short zvel, short owner, short statnum);
+extern short EGS();
 extern long setsprite(short i, long x, long y, long z);
 extern long checkhitceiling(short sect);
 extern void checkhitswitch(short wall);

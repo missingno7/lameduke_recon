@@ -57,12 +57,12 @@ size, so it can only grow by proving more of the original.
 
 Code that does not match yet (108 functions, 228,420 bytes), by how much of each function's basic blocks already have the original's content (`tools/blockdiff.py`; a diagnostic, never counted as matched):
 
-- statements missing or wrong: 174,372 bytes (76.3%)
-- nearly written: small block edits: 32,003 bytes (14.0%)
+- statements missing or wrong: 172,644 bytes (75.6%)
+- nearly written: small block edits: 33,731 bytes (14.8%)
 - code written: order/registers left: 16,292 bytes (7.1%)
 - code written: register/stack homes differ: 5,373 bytes (2.4%)
 - size off >10%: 380 bytes (0.2%)
-- byte-weighted share of blocks already right: 53.2% exact, 82.5% counting near-identical blocks
+- byte-weighted share of blocks already right: 54.8% exact, 83.7% counting near-identical blocks
 
 <!-- progress:end -->
 
