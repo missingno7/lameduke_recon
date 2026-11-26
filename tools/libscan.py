@@ -78,9 +78,10 @@ def classify(le, fmap, mod, si, base, fx, a=0, b=None):
             want_sites.add(base + f.off)
         m, d = f.target
         if (m & 3) == 0 and d == si:                       # target = own segment (+disp)
-            disp = f.disp
-            if m & 4 == 0 and f.disp == 0:                  # displacement may live in the field itself
-                disp = struct.unpack_from("<i", mod.segments[si].data, f.off)[0] if f.size() == 4 else 0
+            # Watcom keeps (part of) the addend in the fixup field itself (target method 4 has no record
+            # displacement): the effective target offset is record displacement + field, as in tools/match.py
+            field = struct.unpack_from("<i", mod.segments[si].data, f.off)[0] if f.size() == 4 else 0
+            disp = f.disp + field
             tgt = base + disp
             if not (a <= disp < b):
                 continue                                    # target outside the compared piece: unverifiable here
