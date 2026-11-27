@@ -1999,7 +1999,7 @@
      "status": "STRICT"
     },
     "move_actor": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "parse": {
      "status": "NEAR_MATCH"

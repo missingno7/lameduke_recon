@@ -383,7 +383,7 @@ char parsecommand(void)
             for (i = 9; i > j; i--)
                 strcpy(env_music_fn[i], env_music_fn[j]);
         }
-        return 0;
+        break;
 
     case CON_INCLUDE:
         scriptptr--;
@@ -575,12 +575,13 @@ char parsecommand(void)
             return 0;
         }
         parsing_actor = 0;
-        return 0;
+        break;
 
     case -1:
     default:
-        return 0;
+        break;
     }
+    return 0;
 }
 
 /* Single compile pass over the loaded text. */
@@ -674,8 +675,10 @@ short furthestangle(short i, short angs)
 /* Apply sprite i's CON move and hitag move flags (Duke 1.5 move()). */
 void move_actor(short i, short p, long x)
 {
+    /* Compiler-steered: the two byte tests and the height temporary's scope select the original stack layout. */
     unsigned short flags;
     long *moveptr;
+    long height;
 
     flags = sprite[i].hitag;
     if (!hittype[i].move || !flags)
@@ -683,7 +686,7 @@ void move_actor(short i, short p, long x)
 
     hittype[i].movecount++;
     moveptr = hittype[i].move;
-    if (flags & ON_OWNER) {
+    if (((unsigned char *)&flags)[1] & (ON_OWNER >> 8)) {
         if (sprite[i].owner >= 0 && sprite[sprite[i].owner].statnum == STAT_ACTOR) {
             sprite[i].x = sprite[sprite[i].owner].x;
             sprite[i].y = sprite[sprite[i].owner].y;
@@ -699,12 +702,12 @@ void move_actor(short i, short p, long x)
     if (flags & GET_V)
         sprite[i].zvel += ((moveptr[1] << 4) - sprite[i].zvel) >> 1;
     if (flags & HOVER) {
-        if (sprite[i].z + 8192 < sector[sprite[i].sectnum].floorz)
+        if ((height = sprite[i].z + 8192) < sector[sprite[i].sectnum].floorz)
             sprite[i].zvel += moveptr[1] << 4;
-        else if (sprite[i].z + 8192 > sector[sprite[i].sectnum].floorz)
+        else if (height > sector[sprite[i].sectnum].floorz)
             sprite[i].zvel -= moveptr[1] << 4;
     }
-    if (flags & STICK_TO_CEILING)
+    if (((unsigned char *)&flags)[0] & STICK_TO_CEILING)
         sprite[i].z = sector[sprite[i].sectnum].ceilingz + 2048;
     if (flags & STICK_TO_FLOOR)
         sprite[i].z = sector[sprite[i].sectnum].floorz - 2048;
@@ -739,7 +742,10 @@ void move_actor(short i, short p, long x)
 /* Run one CON instruction for actor i (player p at distance x); nonzero ends the current block. */
 char parse(short i, short p, long x)
 {
+    /* Compiler-steered: the two function-scope temporaries preserve the interpreter's argument slots. */
     long j;
+    long speed;
+    long *tempscrptr;
 
     if (killit_flag)
         return 1;
@@ -904,13 +910,11 @@ case CON_ADDHEALTH:
     CON_NEXT();
 
 case CON_STATE:
-    {
-        long *tempscrptr = insptr + 2;
-        insptr = (long *)insptr[1];
-        while (!parse(i, p, x))
-            ;
-        insptr = tempscrptr;
-    }
+    tempscrptr = insptr + 2;
+    insptr = (long *)insptr[1];
+    while (!parse(i, p, x))
+        ;
+    insptr = tempscrptr;
     CON_NEXT();
 
 case CON_LBRACE:
@@ -946,7 +950,7 @@ case CON_IFACTION:
 
 case CON_IFACTIONCOUNT:
     insptr++;
-    PARSE_IF(hittype[i].actioncount >= *insptr);
+    PARSE_IF(*insptr <= hittype[i].actioncount);
     CON_NEXT();
 
 case CON_RESETACTIONCOUNT:
@@ -959,7 +963,7 @@ case CON_DEBRIS:
     for (j = 0; j < *insptr; j++)
         EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z, 0,
             SCRAP1 + krand() % 11, -8, 32, 32, krand() & 2047,
-            64 + (krand() & 128), -512 - (krand() & 511), i, 5);
+            64 + (krand() & 128), -(krand() & 511) - 512, i, 5);
     insptr++;
     CON_NEXT();
 
@@ -976,7 +980,7 @@ case CON_CSTAT:
 
 case CON_IFMOVE:
     insptr++;
-    PARSE_IF((long)hittype[i].move == *insptr);
+    PARSE_IF(*insptr == (long)hittype[i].move);
     CON_NEXT();
 
 case CON_RESETPLAYER:
@@ -1031,7 +1035,7 @@ case CON_HITRADIUS:
     CON_NEXT();
 
 case CON_IFP: {
-        long flags, speed;
+        long flags;
         insptr++;
         flags = *insptr;
         j = 0;
@@ -1130,26 +1134,27 @@ return 0;
 /* Execute sprite i's actor script (from actorscrptr[picnum]+4) for one game tick. */
 void execute(short i, short p, long x)
 {
-    long *actor;
-
-    actor = actorscrptr[sprite[i].picnum];
+    /* Compiler-steered: retain the widened index through actor setup. */
+    long index = i;
+    long *actor = actorscrptr[sprite[index].picnum];
     if (!actor)
         return;
 
-    insptr = actor;
+    insptr = actorscrptr[sprite[index].picnum];
     killit_flag = 0;
     hit_sprite = -1;
+    actor = hittype[index].action;
     cached_cansee = -1;
     insptr += 4;
-    if (hittype[i].action) {
+    if (actor) {
         sprite[i].lotag += synctics;
-        if (sprite[i].lotag > hittype[i].action[4]) {
-            hittype[i].actioncount++;
+        if (sprite[i].lotag > hittype[index].action[4]) {
+            hittype[index].actioncount++;
             sprite[i].lotag = 0;
-            hittype[i].actionframe += hittype[i].action[3];
+            hittype[index].actionframe += hittype[index].action[3];
         }
-        if (klabs(hittype[i].actionframe) >= klabs(hittype[i].action[1] * hittype[i].action[3]))
-            hittype[i].actionframe = 0;
+        if (klabs(hittype[index].actionframe) >= klabs(hittype[index].action[1] * hittype[index].action[3]))
+            hittype[index].actionframe = 0;
     }
 
     while (!parse(i, p, x))

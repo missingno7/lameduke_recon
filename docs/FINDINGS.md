@@ -658,3 +658,11 @@ Each entry names the command or artefact that supports it.
   verified; keeping the wall displacement live across the jump table leaves three register choices); checkhitwall
   87 -> 78 bytes (declaration order restores the sign extension after the second EGS call); cheatkeys frame 0x64 vs
   0x60, content .624; checksectors frame 0xb0 vs 0xa8 (content .411; the new inlining merges one lift tail).
+
+## GAMEDEF follow-up (r6cx-gamedef-2, Codex, 2026-11-27; build/workers/r7cx-gamedef/NOTES.md, integrated)
+- PROVEN move_actor STRICT (776 B): two byte tests and a function-scope hover temporary resolve the swapped movement
+  slots (6 B), the hover ADD (1 B) and alignment (1 B). GAMEDEF 11/14.
+- parse reaches the oracle size 6,580 (differing bytes 4,492 -> 1,459; content .699, fuzzy .971); execute 7,422 of
+  7,424 (content .863, fuzzy .971); parsecommand 5,508 vs 5,476 (content .842).
+- NEGATIVE volatile flags and address aliases for move_actor; shared-return variants for getincangle break its
+  STRICT match.
