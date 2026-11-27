@@ -859,3 +859,10 @@ Each entry names the command or artefact that supports it.
 - LESSON: tools/permute's regression guard protects only STRICT functions; its patches have twice worsened NEAR
   inlined copies elsewhere (prelevel via spawn, main via sync). Permute must also guard NEAR functions' differing
   bytes, or its patches must be checked unit-wide before adoption.
+
+## Measured tool-first round: PLAYER (r10-player, astra, 2026-11-27; build/workers/r10-player/NOTES.md)
+- No STRICT change (5/8). displayweapon 2,850 -> 2,478 differing bytes (content .299 -> .396, fuzzy .853; pistol
+  frame-27 backward branch restored); processinput 10,514 -> 10,512 (an alternative reaching 9,843 bytes moves the
+  fifth findplayer home off the oracle's +0x108; kept in build/workers/r10-player/alternative/).
+- Attribution (bytes / blocks): own reasoning +508/+8, idioms reverse -133/+5 (alternative +425/+7); near, quirks,
+  donors, permute 0.
