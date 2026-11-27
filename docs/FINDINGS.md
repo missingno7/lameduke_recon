@@ -700,3 +700,12 @@ Each entry names the command or artefact that supports it.
 - PROVEN (witness build) a function-scoped `short` in shoot gives the first and fifth inlined findplayer results
   distinct stack slots and reproduces both oracle offsets (0x94, 0x108) with the signed low-word reloads; that
   variant is 73 B short overall (not adopted; build/workers/r7astra-player/address_pi/).
+
+## ACTORS/PREMAP on gpt-6.2-astra (r8astra-actors, 2026-11-27; build/workers/r8astra-actors/NOTES.md, integrated)
+- PROVEN moveweapons STRICT (1,456 B; all 83 references verified) with a `short distance` local whose address is
+  passed to findplayer's `long *` output: Watcom 9.5 gives the short a 4-byte slot at ESP+0xc, findplayer writes the
+  whole slot and the projectile tests use the signed low word. Undefined in portable C (a 4-byte write into a 2-byte
+  object), so it is documented in the source; 4-byte array/union variants keep all 17 differences. ACTORS 13/18.
+- moveexplosions frame restored (FLAIR fallthrough, gib ssp calls): 2,590 -> 2,019 differing bytes, content .681 ->
+  .777, fuzzy .984. prelevel recovers its 0x1c frame and 13/28 exact jump-table entries (was 3). spawn 4,646 -> 4,592.
+  moveactors keeps five exact targets incl. +12,127; slime flag update still open.

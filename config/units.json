@@ -2527,7 +2527,7 @@
      "status": "NEAR_MATCH"
     },
     "moveweapons": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "moveplayers": {
      "status": "STRICT"

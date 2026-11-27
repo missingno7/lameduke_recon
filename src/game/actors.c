@@ -319,8 +319,8 @@ void guts(short i)
 /* Update active actors (status 1): hard-coded tiles here, everything else through CON execute(). */
 void moveactors(void)
 {
-    /* COMPILER_STEERED: the player index scope affects the case offsets. */
-    short i, j, nexti, p, sect;
+    /* COMPILER_STEERED: short-local order selects the actor index stack home. */
+    short p, nexti, i, j, sect;
     long l, dist;
 
     for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti) {
@@ -1000,40 +1000,39 @@ BOLT:
 /* Update projectiles (status 4): flight, player hits and impacts, then CON. */
 void moveweapons(void)
 {
-    /* The original compares and passes the low word of findplayer's distance. */
-    short p, i, nexti;
+    /* Watcom 9.5 allocates four stack bytes for this short. findplayer writes
+       the full slot at ESP+0xc. The projectile tests use its signed low word. */
+    short p, i, nexti, distance;
     /* COMPILER_STEERED: keep the call result wide before narrowing the player index. */
     int player;
 
     for (i = headspritestat[STAT_PROJECTILE]; i >= 0; i = nexti) {
-        long distance;
-
         nexti = nextspritestat[i];
-        player = findplayer(i, &distance);
+        player = findplayer(i, (long *)&distance);
         p = player;
         if (sprite[i].picnum == BLUESPARK) {
-            execute(i, p, (short)distance);
+            execute(i, p, distance);
             continue;
         }
         if (sprite[i].picnum == RADIUSEXPLOSION) {
             if (sprite[i].shade == -15) {
                 shoot(i, CLUB, 1);
-                if ((short)distance < 512 && sprite[i].owner != ps[p].i) {
+                if (distance < 512 && sprite[i].owner != ps[p].i) {
                     kickview(p, i);
                     HURT(p, sprite[i].extra);
                 }
             } else
                 sprite[i].shade = -15;
-            execute(i, p, (short)distance);
+            execute(i, p, distance);
             continue;
         }
         if (sprite[i].picnum == BOUNCEMINE) {
-            execute(i, p, (short)distance);
+            execute(i, p, distance);
             continue;
         }
         if (sprite[i].picnum == RPG) {
             if (sprite[i].extra >= 0) {
-                if (sprite[i].owner != ps[p].i && (short)distance < 768
+                if (sprite[i].owner != ps[p].i && distance < 768
                     && klabs((ps[p].posz - sprite[i].z) >> 8) <= 48) {
                     spritesound(13, ps[p].i);
                     kickview(p, i);
@@ -1045,12 +1044,12 @@ void moveweapons(void)
                     sprite[i].extra = -1;
                 }
             }
-            execute(i, p, (short)distance);
+            execute(i, p, distance);
             continue;
         }
         if (sprite[i].picnum == BULLET) {
             if (sprite[i].extra >= 0) {
-                if ((short)distance < 768 && sprite[i].owner != ps[p].i
+                if (distance < 768 && sprite[i].owner != ps[p].i
                     && klabs((ps[p].posz - sprite[i].z) >> 8) <= 48) {
                     HURT(p, sprite[i].extra);
                     kickview(p, i);
@@ -1063,18 +1062,18 @@ void moveweapons(void)
                     sprite[i].extra = -1;
                 }
             }
-            execute(i, p, (short)distance);
+            execute(i, p, distance);
         }
         if (sprite[i].picnum == SHOTSPARK1) {
-            if ((short)distance < 512)
+            if (distance < 512)
                 kickview(p, i);
             if (sprite[i].shade == -15)
                 shoot(i, 191, 1);
             else
                 sprite[i].shade = -15;
-            execute(i, p, (short)distance);
+            execute(i, p, distance);
         } else if (sprite[i].picnum == OTHERSHOTSPARK) {
-            if ((short)distance < 512)
+            if (distance < 512)
                 kickview(p, i);
             if (sprite[i].shade == -15) {
                 shoot(i, OTHERSHOTSPARK, 1);
@@ -1082,7 +1081,7 @@ void moveweapons(void)
                     spritesound(30, i);
             } else
                 sprite[i].shade = -15;
-            execute(i, p, (short)distance);
+            execute(i, p, distance);
         }
     }
 }
@@ -1211,20 +1210,18 @@ void moveexplosions(void)
             else
                 sprite[i].xvel = 0;
             sprite[i].zvel += 192;
-            if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
+            if (!ssp(i, 0)) {
                 t[1]++;
                 sprite[i].zvel = (short)-sprite[i].zvel;
             }
             if ((krand() >> 8) >= 239) {
-                long speed = krand() & 32;
-
-                spawn_blood(i, i, (short)t[0], speed);
+                spawn_blood(i, i, (short)t[0], (short)(krand() & 32));
             }
             if (sprite[i].z + 2048 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 871;
                 sprite[i].z = sector[sect].floorz - 512;
-                t[2] = 1;
                 sprite[i].cstat |= krand() & 4;
+                t[2] = 1;
             }
         }
         if (sprite[i].picnum >= 874 && sprite[i].picnum <= 877) {
@@ -1245,14 +1242,12 @@ void moveexplosions(void)
             else
                 sprite[i].xvel = 0;
             sprite[i].zvel += 128;
-            if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
+            if (!ssp(i, 0)) {
                 t[1]++;
                 sprite[i].zvel = (short)-sprite[i].zvel;
             }
             if ((krand() >> 8) >= 239) {
-                long speed = krand() & 32;
-
-                spawn_blood(i, i, (short)t[0] << 7, speed);
+                spawn_blood(i, i, (short)t[0] << 7, (short)(krand() & 32));
             }
             if (sprite[i].z + 2048 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 875;
@@ -1279,14 +1274,12 @@ void moveexplosions(void)
             else
                 sprite[i].xvel = 0;
             sprite[i].zvel += 192;
-            if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
+            if (!ssp(i, 0)) {
                 t[1]++;
                 sprite[i].zvel = (short)-sprite[i].zvel;
             }
             if ((krand() >> 8) >= 239) {
-                long speed = krand() & 32;
-
-                spawn_blood(i, i, (short)t[0] << 7, speed);
+                spawn_blood(i, i, (short)t[0] << 7, (short)(krand() & 32));
             }
             if (sprite[i].z + 4096 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 879;
@@ -1310,9 +1303,10 @@ void moveexplosions(void)
                     sprite[i].ang = (short)((unsigned char)randomstash + x);
                     spawn(i, EXPLOSION);
                 }
-            if (t[0] > 3)
+            if (t[0] > 3) {
                 deletesprite(i);
-            continue;
+                continue;
+            }
         }
         if (sprite[i].picnum >= 235 && sprite[i].picnum <= 246) {
             sprite[i].picnum++;

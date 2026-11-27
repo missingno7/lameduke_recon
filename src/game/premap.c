@@ -242,7 +242,7 @@ extern long angvel, svel, vel;
 void spawn(long j, short pn)
 {
     /* COMPILER_STEERED: declaration order affects the stack slots. */
-    short sect, i, endwall, startwall, clostest, s;
+    short clostest, startwall, i, s, sect, endwall;
     long x, y, d;
 
     if (j >= 0) {
@@ -433,10 +433,11 @@ void spawn(long j, short pn)
         ps[0].max_actors_killed++;
         /* fall through */
     case 631:
+        /* COMPILER_STEERED: repeat-store order affects the inlined prelevel switch. */
         sprite[i].shade = -24;
-        sprite[i].yrepeat = 43;
-        show2dsprite[i >> 3] |= 1 << (i & 7);
         sprite[i].xrepeat = 52;
+        show2dsprite[i >> 3] |= 1 << (i & 7);
+        sprite[i].yrepeat = 43;
         /* COMPILER_STEERED: the explicit assignment affects Watcom register allocation. */
         if (sprite[i].picnum == 408)
             sprite[i].xrepeat = sprite[i].xrepeat - 9;
@@ -861,12 +862,13 @@ void prelevel(void)
 {
     short i, k, sect, nexti;
     long j;
-    long *actor;
+    /* COMPILER_STEERED: keep the overpicnum switch value in an int. */
+    int tile;
 
     resetprestat(0);
 
-    for (i = 0; i < 13; i++)
-        ps[0].fta[i] = 0;
+    for (k = 0; k < 13; k++)
+        ps[0].fta[k] = 0;
     for (i = 0; i < 512; i++)
         show2dwall[i] = 255;
     for (i = 0; i < 512; i++)
@@ -897,7 +899,8 @@ void prelevel(void)
     for (i = 0; i < numwalls; i++) {
         if (numanimwalls >= 256)
             gameexit("Maxed out on anim walls\n");
-        switch (wall[i].overpicnum) {
+        tile = wall[i].overpicnum;
+        switch (tile) {
         case 1184:
             if (waloff[1184] == -1)
                 for (k = 0; k < 3; k++)
