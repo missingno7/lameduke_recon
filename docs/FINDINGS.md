@@ -1174,3 +1174,12 @@ Each entry names the command or artefact that supports it.
   changes also reproduce ROTT 1.01 (561 B) and 1.03 (431 B) AL_Init bodies, and moving the interrupt disable
   reproduces Wacky Wheels' 368-byte GUSWAVE_PlayVOC (LameDuke's still 5 B off at +07). Eight other ASS targets
   stay NEAR (stopping decisions in build/workers/xver/REPORT.md). Sound-library rounds stop here (game priority).
+
+## Small GAME function sweep (smallgame, sol, 2026-11-27; build/workers/smallgame/REPORT.md)
+- 0 new STRICT of nine; integrated byte progress: ms 106 -> 90, update_menu_cursor 227 -> 138 (independent cursor
+  button checks), spritesound 43 -> 38 (named x/y/z in the wrapper). lotsofglass variant (210) rejected: worsens the
+  inlined copy in moveeffectors.
+- COMMON CAUSE: operatefta, displayhighscores and draw_and_probe match every block and fixup; the residue is only
+  stack-home exchanges between locals of an inlined text helper (minitext/menutext style) and caller locals. Flipping
+  the tied home pair in the trace gives exact bytes (draw_and_probe accepted by the verifier as a diagnostic).
+  Hypothesis under test (worker handcopy): the text loops were hand-copied or macros in December, not -oe inlined.

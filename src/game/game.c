@@ -2027,7 +2027,7 @@ void update_menu_cursor(short tile)
 
     if (menu_drag == 0 && menu_previous_buttons != 0)
         menu_mouse = menu_previous_buttons;
-    else if (menu_drag == 0 && menu_previous_buttons == 0)
+    if (menu_drag == 0 && menu_previous_buttons == 0)
         menu_mouse = menu_drag;
 
     if (moustat != 0) {
@@ -2044,7 +2044,13 @@ void update_menu_cursor(short tile)
             menu_y = 199;
     }
 
-    myos(menu_x, menu_y, tile, shade, 1);
+    {
+        short x, y;
+
+        y = menu_y;
+        x = menu_x;
+        myos(x, y, tile, shade, 1);
+    }
 }
 
 /* High-score table. */

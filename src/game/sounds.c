@@ -200,8 +200,9 @@ void xyzsound(short num, short i, long x, long y, long z)
 void spritesound(short number, short source)
 {
     long i = source;
+    long x = sprite[i].x, y = sprite[i].y, z = sprite[i].z;
 
-    xyzsound(number, i, sprite[i].x, sprite[i].y, sprite[i].z);
+    xyzsound(number, i, x, y, z);
 }
 
 /* Stop sound num (its last voice). */

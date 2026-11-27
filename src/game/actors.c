@@ -158,7 +158,7 @@ void spawn_blood(short i, short at, short ang, short speed)
 /* Move sector effector i and drag its walls (msx/msy from T2, angle T3). */
 void ms(short i)
 {
-    long ty, tx;
+    long tx, ty;
     short sn, w, endwall;
     long j;
 
@@ -168,10 +168,10 @@ void ms(short i)
     j = hittype[i][1];
     w = sector[sn].wallptr;
     endwall = sector[sn].wallnum + w;
-    for (; w < endwall;) {
+    for (; w < endwall; w++) {
         long wx = msx[j];
         rotatepoint(0, 0, wx, msy[j++], hittype[i][2] & 2047, &tx, &ty);
-        dragpoint(w++, tx + sprite[i].x, ty + sprite[i].y);
+        dragpoint(w, tx + sprite[i].x, ty + sprite[i].y);
     }
     setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 }
