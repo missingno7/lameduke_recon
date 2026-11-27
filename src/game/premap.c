@@ -242,8 +242,10 @@ extern long angvel, svel, vel;
 void spawn(long j, short pn)
 {
     /* COMPILER_STEERED: declaration order affects the stack slots. */
-    short clostest, s, i, sect, startwall, endwall;
-    long x, y, d;
+    short clostest, s, i, sect, startwall;
+    long x;
+    short endwall;
+    long y, d;
 
     if (j >= 0) {
         i = EGS(sprite[j].sectnum, sprite[j].x, sprite[j].y, sprite[j].z,

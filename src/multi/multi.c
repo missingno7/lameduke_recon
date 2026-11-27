@@ -666,7 +666,7 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
 short getpacket(short *otherconnectindex, unsigned char *buffer)
 {
     short i, j, length, sublength, start;
-    unsigned char bad, totalbad, toindex;
+    unsigned char bad, toindex, totalbad;
     unsigned char sequence;
     volatile unsigned char *ring;
 
@@ -674,7 +674,7 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
     if (multioption < 5)
     {
         *otherconnectindex = 1 - myconnectindex;
-        while (*inbufplc != *inbufend)
+        for (; *inbufplc != *inbufend; )
         {
             i = inbuf[*inbufplc];
             *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);

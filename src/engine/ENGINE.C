@@ -2953,8 +2953,8 @@ getpixel16(long p)
 screencapture()
 {
 	char *ptr, filename[13];
-	long count;
-	long fil, i, bufplc, p, col, ncol, leng, numbytes, xres, inverseit;
+	long ncol;
+	long fil, i, bufplc, p, col, count, leng, numbytes, xres, inverseit;
 
 	inverseit = (keystatus[0x2a]|keystatus[0x36]);
 	strcpy(filename,"captxxxx.pcx");
@@ -3436,7 +3436,7 @@ drawmasks()
 
 drawmaskwall(short damaskwallcnt)
 {
-	long i, j, k, x, z, wallnum, sectnum, nextsectnum;
+	long z, j, k, x, i, wallnum, sectnum, nextsectnum;
 	long z2, z1, llin, rlin, top, topinc, bot, botinc;
 	long hplc, hinc, dax, lx, rx;
 	long xrepeat;
@@ -5465,7 +5465,9 @@ neartag (long xs, long ys, long zs, short sectnum, short ange, short *neartagsec
 				topt = vx*(x1-xs) + vy*(y1-ys);
 				if (topt > 0)
 				{
-					bot = vx*vx + vy*vy;
+					long permute_tmp0;
+					permute_tmp0 = vy*vy;
+					bot = vx*vx + permute_tmp0;
 					if (bot != 0)
 					{
 						intz = zs+scale(vz,topt,bot);

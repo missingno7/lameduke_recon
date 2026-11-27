@@ -48,7 +48,7 @@ void spawn_pistol_tracer(short snum)
 {
     /* COMPILER_STEERED: local order for the hitscan argument homes. */
     short hitspr;
-    long sx;
+    long hitz;
     long sy;
     long hity;
     short hitwall;
@@ -58,7 +58,7 @@ void spawn_pistol_tracer(short snum)
     unsigned char weapon_pos;
     long sz;
     long sa;
-    long hitz;
+    long sx;
 
     sx = ps[snum].posx;
     sy = ps[snum].posy;
@@ -246,8 +246,8 @@ void displayweapon(short snum)
     short look;
     long draw_x;
     unsigned char weapon_pos;
-    short looking_arc;
     long draw_y;
+    short looking_arc;
 
     if (ps[snum].health <= 0)
         return;

@@ -768,3 +768,13 @@ Each entry names the command or artefact that supports it.
   regression checks, DOS confirmation, deduplicated trial log. Calibration: reproduces movetransports' declaration
   order fix (11 trials) and hline's stack-home fix (5 trials) from their pre-fix sources, both DOS-confirmed STRICT;
   ~0.5 s per NT trial. Live checkhitswitch (2-byte case-405 tie): no better variant in 60 trials.
+
+## First tools/permute sweep (integrator, 2026-11-27; build/permute/sweep1/)
+- 23 near-miss functions in engine, ACTORS, PLAYER, PREMAP, MENUES, SOUNDS and MULTI, 150 trials each: no new STRICT.
+  The closest allocation ties (scansector 7 B, hitradius 4 B, comsend 5 B, setview 9 B) were not beaten; newgame,
+  comsend and draw_and_probe had no applicable transform. Seven DOS-confirmed improvements (local declaration orders
+  selected by search, i.e. COMPILER_STEERED) were applied: drawmaskwall, screencapture, neartag, spawn_pistol_tracer
+  (418 -> 336 differing bytes), displayweapon (2,949 -> 2,850), spawn (4,590 -> 4,569), getpacket.
+- Conclusion: the current transform set (declaration order, temporaries, commutative operands, independent
+  statements, loop forms) does not reach the remaining ties; they need new transform kinds (scope/lifetime changes,
+  type widths, expression shape) guided by the cg95 trace.
