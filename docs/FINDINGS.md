@@ -914,3 +914,7 @@ Each entry names the command or artefact that supports it.
   xdimen load order remains).
 - 84 DOS source trials did not yet reproduce those decisions naturally (0 new STRICT). The flip sets now state exactly
   which decision each source lever must change.
+- ACTORS follow-up 3 (r10-actors-3): moveactors lands all 8 case targets exactly (separate SHARK state stores, grenade
+  temporary reuse, two masked slime indices): 4,421 -> 4,300 differing bytes, 484/521 blocks; moveexplosions matches
+  the movement sequence at 1:29847 (673 -> 555). Attribution: blocker rules +2,036 bytes, quirks -1,919 / +3 blocks
+  (interacting switch-layout edits), own reasoning +122.

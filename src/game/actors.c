@@ -322,11 +322,10 @@ void guts(short i)
 void moveactors(void)
 {
     /* COMPILER_STEERED: short-local order selects the actor index stack home. */
-    short nexti, j, sect, i, p;
-    long dist;
+    short j, p, nexti, sect, i;
 
     for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti) {
-        long *t, l;
+        long *t, dist, l;
 
         nexti = nextspritestat[i];
         p = findplayer(i, &dist);
@@ -343,7 +342,8 @@ void moveactors(void)
                 continue;
             operatesectors(sect, i);
             for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j]) {
-                short pic;
+                /* COMPILER_STEERED: the tile temporary affects the following switch layout. */
+                int pic;
 
                 if (sprite[j].statnum == STAT_EFFECTOR)
                     switch (sprite[j].lotag) {
@@ -379,7 +379,7 @@ void moveactors(void)
             if (j >= 0) {
                 if (sprite[i].extra < 0) {
                     /* COMPILER_STEERED: the addend order affects register allocation. */
-                    ps[screenpeek].score = 5000 + ps[screenpeek].score;
+                    ps[screenpeek].score = ps[screenpeek].score + 5000;
                     spawn(i, EXPLOSION);
                     deletesprite(i);
                     continue;
@@ -405,9 +405,12 @@ shark_steer:
                     j = sintable[(t[1] << 4) & 2047] >> 8;
                     sprite[i].ang += j;
                 }
-                if (j < -32 || j > 32) {
-                    /* COMPILER_STEERED: ternary changes the case layout. */
-                    t[0] = j < 0 ? 4 : 2;
+                if (j <= -33 || j >= 33) {
+                    /* COMPILER_STEERED: separate stores preserve the SHARK case targets. */
+                    if (j < 0)
+                        t[0] = 4;
+                    else
+                        t[0] = 2;
                     if (sprite[i].xvel > 64)
                         sprite[i].xvel -= 8;
                 } else {
@@ -605,10 +608,9 @@ shark_steer:
                 }
                 if (sprite[i].xvel < 32)
                     sprite[i].xvel += 4;
-                /* COMPILER_STEERED: both masked sine indices use word temporaries. */
-                sprite[i].xvel = 64 - (sintable[(unsigned short)((t[1] + 512) & 2047)] >> 9);
+                sprite[i].xvel = 64 - (sintable[(t[1] + 512) & 2047] >> 9);
                 sprite[i].ang += getincangle(sprite[i].ang, getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 3);
-                sprite[i].xrepeat = (sintable[(unsigned short)((t[1] + 512) & 2047)] >> 11) + 36;
+                sprite[i].xrepeat = (sintable[(t[1] + 512) & 2047] >> 11) + 36;
                 sprite[i].yrepeat = (sintable[t[1] & 2047] >> 13) + 16;
                 if ((krand() >> 8) >= 251 && klabs(sector[sect].floorz - sector[sect].ceilingz) < 49152) {
                     sprite[i].zvel = 0;
@@ -769,7 +771,8 @@ wait:
             }
         } else if (sprite[i].picnum == HEAVYHBOMB) {
             /* l: the owner's player (hittype[-1] for an ownerless bomb). */
-            l = hittype[sprite[i].owner][0];
+            j = sprite[i].owner;
+            l = hittype[j][0];
             j = ifsquished(i, p);
             if (j >= 0 && sprite[i].extra < 0)
                 ps[l].hbomb_on = 0;
@@ -782,7 +785,9 @@ wait:
                 sprite[i].xvel = 0;
             MOVE_ALONG(i, sprite[i].zvel, 0);
             if (ps[l].hbomb_on == 0 && ps[l].i == sprite[i].owner) {
-                sprite[i].yvel++;
+                /* COMPILER_STEERED: reuse the owner index for the bomb timer. */
+                j = sprite[i].yvel + 1;
+                sprite[i].yvel = j;
                 if (sprite[i].xrepeat || sprite[i].yrepeat) {
                     sprite[i].xrepeat = sprite[i].yrepeat = 0;
                     hitradius(i, 3092, sprite[i].extra);
@@ -1094,17 +1099,16 @@ void moveweapons(void)
 /* Update effect sprites (status 5): debris, gibs, casings and splashes; other effects run CON. */
 void moveexplosions(void)
 {
-    short i, nexti;
-    /* COMPILER_STEERED: these two locals also determine the inlined movement layout. */
-    short p;
+    /* COMPILER_STEERED: local order selects the effect loop stack homes. */
+    short i, sect, nexti;
     long x;
+    short p;
 
     for (i = headspritestat[STAT_MISC]; i >= 0; i = nexti) {
         long *t;
-        short sect;
 
-        nexti = nextspritestat[i];
         sect = sprite[i].sectnum;
+        nexti = nextspritestat[i];
         t = hittype[i];
         p = findplayer(i, &x);
         switch (sprite[i].picnum) {
@@ -1257,7 +1261,9 @@ void moveexplosions(void)
                 sprite[i].zvel = (short)-sprite[i].zvel;
             }
             if ((krand() >> 8) >= 239) {
-                spawn_blood(i, i, (short)t[0] << 7, (short)(krand() & 32));
+                /* COMPILER_STEERED: reuse the player slot for the blood angle. */
+                p = (short)t[0] << 7;
+                spawn_blood(i, i, p, (short)(krand() & 32));
             }
             if (sprite[i].z + 2048 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 875;
