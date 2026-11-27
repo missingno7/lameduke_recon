@@ -1498,8 +1498,9 @@ void movestandables(void)
     short i, nexti, j;
 
     for (i = headspritestat[STAT_STANDABLE]; i >= 0; i = nexti) {
-        long d, zvel, *t;
+        long zvel, *t;
         short sect, p;
+        long d;
 
         nexti = nextspritestat[i];
         sect = sprite[i].sectnum;
@@ -1652,12 +1653,12 @@ crane_hook:
                 deletesprite(i);
             }
         } else {
-            p = findplayer(i, &d);
+            short player = findplayer(i, &d);
             switch (sprite[i].picnum) {
             case 627:
             case 905:
             case 974:
-                execute(i, p, d);
+                execute(i, player, d);
                 break;
             }
         }
