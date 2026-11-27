@@ -406,7 +406,9 @@ elevator_down:
         }
         daz = sector[a].floorz;
         setanimation(sn, &sector[sn].floorz, daz, 256);
-        setanimation(sn, &sector[sn].ceilingz, daz + (sector[sn].ceilingz - sector[sn].floorz), sector[sn].extra);
+        j = sector[sn].ceilingz - sector[sn].floorz;
+        p = sector[sn].extra;
+        setanimation(sn, &sector[sn].ceilingz, daz + j, p);
         spritesound(SOUND_LIFT_START, ii);
         break;
     case 19:
@@ -463,13 +465,13 @@ elevator_up:
         spritesound(6, ii);
         break;
     case 21:
-        i = getanimationgoal(&sector[sn].floorz);
-        if (i >= 0) {
+        a = getanimationgoal(&sector[sn].floorz);
+        if (a >= 0) {
             if (animategoal[sn] == sector[sn].ceilingz)
-                animategoal[i] = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
+                animategoal[a] = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
             else
-                animategoal[i] = sector[sn].ceilingz;
-            daz = animategoal[i];
+                animategoal[a] = sector[sn].ceilingz;
+            daz = animategoal[a];
         } else {
             if (sector[sn].ceilingz == sector[sn].floorz)
                 daz = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
@@ -489,10 +491,10 @@ elevator_up:
             else
                 animategoal[i] = middle;
         } else {
-            /* COMPILER_STEERED: seed the goal before resolving the neighbor. */
-            daz = middle;
             if (middle == sector[sn].ceilingz)
                 daz = sector[nextsectorneighborz(sn, sector[sn].floorz, -1, -1)].ceilingz;
+            else
+                daz = middle;
             if (setanimation(sn, &sector[sn].ceilingz, daz, sector[sn].extra) >= 0) {
                 sector[sn].lotag ^= 0x8000;
                 spritesound(6, ii);
@@ -506,9 +508,10 @@ elevator_up:
                 animategoal[i] = middle;
             daz = animategoal[i];
         } else {
-            daz = middle;
             if (middle == sector[sn].floorz)
                 daz = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
+            else
+                daz = middle;
             if (setanimation(sn, &sector[sn].floorz, daz, sector[sn].extra) >= 0)
                 spritesound(6, ii);
         }
