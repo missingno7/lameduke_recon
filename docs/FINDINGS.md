@@ -923,3 +923,13 @@ Each entry names the command or artefact that supports it.
   149 -> 56 differing bytes (all relocations verified); grouvline 1,478 -> 1,459. Rejected: operatesectors case 26
   candidate (restores both displaced destinations but worsens four other SECTOR functions) and draw_and_probe STRICT
   via a byte shade formal (costs menutext 6 bytes). Next: EBX sector-index calculation at operatesectors +0x97.
+
+## From flip sets to source (flip2src, astra, 2026-11-27; build/workers/flip2src/NOTES.md) — no integration
+- PROVEN (flip diagnostics) the allocator stage matters: operatefta's 4 bytes are one exchange of t15_left/t102 in
+  the SECOND CANDIDATE SORT (the same exchange in the later conflict sort fixes nothing); nonsharedkeys needs two
+  candidate-sort exchanges plus one stack-home exchange (any single one leaves 10, any pair 6).
+- parse: three decisions take 141 -> 71 bytes (first difference +0x1f8 -> +0x50f); a natural `short angle` local in
+  the later IFP case selects EDX and matches IFCANSEE's first 119 bytes but worsens parse overall. execute: swapping
+  the inlined i/p homes 2,899 -> 2,888; passing `index` to parse restores the 44-byte frame naturally but raises it to
+  4,698. processinput: swapping xvect with the divisor temporary restores both ESP+88h accesses (first difference
+  +0x1e9 -> +0x20e) but the closest scoped source loses a verified findplayer stack home.
