@@ -7230,8 +7230,11 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 
 makepalookup(long palnum, char *remapbuf, signed char r, signed char g, signed char b)
 {
-	char col, *ptr, *ptr2;
-	long i, j, k, paletteoffset, palidx, ravg, gavg, bavg, dist, mindist;
+	char col;
+	char *ptr, *ptr2;
+	/* COMPILER_STEERED. This order gives red and green their December stack slots. */
+	long gavg, ravg, bavg;
+	long i, j, k, paletteoffset, palidx, dist, mindist, delta;
 
 	if (paletteloaded == 0) return;
 	if ((r|g|b|63) != 63) return;
@@ -7267,10 +7270,13 @@ makepalookup(long palnum, char *remapbuf, signed char r, signed char g, signed c
 			ptr2 = (char *)(FP_OFF(palookup[palnum])+i);
 			for(j=0;j<numpalookups;j++)
 			{
-				/* COMPILER_STEERED. Putting green first steers the RGB register allocation. */
-				gavg = palette[palidx+1]+((g-palette[palidx+1])*j)/numpalookups;
-				ravg = palette[palidx]+((r-palette[palidx])*j)/numpalookups;
-				bavg = palette[palidx+2]+((b-palette[palidx+2])*j)/numpalookups;
+				/* COMPILER_STEERED. Use a signed channel difference before each division. */
+				delta = r-palette[palidx];
+				ravg = palette[palidx]+(delta*j)/numpalookups;
+				delta = g-palette[palidx+1];
+				gavg = palette[palidx+1]+(delta*j)/numpalookups;
+				delta = b-palette[palidx+2];
+				bavg = palette[palidx+2]+(delta*j)/numpalookups;
 				mindist = 0x7fffffff;
 				col = 0;
 				for(k=0,paletteoffset=0;k<256;k++,paletteoffset+=3)

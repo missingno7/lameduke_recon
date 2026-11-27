@@ -1205,3 +1205,13 @@ Each entry names the command or artefact that supports it.
   identical code bytes). Examples: checksectors unsigned range form 268 -> 308 blocks discarded; an earlier 302-block
   source abandoned; movestandables 64 -> 47 differing blocks discarded. Test (sectorbig-2): progress branch measured by
   matched blocks, tolerating address-shift cascades only; integration rules unchanged.
+
+## ENGINE round 6 (r12-engine-6, astra, 2026-11-27)
+- PROVEN makepalookup STRICT: reuse one signed channel difference, then swap the red/green local declarations
+  (stack displacements). Engine 96/103.
+- rotatesprite: December's extra frame dword holds the signed column increment for asm2 at ESP+38h (Feb-95 GAME keeps
+  it in ESI; Sep-94 L7P spills it at ESP+40h).
+- grouvline: all three December drawslab expansions use LOOP. That body is attested verbatim in Ken's April-1994
+  ENGINE.C local pragmas (BUIL0422/ENGINE.C:409); every dated PRAGMAS.H (PTEX0726 Jul-94, buil1995) uses DEC/JNZ.
+  The canonical header was kept; using the April form needs a decision on the pragma rule (AGENTS.md).
+- wallfront 79, raytrace 108 unchanged (raytrace's retry-bearing July object dated 1994-07-19).
