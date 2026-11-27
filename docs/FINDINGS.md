@@ -1161,3 +1161,12 @@ Each entry names the command or artefact that supports it.
   The patched compilers also blow up the parked functions (scansector 7 -> 484 B, drawmaskwall 7 -> 341, neton 10 -> 243,
   sendpacket 10 -> 711). PROVEN: the December units were built with unpatched 9.5 GA; the parked residuals are not a
   compiler-version effect.
+
+## Sound-library CONST residue is a property of the original library build (constres, astra, 2026-11-27)
+- PROVEN: LameDuke's PCFX and SNDSRC CONST blocks (with their padding residue) occur byte-identically in Wacky Wheels
+  1.1 GAME and SETUP (1994-10-17); SW 1995-01-15 contains both plus ADLIBFX (431 distinct bytes, 26 padding bytes).
+  ROTT 1.0 / 1.03 match none of the nine open blocks. So the residue was produced once, when Apogee compiled the
+  AUDIO_WF.LIB members (by October 1994), and LameDuke linked those members.
+- SW's Watcom debug trailer names C:\PRG\AUDIO\source for these modules (confirms our guest path). A fresh DOS wc100
+  build there leaves 6 (PCFX), 9 (SNDSRC), 9 (ADLIBFX) differing residue bytes: the residue contains text of a
+  historical DPMI.H revision we do not have. NEGATIVE for reproduction from available evidence; parked.
