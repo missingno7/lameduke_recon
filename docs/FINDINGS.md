@@ -1222,3 +1222,8 @@ Each entry names the command or artefact that supports it.
   wrong bytes elsewhere. The 3-byte shift displaces 17 later engine functions (96 -> 79 STRICT, each 1-2 byte call
   displacements, code otherwise identical): an address-shift cascade, not a trade. Not integrated until grouvline's
   extent returns to 2,169; progress branch build/workers/r12-engine/slab/ENGINE.C.
+- sectorbig-2 (progress-branch policy test, 2026-11-27; build/workers/sectorbig/round2/): checksectors 269 -> 311/387
+  blocks on the progress branch (extent 128 B short); integrated candidate 302/387 at the exact 11,448-byte extent;
+  cheatkeys debug-door dword reloads restored (content .6262 -> .6715). checkhitceiling in the progress state loses only
+  its boundary proof (alignment padding and two relocated table references; body and all 24 table destinations
+  identical). POLICY CONFIRMED: one block per round before, +42 with progress branches.

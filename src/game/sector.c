@@ -802,9 +802,9 @@ void cheatkeys(short snum)
             case 15: case 16: case 17: case 18: case 19:
             case 20: case 21: case 22: case 23:
             case 25: case 26: case 27: case 28: case 29:
+                source = ps[snum].i;
                 if (sector[i].lotag & 0xbfff)
                     sector[i].lotag &= ~0x4000;
-                source = ps[snum].i;
                 operatesectors(i, source);
                 break;
             }
@@ -1049,9 +1049,9 @@ char checkhitceiling(short sn)
 /* Sector specials and the use key for player snum. */
 void checksectors(short snum)
 {
-    short w;
-    short target;
     long i = -1;
+    short w;
+    unsigned short under_tag;
     short source;
 
     switch (sector[ps[snum].cursectnum].lotag) {
@@ -1070,7 +1070,9 @@ void checksectors(short snum)
         ps[snum].toggle_key_flag = 0;
         return;
     }
-    if (ps[snum].toggle_key_flag)
+    /* COMPILER_STEERED: reuse the wide sprite index for the key latch. */
+    i = ps[snum].toggle_key_flag;
+    if (i)
         return;
 
     ps[snum].toggle_key_flag = 1;
@@ -1105,28 +1107,32 @@ void checksectors(short snum)
         }
     }
 
+    /* COMPILER_STEERED: the near tag shares the wall index used below. */
     w = sector[neartagsector].lotag & 32767;
     switch (w) {
     case 9:
     case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
     case 25: case 26: case 27: case 29: {
-        target = neartagsector;
-        w = ps[snum].i;
-        operatesectors(target, w);
+        /* COMPILER_STEERED: this scope and wide initiator preserve both lift tails. */
+        short nearsector = neartagsector;
+        i = ps[snum].i;
+        operatesectors(nearsector, i);
         return;
     }
     }
-    target = sector[ps[snum].cursectnum].lotag & 32767;
-    if (target == 28 || target == 27 || target == 26 ||
-        (target >= 18 && target <= 19) || target == 17 ||
-        (target >= 15 && target <= 16)) {
+    under_tag = sector[ps[snum].cursectnum].lotag & 32767;
+    if (under_tag < 15 || (under_tag > 19 && (under_tag < 26 || under_tag > 28)))
+        goto wall_switch;
+    {
+        /* COMPILER_STEERED: reuse snum after the final player lookup. */
         source = ps[snum].i;
-        w = ps[snum].cursectnum;
-        operatesectors(w, source);
+        snum = ps[snum].cursectnum;
+        operatesectors(snum, source);
         return;
     }
-    target = neartagwall;
-    checkhitswitch(target);
+wall_switch:
+    w = neartagwall;
+    checkhitswitch(w);
 }
 
 /* Align all warp elevators of a group to the master (shade > 16) at level start. */
