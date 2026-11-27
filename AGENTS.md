@@ -30,6 +30,15 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
   in `docs/FINDINGS.md` (integrator) or your worker report, with the exact toolchain and context.
 - Keep paths short when compiling (Watcom tools can crash on long paths); `build/tmp` is fine.
 
+## Trades (user decision 2026-11-27)
+A change that makes one function STRICT but costs another function its STRICT status ("trade") is NOT adopted by a
+worker. It is reported to the integrator with: both functions and byte counts, the mechanism (shared inlined helper,
+jump table placed in a neighbour's extent, shared temporaries, data/CONST layout...) established with evidence
+(cg95 traces, reduced translation units), and whether the lost function can plausibly be recovered. The integrator
+may accept a trade only when the gain clearly outweighs the loss AND the root cause is understood and recorded in
+docs/FINDINGS.md; accepted trades are listed in docs/TRADES.md so the lost function is re-targeted. Never trade to
+hide a misunderstanding.
+
 ## Coordinates and status vocabulary
 - Addresses are `obj:offset` hex: object 1 = code (base 0x10000, 0x6c445 bytes), object 2 = data
   (base 0x80000, 0x1c99d0 bytes, first 0xb000 file-backed, rest BSS + stack).
