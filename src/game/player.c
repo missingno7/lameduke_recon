@@ -40,42 +40,40 @@ void kickview(short snum, short i)
     }
 }
 
+/* COMPILER_STEERED: expand the gun's angle adjustment at each use. */
+#define TRACER_AIM_ANGLE(base, pos) ((base) + ((6 - (pos)) << 4))
+
 /* Pistol laser sight: hitscan along the gun's aim and place a one-frame LASERSITE dot at the hit point. */
 void spawn_pistol_tracer(short snum)
 {
     /* COMPILER_STEERED: local order for the hitscan argument homes. */
     short hitspr;
-    short hitwall;
-    short hitsect;
-    short i;
-    long hitx;
-    long hity;
-    long hitz;
     long sx;
+    long sy;
+    long hity;
+    short hitwall;
+    long hitx;
+    short i;
+    short hitsect;
+    unsigned char weapon_pos;
     long sz;
     long sa;
-    unsigned char weapon_pos;
-    long sy;
-    long dz;
-    long aim_offset;
+    long hitz;
 
     sx = ps[snum].posx;
     sy = ps[snum].posy;
     weapon_pos = ps[snum].weapon_pos & 127;
     sz = ps[snum].posz - (weapon_pos << 10) + 5376;
-    /* COMPILER_STEERED: stage the weapon-angle adjustment separately. */
-    aim_offset = (6 - weapon_pos) << 4;
-    sa = ps[snum].ang - 16 + aim_offset;
-    dz = (100 - ps[snum].horiz) << 11;
-    hitscan(sx + (sintable[(sa + 512) & 2047] >> 8),
-        sy + (sintable[sa & 2047] >> 8),
+    sa = ps[snum].ang - 16;
+    hitscan(sx + (sintable[(TRACER_AIM_ANGLE(sa, weapon_pos) + 512) & 2047] >> 8),
+        sy + (sintable[TRACER_AIM_ANGLE(sa, weapon_pos) & 2047] >> 8),
         sz, ps[snum].cursectnum,
-        sintable[(sa + (syncangvel[snum] >> 3) + 512) & 2047],
-        sintable[(sa + (syncangvel[snum] >> 3)) & 2047],
-        dz, &hitsect, &hitwall, &hitspr,
+        sintable[(TRACER_AIM_ANGLE(sa, weapon_pos) + (syncangvel[snum] >> 3) + 512) & 2047],
+        sintable[(TRACER_AIM_ANGLE(sa, weapon_pos) + (syncangvel[snum] >> 3)) & 2047],
+        (100 - ps[snum].horiz) << 11, &hitsect, &hitwall, &hitspr,
         &hitx, &hity, &hitz);
 
-    sa += 1024;
+    sa = TRACER_AIM_ANGLE(sa, weapon_pos) + 1024;
     i = EGS(hitsect, hitx + (sintable[(sa + 512) & 2047] >> 8),
         hity + (sintable[sa & 2047] >> 8),
         hitz + 1024 + (sintable[ps[snum].bobcounter & 2047] >> 8),
@@ -89,6 +87,8 @@ void spawn_pistol_tracer(short snum)
     if (sector[sprite[i].sectnum].floorz - 768 < sprite[i].z)
         sprite[i].z -= 768;
 }
+
+#undef TRACER_AIM_ANGLE
 
 /* Fire weapon tile atwith from sprite i (player or actor); with impact != 0, move projectile i onto what it hits. */
 void shoot(short i, short atwith, unsigned char impact)
@@ -237,21 +237,23 @@ signed char clubframes[6][20] = {
 void displayweapon(short snum)
 {
     /* COMPILER_STEERED: local order for the knee table and draw argument allocation. */
-    long draw_x;
     long weapon_xoffset;
-    long xvel;
     unsigned char weapon_pos;
-    unsigned char gun_pos;
-    unsigned short cw;
     long gs;
+    unsigned short cw;
+    unsigned char gun_pos;
+    short look;
+    long draw_x;
     short looking_arc;
     long draw_y;
+    long xvel;
     long tile;
 
     if (ps[snum].health <= 0)
         return;
+    look = ps[snum].look_ang;
     visibility = ud.visibility;
-    looking_arc = klabs(ps[snum].look_ang) / 9;
+    looking_arc = klabs(look) / 9;
     xvel = 0;
     if (syncbits[snum] & SB_RUN)
         xvel = syncangvel[snum] >> 3;
@@ -268,10 +270,7 @@ void displayweapon(short snum)
     gun_pos = (weapon_pos << 4) - 32;
     gun_pos -= sintable[ps[snum].bobcounter & 2047] >> 12;
     weapon_xoffset = (xvel + 12) + ((6 - weapon_pos) << 4);
-    if (ps[snum].last_weapon >= 0)
-        cw = ps[snum].last_weapon;
-    else
-        cw = ps[snum].current_weapon;
+    cw = ps[snum].last_weapon >= 0 ? ps[snum].last_weapon : ps[snum].current_weapon;
 
     switch (cw) {
     case CLUB: {
@@ -291,22 +290,22 @@ void displayweapon(short snum)
 
         if (ps[snum].kickback_pic) {
             myos((syncangvel[snum] >> 4) + weapon_xoffset + 180 - (ps[snum].look_ang >> 1),
-                looking_arc + 280 - gun_pos - (ps[snum].horiz >> 4),
+                (280 - gun_pos) + looking_arc - (ps[snum].horiz >> 4),
                 CLUB + clubframes[ps[snum].knee_sequence][ps[snum].kickback_pic], gs, 3);
             if (clubframes[ps[snum].knee_sequence][ps[snum].kickback_pic] == 2) {
                 if (ps[snum].ammo_bat_amount && (sector[ps[snum].cursectnum].lotag & 32767) != 2) {
                     draw_x = (syncangvel[snum] >> 4) + weapon_xoffset + 229 - (ps[snum].look_ang >> 1);
-                    draw_y = looking_arc + 207 - gun_pos - (ps[snum].horiz >> 4);
+                    draw_y = (207 - gun_pos) + looking_arc - (ps[snum].horiz >> 4);
                     tile = 1240 + ps[snum].knee_flash % 3;
                     goto draw_overlay;
                 }
                 else
                     myos((syncangvel[snum] >> 4) + weapon_xoffset + 229 - (ps[snum].look_ang >> 1),
-                        looking_arc + 207 - gun_pos - (ps[snum].horiz >> 4), 1239, gs, 3);
+                        (207 - gun_pos) + looking_arc - (ps[snum].horiz >> 4), 1239, gs, 3);
             }
         } else
             myos((syncangvel[snum] >> 4) + weapon_xoffset + 180 - (ps[snum].look_ang >> 1),
-                looking_arc + 280 - gun_pos - (ps[snum].horiz >> 4), 1231, gs, 3);
+                (280 - gun_pos) + looking_arc - (ps[snum].horiz >> 4), 1231, gs, 3);
         break;
     }
     case RPG:
@@ -338,8 +337,8 @@ void displayweapon(short snum)
 
         switch (ps[snum].kickback_pic) {
         case 0:
-            myos((syncangvel[snum] >> 4) + weapon_xoffset + 160 - (ps[snum].look_ang >> 1),
-                looking_arc + 240 - gun_pos - (ps[snum].horiz >> 4), 882, gs, 3);
+            myos(weapon_xoffset + 160 + (syncangvel[snum] >> 4) - (ps[snum].look_ang >> 1),
+                (looking_arc - gun_pos) + 240 - (ps[snum].horiz >> 4), 882, gs, 3);
             break;
         case 4:
             gs = 0;
@@ -349,12 +348,14 @@ void displayweapon(short snum)
             break;
         }
         if (ps[snum].kickback_pic != 6 && ps[snum].kickback_pic != 0)
-            myos((syncangvel[snum] >> 4) + weapon_xoffset + 160 - (ps[snum].look_ang >> 1),
-                looking_arc + 240 - gun_pos - (ps[snum].horiz >> 4), 881 + ps[snum].kickback_pic, gs, 3);
+            myos(weapon_xoffset + 160 + (syncangvel[snum] >> 4) - (ps[snum].look_ang >> 1),
+                (looking_arc - gun_pos) + 240 - (ps[snum].horiz >> 4), 881 + ps[snum].kickback_pic, gs, 3);
         break;
     }
     case SHOTSPARK1: {
-        struct player_struct *p = &ps[snum];
+        /* COMPILER_STEERED: widen the player index for pistol recoil. */
+        long player = snum;
+        struct player_struct *p = &ps[player];
         if (ps[snum].kickback_pic < 5) {
             short pistol_frames[5] = { 0, 1, 2, 0, 0 };
 
@@ -365,41 +366,42 @@ void displayweapon(short snum)
                 gs = 4;
                 pistol_x -= 3;
             }
-            myos((syncangvel[snum] >> 3) + (short)pistol_x - (ps[snum].look_ang >> 1),
+            myos((syncangvel[player] >> 3) + (short)pistol_x - (ps[snum].look_ang >> 1),
                 looking_arc + 240 - gun_pos - (ps[snum].horiz >> 4), 1150 + pistol_frames[ps[snum].kickback_pic], gs, 3);
         } else if (ps[snum].kickback_pic < 10)
-            myos((syncangvel[snum] >> 3) + 190 - (ps[snum].look_ang >> 1),
+            myos((syncangvel[player] >> 3) + 190 - (ps[snum].look_ang >> 1),
                 looking_arc + 230 - gun_pos - (ps[snum].horiz >> 4), 1160, gs, 3);
         else if (p->kickback_pic < 15) {
             if (p->kickback_pic == 10)
                 spritesound(34, p->i);
             if (p->kickback_pic == 13)
                 spritesound(33, p->i);
-            myos((syncangvel[snum] >> 3) + 240 - 8 * p->kickback_pic - (p->look_ang >> 1),
+            myos((syncangvel[player] >> 3) + 240 - 8 * p->kickback_pic - (p->look_ang >> 1),
                 looking_arc + 130 - gun_pos - (p->horiz >> 4) + 16 * p->kickback_pic, 1162, gs, 3);
-            myos((syncangvel[snum] >> 3) + 220 - (p->look_ang >> 1),
+            myos((syncangvel[player] >> 3) + 220 - (p->look_ang >> 1),
                 looking_arc + 220 - gun_pos - (p->horiz >> 4), 1161, gs, 3);
         } else if (p->kickback_pic < 20) {
-            myos((syncangvel[snum] >> 3) + 120 + 2 * p->kickback_pic - (p->look_ang >> 1),
+            myos((syncangvel[player] >> 3) + 120 + 2 * p->kickback_pic - (p->look_ang >> 1),
                 looking_arc + 430 - gun_pos - (p->horiz >> 4) - 8 * p->kickback_pic, 1163, gs, 3);
-            myos((syncangvel[snum] >> 3) + 220 - (p->look_ang >> 1),
+            myos((syncangvel[player] >> 3) + 220 - (p->look_ang >> 1),
                 looking_arc + 220 - gun_pos - (p->horiz >> 4), 1161, gs, 3);
         } else if (p->kickback_pic < 23) {
-            myos((syncangvel[snum] >> 3) + 180 - (p->look_ang >> 1),
+            myos((syncangvel[player] >> 3) + 180 - (p->look_ang >> 1),
                 looking_arc + 235 - gun_pos - (p->horiz >> 4), 1164, gs, 3);
-            myos((syncangvel[snum] >> 3) + 220 - (p->look_ang >> 1),
+            myos((syncangvel[player] >> 3) + 220 - (p->look_ang >> 1),
                 looking_arc + 210 - gun_pos - (p->horiz >> 4), 1161, gs, 3);
         } else if (p->kickback_pic < 25) {
-            myos((syncangvel[snum] >> 3) + 160 - (p->look_ang >> 1),
+            myos((syncangvel[player] >> 3) + 160 - (p->look_ang >> 1),
                 looking_arc + 245 - gun_pos - (p->horiz >> 4), 1164, gs, 3);
-            myos((syncangvel[snum] >> 3) + 220 - (p->look_ang >> 1),
+            myos((syncangvel[player] >> 3) + 220 - (p->look_ang >> 1),
                 looking_arc + 220 - gun_pos - (p->horiz >> 4), 1161, gs, 3);
         } else if (p->kickback_pic < 27)
-            myos((syncangvel[snum] >> 3) + 190 - (p->look_ang >> 1),
+            myos((syncangvel[player] >> 3) + 190 - (p->look_ang >> 1),
                 looking_arc + 235 - gun_pos - (p->horiz >> 4), 1160, gs, 3);
         break;
     }
-    case HEAVYHBOMB:
+    case HEAVYHBOMB: {
+        struct player_struct *p = &ps[snum];
         if (ps[snum].kickback_pic) {
             unsigned char frames[21] = {
                 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
@@ -411,12 +413,13 @@ void displayweapon(short snum)
                 gun_pos += 20 * (ps[snum].kickback_pic - 10);
             else if (ps[snum].kickback_pic < 20)
                 gun_pos -= 9 * (ps[snum].kickback_pic - 14);
-            myos(weapon_xoffset + 190 + (syncangvel[snum] >> 4) - (ps[snum].look_ang >> 1),
-                looking_arc + 250 - gun_pos - (ps[snum].horiz >> 4), 1143 + frames[ps[snum].kickback_pic], gs, 3);
+            myos(weapon_xoffset + 190 + (syncangvel[snum] >> 4) - (p->look_ang >> 1),
+                (looking_arc - gun_pos) + 250 - (p->horiz >> 4), 1143 + frames[ps[snum].kickback_pic], gs, 3);
         } else
-            myos(weapon_xoffset + 190 + (syncangvel[snum] >> 4) - (ps[snum].look_ang >> 1),
-                looking_arc + 260 - gun_pos - (ps[snum].horiz >> 4), 1143, gs, 3);
+            myos(weapon_xoffset + 190 + (syncangvel[snum] >> 4) - (p->look_ang >> 1),
+                (looking_arc - gun_pos) + 260 - (p->horiz >> 4), 1143, gs, 3);
         break;
+    }
     case HANDREMOTE: {
         signed char frames[11] = { 0, 1, 1, 2, 1, 1, 0, 0, 0, 0, 0 };
 
@@ -543,18 +546,18 @@ void update_air(short snum)
 void processinput(short snum)
 {
     /* COMPILER_STEERED: local order for Watcom's allocation and stack homes. */
-    long wpos;
-    long doubvel;
-    long xvect;
-    long eye;
-    short psectlotag;
-    long cz;
-    long tics2;
     long fz;
+    long xvect;
     long yvect;
-    long hz;
+    long doubvel;
+    long cz;
     long lz;
+    short psectlotag;
+    long tics2;
+    long wpos;
     short i;
+    long hz;
+    long eye;
 
     if (ps[snum].health <= 0) {
         if ((sector[ps[snum].cursectnum].lotag & 0x7FFF) == 2) {
@@ -566,8 +569,8 @@ void processinput(short snum)
         }
         return;
     }
-    i = ps[snum].newowner;
-    if (i >= 0) {
+    if (ps[snum].newowner >= 0) {
+        i = ps[snum].newowner;
         ps[snum].posx = sprite[i].x;
         ps[snum].posy = sprite[i].y;
         ps[snum].posz = sprite[i].z;
@@ -735,9 +738,10 @@ doturn:
         ps[snum].ang = (ps[snum].ang + 2048) & 2047;
     }
     if (klabs(cz - fz) < 7168) {
-        psectlotag = sector[ps[snum].cursectnum].lotag & 0x7FFF;
+        short sect = ps[snum].cursectnum;
+        psectlotag = sector[sect].lotag & 0x7FFF;
         if (psectlotag > 2 && psectlotag != 23) {
-            sector[ps[snum].cursectnum].ceilingz -= 1024;
+            sector[sect].ceilingz -= 1024;
             if (ud.debug == 0 && ps[snum].shield_amount > 0)
                 ps[snum].shield_amount -= 4;
             else if (ps[snum].health > 0)

@@ -721,3 +721,7 @@ Each entry names the command or artefact that supports it.
   indices, actor-header writes, and case-specific `break` / `return` exits. GAMEDEF 12/14.
 - execute passes the widened actor index to deletesprite and move_actor (4,560 -> 4,519 differing bytes; content
   .815 -> .842); parse unchanged (first register divergence in the inlined IFRND at 1:30900).
+- PLAYER astra follow-up (r7astra-player-2): processinput reaches the oracle's exact 15,692-byte extent with the 0x110
+  frame, the raw x/y spills at 0x24/0x20 and both findplayer result slots at 0x94/0x108 (signed reloads); expanding
+  the tracer angle at each use recovers the raw y spill. Content .682 -> .702; first difference +0x5b -> +0x1e9.
+  displayweapon reproduces all 11 CLUB jump-table targets and all 23 myos sites (3,431 -> 2,994 differing bytes).
