@@ -1585,7 +1585,7 @@ void main(int argc, char **argv)
 {
     unsigned char which;
     short status;
-    short i, j, k;
+    short i, k;
     short p, offset;
     unsigned char shade;
     short x, y;
@@ -1657,13 +1657,15 @@ play:
         i = screenpeek;
         displayrooms(i);
         if (ps[myconnectindex].gm & MODE_TYPE) {
+            short write_index; /* COMPILER_STEERED: scope the packet index to typing mode. */
+
             if (strget(10, 140, next_text_shade(), 79)) {
                 short k;
 
                 tempbuf[0] = 4;
-                j = 1;
+                write_index = 1;
                 for (p = 0; p < typemessageleng; p++)
-                    tempbuf[j++] = typemessage[p];
+                    tempbuf[write_index++] = typemessage[p];
                 for (k = connecthead; k >= 0; k = connectpoint2[k])
                     if (k != myconnectindex)
                         sendpacket(k, (unsigned char *)tempbuf, p);
@@ -1931,9 +1933,12 @@ void domovethings(void)
 /* Bonus/episode-map screen between levels. Duke Nukem 3D 1.5 keeps the name. */
 void dobonus(void)
 {
-    short i, start, shade;
-    short pulse; /* COMPILER_STEERED: capture the pulse before taking its low byte. */
+    /* COMPILER_STEERED: declaration order selects the stack homes for these screen values. */
     long pct;
+    short start;
+    short pulse; /* COMPILER_STEERED: keep the pulse in a word before taking its low byte. */
+    short i;
+    short shade;
 
     start = totalclock;
     menu_drag = 0;
@@ -2045,19 +2050,26 @@ void update_menu_cursor(short tile)
 /* High-score table. */
 void displayhighscores(void)
 {
-    short i;
-    short pulse = next_text_shade(); /* COMPILER_STEERED: save the word before selecting the shade byte. */
-    short shade = (unsigned char)pulse;
+    short shade;
+    short value; /* COMPILER_STEERED: reuse the word holding the pulse for the table index. */
+
+    value = next_text_shade();
+    shade = (unsigned char)value;
 
     minitext(30, 36, score_rank_title, 0);
     minitext(50, 36, score_quote_title, 0);
     minitext(270, 36, score_score_title, 0);
-    for (i = 0; i < 12; i++) {
-        if (i)
-            shade = 0;
-        numtext(30, i * 11 + 50, i, 0);
-        minitext(50, i * 11 + 50, score_names[i], shade);
-        numtext(270, i * 11 + 50, high_scores[i], shade);
+    {
+        short i;
+
+        for (i = 0; i < 12; i++) {
+            if (i)
+                shade = 0;
+            value = i;
+            numtext(30, i * 11 + 50, value, 0);
+            minitext(50, i * 11 + 50, score_names[i], shade);
+            numtext(270, i * 11 + 50, high_scores[i], shade);
+        }
     }
 }
 

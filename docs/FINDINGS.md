@@ -958,3 +958,7 @@ Each entry names the command or artefact that supports it.
   random-word local recovers the arm-movement block; one diagnostic y/z spill choice leaves 5 bytes); moveactors
   4,267 -> 4,211 with all eight targets (six diagnostic stack-home swaps move its first difference to +0xbc).
   Attribution: flip95/climb95 +60 B / +1 block, own reasoning +49 B.
+- GAME follow-up 3 (r10-game-3): displayhighscores 153 -> 10 differing bytes, 50/50 blocks, all fixups verified
+  (scoped row counter, pulse scratch reused for the displayed rank; two diagnostic stack-home swaps resolve the
+  last 10); main 1,032 -> 1,021; dobonus 958 -> 942. operatefta / nonsharedkeys: diagnostic flips match, source not
+  yet. Attribution: flip95/climb95 +143 B, quirks +16, own +11.
