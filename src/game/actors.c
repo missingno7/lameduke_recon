@@ -321,12 +321,14 @@ void guts(short i)
 /* Update active actors (status 1): hard-coded tiles here, everything else through CON execute(). */
 void moveactors(void)
 {
-    /* COMPILER_STEERED: short-local order selects the actor index stack home. */
-    short sect, p, nexti, j, i;
+    /* COMPILER_STEERED: the declaration order selects the stack homes for the actor and next sprite. */
+    short j;
+    long dist, l;
+    short nexti, sect;
+    long *t, zoffset;
+    short p, i;
 
     for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti) {
-        long *t, dist, l;
-
         nexti = nextspritestat[i];
         p = findplayer(i, &dist);
         sect = sprite[i].sectnum;
@@ -559,13 +561,13 @@ shark_steer:
             }
             if (t[0] == -2) {
                 FALL(&sprite[i]);
-                sprite[sprite[i].owner].xvel = 0;
+                /* COMPILER_STEERED: read the owner angle before stopping it and set the animation frame after the coordinates. */
                 l = sprite[sprite[i].owner].ang;
+                sprite[sprite[i].owner].xvel = 0;
+                sprite[i].y = (sintable[l & 2047] >> 11) + sprite[sprite[i].owner].y;
                 sprite[i].z = sprite[sprite[i].owner].z;
-                /* COMPILER_STEERED: set the tile before updating the owner-relative position. */
-                sprite[i].picnum = 963 + (randomstash & 1);
                 sprite[i].x = (sintable[(l + 512) & 2047] >> 11) + sprite[sprite[i].owner].x;
-                sprite[i].y = sprite[sprite[i].owner].y + (sintable[l & 2047] >> 11);
+                sprite[i].picnum = 963 + (randomstash & 1);
                 if (sprite[i].yrepeat < 64)
                     sprite[i].yrepeat += 2;
                 else if (sprite[i].xrepeat < 32)
@@ -704,8 +706,9 @@ shark_steer:
                     for (dist = 0; dist < 30; dist += 3)
                         EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z, 0, krand() % 11 + 235, -8, 32, 32,
                             krand() & 2047, (krand() & 128) + 64, -(krand() & 511) - 512, i, 5);
-                    ps[p].actors_killed++;
+                    /* COMPILER_STEERED: Set the actor state before incrementing the kill count. */
                     t[0] = 2;
+                    ps[p].actors_killed++;
                     sprite[i].xrepeat = sprite[i].yrepeat = 0;
                 }
             }
@@ -737,13 +740,14 @@ shark_steer:
                     if (t[4]) {
                         sprite[i].z -= 0x2000;
                         shoot(i, BULLET, 0);
-                        /* COMPILER_STEERED: Restore the firing height before setting the shade. */
-                        sprite[i].z += 0x2000;
+                        /* COMPILER_STEERED: set the shade before restoring the firing height. */
                         sprite[i].shade = -16;
+                        sprite[i].z += 0x2000;
                     }
                 } else {
-                    sprite[i].shade = 4;
+                    /* COMPILER_STEERED: Clear the actor timer before restoring the shade. */
                     t[1] = 0;
+                    sprite[i].shade = 4;
                     if (dist > 1024) {
                         t[0] = 4;
                         goto wait;
@@ -793,9 +797,7 @@ wait:
                 sprite[i].xvel = 0;
             MOVE_ALONG(i, sprite[i].zvel, 0);
             if (ps[l].hbomb_on == 0 && ps[l].i == sprite[i].owner) {
-                /* COMPILER_STEERED: reuse the owner index for the bomb timer. */
-                j = sprite[i].yvel + 1;
-                sprite[i].yvel = j;
+                sprite[i].yvel++;
                 if (sprite[i].xrepeat || sprite[i].yrepeat) {
                     sprite[i].xrepeat = sprite[i].yrepeat = 0;
                     hitradius(i, 3092, sprite[i].extra);
@@ -907,9 +909,9 @@ wait:
                     deletesprite(i);
                     continue;
                 }
-                /* COMPILER_STEERED: turn the reactor before raising its firing position. */
-                sprite[i].ang += 300;
+                /* COMPILER_STEERED: lower the firing position before turning the reactor. */
                 sprite[i].z -= 6144;
+                sprite[i].ang += 300;
                 shoot(i, 0, 1);
                 sprite[i].z += 6144;
                 switch (t[1]) {
@@ -925,7 +927,6 @@ wait:
                     {
                         long x;
                         long y;
-                        long zoffset;
 
                         x = sprite[i].x;
                         y = sprite[i].y;
