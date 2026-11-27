@@ -19,6 +19,8 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
 - Matching happens only through source processed by the historical toolchain. Never patch objects, executables,
   fixups or layouts; no `_emit`, raw opcode arrays, copied code bytes, `db` blobs of compiled code, INCBIN, or
   comparison masks. Historical .OBJ files are evidence and references; they are never substituted for source.
+- Ken's `#pragma aux` inline-assembly bodies (PRAGMAS.H) may only take forms attested in a dated Ken PRAGMAS.H
+  (external/x); inventing or altering a pragma body to fit bytes counts as fabricating code.
 - Assembly is legitimate only where the original was assembly (Ken's `A.ASM`, runtime members). Unknown bytes in
   assembly-origin source stay explicit, labelled debt.
 - Library code (Watcom CLIB/MATH, Apogee Sound System if supplied as a LIB) is identified and tracked separately
