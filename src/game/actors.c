@@ -321,14 +321,18 @@ void guts(short i)
 /* Update active actors (status 1): hard-coded tiles here, everything else through CON execute(). */
 void moveactors(void)
 {
-    /* COMPILER_STEERED: the declaration order selects the stack homes for the actor and next sprite. */
-    short j;
+    /* COMPILER_STEERED: the declaration order and separate turret step keep i, nexti and p in their original stack slots. */
+    short nexti;
     long dist, l;
-    short nexti, sect;
+    short j, sect;
     long *t, zoffset;
-    short p, i;
+    int zstep;
+    short i, p;
 
     for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti) {
+        /* COMPILER_STEERED: tile temporary scope affects allocation in the master switch. */
+        int pic;
+
         nexti = nextspritestat[i];
         p = findplayer(i, &dist);
         sect = sprite[i].sectnum;
@@ -344,9 +348,6 @@ void moveactors(void)
                 continue;
             operatesectors(sect, i);
             for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j]) {
-                /* COMPILER_STEERED: the tile temporary affects the following switch layout. */
-                int pic;
-
                 if (sprite[j].statnum == STAT_EFFECTOR)
                     switch (sprite[j].lotag) {
                     case 2:
@@ -723,12 +724,12 @@ shark_steer:
                         t[1] = 0;
                         t[0]++;
                     } else {
-                        j = ksgn(ps[p].posz - sprite[i].z) << 11;
-                        sprite[i].z += j;
+                        zstep = ksgn(ps[p].posz - sprite[i].z) << 11;
+                        sprite[i].z += zstep;
                         if (sprite[i].picnum == 930)
-                            sector[sect].floorz += j;
+                            sector[sect].floorz += zstep;
                         else
-                            sector[sect].ceilingz += j;
+                            sector[sect].ceilingz += zstep;
                     }
                 }
             }
@@ -745,9 +746,9 @@ shark_steer:
                         sprite[i].z += 0x2000;
                     }
                 } else {
-                    /* COMPILER_STEERED: Clear the actor timer before restoring the shade. */
-                    t[1] = 0;
+                    /* COMPILER_STEERED: set the idle shade before clearing the turret timer. */
                     sprite[i].shade = 4;
+                    t[1] = 0;
                     if (dist > 1024) {
                         t[0] = 4;
                         goto wait;
@@ -783,8 +784,7 @@ wait:
             }
         } else if (sprite[i].picnum == HEAVYHBOMB) {
             /* l: the owner's player (hittype[-1] for an ownerless bomb). */
-            j = sprite[i].owner;
-            l = hittype[j][0];
+            l = hittype[sprite[i].owner][0];
             j = ifsquished(i, p);
             if (j >= 0 && sprite[i].extra < 0)
                 ps[l].hbomb_on = 0;
@@ -797,7 +797,9 @@ wait:
                 sprite[i].xvel = 0;
             MOVE_ALONG(i, sprite[i].zvel, 0);
             if (ps[l].hbomb_on == 0 && ps[l].i == sprite[i].owner) {
-                sprite[i].yvel++;
+                /* COMPILER_STEERED: stage the bomb timer before testing visibility. */
+                j = sprite[i].yvel + 1;
+                sprite[i].yvel = j;
                 if (sprite[i].xrepeat || sprite[i].yrepeat) {
                     sprite[i].xrepeat = sprite[i].yrepeat = 0;
                     hitradius(i, 3092, sprite[i].extra);

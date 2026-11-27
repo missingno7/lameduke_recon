@@ -1013,3 +1013,6 @@ Each entry names the command or artefact that supports it.
 - REJECTED the worker's grouvline variant: it needed a ksgn #pragma body found in NO historical PRAGMAS.H (every dated
   copy, 1994-1995, uses add ebx,ebx / sbb eax,eax / cmp eax,ebx / adc), i.e. invented inline assembly; only the two
   functions were transplanted onto the canonical ENGINE.C/PRAGMAS.H.
+- ACTORS follow-up 8 (r10-actors-8): moveactors' player index, i and nexti in their oracle slots (ESP+0x28...) via a
+  separate signed turret height step; 3,135 -> 3,125 differing bytes, first difference +0x73 (sect at ESP+0x30 vs
+  ESP+0x24). ACTORS paused pending the lock-in audit.

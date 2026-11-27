@@ -61,7 +61,7 @@ Code that does not match yet (75 functions, 195,619 bytes), by how much of each 
 - nearly written: small block edits: 26,243 bytes (13.4%)
 - code written: order/registers left: 18,557 bytes (9.5%)
 - code written: register/stack homes differ: 10,012 bytes (5.1%)
-- byte-weighted share of blocks already right: 70.1% exact, 91.8% counting near-identical blocks
+- byte-weighted share of blocks already right: 70.0% exact, 91.8% counting near-identical blocks
 
 <!-- progress:end -->
 
