@@ -5387,6 +5387,12 @@ neartag (long xs, long ys, long zs, short sectnum, short ange, short *neartagsec
 		endwall = startwall + sector[dasector].wallnum - 1;
 		for(z=startwall;z<=endwall;z++)
 		{
+			/* The March 28 source also reads the endpoints here. Keeping both
+			   reads reproduces Watcom 9.5 register and stack allocation. */
+			x1 = wall[z].x;
+			y1 = wall[z].y;
+			x2 = wall[wall[z].point2].x;
+			y2 = wall[wall[z].point2].y;
 			good = 0;
 			if (wall[z].nextsector1 >= 0)
 			{
@@ -5453,7 +5459,7 @@ neartag (long xs, long ys, long zs, short sectnum, short ange, short *neartagsec
 				y1 = sprite[z].y;
 				z1 = sprite[z].z;
 
-				topt = (x1-xs)*vx + (y1-ys)*vy;
+				topt = vx*(x1-xs) + vy*(y1-ys);
 				if (topt > 0)
 				{
 					bot = vx*vx + vy*vy;

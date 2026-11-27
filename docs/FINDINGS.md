@@ -1038,3 +1038,6 @@ Each entry names the command or artefact that supports it.
   measured x20 per loop level, depth <= 5). The 11.0-lineage source is therefore a reliable map of the 9.5 allocator;
   each further rule is verified against 9.5 before use (worker owcg). Stack homes: temps.c TempAllocBefore /
   AssignOtherLocals.
+- Engine follow-up 3 (r12-engine-3): PROVEN neartag STRICT (1,644 B): the March-28-1995 donor's repeated wall-endpoint
+  reads and dot-product operand order close all 110 bytes. ENGINE 89/103. drawmaskwall still 7 bytes (xb1[z] load
+  after candidate sorting; 20 flip probes do not help).

@@ -276,7 +276,7 @@
      "status": "NEAR_MATCH"
     },
     "neartag": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "lintersect": {
      "status": "STRICT"
