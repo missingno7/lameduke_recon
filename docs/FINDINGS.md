@@ -687,3 +687,7 @@ Each entry names the command or artefact that supports it.
   for the FLAIR counter; content .663 -> .681, fuzzy .929 -> .961; frame 0x20 vs 0x1c); moveactors five exact case
   targets (deltas +1, +1, -2; frame 0x48 as oracle); spawn non-player casing offset first: 5,313 -> 4,646 differing
   bytes. moveweapons 17 bytes unresolved: cg95 shows the 32-bit distance sorting late and its 16-bit alias early.
+- PROVEN (cg95, r5cx-sector-5) checkhitswitch's last 2 bytes: in case 405 the conversion t116 and the scale t117
+  both have savings 564; the conversion is visited first and takes EAX on the tie, so the scale keeps EAX where the
+  oracle uses ECX. Moving case 406's next-sprite load earlier reverses the visit order and fixes the 2 bytes but
+  changes case 406 and loses checkhitceiling's table boundary. NEGATIVE signed offset, local scope, loop order.
