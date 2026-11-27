@@ -537,7 +537,7 @@ void waitforeverybody(void)
 /* Master/slave input synchronisation for one frame. After Ken Silverman's sync, Build GAME.C (1994). */
 void sync(void)
 {
-    unsigned long permute_tmp0;
+    unsigned long obits;    /* COMPILER_STEERED: staged old sync bits (found by tools/permute) */
     long i, j, k;
     short p;
 
@@ -567,8 +567,8 @@ void sync(void)
                     osyncangvel[i] = syncangvel[i];
                     tempbuf[k >> 3] |= (4 << (k & 7));
                 }
-                permute_tmp0 = osyncbits[i];
-                if (syncbits[i] != permute_tmp0) {
+                obits = osyncbits[i];
+                if (syncbits[i] != obits) {
                     tempbuf[j++] = (syncbits[i] & 255);
                     tempbuf[j++] = ((syncbits[i] >> 8) & 255);
                     tempbuf[j++] = ((syncbits[i] >> 16) & 255);
