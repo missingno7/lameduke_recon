@@ -654,3 +654,7 @@ Each entry names the command or artefact that supports it.
   15,692 B, content .665); spawn_pistol_tracer angle bias applied last restores its frame 0x20 (fuzzy .934); two
   missing findplayer homes located in processinput (OPEN). NEGATIVE short player index (breaks shoot), direct pistol
   field accesses, RPG/HANDREMOTE branch rewrites in displayweapon.
+- SECTOR follow-up 2 (r5cx-sector-3): checkhitswitch 1,070 -> 6 differing bytes (content/fuzzy 1.000, all fixups
+  verified; keeping the wall displacement live across the jump table leaves three register choices); checkhitwall
+  87 -> 78 bytes (declaration order restores the sign extension after the second EGS call); cheatkeys frame 0x64 vs
+  0x60, content .624; checksectors frame 0xb0 vs 0xa8 (content .411; the new inlining merges one lift tail).

@@ -653,7 +653,9 @@ void operateforcefields(short low)
 /* Handle player snum's interface and inventory keys (Duke3D 1.5 cheatkeys), including the /d door cheat. */
 void cheatkeys(short snum)
 {
+    /* COMPILER_STEERED: keep an explicit sprite argument for the door loop. */
     short sn;
+    short source;
 
     if ((syncbits[snum] & SB_KNUCKLES) && ps[snum].knuckle_incs == 0)
         ps[snum].knuckle_incs = 1;
@@ -779,19 +781,18 @@ void cheatkeys(short snum)
     }
     if (!ud.debug) {
         if (syncbits[snum] & SB_STEROIDS) {
-            unsigned char gm = ps[snum].gm | MODE_MENU;
+            unsigned char gm = ps[snum].gm;
             current_menu = 20;
-            ps[snum].gm = gm;
+            ps[snum].gm = gm | MODE_MENU;
         }
         if (syncbits[snum] & SB_SHIELD) {
-            unsigned char gm = ps[snum].gm | MODE_MENU;
+            unsigned char gm = ps[snum].gm;
             current_menu = 50;
-            ps[snum].gm = gm;
+            ps[snum].gm = gm | MODE_MENU;
         }
         if (syncbits[snum] & SB_SCUBA) {
-            unsigned char gm = ps[snum].gm | MODE_MENU;
             current_menu = 10;
-            ps[snum].gm = gm;
+            ps[snum].gm = ps[snum].gm | MODE_MENU;
         }
     } else if (syncbits[snum] & SB_DEBUG_DOORS) {
         FTA(11);
@@ -802,7 +803,8 @@ void cheatkeys(short snum)
             case 25: case 26: case 27: case 28: case 29:
                 if (sector[sn].lotag & 0xbfff)
                     sector[sn].lotag &= ~0x4000;
-                operatesectors(sn, ps[snum].i);
+                source = ps[snum].i;
+                operatesectors(sn, source);
                 break;
             }
         }
@@ -814,8 +816,11 @@ void cheatkeys(short snum)
 void checkhitswitch(long w)
 {
 {
-    short i, lotag, j;
-    walltype *wal;
+    /* COMPILER_STEERED: keep the wall displacement live across the toggle switch. */
+    short i;
+    long displacement;
+    short lotag;
+    short j;
 
     switch (wall[w].picnum) {
     case 395: case 396: case 405: case 406:
@@ -826,14 +831,18 @@ void checkhitswitch(long w)
     lotag = wall[w].lotag;
     for (i = 0; i < numanimwalls; i++) {
         j = animwall[i].wallnum;
-        if (lotag == wall[j].lotag) {
-            wal = &wall[j];
-            switch (wal->picnum) {
+        /* Build v5 stores each wall in 35 bytes. */
+        displacement = (long)j * 8;
+        displacement += j;
+        displacement *= 4;
+        displacement -= j;
+        if (lotag == ((walltype *)((char *)&wall + displacement))->lotag) {
+            switch (((walltype *)((char *)&wall + displacement))->picnum) {
             case 395: case 405:
-                wal->picnum++;
+                ((walltype *)((char *)&wall + displacement))->picnum++;
                 break;
             case 396: case 406:
-                wal->picnum--;
+                ((walltype *)((char *)&wall + displacement))->picnum--;
                 break;
             }
         }
@@ -881,8 +890,12 @@ void checkhitswitch(long w)
 /* Effects of a shot on wall dawallnum: glass, tech walls and breakable lights. */
 void checkhitwall(long dawallnum, long x, long y, long z, short atwith)
 {
-    short sn, i, j, k, startwall, endwall, nextj, darkestwall;
-    signed char ceiling_shade, floor_shade;
+    /* COMPILER_STEERED: declaration order selects EAX for the second EGS result. */
+    short k, nextj, endwall;
+    signed char ceiling_shade;
+    short i, j;
+    signed char floor_shade;
+    short sn, startwall, darkestwall;
 
     switch (wall[dawallnum].overpicnum) {
     case 179:
@@ -1027,10 +1040,12 @@ char checkhitceiling(short sn)
 /* Sector specials and the use key for player snum. */
 void checksectors(short snum)
 {
-    long i;
+    /* COMPILER_STEERED: these locals preserve the extent with the inlined wall toggle. */
+    long i = -1;
     short w;
     short sn;
     short source;
+    playertype *p;
 
     switch (sector[ps[snum].cursectnum].lotag) {
     case 32767:
@@ -1052,7 +1067,8 @@ void checksectors(short snum)
         return;
 
     ps[snum].toggle_key_flag = 1;
-    neartag(ps[snum].posx, ps[snum].posy, ps[snum].posz + 5120, ps[snum].cursectnum, ps[snum].ang,
+    p = &ps[snum];
+    neartag(p->posx, p->posy, p->posz + 5120, p->cursectnum, p->ang,
         &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1024);
     if (wall[neartagwall].picnum == 180 || ps[snum].newowner >= 0) {
         if (syncbits[snum] & SB_ESCAPE)
