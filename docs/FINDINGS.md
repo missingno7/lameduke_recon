@@ -751,3 +751,14 @@ Each entry names the command or artefact that supports it.
   one shared draw; 2,994 -> 2,949 differing bytes; all 23 draw calls and 11 CLUB targets verify). Alternatives kept in
   build/workers/r7astra-player/followup2/: a processinput candidate matching 388/422 blocks (.753/.960) that moves the
   fifth findplayer home, and a tracer prefix variant that moves both inlined findplayer homes.
+
+## Unit-wide declaration experiment (decls, Codex, 2026-11-27; build/workers/decls/NOTES.md) — NEGATIVE
+- Hypothesis: the 1994 game headers declared all cross-unit functions old-style (no parameter lists) and engine
+  functions as Ken defines them (implicit int). Tested per unit on the DOS host (STRICT / NEAR differing bytes,
+  canonical -> A all old-style -> B plus implicit-int engine -> C per-callee bisection): GAME 36/19,676 -> 36/19,676
+  -> 35/19,833 (B loses EGS) -> 36/19,673; PREMAP 6/11,702 -> ... -> 6/11,686; ACTORS 13/10,430 -> 13/12,987 (A, B)
+  -> 13/10,430; GAMEDEF 12/3,443 -> 12/3,443 -> 12/9,466 -> 12/3,443; SECTOR, PLAYER, SOUNDS, MENUES unchanged.
+- STRONG the evidence supports CALLER-SPECIFIC declarations, not one global header: ACTORS needs findplayer returning
+  32 bits while PLAYER needs a short return; SECTOR compares syncbits unsigned; GAME's 3-byte C gain was rejected
+  (tests AL where the oracle tests EAX). The PREMAP-only proposal (new premap.h, tentative short getangle, -16 NEAR
+  bytes, no STRICT change) was not integrated.
