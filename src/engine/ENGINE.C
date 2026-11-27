@@ -3432,7 +3432,6 @@ drawmaskwall(short damaskwallcnt)
 	long z, j, k, x, i, wallnum, sectnum, nextsectnum;
 	long z2, z1, llin, rlin, top, topinc, bot, botinc;
 	long hplc, hinc, dax, lx, rx;
-	long xrepeat;
 
 	z = maskwall[damaskwallcnt];
 	wallnum = thewall[z];
@@ -3445,10 +3444,9 @@ drawmaskwall(short damaskwallcnt)
 	if (sector[sectnum].floorz < z2) z2 = sector[sectnum].floorz;
 	if (z1 >= z2) return;
 
-	xrepeat = wall[wallnum].xrepeat;
-	topinc = xrepeat * -ry1[z];
-	top = mulscale(rx1[z],xdimen,2)-mulscale(xb1[z]-(xdimen>>1),ry1[z],1);
-	top *= xrepeat;
+	dax = wall[wallnum].xrepeat;
+	topinc = -ry1[z]*dax;
+	top = (mulscale(rx1[z],xdimen,2)-mulscale(xb1[z]-(xdimen>>1),ry1[z],1))*dax;
 	botinc = ((ry2[z]-ry1[z])>>1);
 	bot = mulscale(rx1[z]-rx2[z],xdimen,3) + mulscale(xb1[z]-halfxdimen,botinc,1);
 
@@ -3462,7 +3460,7 @@ drawmaskwall(short damaskwallcnt)
 	if (lwall[xb1[z]] < 0) lwall[xb1[z]] = 0;
 	if (wall[wallnum].xrepeat > 0)
 	{
-		if (((long)wall[wallnum].xrepeat<<9) <= lwall[xb2[z]])
+		if (lwall[xb2[z]] >= ((long)wall[wallnum].xrepeat<<9))
 			lwall[xb2[z]] = ((long)wall[wallnum].xrepeat<<9)-1;
 	}
 
@@ -5455,17 +5453,16 @@ neartag (long xs, long ys, long zs, short sectnum, short ange, short *neartagsec
 				y1 = sprite[z].y;
 				z1 = sprite[z].z;
 
-				topt = vx*(x1-xs) + vy*(y1-ys);
+				topt = (x1-xs)*vx + (y1-ys)*vy;
 				if (topt > 0)
 				{
-					long permute_tmp0;
-					permute_tmp0 = vy*vy;
-					bot = vx*vx + permute_tmp0;
+					bot = vx*vx + vy*vy;
 					if (bot != 0)
 					{
 						intz = zs+scale(vz,topt,bot);
-						daysiz = (tilesizy[sprite[z].picnum]*sprite[z].yrepeat)<<8;
-						if ((intz <= z1) && (intz >= z1-(daysiz>>6)))
+						// COMPILER_STEERED: Keep the unshifted height until the lower-bound test.
+						daysiz = tilesizy[sprite[z].picnum]*sprite[z].yrepeat;
+						if ((intz <= z1) && (intz >= z1-((daysiz<<8)>>6)))
 						{
 							topu = vx*(y1-ys) - vy*(x1-xs);
 
@@ -6275,9 +6272,8 @@ draw2dgrid(long posxe, long posye, short ange, long zoome, short gride)
 
 draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
 {
-	long i, j, xp1, yp1, xp2, yp2, templong, scrx1, scry1;
-	char col;
-	short spritenum;
+	long i, j, xp1, yp1, xp2, yp2, templong;
+	char col, skip;
 
 	if (qsetmode == 200) return;
 
@@ -6291,18 +6287,23 @@ draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
 
 	for(i=0;i<numwalls;i++)
 	{
+		skip = 0;
 		if (editstatus == 0)
 		{
-			if ((show2dwall[i>>3]&(1<<(i&7))) == 0) continue;
-			j = wall[i].nextwall1;
-			if ((j >= 0) && (i > j))
-				if ((show2dwall[j>>3]&(1<<(j&7))) > 0) continue;
+			if ((show2dwall[i>>3]&(1<<(i&7))) > 0)
+			{
+				j = wall[i].nextwall1;
+				if ((j >= 0) && (i > j))
+					if ((show2dwall[j>>3]&(1<<(j&7))) > 0) skip = 1;
+			}
+			else skip = 1;
 		}
 		else
 		{
 			j = wall[i].nextwall1;
-			if ((j >= 0) && (i > j)) continue;
+			if ((j >= 0) && (i > j)) skip = 1;
 		}
+		if (skip != 0) continue;
 
 		if (wall[i].nextwall1 == -1)
 		{
@@ -6312,8 +6313,8 @@ draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
 		else
 		{
 			col = 4;
-			if ((wall[i].cstat&1) != 0) col = 5;
-			if ((wall[i].cstat&64) != 0) col = 133;
+			if ((wall[i].cstat&1) > 0) col = 5;
+			if ((wall[i].cstat&64) > 0) col = 133;
 			if ((i == linehighlight) || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall1)))
 				col += ((numframes&2)<<2);
 		}
@@ -6323,15 +6324,16 @@ draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
 		xp2 = mulscale(wall[wall[i].point2].x-posxe,zoome,14);
 		yp2 = mulscale(wall[wall[i].point2].y-posye,zoome,14);
 
-		if ((unsigned char)col > 15)
+		if (col >= 16)
 		{
 			drawline16(320+xp1+1,200+yp1,320+xp2+1,200+yp2,col-128);
 			drawline16(320+xp1-1,200+yp1,320+xp2-1,200+yp2,col-128);
 			drawline16(320+xp1,200+yp1+1,320+xp2,200+yp2+1,col-128);
 			drawline16(320+xp1,200+yp1-1,320+xp2,200+yp2-1,col-128);
-			col = 13;
+			drawline16(320+xp1,200+yp1,320+xp2,200+yp2,13);
 		}
-		drawline16(320+xp1,200+yp1,320+xp2,200+yp2,col);
+		else
+			drawline16(320+xp1,200+yp1,320+xp2,200+yp2,col);
 
 		if ((zoome >= 256) && (editstatus == 1))
 			if (((320+xp1) >= 2) && ((320+xp1) <= 637))
@@ -6339,7 +6341,7 @@ draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
 				{
 					col = 2;
 					if (i == pointhighlight) col += ((numframes&2)<<2);
-					else if (highlightcnt > 0)
+					else if ((highlightcnt > 0) && (editstatus == 1))
 					{
 						if ((show2dwall[i>>3]&(1<<(i&7))) > 0)
 							col += ((numframes&2)<<2);
@@ -6372,29 +6374,32 @@ draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
 
 	if ((zoome >= 256) || (editstatus == 0))
 		for(i=0;i<numsectors;i++)
-			for(spritenum=headspritesect[i];spritenum!=-1;spritenum=nextspritesect[spritenum])
-				if ((editstatus == 1) || ((show2dsprite[spritenum>>3]&(1<<(spritenum&7))) > 0))
+		{
+			j = headspritesect[i];
+			while (j != -1)
+			{
+				if ((editstatus == 1) || ((show2dsprite[j>>3]&(1<<(j&7))) > 0))
 				{
 					col = 3;
-					if ((sprite[spritenum].cstat&1) > 0) col = 5;
+					if ((sprite[j].cstat&1) > 0) col = 5;
 					if (editstatus == 1)
 					{
-						if (spritenum+MAXSPRITES == pointhighlight)
+						if (j+MAXSPRITES == pointhighlight)
 							col += ((numframes&2)<<2);
-						else if (highlightcnt > 0)
+						else if ((highlightcnt > 0) && (editstatus == 1))
 						{
-							if ((show2dsprite[spritenum>>3]&(1<<(spritenum&7))) > 0)
+							if ((show2dsprite[j>>3]&(1<<(j&7))) > 0)
 								col += ((numframes&2)<<2);
 						}
 					}
 
-					xp1 = mulscale(sprite[spritenum].x-posxe,zoome,14);
-					yp1 = mulscale(sprite[spritenum].y-posye,zoome,14);
-					scrx1 = 320+xp1; scry1 = 200+yp1;
-					if (((scrx1) >= 2) && ((scrx1) <= 637))
-						if (((scry1) >= 2) && ((scry1) <= ydim16-3))
+					xp1 = mulscale(sprite[j].x-posxe,zoome,14);
+					yp1 = mulscale(sprite[j].y-posye,zoome,14);
+
+					if (((320+xp1) >= 2) && ((320+xp1) <= 637))
+						if (((200+yp1) >= 2) && ((200+yp1) <= ydim16-3))
 						{
-							templong = (scry1)*640+(scrx1)+pageoffset;
+							templong = (200+yp1)*640+(320+xp1)+pageoffset;
 							setcolor16((long)col);
 							drawpixel16(templong-1-1280);
 							drawpixel16(templong+0-1280);
@@ -6417,12 +6422,15 @@ draw2dscreen(long posxe, long posye, short ange, long zoome, short gride)
 							drawpixel16(templong+1-640);
 							drawpixel16(templong-1-640);
 
-							xp2 = mulscale(sintable[(sprite[spritenum].ang+2560)&2047],zoome,11) / 768;
-							yp2 = mulscale(sintable[(sprite[spritenum].ang+2048)&2047],zoome,11) / 768;
+							xp2 = mulscale(sintable[(sprite[j].ang+2560)&2047],zoome,11) / 768;
+							yp2 = mulscale(sintable[(sprite[j].ang+2048)&2047],zoome,11) / 768;
 
-							drawline16(scrx1,scry1,scrx1+xp2,scry1+yp2,col);
+							drawline16(320+xp1,200+yp1,320+xp1+xp2,200+yp1+yp2,col);
 						}
 				}
+				j = nextspritesect[j];
+			}
+		}
 
 	xp1 = mulscale(sintable[(ange+2560)&2047],zoome,11) / 768; //Draw white arrow
 	yp1 = mulscale(sintable[(ange+2048)&2047],zoome,11) / 768;

@@ -1016,3 +1016,7 @@ Each entry names the command or artefact that supports it.
 - ACTORS follow-up 8 (r10-actors-8): moveactors' player index, i and nexti in their oracle slots (ESP+0x28...) via a
   separate signed turret height step; 3,135 -> 3,125 differing bytes, first difference +0x73 (sect at ESP+0x30 vs
   ESP+0x24). ACTORS paused pending the lock-in audit.
+- Engine follow-up (r12-engine-2, canonical PRAGMAS.H): PROVEN draw2dscreen STRICT (3,202 B; a top-tested
+  sprite-list while closes it; 33/65 -> 65/65 blocks). drawmaskwall 276 -> 7 bytes (dax reused for the wall repeat
+  count; xb1[z] in EBP vs ESI remains); neartag 201 -> 110. ENGINE 88/103. Attribution: idioms reverse 1,673 B /
+  +32 blocks, own reasoning 1,053, near 269, donors 91.
