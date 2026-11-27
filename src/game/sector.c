@@ -291,9 +291,9 @@ void operatesectors(short sn, short ii)
     case 9: {
         /* The sliding-door geometry follows Ken's September 1994 routine. */
         /* COMPILER_STEERED: initialize both center coordinates here for the inlined door scans. */
-        long cx = 0, cy = 0, first, last, sp, dx, dy;
-        long door[2], door_index;
+        long cx = 0, cy = 0, first, last, sp, dx, dy, displacement;
         short w, prev;
+        long door_index, door[2];
 
         first = sector[sn].wallptr;
         last = first + sector[sn].wallnum - 1;
@@ -322,18 +322,18 @@ void operatesectors(short sn, short ii)
                 dx = ((wall[prev].x + wall[wall[door[door_index]].point2].x) >> 1) - wall[door[door_index]].x;
                 dy = ((wall[prev].y + wall[wall[door[door_index]].point2].y) >> 1) - wall[door[door_index]].y;
                 if (dx != 0) {
-                    dx = wall[wall[wall[door[door_index]].point2].point2].x;
-                    dx -= wall[wall[door[door_index]].point2].x;
-                    setanimation(sn, &wall[door[door_index]].x, wall[door[door_index]].x + dx, sp);
-                    setanimation(sn, &wall[prev].x, wall[prev].x + dx, sp);
-                    setanimation(sn, &wall[wall[door[door_index]].point2].x, wall[wall[door[door_index]].point2].x + dx, sp);
+                    displacement = wall[wall[wall[door[door_index]].point2].point2].x;
+                    displacement -= wall[wall[door[door_index]].point2].x;
+                    setanimation(sn, &wall[door[door_index]].x, wall[door[door_index]].x + displacement, sp);
+                    setanimation(sn, &wall[prev].x, wall[prev].x + displacement, sp);
+                    setanimation(sn, &wall[wall[door[door_index]].point2].x, wall[wall[door[door_index]].point2].x + displacement, sp);
                     spritesound(6, ii);
                 } else if (dy != 0) {
-                    dy = wall[wall[wall[door[door_index]].point2].point2].y;
-                    dy -= wall[wall[door[door_index]].point2].y;
-                    setanimation(sn, &wall[door[door_index]].y, wall[door[door_index]].y + dy, sp);
-                    setanimation(sn, &wall[prev].y, wall[prev].y + dy, sp);
-                    setanimation(sn, &wall[wall[door[door_index]].point2].y, wall[wall[door[door_index]].point2].y + dy, sp);
+                    displacement = wall[wall[wall[door[door_index]].point2].point2].y;
+                    displacement -= wall[wall[door[door_index]].point2].y;
+                    setanimation(sn, &wall[door[door_index]].y, wall[door[door_index]].y + displacement, sp);
+                    setanimation(sn, &wall[prev].y, wall[prev].y + displacement, sp);
+                    setanimation(sn, &wall[wall[door[door_index]].point2].y, wall[wall[door[door_index]].point2].y + displacement, sp);
                     spritesound(6, ii);
                 }
             } else {
@@ -406,7 +406,7 @@ elevator_down:
         }
         daz = sector[a].floorz;
         setanimation(sn, &sector[sn].floorz, daz, 256);
-        setanimation(sn, &sector[sn].ceilingz, daz + sector[sn].ceilingz - sector[sn].floorz, sector[sn].extra);
+        setanimation(sn, &sector[sn].ceilingz, daz + (sector[sn].ceilingz - sector[sn].floorz), sector[sn].extra);
         spritesound(SOUND_LIFT_START, ii);
         break;
     case 19:
@@ -417,8 +417,9 @@ elevator_up:
             goto elevator_down;
         }
         daz = sector[a].floorz;
-        setanimation(sn, &sector[sn].floorz, daz, sector[sn].extra);
-        setanimation(sn, &sector[sn].ceilingz, daz + sector[sn].ceilingz - sector[sn].floorz, sector[sn].extra);
+        middle = sector[sn].extra;
+        setanimation(sn, &sector[sn].floorz, daz, middle);
+        setanimation(sn, &sector[sn].ceilingz, daz + (sector[sn].ceilingz - sector[sn].floorz), middle);
         spritesound(SOUND_LIFT_START, ii);
         break;
     case 29:
@@ -468,6 +469,7 @@ elevator_up:
                 animategoal[i] = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
             else
                 animategoal[i] = sector[sn].ceilingz;
+            daz = animategoal[i];
         } else {
             if (sector[sn].ceilingz == sector[sn].floorz)
                 daz = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
@@ -502,6 +504,7 @@ elevator_up:
                 animategoal[i] = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
             else
                 animategoal[i] = middle;
+            daz = animategoal[i];
         } else {
             daz = middle;
             if (middle == sector[sn].floorz)
@@ -1049,9 +1052,9 @@ char checkhitceiling(short sn)
 /* Sector specials and the use key for player snum. */
 void checksectors(short snum)
 {
-    long i = -1;
     short w;
-    unsigned short under_tag;
+    short target;
+    long i = -1;
     short source;
 
     switch (sector[ps[snum].cursectnum].lotag) {
@@ -1070,9 +1073,7 @@ void checksectors(short snum)
         ps[snum].toggle_key_flag = 0;
         return;
     }
-    /* COMPILER_STEERED: reuse the wide sprite index for the key latch. */
-    i = ps[snum].toggle_key_flag;
-    if (i)
+    if (ps[snum].toggle_key_flag)
         return;
 
     ps[snum].toggle_key_flag = 1;
@@ -1107,32 +1108,29 @@ void checksectors(short snum)
         }
     }
 
-    /* COMPILER_STEERED: the near tag shares the wall index used below. */
     w = sector[neartagsector].lotag & 32767;
     switch (w) {
     case 9:
     case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
     case 25: case 26: case 27: case 29: {
-        /* COMPILER_STEERED: this scope and wide initiator preserve both lift tails. */
-        short nearsector = neartagsector;
-        i = ps[snum].i;
-        operatesectors(nearsector, i);
+        target = neartagsector;
+        w = ps[snum].i;
+        operatesectors(target, w);
         return;
     }
     }
-    under_tag = sector[ps[snum].cursectnum].lotag & 32767;
-    if (under_tag < 15 || (under_tag > 19 && (under_tag < 26 || under_tag > 28)))
+    w = sector[ps[snum].cursectnum].lotag & 32767;
+    if ((unsigned short)w < 15 || ((unsigned short)w > 19 && ((unsigned short)w < 26 || (unsigned short)w > 28)))
         goto wall_switch;
     {
-        /* COMPILER_STEERED: reuse snum after the final player lookup. */
+        short current_sector = ps[snum].cursectnum;
         source = ps[snum].i;
-        snum = ps[snum].cursectnum;
-        operatesectors(snum, source);
+        operatesectors(current_sector, source);
         return;
     }
 wall_switch:
-    w = neartagwall;
-    checkhitswitch(w);
+    target = neartagwall;
+    checkhitswitch(target);
 }
 
 /* Align all warp elevators of a group to the master (shade > 16) at level start. */
