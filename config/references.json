@@ -595,6 +595,48 @@
    },
    "license": "Proprietary (Devolver Digital); local reference only, never redistributed",
    "relevance": "Engine donors bracketing LameDuke: SW 1994-05-23 and 1995-01-15/02-10 prototypes, Feb-1995 BUILD.EXE/EDITART.EXE/GAME.EXE; Ninja 1993-09-16."
+  },
+  "gh-videogamepreservation_descent": {
+   "url": "https://github.com/videogamepreservation/descent.git",
+   "commit": "f6fb1c30a06725b403dfa7db4b251ecea1c3efc1",
+   "path": "external/gh/videogamepreservation_descent",
+   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+  },
+  "gh-gered_ack3d": {
+   "url": "https://github.com/gered/ack3d.git",
+   "commit": "ad3e79e81139ef9e1afb7ed4ea64984c62a06359",
+   "path": "external/gh/gered_ack3d",
+   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+  },
+  "gh-skynettx_dosraptor": {
+   "url": "https://github.com/skynettx/dosraptor.git",
+   "commit": "4403569505c215c6cebe02cc3344e670499def1d",
+   "path": "external/gh/skynettx_dosraptor",
+   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+  },
+  "gh-gamesrc-ver-recreation_raptor": {
+   "url": "https://github.com/gamesrc-ver-recreation/raptor.git",
+   "commit": "405f958ec8f9d6a69a1774e7609ffffed64019dd",
+   "path": "external/gh/gamesrc-ver-recreation_raptor",
+   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+  },
+  "gh-lethal-guitar_Duke2Reconstructed": {
+   "url": "https://github.com/lethal-guitar/Duke2Reconstructed.git",
+   "commit": "980cee990879fa5f9e53706ef63ad25df8e32d2d",
+   "path": "external/gh/lethal-guitar_Duke2Reconstructed",
+   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+  },
+  "gh-gamesrc-ver-recreation_doom": {
+   "url": "https://github.com/gamesrc-ver-recreation/doom.git",
+   "commit": "bd6beabfd561613b671fe5b8842e7d373731d2c5",
+   "path": "external/gh/gamesrc-ver-recreation_doom",
+   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+  },
+  "gh-WildPress_vibesynd": {
+   "url": "https://github.com/WildPress/vibesynd.git",
+   "commit": "580c708052525bd568ea2c1de059867bd1a273c5",
+   "path": "external/gh/WildPress_vibesynd",
+   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
   }
  },
  "repositories": {
