@@ -1,0 +1,6 @@
+﻿# Using a second historical body to decide between source forms
+
+1. Identify the same routine in two builds using a named object, callers, or several distinctive operations. Read the actual extent and sources. A ranked donor can be a representative of several occurrences, and a release may carry an older executable.
+2. Find the smallest difference with a source-level consequence. In the two December volume bodies it was one signed branch at +35. Both compared the velocity sum with 127 and otherwise used the same carrier-only path. This predicted a `min`/ `max` substitution in the old source.
+3. Keep the common function in its complete translation unit and use the pinned compiler. Restore the surviving donor's expression order once. Build the two predicted variants. The same volume function with `max` verifies STRICT in D3D. With `min` it has one ordinary byte different from D3D and is an exact+sites hit in ROTT.
+4. For a suspected compiler effect, hold the C fixed and vary a historically evidenced **whole-unit** option in a diagnostic build. In getpacket this isolated short loads and spills from the separate peer-expression change. A foreign body with incomplete external bindings remains a cross-check. Record the first falsified prediction and stop when another snapshot only repeats the same unresolved allocation choice.

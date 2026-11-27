@@ -1135,3 +1135,12 @@ Each entry names the command or artefact that supports it.
   and the _BSS layout cannot be proven because eight engine publics (startposx/y/z, startang, startsectnum,
   oldzerohandler, posfil, hitcnt) are never referenced by LameDuke code, so no independent binding exists. Not a
   verifier problem; leave as is unless their existence/positions can be evidenced.
+
+## Cross-version comparison (xver, astra, 2026-11-27; docs/CROSSVERSION.md, build/workers/xver/REPORT.md)
+- PROVEN AL_SetVoiceVolume STRICT: the LameDuke and ROTT 1.0 (1994-12-21) bodies differ by one signed branch, which
+  predicts a min/max swap in the velocity clamp; the max form is STRICT in D3D and the min form is exact+sites in ROTT.
+- raytrace/makepalookup: Feb-95 SW executables carry the December shapes; dated sources place the later changes
+  (bounded retry and inline abs by 1995-07-19; reverse scan and four-argument API by 1995-05-11). Remaining
+  differences are register copies/spills; no later algorithm should be backported.
+- getpacket: whole-unit compiler controls reproduce January's wider stack spill with the same short declaration; the
+  two-packet retry bound is already in December. Owner constraints: build/workers/xver/constraints.md.

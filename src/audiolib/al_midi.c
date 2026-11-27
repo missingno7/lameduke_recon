@@ -374,31 +374,27 @@ static void AL_SetVoiceVolume
    int channel;
    int velocity;
    int slot;
-   int pan;
-   unsigned long level;
+   unsigned long t1;
    unsigned long volume;
 
    channel = Voice[ voice ].channel;
    velocity = Voice[ voice ].velocity + Channel[ channel ].Velocity;
-   if ( velocity <= MAX_VELOCITY )
-      {
-      velocity = MAX_VELOCITY;
-      }
+   velocity = max( velocity, MAX_VELOCITY );
 
    slot = slotVoice[ voice ][ 1 ];
-   level = ( unsigned )VoiceLevel[ slot ][ 0 ];
-   level *= velocity + 0x80;
-   level = ( Channel[ channel ].Volume * level ) >> 15;
+   t1 = ( unsigned )VoiceLevel[ slot ][ 0 ];
+   t1 *= velocity + 0x80;
+   t1 = ( Channel[ channel ].Volume * t1 ) >> 15;
 
    if ( !AL_SendStereo )
       {
-      volume = level ^ 63;
+      volume = t1 ^ 63;
       volume |= ( unsigned )VoiceKsl[ slot ][ 0 ];
       AL_SendOutputToPort( ADLIB_PORT, 0x40 + offsetSlot[ slot ], volume );
       }
    else
       {
-      volume = level;
+      volume = t1;
       if ( Channel[ channel ].Pan < 64 )
          {
          volume *= Channel[ channel ].Pan;
@@ -408,12 +404,10 @@ static void AL_SetVoiceVolume
       volume |= ( unsigned )VoiceKsl[ slot ][ 0 ];
       AL_SendOutputToPort( AL_LeftPort, 0x40 + offsetSlot[ slot ], volume );
 
-      volume = level;
-      pan = Channel[ channel ].Pan;
-      if ( pan > 64 )
+      volume = t1;
+      if ( Channel[ channel ].Pan > 64 )
          {
-         volume = 127 - pan;
-         volume *= level;
+         volume *= 127 - Channel[ channel ].Pan;
          volume >>= 6;
          }
       volume ^= 63;
