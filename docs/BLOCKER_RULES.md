@@ -87,3 +87,82 @@ The predictor concerns where the *caller* obtains and last uses a live value. Fo
 
 The stock verifier establishes STRICT status. The synthetic runs establish behavior only for these inputs and profiles. The comparator and scoring mechanisms were previously recovered in CG95. The additions here are single-factor source controls, measured boundaries on what source changes can predict, and their cross-check against current full units. Watcom 10.0 audio cases have separate evidence. Fourteen verified-code dependencies refer to nine incomplete literal pools; the source-read-buffer residue model predicts some historical padding bytes and has not reproduced all nine pools. The engine RMI case concerns private BSS placement. Neither requires a new 9.5 optimizer rule. [CG95](../../../docs/CG95.md) · [Prior Watcom catalogue](../../../docs/WATCOM95_QUIRKS.md) · [Census](CENSUS.md)
 
+
+# Watcom 9.5b second candidate sort
+
+**PROVEN for the pinned 9.5b compiler, game_oe.** Given the optimized IR and the candidate list at entry, the second sort is reproducible. To predict whether one C temporary precedes another, first compute the comparator key. For equal keys, replay the sort on the *entire* input list. A stable sort of the same keys gives incorrect ranks in both GAME callers.
+
+## Comparator and reference weight
+
+The comparator at NT compiler RVA `3ce14` orders by these fields, in sequence.
+
+1. Temporaries with `flags & 0x100` clear come first.
+2. Within that class, records with a conflict pointer come first.
+3. With two conflicts, larger **unsigned** 32-bit candidate savings come first. With neither, larger **signed** 32-bit backend temporary IDs come first. Equal savings end the comparison. The comparator never consults declaration position, symbol name, first or last use, width, stack offset or insertion address.
+
+The producer at `3ce69` walks the optimizer's blocks immediately before invoking the sorter. For each instruction it visits every operand slot and the result slot. A qualifying reference to a temporary's canonical conflict contributes **one block weight**. An operand that represents indexed memory contributes its index temporary when eligible. The compiler follows alias links to the base temporary. An instruction reading and writing the same temporary contributes twice. Several C uses can share a single conversion in this IR. Aliases with the same conflict see the same accumulator.
+
+| Backend loop depth | 0 | 1 | 2 | 3 | 4 | 5 or greater |
+|---|---:|---:|---:|---:|---:|---:|
+| Weight per qualifying IR reference | 1 | 20 | 400 | 8,000 | 160,000 | 3,200,000 |
+
+The weight helper at `53e2a` reads the depth byte at block offset `4c` and caps the index at five. The accumulator is a 32-bit addition. These weights describe candidate priority at this pass. A later register conflict can have a different savings value for the same temporary. The read-only observer in [candidate_weights.py](candidate_weights.py) independently sums the optimized operands and results and compares the sum to the live field.
+
+## How ties get their ranks
+
+In these fixtures and callers, new records precede the surviving output of pass one, whose relative order is retained at entry to pass two. New records can appear when a live range splits. This is an observed input-list construction, separate from the comparator. The traced array sorter at `4c3c5` starts with gap equal to list length, then halves the gap with alternating additions of 0 and 1. For each gap, it scans forward and exchanges a pair only for a strict priority inversion. It repeats that gap until a scan makes no exchanges and stops after gap one. Two equal candidates can cross when either exchanges with a third record. Equal candidates already in sorted input can also remain in precise input order.
+
+## Small single-factor C controls
+
+The base [probe.c](candidate-sort/base/probe.c) loads two short globals into `left` and `right`, calls an external observer, passes both locals to an external function in a loop and passes each once after the loop. Ranks below are zero-based in pass two. All counts refer to independently predicted candidate savings. Each listed compile has an ordinary NT and a canonical DOS code/public/fixup control.
+
+| Change from the indicated control | Measured effect |
+|---|---|
+| Base | Each local has one outer definition, one inner read and one outer read. Both score 22. Left and right occupy ranks 1 and 2. The loop counter scores 61, including a read and a write in the same increment. |
+| Add a call using left ahead of the external observer | Left becomes 23. Repeating its call adjacent to its existing loop use leaves 22. The argument conversion is shared in the latter optimized IR. |
+| Move only left's loop use outside | Left falls from 22 to 3, behind right at 22. Moving it to depths 2, 3, 4, 5 and 6 gives 402, 8,002, 160,002, 3,200,002 and 3,200,002. |
+| Exchange the first pair of loop reads, the final pair of reads, or the two initial definitions separately | All three retain 22/22 and ranks 1/2. |
+| Move left's declaration into a nested block, with a braces-only control | Both retain 22/22 and ranks 1/2. |
+| Change only left from short to long | A 4-byte base and a 2-byte alias share its conflict, both scoring 22. They finish at ranks 1 and 3 with right at 2. |
+| Change an external call argument from the address of the global to the address of left | Left loses its conflict, keeps flag 0x100 clear and moves from rank 1 to rank 7. Right stays at 22. Taking an address that an optimizer can eliminate has a different outcome in the GAME tests below. |
+| Put the same body in a private, expanded callee | The two locals retain scores 22/22 and ranks 1/2 in the caller. |
+| Exchange only the two local declarations | The backend IDs attach to the opposite names and the roles at ranks 1 and 2 reverse. Both scores remain 22. This edit acts through the input list. |
+
+**Small reproduction of a real split.** In [shared-loops/probe.c](candidate-sort/shared-loops/probe.c), the two branches reuse the same two local declarations in disjoint loops. The first sort sees one named line value at 42. The second sees the named value and a new, anonymous one at 21, each with exactly one depth-zero write and one depth-one read. Two records enter between passes. The loop-counter halves, each at 82, enter at ranks 1 (anonymous) and 2 (named) and exit at ranks 1 and 0. Exchanging only the two C declarations eliminates that equal-key crossing. In the separate guarded-call fixture, redirecting just the extra call's argument from left to right exchanges the two locals at ranks 2/3 with unchanged 22/22. That change is inherited from pass one. These fixtures distinguish actual second-pass reordering from a changed input that is already sorted.
+
+**A source edit that exchanges the two halves.** In this same small fixture, [passing left to one additional call](candidate-sort/split-use-first-left/probe.c) before the *first* loop raises the merged score from 42 to 43. After splitting, the first line value scores 22 and reaches rank 2. The second stays at 21 and reaches rank 3. In the base fixture these ranks were reversed. Passing the already loaded global `ga` at the same site has the same effect because the optimizer forwards the local value. Passing the loop counter there keeps the two line values at 21 and in the original order. Applying the extra left use only to the second loop raises only the anonymous half to 22. The extra calls are source controls in a synthetic program.
+
+**Inlining control.** Two calls to the same short renderer can also produce distinct line-origin records in pass one, each at 21. The two-draw fixture gives the same identities and scores whether the static renderer definition precedes the caller or follows a forward declaration. Classify each expansion from both snapshots before assuming that its original C declaration split.
+
+## GAME predictions
+
+**operatefta.** In pass one `t15_left` covers both expanded lines and scores 42. After splitting, `t15_left` and the anonymous `t102` each have one outer definition and one newline-path read at depth one. Both therefore score 21. Pass two has 75 records, including three new ones. The anonymous origin enters at rank 2 and reaches 11 at gap 9 and 12 at gap 1. The named origin stays at rank 13 throughout. The only natural equal-key crossing in that pass is between the two text pointers. The two line origins themselves *retain* their relative order. The previously verified diagnostic exchange of output ranks 12/13 fixes four displacement bytes. A later conflict-sort exchange leaves all four.
+
+**nonsharedkeys.** Pass two has 225 records, with two arrivals and one removal. Each expanded glyph has three definitions and one read at depth two, for 1,600. Each origin has one definition at depth one and one read at depth two, for 420. Glyphs `t160_ac/t218_ac/t190_ac` enter at ranks 12/13/14. At gap 7 they occupy 5/13/7. They finish at 9/11/10. Thus `t190_ac` overtakes `t218_ac` despite having identical priority. Thirteen equal-key pairs cross in this pass. In the earlier diagnostic, two exchanges among the glyphs followed by one home exchange reproduce all 2,080 bytes and fixups.
+
+**Conditional source predictions.** Holding the optimized lists and all other fields fixed, adding one depth-zero reference only to the first operatefta origin, or removing one only from the second, predicts the complete desired order of its six live homes. Both edits together also predict that order. Across 25 combinations of symmetric glyph and origin changes for both expansions, none did. For nonsharedkeys, none of 25 symmetric changes to the three origins and three glyphs predicted the desired complete home order. The tested deltas per group were 0, ±1 and ±20 for operatefta and 0, ±20 and ±400 for nonsharedkeys. These are counterfactuals. Adding a C statement can also alter list membership, frontend identity or other weights. [Prediction replay](candidate_predict.py)
+
+**Natural whole-unit controls.** The unforced GAME builds test both priority and list membership. A nonescaping pointer to minitext's saved origin is eliminated. Its anonymous origin changes ID from 102 to 103 and retains the same 21 and input/output ranks 2/12. The named origin remains at 13/13. operatefta retains all four differences. Naming the pointer to the second quote gives the same ranks but 34 differences elsewhere in the function. In nonsharedkeys, a short glyph copy keeps the 225-entry list, the three role ranks, and all 14 differences. Widening and sharing the glyph for the draw and table index changes the list to 223 entries. All three glyph scores remain 1,600, but the first and third glyphs exchange their final candidate ranks. This gives 37 differences and two relocation problems, and loses two previously STRICT publics. The full reference graph distinguishes a changed temporary ID from a changed priority, input rank, or complete-unit result. [DOS verdicts](candidate-sort/dos-summary.json) · [Rank audit](candidate-sort/rank-audit.json)
+
+## Reproduction
+
+**Validation totals.** The 55 synthetic cases and eight captures of GAME functions give 63 second-sort outputs and 63 first-sort outputs. All 126 complete orders replay exactly. The independent IR count reproduced all 1,044 scored records in pass one and all 1,087 in pass two. The two original GAME traces account for 44 and 126 scored records in pass two respectively. The other six GAME captures use unforced source variants.
+
+Naming the newline height as a short in minitext leaves the two line values at 21/21 and preserves the 75-entry second sort. Sharing a single long x-coordinate between two nonsharedkeys labels produces 226 candidates, while all three glyphs still score 1,600. The whole function then has 741 differences. Across 58 DOS whole-unit source variants, 24 retained every existing STRICT public and the original public set. None improved either target under those conditions. One rejected private-helper layout also changed CONST padding. The final fresh DOS build with baseline sources retained 37/49 STRICT, 22,956 bytes, all three verified data segments and the original 4/14 differences. All work stays in this worker directory.
+
+Run from the repository root. The harness uses `tools/wcc.py` with `game_oe` and private scratch paths. The observer reads optimizer state without forcing allocator decisions.
+
+```powershell
+$w = 'build/workers/flip2src'
+python -B "$w/candidate_weights.py" --fixtures
+python -B "$w/candidate_weights.py" operatefta nonsharedkeys
+python -B "$w/candidate_predict.py"
+python -B "$w/candidate_real.py"
+python -B "$w/candidate_real.py" callers
+python -B "$w/candidate_real.py" helpers
+python -B "$w/candidate_real.py" literals
+python -B "$w/candidate_real.py" minitext-local-address gametext-loop-glyph-short gametext-draw-tile operatefta-quote minitext-height-short-before nonsharedkeys-label-x-long-labels
+python -B "$w/candidate_ranks.py"
+python -B "$w/candidate_results.py"
+python -B tools/match.py --obj "$w/candidate-sort/real/baseline/game.obj"
+```

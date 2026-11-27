@@ -937,3 +937,10 @@ Each entry names the command or artefact that supports it.
   +0x15 -> +0x59c): flip95 identified the FLAIR mask's AX allocation and a shared `short angle` reproduces it in plain
   C; six diagnostic flips leave 3 bytes (sector.floorz held in EBP instead of ECX). moveactors 4,300 -> 4,267 with all
   eight switch targets exact. Attribution: flip95/climb95 +364 B, blocker rules +1,865 B.
+- PROVEN (flip2src-2, 63 observed orders / 1,087 scored records) Watcom 9.5's SECOND CANDIDATE SORT key: flag 0x100
+  clear first; then conflict present first; two conflict-backed temporaries by descending unsigned savings; two
+  without conflicts by descending signed temp ID; equal keys have no guaranteed order (the sort is not stable: two
+  1,600-savings glyphs in nonsharedkeys cross in the gap-7 pass). Savings = optimised IR operands and results, each
+  weighted 20^min(loop depth, 5). A fixture reproduces operatefta's 42 -> 21/21 split; one extra outer use reverses
+  the ranks. 58 whole-unit variants did not yet fix operatefta/nonsharedkeys without collateral (rule in
+  docs/BLOCKER_RULES.md).
