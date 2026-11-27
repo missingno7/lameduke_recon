@@ -165,9 +165,12 @@ void xyzsound(short num, short i, long x, long y, long z)
         ca = sprite[camerasprite].ang;
     }
 
-    sndang = 2048 + ca - getangle(cx - x, cy - y);
-    sndang &= 2047;
-    sndist = klabs(cx - x) + klabs(cy - y);
+    {
+        long dy = cy - y;
+        sndang = 2048 + ca - getangle(cx - x, dy);
+        sndang &= 2047;
+        sndist = klabs(cx - x) + klabs(dy);
+    }
     priority = 0;
     if (num == 32)
         priority = 255;
@@ -194,9 +197,9 @@ void xyzsound(short num, short i, long x, long y, long z)
 
 /* Play sound num at sprite i (inline copy of xyzsound). */
 /* The indices use the signed low words of the register arguments. */
-void spritesound(short number, int source)
+void spritesound(short number, short source)
 {
-    short i = source;
+    long i = source;
 
     xyzsound(number, i, sprite[i].x, sprite[i].y, sprite[i].z);
 }

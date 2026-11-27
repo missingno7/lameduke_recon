@@ -1,5 +1,35 @@
 # First blockers in the canonical DOS build
 
+## Source tests of the allocator witnesses at 787292d
+
+The five canonical DOS units contained 140 STRICT functions (63,900 bytes), one CODE_BYTES_MATCH function (292 bytes) and 29 NEAR functions. The six requested NEAR targets account for 16,327 bytes of extent. The proposed MULTI, SOUNDS and ENGINE changes remove 32 positional differences. All three complete objects reproduced byte for byte on a second stock DOS build. Every other public retained its status, difference count, fixup problems and unresolved references. Previously verified segments and the 856-byte checkhitceiling boundary hold. No overlay was used.
+
+| Function | Oracle extent | Baseline differences | Proposed differences | First differing byte in the proposed extent |
+|---|---:|---:|---:|---|
+| operatesectors | 10,288 | 7,404 | 7,404 | +0x91 |
+| getzrange | 2,938 | 2,288 | 2,270 | +0x26 |
+| checkhitswitch | 1,740 | 2 | 2 | +0x374 |
+| scansector | 756 | 7 | 7 | +0x12a |
+| spritesound | 464 | 56 | 43 | +0x9 |
+| comsend | 141 | 5 | 4 | +0x5e |
+
+The original three register flips replayed to exact diagnostic objects on this snapshot. The table counts only source compiled by the stock DOS compiler. SECTOR instruction offsets below are relative to the PUBLIC. Its leading tables occupy 84 bytes in operatesectors and 108 in checkhitswitch.
+
+- **SECTOR.** Keeping both the narrow sector index and owner across the switch recovered the case-26 EBX calculation at +0x97 and the destinations +0xfe and +0x10a. The owner load still uses ESP+0x1cc instead of +0x1a0. The epilogue releases 0x1d4 instead of 0x1c4. The whole function grows 112 bytes, checksectors adds 544 differences and checkhitceiling loses its extent proof. A separate sector-index control retained the 10,288-byte extent and reduced 7,404 differences to 6,903, but lost the same boundary and worsened four callers or peers.
+- **ENGINE.** The March 1995 scansector predicate produces both requested choices in a stock trace. Its whole function has 64 differences and spans 757 bytes. The first displacement changes at +0x10. The first instruction-width change occurs at +0x29f on the spritesortcnt load. Eleven STRICT publics lose proof in this control. In getzrange, three diagnostic home exchanges reproduce the bound stores and advance the first mismatch to +0x85. Giving floor_x2 function scope instead gives a 2,938-byte stock function with 2,270 differences and 68 fixup diagnostics. It restores the _scaredfallz and _sector references at +0x329 and +0x32f, with all ten previous reference proofs retained. ymin stays at ESP+0x48, and +0x26 remains the first unequal byte. A separate control reusing the input coordinates grew the frame from 120 to 132 bytes and lost three STRICT publics.
+- **checkhitswitch.** Prefetching the case-406 link before the state store restores both case-405 encoding bytes. It leaves 299 differences, loses checkhitceiling and adds 448 differences to checksectors. In this natural trace the case-405 conversion t116 moves to rank 83 and the scale t117 to rank 82. Both choose ECX. The canonical function retains its two differences.
+- **MULTI and SOUNDS.** Holding the producer cursor across the ESC2 store gives comsend 4 differences at its original 141 bytes. Two fixup diagnostics remain for one displaced site. Widening the signed sprite index and naming the listener-coordinate difference in xyzsound gives 43 differences in 464 bytes. Its first mismatch moves from +0x32 to +0x9. All 25 references verify and standalone xyzsound remains STRICT.
+
+The worker census includes counts by blocker class, individual DOS controls, and source and object receipts. [Worker census](../build/workers/blockers/natural/census.json)
+
+
+| First-blocker class | Functions | Oracle extent | Positional differences before / after |
+|---|---:|---:|---:|
+| switch table and register allocation | 1 | 10,288 | 7,404 / 7,404 |
+| stack home | 2 | 3,402 | 2,344 / 2,313 |
+| equal-savings conflict order | 1 | 1,740 | 2 / 2 |
+| register preference and coalescing | 2 | 897 | 12 / 11 |
+
 ## Follow-up on case 26 and the remaining frame blockers
 
 At 2454e79 the five units had 30 NEAR functions. Across those 30 the largest census classes by oracle extent were switch tables (4 functions, 34,336 bytes), stack homes (5, 15,374) and frame reservations (5, 13,395). The original classifications describe the first discrepancy in the census snapshot. Both getzrange and grouvline already reserve their original frames in this control.

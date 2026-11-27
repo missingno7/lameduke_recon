@@ -372,22 +372,29 @@ void netsend(short otherconnectindex, short messleng)
 
 int comsend(unsigned char ch)
 {
+    volatile short *end;
+
     if (ch == ESC1)
     {
         outbuf[*outbufend] = ch;
         *outbufend = (*outbufend + 1) & (COMBUFSIZ - 1);
         outbuf[*outbufend] = 64;
+        end = outbufend;
     }
     else if (ch == ESC2)
     {
         outbuf[*outbufend] = ESC1;
-        *outbufend = (*outbufend + 1) & (COMBUFSIZ - 1);
+        end = outbufend;
+        *end = (*end + 1) & (COMBUFSIZ - 1);
         /* The integer address form steers Watcom's register allocation. */
         *(volatile unsigned char *)((long)outbuf + (long)*outbufend) = 65;
     }
     else
+    {
         outbuf[*outbufend] = ch;
-    *outbufend = (*outbufend + 1) & (COMBUFSIZ - 1);
+        end = outbufend;
+    }
+    *end = (*end + 1) & (COMBUFSIZ - 1);
     return 0;
 }
 

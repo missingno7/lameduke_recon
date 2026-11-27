@@ -6627,6 +6627,7 @@ getzrange(long x, long y, long z, short sectnum,
 			 long walldist, char cliptype)
 {
 	long clipsectcnt, startwall, endwall, tilenum, xoff, yoff, dax, day;
+	long floor_x2;
 	long xmin, ymin, xmax, ymax, i, j, k, l, daz, daz2, dx, dy;
 	long x1, y1, x2, y2, x3, y3, x4, y4, ang, cosang, sinang;
 	long xspan, yspan, xrepeat, yrepeat;
@@ -6749,7 +6750,7 @@ face_wall_range:
 				}
 				else if ((cstat&48) == 32)
 				{
-					long floor_x1 = x1, floor_y1 = y1, floor_x2, floor_y2;
+					long floor_x1 = x1, floor_y1 = y1, floor_y2;
 					long floor_day;
 					tilenum = sprite[j].picnum;
 					xoff = (long)((signed char)((picanm[tilenum]>>8)&255));

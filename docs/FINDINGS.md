@@ -944,3 +944,8 @@ Each entry names the command or artefact that supports it.
   weighted 20^min(loop depth, 5). A fixture reproduces operatefta's 42 -> 21/21 split; one extra outer use reverses
   the ranks. 58 whole-unit variants did not yet fix operatefta/nonsharedkeys without collateral (rule in
   docs/BLOCKER_RULES.md).
+- Census round 4 (blockers-4): natural C reproduces each flip-tool decision, but with collateral: checkhitswitch's
+  case-406 prefetch reverses the case-405 tie (both temps ECX) yet loses checkhitceiling; scansector's March-1995
+  predicate gives t92->EDX / t91->EDI yet loses 11 STRICT results; operatesectors recovers EBX at +0x97 but grows its
+  frame by 16 B. Adopted: comsend 5 -> 4 (producer cursor through ESC2), spritesound 56 -> 43 (widened signed owner,
+  reused listener y delta), getzrange 2,288 -> 2,270 (function-scope floor_x2).
