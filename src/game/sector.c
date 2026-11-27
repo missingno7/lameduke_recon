@@ -290,13 +290,15 @@ void operatesectors(short sn, short ii)
         break;
     case 9: {
         /* The sliding-door geometry follows Ken's September 1994 routine. */
-        long cx, cy, first, last, sp, dx, dy;
-        long door[2];
+        /* COMPILER_STEERED: separate door counter and order the center coordinates for spills. */
+        long cy, cx, first, last, sp, dx, dy;
+        long door[2], door_index;
         short w, prev;
 
         first = sector[sn].wallptr;
         last = first + sector[sn].wallnum - 1;
-        cx = cy = 0;
+        cx = 0;
+        cy = 0;
         sp = sector[sn].extra >> 4;
         for (w = first; w <= last; w++) {
             cx += wall[w].x;
@@ -314,43 +316,43 @@ void operatesectors(short sn, short ii)
                     door[1] = w;
             }
 
-        for (j = 0; j < 2; j++) {
-            if (cx == wall[door[j]].x && cy == wall[door[j]].y) {
-                prev = door[j] - 1;
+        for (door_index = 0; door_index < 2; door_index++) {
+            if (cx == wall[door[door_index]].x && cy == wall[door[door_index]].y) {
+                prev = door[door_index] - 1;
                 if (prev < first)
                     prev = last;
-                dx = ((wall[prev].x + wall[wall[door[j]].point2].x) >> 1) - wall[door[j]].x;
-                dy = ((wall[prev].y + wall[wall[door[j]].point2].y) >> 1) - wall[door[j]].y;
+                dx = ((wall[prev].x + wall[wall[door[door_index]].point2].x) >> 1) - wall[door[door_index]].x;
+                dy = ((wall[prev].y + wall[wall[door[door_index]].point2].y) >> 1) - wall[door[door_index]].y;
                 if (dx != 0) {
-                    dx = wall[wall[wall[door[j]].point2].point2].x;
-                    dx -= wall[wall[door[j]].point2].x;
-                    setanimation(sn, &wall[door[j]].x, wall[door[j]].x + dx, sp);
+                    dx = wall[wall[wall[door[door_index]].point2].point2].x;
+                    dx -= wall[wall[door[door_index]].point2].x;
+                    setanimation(sn, &wall[door[door_index]].x, wall[door[door_index]].x + dx, sp);
                     setanimation(sn, &wall[prev].x, wall[prev].x + dx, sp);
-                    setanimation(sn, &wall[wall[door[j]].point2].x, wall[wall[door[j]].point2].x + dx, sp);
+                    setanimation(sn, &wall[wall[door[door_index]].point2].x, wall[wall[door[door_index]].point2].x + dx, sp);
                     spritesound(6, ii);
                 } else if (dy != 0) {
-                    dy = wall[wall[wall[door[j]].point2].point2].y;
-                    dy -= wall[wall[door[j]].point2].y;
-                    setanimation(sn, &wall[door[j]].y, wall[door[j]].y + dy, sp);
+                    dy = wall[wall[wall[door[door_index]].point2].point2].y;
+                    dy -= wall[wall[door[door_index]].point2].y;
+                    setanimation(sn, &wall[door[door_index]].y, wall[door[door_index]].y + dy, sp);
                     setanimation(sn, &wall[prev].y, wall[prev].y + dy, sp);
-                    setanimation(sn, &wall[wall[door[j]].point2].y, wall[wall[door[j]].point2].y + dy, sp);
+                    setanimation(sn, &wall[wall[door[door_index]].point2].y, wall[wall[door[door_index]].point2].y + dy, sp);
                     spritesound(6, ii);
                 }
             } else {
-                prev = door[j] - 1;
+                prev = door[door_index] - 1;
                 if (prev < first)
                     prev = last;
-                dx = ((wall[prev].x + wall[wall[door[j]].point2].x) >> 1) - wall[door[j]].x;
-                dy = ((wall[prev].y + wall[wall[door[j]].point2].y) >> 1) - wall[door[j]].y;
+                dx = ((wall[prev].x + wall[wall[door[door_index]].point2].x) >> 1) - wall[door[door_index]].x;
+                dy = ((wall[prev].y + wall[wall[door[door_index]].point2].y) >> 1) - wall[door[door_index]].y;
                 if (dx != 0) {
-                    setanimation(sn, &wall[door[j]].x, cx, sp);
+                    setanimation(sn, &wall[door[door_index]].x, cx, sp);
                     setanimation(sn, &wall[prev].x, cx + dx, sp);
-                    setanimation(sn, &wall[wall[door[j]].point2].x, cx + dx, sp);
+                    setanimation(sn, &wall[wall[door[door_index]].point2].x, cx + dx, sp);
                     spritesound(6, ii);
                 } else if (dy != 0) {
-                    setanimation(sn, &wall[door[j]].y, cy, sp);
+                    setanimation(sn, &wall[door[door_index]].y, cy, sp);
                     setanimation(sn, &wall[prev].y, cy + dy, sp);
-                    setanimation(sn, &wall[wall[door[j]].point2].y, cy + dy, sp);
+                    setanimation(sn, &wall[wall[door[door_index]].point2].y, cy + dy, sp);
                     spritesound(6, ii);
                 }
             }
@@ -465,7 +467,7 @@ elevator_up:
         i = getanimationgoal(&sector[sn].floorz);
         if (i >= 0) {
             if (animategoal[sn] == sector[sn].ceilingz)
-                animategoal[i] = sector[nextsectorneighborz(sn, animategoal[sn], 1, 1)].floorz;
+                animategoal[i] = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
             else
                 animategoal[i] = sector[sn].ceilingz;
         } else {
@@ -487,10 +489,10 @@ elevator_up:
             else
                 animategoal[i] = middle;
         } else {
+            /* COMPILER_STEERED: seed the goal before resolving the neighbor. */
+            daz = middle;
             if (middle == sector[sn].ceilingz)
                 daz = sector[nextsectorneighborz(sn, sector[sn].floorz, -1, -1)].ceilingz;
-            else
-                daz = middle;
             if (setanimation(sn, &sector[sn].ceilingz, daz, sector[sn].extra) >= 0) {
                 sector[sn].lotag ^= 0x8000;
                 spritesound(6, ii);
@@ -503,10 +505,9 @@ elevator_up:
             else
                 animategoal[i] = middle;
         } else {
+            daz = middle;
             if (middle == sector[sn].floorz)
                 daz = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
-            else
-                daz = middle;
             if (setanimation(sn, &sector[sn].floorz, daz, sector[sn].extra) >= 0)
                 spritesound(6, ii);
         }
@@ -652,8 +653,7 @@ void operateforcefields(short low)
 /* Handle player snum's interface and inventory keys (Duke3D 1.5 cheatkeys), including the /d door cheat. */
 void cheatkeys(short snum)
 {
-    short sn, source;
-    unsigned char gm;
+    short sn;
 
     if ((syncbits[snum] & SB_KNUCKLES) && ps[snum].knuckle_incs == 0)
         ps[snum].knuckle_incs = 1;
@@ -692,6 +692,9 @@ void cheatkeys(short snum)
     if (ud.gamepaused)
         return;
     if ((syncbits[snum] & SB_ESCAPE) && !(ps[snum].gm & MODE_DEMO) && ps[snum].newowner == -1) {
+        /* COMPILER_STEERED: keep menu flag temporaries local to their branches. */
+        unsigned char gm;
+
         keystatus[1] = 0;
         /* COMPILER_STEERED: stage the menu bit across the current_menu store. */
         gm = ps[snum].gm | MODE_MENU;
@@ -776,17 +779,17 @@ void cheatkeys(short snum)
     }
     if (!ud.debug) {
         if (syncbits[snum] & SB_STEROIDS) {
-            gm = ps[snum].gm | MODE_MENU;
+            unsigned char gm = ps[snum].gm | MODE_MENU;
             current_menu = 20;
             ps[snum].gm = gm;
         }
         if (syncbits[snum] & SB_SHIELD) {
-            gm = ps[snum].gm | MODE_MENU;
+            unsigned char gm = ps[snum].gm | MODE_MENU;
             current_menu = 50;
             ps[snum].gm = gm;
         }
         if (syncbits[snum] & SB_SCUBA) {
-            gm = ps[snum].gm | MODE_MENU;
+            unsigned char gm = ps[snum].gm | MODE_MENU;
             current_menu = 10;
             ps[snum].gm = gm;
         }
@@ -799,8 +802,7 @@ void cheatkeys(short snum)
             case 25: case 26: case 27: case 28: case 29:
                 if (sector[sn].lotag & 0xbfff)
                     sector[sn].lotag &= ~0x4000;
-                source = ps[snum].i;
-                operatesectors(sn, source);
+                operatesectors(sn, ps[snum].i);
                 break;
             }
         }
@@ -1004,12 +1006,13 @@ char checkhitceiling(short sn)
 
         for (i = 0; i < numsectors; i++)
             if (i != best && sector[i].hitag == sector[sn].hitag) {
+                /* COMPILER_STEERED: interleave wall-bound loads with the palette writes. */
                 sector[i].floorshade = floor_shade;
-                sector[i].floorpal = 0;
                 sector[i].ceilingshade = ceiling_shade;
-                sector[i].ceilingpal = 0;
                 startwall = sector[i].wallptr;
+                sector[i].floorpal = 0;
                 endwall = startwall + sector[i].wallnum;
+                sector[i].ceilingpal = 0;
                 for (j = startwall; j < endwall; j++) {
                     wall[j].shade = darkestwall;
                     if (wall[j].nextwall1 >= 0)
@@ -1024,8 +1027,10 @@ char checkhitceiling(short sn)
 /* Sector specials and the use key for player snum. */
 void checksectors(short snum)
 {
-    long i, w;
+    long i;
+    short w;
     short sn;
+    short source;
 
     switch (sector[ps[snum].cursectnum].lotag) {
     case 32767:
@@ -1083,14 +1088,17 @@ void checksectors(short snum)
     case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
     case 25: case 26: case 27: case 29:
         /* COMPILER_STEERED: the two call sites keep separate inlined lift tails. */
-        operatesectors(neartagsector, ps[snum].i);
+        sn = neartagsector;
+        source = ps[snum].i;
+        operatesectors(sn, source);
         return;
     }
     switch ((short)(sector[ps[snum].cursectnum].lotag & 32767)) {
     case 15: case 16: case 17: case 18: case 19:
     case 26: case 27: case 28:
         sn = ps[snum].cursectnum;
-        operatesectors(sn, ps[snum].i);
+        source = ps[snum].i;
+        operatesectors(sn, source);
         return;
     }
     w = neartagwall;

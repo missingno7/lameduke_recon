@@ -2221,7 +2221,7 @@
      "status": "NEAR_MATCH"
     },
     "checkhitceiling": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "checksectors": {
      "status": "NEAR_MATCH"

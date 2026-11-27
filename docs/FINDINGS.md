@@ -619,3 +619,8 @@ Each entry names the command or artefact that supports it.
 - PROVEN cheatkeys calls qsetmode640350 (1:199eb -> 1:43f42): the call was missing from our source. cheatkeys and
   checksectors also regain the lift-success tail; checksectors size 10,976 -> 11,072 of 11,184, cheatkeys 7,584 vs
   7,568 (frame 0x64 vs 0x60). checkhitceiling 16 bytes from STRICT (boundary depends on checksectors' table).
+- SECTOR follow-up (r5cx-sector-2): checkhitceiling STRICT (+856 B) after reordering its palette writes and
+  wall-bound loads; its table-confirmed boundary now holds against checksectors' new extent. checksectors,
+  operateactivators and cheatkeys reach the oracle's exact sizes (11,184 / 4,912 / 7,568); checksectors content .294
+  -> .425 (frame 0xb4 vs oracle 0xa8); operatesectors reaches the oracle frame 0x1c4. Door layout recovered with a
+  dedicated case 9 loop index, the case 21 ceiling-height operand and case 22 midpoint initialisation. SECTOR 12/18.
