@@ -60,11 +60,11 @@ void spawn_pistol_tracer(short snum)
     long sa;
     long sx;
 
+    sa = ps[snum].ang - 16;
     sx = ps[snum].posx;
     sy = ps[snum].posy;
     weapon_pos = ps[snum].weapon_pos & 127;
     sz = ps[snum].posz - (weapon_pos << 10) + 5376;
-    sa = ps[snum].ang - 16;
     hitscan(sx + (sintable[(TRACER_AIM_ANGLE(sa, weapon_pos) + 512) & 2047] >> 8),
         sy + (sintable[TRACER_AIM_ANGLE(sa, weapon_pos) & 2047] >> 8),
         sz, ps[snum].cursectnum,
@@ -240,15 +240,15 @@ void displayweapon(short snum)
     short pistol_x;
     long draw_x;
     long xvel;
+    short looking_arc;
     long gs;
     unsigned short cw;
     unsigned char weapon_pos;
     long tile;
     long weapon_xoffset;
-    long draw_y;
     short look;
+    long draw_y;
     unsigned char gun_pos;
-    short looking_arc;
 
     if (ps[snum].health <= 0)
         return;
@@ -366,7 +366,7 @@ pistol_frame:
                 gs = 4;
                 pistol_x -= 3;
             }
-            myos((syncangvel[snum] >> 3) + pistol_x - (ps[snum].look_ang >> 1),
+            myos((syncangvel[snum] >> 3) + (short)pistol_x - (ps[snum].look_ang >> 1),
                 looking_arc + 240 - gun_pos - (ps[snum].horiz >> 4), 1150 + pistol_frames[ps[snum].kickback_pic], gs, 3);
         } else if (ps[snum].kickback_pic < 10)
             myos((syncangvel[snum] >> 3) + 190 - (ps[snum].look_ang >> 1),
@@ -551,17 +551,17 @@ void update_air(short snum)
 void processinput(short snum)
 {
     /* COMPILER_STEERED: local order for Watcom's allocation and stack homes. */
+    long wpos;
     long fz;
     long xvect;
-    long yvect;
     long doubvel;
     long cz;
-    long lz;
-    long tics2;
-    short i;
-    short psectlotag;
-    long wpos;
     long hz;
+    long yvect;
+    short i;
+    long lz;
+    short psectlotag;
+    long tics2;
     long eye;
 
     if (ps[snum].health <= 0) {
@@ -739,14 +739,14 @@ void processinput(short snum)
 
 doturn:
     if (syncangvel[snum]) {
-        ps[snum].ang += syncangvel[snum] * doubvel / 24;
+        ps[snum].ang += doubvel * syncangvel[snum] / 24;
         ps[snum].ang = (ps[snum].ang + 2048) & 2047;
     }
     if (klabs(cz - fz) < 7168) {
-        short sect = ps[snum].cursectnum;
-        psectlotag = sector[sect].lotag & 0x7FFF;
+        struct sectortype *sec = &sector[ps[snum].cursectnum];
+        psectlotag = sec->lotag & 0x7FFF;
         if (psectlotag > 2 && psectlotag != 23) {
-            sector[sect].ceilingz -= 1024;
+            sec->ceilingz -= 1024;
             if (ud.debug == 0 && ps[snum].shield_amount > 0)
                 ps[snum].shield_amount -= 4;
             else if (ps[snum].health > 0)
@@ -777,12 +777,12 @@ doturn:
         if (ps[snum].hard_landing)
             doubvel = 0;
         if (syncvel[snum]) {
-            xvect += (syncvel[snum] * doubvel * sintable[(ps[snum].ang + 2560) & 2047]) >> 3;
-            yvect += (syncvel[snum] * doubvel * sintable[(ps[snum].ang + 2048) & 2047]) >> 3;
+            xvect += (doubvel * syncvel[snum] * sintable[(ps[snum].ang + 2560) & 2047]) >> 3;
+            yvect += (doubvel * syncvel[snum] * sintable[(ps[snum].ang + 2048) & 2047]) >> 3;
         }
         if (syncsvel[snum]) {
-            xvect += (syncsvel[snum] * doubvel * sintable[(ps[snum].ang + 2048) & 2047]) >> 3;
-            yvect += (syncsvel[snum] * doubvel * sintable[(ps[snum].ang + 1536) & 2047]) >> 3;
+            xvect += (doubvel * syncsvel[snum] * sintable[(ps[snum].ang + 2048) & 2047]) >> 3;
+            yvect += (doubvel * syncsvel[snum] * sintable[(ps[snum].ang + 1536) & 2047]) >> 3;
         }
         if (syncbits[snum] & SB_CROUCH) {
             xvect >>= 1;
@@ -930,6 +930,7 @@ domove:
         break;
     case CLUB: {
         unsigned char frame;
+        struct player_struct *p = &ps[snum];
 
         ps[snum].kickback_pic++;
         frame = clubframes[ps[snum].knee_sequence][ps[snum].kickback_pic];
@@ -940,7 +941,8 @@ domove:
         case 3:
             if (ps[snum].kickback_pic == 4 && ps[snum].ammo_bat_amount && (syncbits[snum] & SB_FIRE)
                 && (sector[ps[snum].cursectnum].lotag & 0x7FFF) != 2) {
-                shoot(ps[snum].i, CLUB, 0);
+                /* COMPILER_STEERED: the CLUB shot uses the saved player pointer. */
+                shoot(p->i, CLUB, 0);
                 spritesound(24, ps[snum].i);
                 ps[snum].ammo_bat_amount--;
                 ps[snum].kickback_pic--;

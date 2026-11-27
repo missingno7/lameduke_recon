@@ -307,7 +307,7 @@ void operatesectors(short sn, short ii)
         door[0] = -1;
         door[1] = -1;
         for (w = first; w <= last; w++)
-            if (cx == wall[w].x || cy == wall[w].y) {
+            if (wall[w].x == cx || wall[w].y == cy) {
                 if (door[0] == -1)
                     door[0] = w;
                 else
@@ -315,7 +315,7 @@ void operatesectors(short sn, short ii)
             }
 
         for (door_index = 0; door_index < 2; door_index++) {
-            if (cx == wall[door[door_index]].x && cy == wall[door[door_index]].y) {
+            if (wall[door[door_index]].x == cx && wall[door[door_index]].y == cy) {
                 prev = door[door_index] - 1;
                 if (prev < first)
                     prev = last;
