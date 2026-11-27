@@ -1245,3 +1245,11 @@ Each entry names the command or artefact that supports it.
   preheader in both copies; the oracle keeps EDI for coordinate arithmetic and reloads the bound at the latches
   1:10ad3 / 1:13cbd. Changing the earlier lotag-23 wall-list cursor makes both copies use EDI and recovers both latches
   (+15/-19 blocks). Open: which source form prevents the hoist without the losses (loop-invariant hoisting rule).
+- ENGINE round 8 (2026-11-28): rotatesprite 1,225 -> 96 B (53 -> 73/75 blocks): December spills the widened tile
+  height, first projection product and destination pointer while keeping angle and xstep in registers (frame 0x60;
+  Sep-94 L7P 0x64; build/workers/r12-engine/r8/FRAMES.md). grouvline 461 (folding the swap negation), wallfront 67
+  (save point2 before each wall's y). raytrace branch 22/24 at 607 B (6 B short, 11 neighbours displaced only).
+  No further attested pragma substitutions among the six NEAR engine functions. Attribution: reasoning 1,131 B.
+- SECTOR round 4: joint goal-read + speed-cache form at exact extent raises the unit's matched blocks 1,128 -> 1,146
+  (checksectors 303 -> 313, cheatkeys 227 -> 241, operatesectors 394 -> 388); remaining register conflict at the
+  downward elevator's speed load 1:17407.

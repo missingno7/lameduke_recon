@@ -485,18 +485,19 @@ wallfront (short l1, short l2)
 	long x1l1, y1l1, x2l1, y2l1, x1l2, y1l2, x2l2, y2l2;
 	long templong0, templong1, templong2;
 
+	/* COMPILER_STEERED. Give point2 a separate temporary while loading the first endpoint. */
 	i = thewall[l1];
 	x1l1 = wall[i].x;
+	templong0 = wall[i].point2;
 	y1l1 = wall[i].y;
-	i = wall[i].point2;
-	x2l1 = wall[i].x;
-	y2l1 = wall[i].y;
+	x2l1 = wall[templong0].x;
+	y2l1 = wall[templong0].y;
 	i = thewall[l2];
 	x1l2 = wall[i].x;
+	templong0 = wall[i].point2;
 	y1l2 = wall[i].y;
-	i = wall[i].point2;
-	x2l2 = wall[i].x;
-	y2l2 = wall[i].y;
+	x2l2 = wall[templong0].x;
+	y2l2 = wall[templong0].y;
 
 	/* COMPILER_STEERED. Keep the operand order in the wall side tests. */
 	templong1 = (x1l2-x1l1)*(y2l1-y1l1) - (y1l2-y1l1)*(x2l1-x1l1); //p1(l2) vs. l1
@@ -4784,8 +4785,7 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 	um = umost[xscr] - globalhoriz;
 	dm = dmost[xscr] - globalhoriz;
 	/* COMPILER_STEERED. Reuse the projection temporary for the increment swap. */
-	tempx = incr[0]; incr[0] = incr[1]; incr[1] = tempx;
-	incr[1] = -incr[1];
+	tempx = incr[0]; incr[0] = incr[1]; incr[1] = -tempx;
 
 	if (waloff[sector[sectnum].floorpicnum] == -1) loadtile(sector[sectnum].floorpicnum);
 	if (waloff[sector[sectnum].floorheinum] == -1) loadtile(sector[sectnum].floorheinum);
@@ -7088,31 +7088,34 @@ wallmost(long *mostbuf, long w, long z)
 
 rotatesprite(long sx, long sy, long z, short a, short picnum)
 {
-	// COMPILER_STEERED: Save the column origins and keep the raster
-	// height and count widths explicit to recover the historical extent.
-	long xsiz, ysiz, cosang, sinang, xstep, ystep;
-	long gx, gy, t, firstx, lastx, x, y1, y2, yoffs;
-	long startu, startv, umin, umax, vmin, vmax, u, v, du, dv, i, k;
-	long bufplc, p, pitch, buf, frac, inc, stride;
-	long count;
-	short tileheight;
+	/* COMPILER_STEERED. This declaration order preserves the projection and clipping
+	   stack slots. The scratch i holds the lower x bound, then the signed column step. */
+	long xsiz, ysiz;
+	long k, sinang, xstep, ystep;
+	long gx, gy;
+	long startu, startv, u, v, du, dv;
+	long t, dx, cosang;
+	long umin, vmax, vmin, umax;
+	long i, lastx, x, y1, y2, yoffs;
+	long bufplc, p, pitch, buf, frac, stride;
+	short count;
+	short tilewidth, tileheight;
 
-	if (z <= 16) return(0);
-	if ((tilesizx[picnum]|tilesizy[picnum]) == 0) return(0);
+	if ((z <= 16) || ((tilesizx[picnum]|tilesizy[picnum]) == 0)) return(0);
 	if ((picanm[picnum]&192) != 0) picnum += animateoffs(picnum);
-	xsiz = tilesizx[picnum];
+	tilewidth = tilesizx[picnum];
 	tileheight = tilesizy[picnum];
-	ysiz = tileheight;
+	xsiz = tilewidth; ysiz = tileheight;
 
 	t = mulscale(z,xsiz+ysiz,1);
 	if ((sx+t < 0) || (sy+t < 0) || (sx-t > (320L<<16)) ||
 		 (sy-t > (200L<<16))) return(0);
 
-	sinang = sintable[(a+2048)&2047];
 	cosang = sintable[(a+2560)&2047];
-	i = divscale(65536L,z,16);
-	ystep = mulscale(cosang,i,14);
-	xstep = mulscale(sinang,i,14);
+	sinang = sintable[(a+2048)&2047];
+	t = divscale(65536L,z,16);
+	ystep = mulscale(cosang,t,14);
+	xstep = mulscale(sinang,t,14);
 
 	gx = sx-mulscale(cosang*xsiz-sinang*ysiz,z,15);
 	gy = sy-mulscale(sinang*xsiz+cosang*ysiz,z,15);
@@ -7121,19 +7124,19 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 	vmin = 0; vmax = xsiz<<16;
 	du = mulscale(cosang*xsiz,z,22);
 	dv = mulscale((-sinang)*ysiz,z,22);
-	firstx = 0; lastx = 0;
-	if (du < firstx) firstx = du-1;
+	i = 0; lastx = 0;
+	if (du < i) i = du-1;
 	if (du > lastx) lastx = du+1;
-	if (dv < firstx) firstx = dv-1;
+	if (dv < i) i = dv-1;
 	if (dv > lastx) lastx = dv+1;
 	dv += du;
-	if (dv < firstx) firstx = dv-1;
+	if (dv < i) i = dv-1;
 	if (dv > lastx) lastx = dv+1;
 
-	firstx += gx>>16; lastx += gx>>16;
-	if (firstx < 0) firstx = 0;
+	i += gx>>16; lastx += gx>>16;
+	if (i < 0) i = 0;
 	if (lastx >= 320) lastx = 319;
-	if (firstx > lastx) return(0);
+	if (i > lastx) return(0);
 
 	if (waloff[picnum] == -1) loadtile(picnum);
 	setgotpic(picnum);
@@ -7141,13 +7144,15 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 	if (option[0] == 0) koutp(0x3c4,2);
 
 	yoffs = (YDIM>>1)-((windowy1+windowy2+1)>>1);
-	i = (firstx<<16)-gx; k = -gy;
-	v = mulscale(ystep,k,16)-mulscale(i,xstep,16);
-	u = mulscale(ystep,i,16)+mulscale(k,xstep,16);
+	k = -gy;
+	t = mulscale(ystep,k,16);
+	dx = (i<<16)-gx;
+	startv = t-mulscale(dx,xstep,16);
+	startu = mulscale(ystep,dx,16)+mulscale(k,xstep,16);
 
-	for(x=firstx;x<=lastx;x++)
+	for(x=i;x<=lastx;x++,startv-=xstep,startu+=ystep)
 	{
-		startv = v; startu = u;
+		v = startv; u = startu;
 		y1 = startumost[x-windowx1]-yoffs;
 		y2 = startdmost[x-windowx1]-yoffs-1;
 
@@ -7156,8 +7161,8 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 			if (v >= umax) y2 = -1;
 			else
 			{
-				i = (umax-v)/ystep-1; if (i < y2) y2 = i;
-				if (v < umin) { i = (umin-v)/ystep+1; if (i > y1) y1 = i; }
+				dv = (umax-v)/ystep-1; if (dv < y2) y2 = dv;
+				if (v < umin) { dv = (umin-v)/ystep+1; if (dv > y1) y1 = dv; }
 			}
 		}
 		else if (ystep < 0)
@@ -7165,8 +7170,8 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 			if (v < umin) y2 = -1;
 			else
 			{
-				i = (umin-v)/ystep-1; if (i < y2) y2 = i;
-				if (v >= umax) { i = (umax-v)/ystep+1; if (i > y1) y1 = i; }
+				dv = (umin-v)/ystep-1; if (dv < y2) y2 = dv;
+				if (v >= umax) { dv = (umax-v)/ystep+1; if (dv > y1) y1 = dv; }
 			}
 		}
 		else if ((v < umin) || (v >= umax)) y2 = -1;
@@ -7176,8 +7181,8 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 			if (u >= vmax) y2 = -1;
 			else
 			{
-				i = (vmax-u)/xstep-1; if (i < y2) y2 = i;
-				if (u < vmin) { i = (vmin-u)/xstep+1; if (i > y1) y1 = i; }
+				dv = (vmax-u)/xstep-1; if (dv < y2) y2 = dv;
+				if (u < vmin) { dv = (vmin-u)/xstep+1; if (dv > y1) y1 = dv; }
 			}
 		}
 		else if (xstep < 0)
@@ -7185,8 +7190,8 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 			if (u < vmin) y2 = -1;
 			else
 			{
-				i = (vmin-u)/xstep-1; if (i < y2) y2 = i;
-				if (u >= vmax) { i = (vmax-u)/xstep+1; if (i > y1) y1 = i; }
+				dv = (vmin-u)/xstep-1; if (dv < y2) y2 = dv;
+				if (u >= vmax) { dv = (vmax-u)/xstep+1; if (dv > y1) y1 = dv; }
 			}
 		}
 		else if ((u < vmin) || (u >= vmax)) y2 = -1;
@@ -7200,7 +7205,7 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 			if (option[0] == 0)
 			{
 				koutp(0x3c5,1<<(x&3));
-				p = y1*80+(x>>2)+chainoffset;
+				p = y1*80+(x>>2)+(page<<14)+0xa0000;
 				pitch = 80;
 			}
 			else if (option[0] != 7)
@@ -7214,30 +7219,29 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 				pitch = 640;
 			}
 
-			buf = bufplc+(u>>16)*tileheight;
+			stride = tileheight;
+			buf = bufplc+(u>>16)*stride;
 			if (xstep > 0)
 			{
-				inc = xstep>>16;
-				inc *= tileheight;
+				i = xstep>>16;
+				i *= stride;
 				frac = xstep&65535;
 				u &= 65535;
-				stride = tileheight;
 			}
 			else
 			{
-				inc = -((-xstep)>>16);
-				inc *= tileheight;
+				i = -((-xstep)>>16);
+				i *= stride;
 				frac = (-xstep)&65535;
 				u = (-u)&65535;
-				stride = -tileheight;
+				stride = -stride;
 			}
 			asm1 = pitch;
-			asm4 = stride;
 			asm3 = frac<<16;
-			asm2 = inc;
+			asm4 = stride;
+			asm2 = i;
 			spritevline(ystep,v,(short)count,u<<16,buf,p);
 		}
-		v = startv-xstep; u = startu+ystep;
 	}
 	return(0);
 }
