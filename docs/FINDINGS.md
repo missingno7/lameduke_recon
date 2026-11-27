@@ -1190,3 +1190,18 @@ Each entry names the command or artefact that supports it.
   from the inlined shape. displayhighscores best copy 10 -> 308 B. 15 full-unit DOS trials, 0 STRICT.
   Same signature (all blocks + fixups match, only font-helper homes differ): nonsharedkeys (111/111 blocks, 14 B).
   Class "inlined font-helper home ties": operatefta, displayhighscores, draw_and_probe, nonsharedkeys - parked.
+
+## Large-function round: sectorbig + rootcause (sol, 2026-11-27)
+- sectorbig: checksectors 268 -> 269/387 blocks (underfoot lift argument order; PROVEN), no target STRICT. PROVEN facts
+  recorded in build/workers/sectorbig/NOTES.md (operateactivators prologue homes; cheatkeys debug-door dword
+  reloads; operatesectors case-19 single speed load and case-29 DX index). Inline coupling example: a block-local
+  `short sect` in operateactivators changes nothing standalone but costs its inline copy in checkhitswitch 734 B.
+- rootcause (build/workers/rootcause/semir_clusters.py, WORKLIST.md): zero clusters on all 602 STRICT controls; on nine
+  historical fixes 71 source candidates for 536 differing blocks (locates several accepted edits, misses others, e.g.
+  hitradius' dy reuse). Live: 208 blocks with direct source leads, 248 downstream-only, 1,300 allocation/lifetime,
+  890 unresolved. Useful as a lead list, not yet as an error count.
+- WORKFLOW BOTTLENECK (both workers): correct-looking changes were discarded because positional byte differences rose
+  (size/layout change) or a size change shifted later functions (checkhitceiling STRICT -> CODE_BYTES_MATCH with
+  identical code bytes). Examples: checksectors unsigned range form 268 -> 308 blocks discarded; an earlier 302-block
+  source abandoned; movestandables 64 -> 47 differing blocks discarded. Test (sectorbig-2): progress branch measured by
+  matched blocks, tolerating address-shift cascades only; integration rules unchanged.
