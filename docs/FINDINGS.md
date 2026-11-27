@@ -1085,3 +1085,11 @@ Each entry names the command or artefact that supports it.
 ## Shadow Warrior Classic prototypes acquired (2026-11-27)
 - external/steam-swclassic (user's Steam install, app 238070): SW 1994-05-23, 1995-01-15, 1995-02-10 (+ BUILD.EXE,
   EDITART.EXE, GAME.EXE), 1995-09-08, Ninja 1993-09-16. Hashes in config/references.json. Donor scan pending.
+
+## ENGINE round 4 (r12-engine-4, astra, 2026-11-27; build/workers/r12-engine/NOTES.md)
+- PROVEN: drawsprite (9,875 B), getcliplines (3,589 B), getzrange (2,938 B) STRICT. Decisive: March-1995 local order,
+  removal of three later guards and planar address order (drawsprite); older quadrant tests, a shared endpoint
+  temporary and the May-1995 floor comparison (getcliplines); queue index reuse, byte-local order and operand order in
+  four edge tests (getzrange). Attribution: donors 1,924 B / 107 blocks, oracle-guided reasoning 10,300 B / 43 blocks;
+  reverse/near/quirks/permute contributed nothing here. Engine 92/103.
+- OPEN: rotatesprite (first difference +0x5, frame 4 bytes short), grouvline (+0xc3).
