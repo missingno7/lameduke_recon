@@ -586,9 +586,7 @@ void spawn(long j, short pn)
             startwall = sector[sect].wallptr;
             endwall = startwall + sector[sect].wallnum;
             q = 0x7fffffff;
-            /* COMPILER_STEERED: the explicit increment changes allocation in this scan. */
-            s = startwall;
-            while (s < endwall) {
+            for (s = startwall; s < endwall; s++) {
                 x = wall[s].x;
                 y = wall[s].y;
                 d = ksqrt((sprite[i].y - y) * (sprite[i].y - y) + (sprite[i].x - x) * (sprite[i].x - x));
@@ -596,7 +594,6 @@ void spawn(long j, short pn)
                     q = d;
                     clostest = s;
                 }
-                s++;
             }
             hittype[i][1] = clostest;
             q = 0x7fffffff;
@@ -927,7 +924,7 @@ void prelevel(void)
         case 819: case 823: case 860: case 864:
             if (waloff[wall[i].picnum] == -1)
                 for (k = 0; k < 4; k++)
-                    loadtile(wall[i].picnum + k);
+                    loadtile(k + wall[i].picnum);
             /* fall through */
         case 570:
             animwall[numanimwalls].wallnum = i;
