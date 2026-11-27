@@ -1030,3 +1030,11 @@ Each entry names the command or artefact that supports it.
 - STRONG ACTORS saw findplayer as an OLD-STYLE `extern int findplayer();` (reproduces the whole ACTORS DOS object);
   replaces the compiler-steered prototype in actors.h (byte-neutral). Giving ACTORS the defining unit's short return
   loses movefta and moveweapons (1,872 B).
+
+## Open Watcom code generator source (2026-11-27; external/x/open-watcom-v2 @ b97dd4e, sparse bld/cg + cc)
+- PROVEN-BY-SOURCE the second candidate-sort key derived from 9.5 traces is Open Watcom's dataflo.c AllocBefore
+  (RoughSortTemps): CONST_TEMP temps last; temps with a conflict node first, by descending conflict savings; others by
+  descending temp id; savings accumulated by AddTempSave -> Weight(1, blk) with loop weights capped at MAX_LOOP (the
+  measured x20 per loop level, depth <= 5). The 11.0-lineage source is therefore a reliable map of the 9.5 allocator;
+  each further rule is verified against 9.5 before use (worker owcg). Stack homes: temps.c TempAllocBefore /
+  AssignOtherLocals.

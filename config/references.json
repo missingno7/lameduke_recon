@@ -620,6 +620,19 @@
    "path": "external/lameduke-raynorpat",
    "license": "GPLv2 (game) + Ken Silverman BUILDLIC (engine)",
    "relevance": "Behavioural (non-matching) C rebuild of LameDuke itself from IDA, Nov 2026, SDL2 port. Function comments cite IDA linear addresses (obj1 offset + 0x10000; 204/212 coincide with tools/funcmap.py starts); globals keep IDA names (dword_B56D8 = obj2:0x356d8). Use as semantic seed and naming aid for game/engine functions; never as matching evidence. build/map/raynorpat_functions.json maps obj1 addresses to its function names."
+  },
+  "open-watcom-v2": {
+   "url": "https://github.com/open-watcom/open-watcom-v2",
+   "commit": "b97dd4e41d5565caf7a114202961235caa070836",
+   "path": "external/x/open-watcom-v2",
+   "sparse": [
+    "bld/cg",
+    "bld/cc/c",
+    "bld/cc/h",
+    "bld/watcom/h"
+   ],
+   "license": "Sybase Open Watcom Public License (license.txt)",
+   "relevance": "Code generator source of the Watcom 11.0 lineage (descendant of the 9.5 compiler that built LameDuke): register allocator (regalloc.c, dataflo.c AllocBefore = the candidate-sort key derived from 9.5 traces), stack homes (temps.c), inlining, switch emission. Reference only; every rule verified against 9.5."
   }
  },
  "leads": {
