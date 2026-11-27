@@ -1,5 +1,38 @@
 # Watcom 9.5 GA rules for diagnosing a first difference
 
+## Full-unit evidence from MENUES and ENGINE
+
+**PROVEN on game_oe.** The shape of a later switch can change the stack homes and instruction lengths in an earlier page whose C text is identical. With the unsigned high-scores range test, the first main-page descriptor copy lands at ESP+0xa0 and the second at ESP. With a two-label switch on the same choice, they land at ESP+0x90 and ESP+0x30. The second destination setup grows from 2 B to 4 B. Both builds reserve 252 B. The switch restores every compared code byte and 57 of 60 leading table targets.
+
+| High-scores choice | Pause labels | Whole-function differing bytes | Correct table targets | Formal DOS status |
+|---|---|---:|---:|---|
+| Unsigned range test | Original reconstruction | 3,469 | 0/60 | NEAR_MATCH |
+| Unsigned range test | Corrected | 3,469 | 0/60 | NEAR_MATCH |
+| Two-label switch | Original reconstruction | 0 | 57/60 | NEAR_MATCH |
+| Two-label switch | Corrected | 0 | 60/60 | STRICT |
+
+The pause dispatcher at 1:2df90 adds two to the choice. The oracle entries at extent +0xcc and +0xd8 lead to the MODE_GAME store at 1:2dfcc for choices −2 and 1. Entry +0xd0 leads to the MODE_END store at 1:2dfa4 for choice −1. The three residual relocations exposed a gameplay-relevant label error after the layout matched. This experiment establishes the generated code and the cross-page effect. It does not identify a particular allocator tie.
+
+**PROVEN on engine, grouvline.** Both controls start from the same translation unit. Reusing the spent endpoint y1 for the increment swap restores the 112 B frame. Reusing the spent projection temporary tempy for screen y in both traversal loops then restores the exact extent. The first differing byte moves from +5 to +0xc3.
+
+| Swap uses y1 | Raster ordinate uses tempy | Reserved frame | Extent | Differing bytes |
+|---|---|---:|---:|---:|
+| No | No | 116 | 2,169 | 1,626 |
+| No | Yes | 116 | 2,163 | 1,656 |
+| Yes | No | 112 | 2,170 | 1,569 |
+| Yes | Yes | 112 | 2,169 | 1,478 |
+
+**PROVEN on engine, getzrange.** With the accepted bounds order and queue code fixed, splitting the first four floor-sprite corner values from wall-loop values and splitting the floor y offset have interacting frame costs. The four corners add 12 B on their own. The separate offset adds 4 B on its own. Together they add 20 B. Counting declared longs alone would mispredict the combined reservation.
+
+| Private floor corners | Private floor y offset | Reserved frame | Extent | Differing bytes |
+|---|---|---:|---:|---:|
+| No | No | 100 | 2,954 | 2,350 |
+| Yes | No | 112 | 2,925 | 2,354 |
+| No | Yes | 104 | 2,966 | 2,405 |
+| Yes | Yes | 120 | 2,938 | 2,288 |
+
+The combined ENGINE build retains every previous STRICT public, both VERIFIED data segments and the BSS report. Its getzrange code first differs at +0x26. The oracle stores ymin at ESP+0x5c and the candidate stores it at ESP+0x48. In SECTOR, sharing the initiator and current-sector locals restored checksectors’ entry MOV EDI,EAX while shortening the function by 128 B. That change lost checkhitceiling’s boundary proof. The controls and stock verifier records are under `build/workers/blockers/cascade/`.
+
 The compiler in the installation named `wc95b` is the unpatched 9.5 GA compiler. The engine controls used `-4r -s -or`. The other controls used `game_oe`, with `-4r -s -otexan -oe=3000`. The seven synthetic fixture families produced sixteen source configurations. Every trace passed the stock observer’s ordinary NT and DOS code/public/fixup checks. Each captured sort was replayed against its recorded input. The assembly observations below use function-relative addresses unless a segment offset is explicitly identified. [Measurements and C fixtures](exp/summary.json) · [Control checks and case-405 conflict ranks](exp/controls.json)
 
 ## A case address can fail before the first changed instruction

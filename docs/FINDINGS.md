@@ -893,3 +893,11 @@ Each entry names the command or artefact that supports it.
   CWDE left); strget 525 -> 521. nonsharedkeys (14 B from +0x4d0) and operatefta (4 stack displacements from +0x74)
   unchanged with all blocks and fixups matched; guarded permute tried 55 variants on operatefta. Attribution: reverse
   306, near 188, quirks 39, own reasoning 221, donors 0, permute 0.
+
+## Census rules applied (blockers-2, astra, 2026-11-27; build/workers/blockers/cascade/)
+- PROVEN menus STRICT (5,216 B, all 319 references): a switch on the high-scores page restores the earlier
+  descriptor-copy layout, and corrected pause-menu case labels resolve the last three jump targets. MENUES 10/11.
+- getzrange and grouvline regain their exact frames and extents (2,412 -> 2,288 and 1,626 -> 1,478 differing bytes).
+- checksectors prediction held locally (initiator/sector local reuse restores `mov edi,eax` at +0xc) but shortens it
+  by 128 B and costs checkhitceiling's boundary proof (rejected). Next: operatesectors case 26 (first displaced
+  destination one byte early).

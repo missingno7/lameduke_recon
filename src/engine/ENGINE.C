@@ -4695,8 +4695,8 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 	short dir[2], index;
 	// COMPILER_STEERED: Put the row stride before the traversal arrays for stack allocation.
 	long pinc, dist[2], dinc[2], incr[2], p, lastdist;
-	long gx, gy, grid[2], tempx, tempy, x1, y1, x2, y2, stx, sty, cnt, dend, temp;
-	long tilebufoffs, heibufoffs, zoffs, they, um, dm, y, zx, dat, col;
+	long gx, gy, grid[2], tempx, tempy, x1, y1, x2, y2, stx, sty, cnt, dend;
+	long tilebufoffs, heibufoffs, zoffs, they, um, dm, zx, dat, col;
 
 	d1 >>= 6;
 	d2 >>= 6;
@@ -4777,7 +4777,7 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 
 	um = umost[xscr] - globalhoriz;
 	dm = dmost[xscr] - globalhoriz;
-	temp = incr[0]; incr[0] = incr[1]; incr[1] = temp;
+	y1 = incr[0]; incr[0] = incr[1]; incr[1] = y1;
 	incr[1] = -incr[1];
 
 	if (waloff[sector[sectnum].floorpicnum] == -1) loadtile(sector[sectnum].floorpicnum);
@@ -4794,15 +4794,15 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 	while (dist[index] < dend)
 	{
 		dat = groudat(grid[0],grid[1],heibufoffs);
-		y = divscale(zoffs-(dat<<8),dist[index],15);
-		if (y < 0) goto restisabove;
-		if (y <= dm)
+		tempy = divscale(zoffs-(dat<<8),dist[index],15);
+		if (tempy < 0) goto restisabove;
+		if (tempy <= dm)
 		{
 			ptr = (char *)(FP_OFF(palookup[globalpal])+(shade<<8)+groudat(grid[0],grid[1],tilebufoffs));
 			col = *ptr;
-			if (y <= um) goto finishgroudraw;
-			p = drawslab(p,dm-y+1,col,pinc);
-			dm = y-1;
+			if (tempy <= um) goto finishgroudraw;
+			p = drawslab(p,dm-tempy+1,col,pinc);
+			dm = tempy-1;
 		}
 		grid[index] = ((grid[index]+dir[index])&63);
 		lastdist = dist[index];
@@ -4817,14 +4817,14 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 	{
 		dat = groudat(grid[0],grid[1],heibufoffs);
 restisabove:
-		y = divscale(zoffs-(dat<<8),lastdist,15);
-		if (y <= dm)
+		tempy = divscale(zoffs-(dat<<8),lastdist,15);
+		if (tempy <= dm)
 		{
 			ptr = (char *)(FP_OFF(palookup[globalpal])+(shade<<8)+groudat(grid[0],grid[1],tilebufoffs));
 			col = *ptr;
-			if (y <= um) goto finishgroudraw;
-			p = drawslab(p,dm-y+1,col,pinc);
-			dm = y-1;
+			if (tempy <= um) goto finishgroudraw;
+			p = drawslab(p,dm-tempy+1,col,pinc);
+			dm = tempy-1;
 		}
 		grid[index] = ((grid[index]+dir[index])&63);
 		lastdist = dist[index];
@@ -6634,17 +6634,17 @@ getzrange(long x, long y, long z, short sectnum,
 	char cstat;
 
 		//Extra walldist for sprites on sector lines
-	i = (walldist<<1)+1;
-	xmin = x-i; xmax = x+i;
-	ymin = y-i; ymax = y+i;
+	dx = (walldist<<1)+1;
+	xmin = x-dx; ymin = y-dx;
+	xmax = x+dx; ymax = y+dx;
 
 	*ceilz = sector[sectnum].ceilingz;
 	*florz = sector[sectnum].floorz;
 	*ceilhit = sectnum+16384; *florhit = sectnum+16384;
 
-	// COMPILER_STEERED: Seed the sectors directly to preserve the December extent.
-	clipsectcnt = 0; clipsectnum = 1;
-	clipsectorlist[0] = sectnum;
+	// Seed the queue before starting the wall scan.
+	clipsectcnt = 0; clipsectnum = 0;
+	clipsectorlist[0] = sectnum; clipsectnum = 1;
 
 	while (clipsectcnt < clipsectnum) //Collect sectors inside your square first
 	{
@@ -6655,8 +6655,8 @@ getzrange(long x, long y, long z, short sectnum,
 		{
 			if (wall[j].nextsector1 >= 0)
 			{
-				x1 = wall[j].x; y1 = wall[j].y;
-				x2 = wall[wall[j].point2].x; y2 = wall[wall[j].point2].y;
+				x1 = wall[j].x; x2 = wall[wall[j].point2].x;
+				y1 = wall[j].y; y2 = wall[wall[j].point2].y;
 				if ((x1 < xmin) && (x2 < xmin)) continue;
 				if ((x1 > xmax) && (x2 > xmax)) continue;
 				if ((y1 < ymin) && (y2 < ymin)) continue;
@@ -6682,11 +6682,12 @@ getzrange(long x, long y, long z, short sectnum,
 						}
 				}
 
-				for(i=clipsectnum-1;i>=0;i--)
+				for(i=clipsectnum-1;i>-1;i--)
 					if (clipsectorlist[i] == wall[j].nextsector1) break;
 				if (i > -1) continue;
 				k = wall[j].nextsector1;
-				clipsectorlist[clipsectnum++] = wall[j].nextsector1;
+				clipsectorlist[clipsectnum] = wall[j].nextsector1;
+				clipsectnum++;
 
 				if ((x1 < xmin+walldist) && (x2 < xmin+walldist)) continue;
 				if ((x1 > xmax-walldist) && (x2 > xmax-walldist)) continue;
@@ -6749,6 +6750,8 @@ face_wall_range:
 				}
 				else if ((cstat&48) == 32)
 				{
+					long floor_x1 = x1, floor_y1 = y1, floor_x2, floor_y2;
+					long floor_day;
 					tilenum = sprite[j].picnum;
 					xoff = (long)((signed char)((picanm[tilenum]>>8)&255));
 					yoff = (long)((signed char)((picanm[tilenum]>>16)&255));
@@ -6760,25 +6763,25 @@ face_wall_range:
 					xspan = tilesizx[tilenum]; xrepeat = sprite[j].xrepeat;
 					yspan = tilesizy[tilenum]; yrepeat = sprite[j].yrepeat;
 
-					dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
-					x1 += doublemulscale(sinang,dax,cosang,day,16);
-					y1 += doublemulscale(sinang,day,-cosang,dax,16);
+					dax = ((xspan>>1)+xoff)*xrepeat; floor_day = ((yspan>>1)+yoff)*yrepeat;
+					floor_x1 += doublemulscale(sinang,dax,cosang,floor_day,16);
+					floor_y1 += doublemulscale(sinang,floor_day,-cosang,dax,16);
 					l = xspan*xrepeat;
-					x2 = x1 - mulscale(sinang,l,16);
-					y2 = y1 + mulscale(cosang,l,16);
+					floor_x2 = floor_x1 - mulscale(sinang,l,16);
+					floor_y2 = floor_y1 + mulscale(cosang,l,16);
 					l = yspan*yrepeat;
-					k = -mulscale(cosang,l,16); x3 = x2+k; x4 = x1+k;
-					k = -mulscale(sinang,l,16); y3 = y2+k; y4 = y1+k;
+					k = -mulscale(cosang,l,16); x3 = floor_x2+k; x4 = floor_x1+k;
+					k = -mulscale(sinang,l,16); y3 = floor_y2+k; y4 = floor_y1+k;
 
 					l = walldist+1;
-					if (clipinsideboxline(x,y,x1,y1,x2,y2,l) > 0 ||
-						clipinsideboxline(x,y,x2,y2,x3,y3,l) > 0 ||
+					if (clipinsideboxline(x,y,floor_x1,floor_y1,floor_x2,floor_y2,l) > 0 ||
+						clipinsideboxline(x,y,floor_x2,floor_y2,x3,y3,l) > 0 ||
 						clipinsideboxline(x,y,x3,y3,x4,y4,l) > 0 ||
-						clipinsideboxline(x,y,x4,y4,x1,y1,l) > 0 ||
-						(((y2-y1)*(x-x1) <= (x2-x1)*(y-y1)) &&
-						 ((y3-y2)*(x-x2) <= (x3-x2)*(y-y2)) &&
+						clipinsideboxline(x,y,x4,y4,floor_x1,floor_y1,l) > 0 ||
+						(((floor_y2-floor_y1)*(x-floor_x1) <= (floor_x2-floor_x1)*(y-floor_y1)) &&
+						 ((y3-floor_y2)*(x-floor_x2) <= (x3-floor_x2)*(y-floor_y2)) &&
 						 ((y4-y3)*(x-x3) <= (x4-x3)*(y-y3)) &&
-						 ((y1-y4)*(x-x4) <= (x1-x4)*(y-y4))))
+						 ((floor_y1-y4)*(x-x4) <= (floor_x1-x4)*(y-y4))))
 					{
 						daz = sprite[j].z+1024; daz2 = sprite[j].z-1024;
 						if ((z > daz) && (daz > *ceilz))

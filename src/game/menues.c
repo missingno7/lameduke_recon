@@ -428,20 +428,21 @@ init_cursor:
 
     case 60:
         choice = draw_and_probe(menu_scores, 4);
-        if ((unsigned long)choice >= (unsigned long)-2)
-            current_menu = 0;
-        else
-            displayhighscores();
+        switch (choice)
+        {
+        case -2: case -1: current_menu = 0; break;
+        default: displayhighscores(); break;
+        }
         return;
 
     case 100:
         choice = draw_and_probe(menu_pause, 4);
         switch (choice)
         {
-        case -2: case 1:
+        case -1:
             ps[myconnectindex].gm = MODE_END;
             break;
-        case -1:
+        case -2: case 1:
             ps[myconnectindex].gm = MODE_GAME;
             break;
         case 2: current_menu = 20; break;

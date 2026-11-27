@@ -2142,7 +2142,7 @@
      "status": "NEAR_MATCH"
     },
     "menus": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "vscrn": {
      "status": "STRICT"

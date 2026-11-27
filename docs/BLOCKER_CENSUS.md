@@ -1,5 +1,39 @@
 # First blockers in the canonical DOS build
 
+## Follow-up on switch cascades and frame reservations
+
+The five eligible units at 935dabb contain ten functions in these classes, covering 52,947 oracle bytes. SECTOR and MENUES have five table-first functions. ENGINE has five frame-first functions. SOUNDS and MULTI contributed none. Fresh DOS control builds covered all five units. The historical full-project census below retains its original snapshot.
+
+Three source changes survived whole-unit DOS verification. **MENUES menus is STRICT for 5,216 bytes and 319 verified references.** ENGINE grouvline and getzrange regained their original frame and extent. Their combined positional differences fell by 272 bytes. All prior STRICT functions, verified data segments and other function comparisons held in the two proposed units. The other seven targets remain open.
+
+| Function in descending oracle extent | Bytes | Frame, candidate / oracle | First unequal-length instruction after the public | First displaced case in address order, oracle → candidate | DOS result of the tested prediction |
+|---|---:|---:|---|---|---|
+| checksectors | 11,448 | 168 / 168 | +0xc, 2 B oracle / 7 B candidate | +0x341 → +0x36e (+45 B) | 168 B frame, 7,670 → 7,484 differences, rejected |
+| operatesectors | 10,288 | 452 / 452 | +0xa0, 2 B oracle / 7 B candidate | +0xfe → +0xfd (-1 B) | 460 B frame, 7,404 → 7,180 differences, rejected |
+| cheatkeys | 7,604 | 100 / 96 | +0x9fc, 4 B oracle / 5 B candidate | +0xa48 → +0xa57 (+15 B) | 96 B frame, 3,332 → 5,273 differences, rejected |
+| menus | 5,216 | 252 / 252 | +0x134, 4 B oracle / 2 B candidate | +0x206 → +0x204 (-2 B) | STRICT, retained |
+| operateactivators | 4,996 | 100 / 92 | +0xaf, 7 B oracle / 5 B candidate | +0x6f8 → +0x707 (+15 B) | 92 B frame, 3,157 → 3,530 differences, rejected |
+| getcliplines | 3,589 | 136 / 124 | +0x3, 3 B oracle / 6 B candidate | — | 124 B frame, 2,900 → 2,935 differences, rejected |
+| draw2dscreen | 3,202 | 56 / 52 | +0x9, 1 B oracle / 2 B candidate | — | 52 B frame, 2,726 → 2,810 differences, rejected |
+| getzrange | 2,938 | 100 / 120 | +0x12, 4 B oracle / 1 B candidate | — | 120 B frame, 2,412 → 2,288 differences, retained |
+| grouvline | 2,169 | 116 / 112 | +0xd8, 1 B oracle / 2 B candidate | — | 112 B frame, 1,626 → 1,478 differences, retained |
+| rotatesprite | 1,497 | 92 / 96 | +0x66, 3 B oracle / 1 B candidate | — | 96 B frame, 1,225 → 1,296 differences, rejected |
+
+Frame immediates of the same encoding length can differ before the first unequal-length instruction. The table identifies the first local width divergence and the first displaced physical destination independently. An intervening instruction can cancel an earlier length change. A single displaced target does not identify a unique causal statement.
+
+- **checksectors**. The player argument occupies a stack home at entry. Reusing i for the initiator and w for the current sector on the second lift path restores MOV EDI,EAX at +0xc. The first unequal-length instruction moves to +0xed. The candidate is 128 B short and checkhitceiling loses its boundary proof.
+- **operatesectors**. At +0x58 the sector index scale goes to ECX instead of EDI. The first unequal-length instruction at +0xa0 is in the case-26 tag update before the recursive call. Capturing case-19 speed as long reduces differences by 224, increases the frame by 8 B and worsens three inline callers. Reusing j for the door index reduces differences by 1,074 but loses checkhitceiling and worsens four callers. The original source cause of the case-26 schedule remains open.
+- **cheatkeys**. The canonical source already reuses the decoy index as the debug-door loop counter. The next size change at +0x9fc is a word reload of the inlined sector argument where the oracle reloads a dword. Capturing a short sector index and a separate long initiator restores the 96 B frame and 7,604 B extent, but increases byte differences from 3,332 to 5,273.
+- **menus**. By-value menu_main first lands at +0xa0 instead of +0x90. The second destination is ESP instead of ESP+0x30. Its pointer setup is 2 B shorter at +0x134. A switch in the later scores page corrects the earlier homes and removes all 3,469 positional differences. The last three pause-page targets required correcting the Q, Escape and choice-1 case labels.
+- **operateactivators**. The 100 B frame exchanges the low and i homes relative to the oracle. At +0xaf the inlined sector dispatch loads the sector base while the oracle scales the index. A long traversal index plus reuse of j for case-9 speed produces the oracle 92 B frame, but is 4 B short and loses checkhitceiling. Reusing middle for cy alone saves 16 differences in this caller but loses the same peer and worsens four other functions.
+- **getcliplines**. The 136 B reservation uses an imm32 at +3. The oracle reserves 124 B using imm8. Scoping the floor-sprite spans alone leaves the 136 B frame. Staging the x coordinates of both edge endpoints and limiting the floor x-offset to that case produces the 124 B frame, a function 15 B short, and eight lost STRICT peers. SemIR stops at the BSR range approximation.
+- **draw2dscreen**. After the frame reservation, the oracle pushes the incoming zoom (ECX) at +9. The candidate moves it into EBP. Reusing yp1 for the translated sprite ordinate, changing the independent projection order and spelling the nonpositive visibility test explicitly gives the 52 B frame at the exact extent. The first difference moves to +9, but the function worsens by 84 B.
+- **getzrange**. Separate floor-sprite corners and a separate y offset, together with reuse of dx for radius, restore the 120 B frame. Pair the x and y endpoint reads, initialize the sector queue and advance the append index separately. Ordering xmin, ymin, xmax, ymax moves the first differing byte to +0x26. The remaining instruction uses stack displacement 0x48 where the oracle uses 0x5c.
+- **grouvline**. Reusing y1 for the increment swap restores the 112 B frame. Reusing tempy for the raster y value in both traversal loops restores the 2,169 B extent as well. First residual byte +0xc3. The first unequal symbolic instruction at +0xcc loads viewoffset before dmost instead of the oracle order.
+- **rotatesprite**. The first baseline width change at +0x66 follows the tile-dimension loads. The oracle sign-extends the low width from DX, while the candidate uses CWDE for height. Giving ysiz its own long declaration below tileheight restores the 96 B frame, but the extent grows by 1 B and two STRICT peers fail. Splitting or reusing the per-column count also failed the unit guard.
+
+Full switch vectors, source line anchors, SemIR diagnostics, input hashes and whole-unit rejection receipts are in `build/workers/blockers/cascade/census.json`. The DOS builds used the registered profiles and existing bindings.
+
 This census is pinned to the canonical sources at 8958ccf. Two concurrent integrations made hitradius (304 bytes) and gamenumber (272 bytes) STRICT. Each affected unit was rebuilt and the latest source hashes were checked against the snapshot. The 85-function starting census at 87ab75f remains available with its own ranks, traces and first differences. [Starting census](SUPPLIED.md) · [Starting JSON](supplied.json) · [Results of source tests](predictions.md)
 
 The 83 non-STRICT publics cover 207,256 oracle bytes. The 68 NEAR functions account for 104,874 positional byte differences reported by match.py. The other 15 have exact code and sites. Fourteen depend on unverified CONST contents in nine Watcom 10.0 audio units. setvesamode depends on the engine’s private BSS placement.
