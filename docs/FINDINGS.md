@@ -984,3 +984,10 @@ Each entry names the command or artefact that supports it.
   coordinate evaluation; 57 reference problems cleared; all eight targets exact). moveexplosions stays at 74: natural
   C reproduces the y/z spill only at a cost of 2,568 bytes; forcing spill + leg sine index leaves 3 floor-register
   bytes.
+- ACTORS follow-up 7 (r10-actors-7): moveactors 3,524 -> 3,135 differing bytes (slime, turret, bomb, reactor edits;
+  flip95-guided declarations match the actor and next-sprite stack slots; all eight targets exact); next mismatch the
+  player index at ESP+0x30 vs ESP+0x28.
+- NEGATIVE GAME helper family (helpers, astra; build/workers/helpers/NOTES.md, matrix.csv over all 49 publics): 43 DOS
+  configurations, none improves the family without a regression. strget reaches 318 differing bytes at the exact size
+  (61/65 blocks) but costs minitext and numtext STRICT; a follow-up restores both but five cursor-palette blocks
+  regress. Passed to the trade root-cause investigation.
