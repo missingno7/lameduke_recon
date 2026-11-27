@@ -887,3 +887,9 @@ Each entry names the command or artefact that supports it.
   order of independent stores select BL); moveactors 5,889 -> 4,421 differing bytes, six of eight case targets exact
   incl. +12,127 (two one byte late); moveexplosions 673 (register interference traced at 1:29847). Attribution:
   quirks +1,943 bytes, near +5 blocks, own reasoning incl. cg95 the 272 STRICT bytes; reverse, donors, permute 0.
+- GAME follow-up (r10-game-2): no STRICT change (37/49); NEAR targets 14,034 -> 13,280 differing bytes with no
+  collateral increase. moveeffectors reaches its confirmed 14,016-byte extent (9,625 -> 9,324); main 1,338 -> 1,032
+  (weapon view index scoped to the HUD branch); waitforeverybody 687 -> 544 (widened ready-count comparison; one extra
+  CWDE left); strget 525 -> 521. nonsharedkeys (14 B from +0x4d0) and operatefta (4 stack displacements from +0x74)
+  unchanged with all blocks and fixups matched; guarded permute tried 55 variants on operatefta. Attribution: reverse
+  306, near 188, quirks 39, own reasoning 221, donors 0, permute 0.

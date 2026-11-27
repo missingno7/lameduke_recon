@@ -507,7 +507,7 @@ void waitforeverybody(void)
         playerreadyflag[j] = 0;
     oldtotalclock = totalclock - 120;
     if (myconnectindex == connecthead) {
-        short ready; /* COMPILER_STEERED: the master accumulates ready flags in a word. */
+        short ready; /* COMPILER_STEERED: accumulate ready flags in a word, then compare as signed longs. */
 
         playerreadyflag[connecthead] = 1;
         do {
@@ -522,7 +522,7 @@ void waitforeverybody(void)
             ready = 0;
             for (i = connecthead; i >= 0; i = connectpoint2[i])
                 ready += playerreadyflag[i];
-        } while (ready < numplayers);
+        } while ((long)ready < (long)numplayers);
     } else {
         do {
             if (totalclock >= oldtotalclock + 120) {
@@ -735,8 +735,8 @@ long minitext(long x, long y, unsigned char *t, unsigned char s)
 
         while (*t) {
             long advance;
+            short descender; /* COMPILER_STEERED: declare the vertical offset before the glyph. */
             short ac;
-            short descender;
 
             descender = 0;
             if (*t == '\n') {
@@ -1685,9 +1685,9 @@ play:
             if (ps[screenpeek].newowner >= 0)
                 cameratext();
             else {
-                /* COMPILER_STEERED: reuse the display index and reload it for each HUD call. */
-                i = screenpeek;
-                displayweapon(i);
+                short view = screenpeek; /* COMPILER_STEERED: use a local view index for the weapon. */
+
+                displayweapon(view);
                 i = screenpeek;
                 displaystatus(i);
                 i = screenpeek;
@@ -2339,12 +2339,15 @@ void closedemowrite(void)
  * (short) casts on the wall-loop starts keep this NEAR reconstruction's signed loads (COMPILER_STEERED). */
 void moveeffectors(void)
 {
+    long *height;
     long q, l, m, x, st, j, d, *t;
-    short i, k, nexti, p, sect;
-    short startwall, endwall; /* COMPILER_STEERED: wall bounds for cases 8 and 9. */
+    short i, k, nexti, p;
+    short startwall, endwall; /* COMPILER_STEERED: wall bounds for cases 8, 9 and 26. */
 
     i = headspritestat[STAT_EFFECTOR];
     while (i >= 0) {
+        short sect;
+
         nexti = nextspritestat[i];
         sect = sprite[i].sectnum;
         t = &hittype[i][0];
@@ -2405,13 +2408,15 @@ void moveeffectors(void)
             }
             break;
         case 3: {
+            short palette;
             short endwall;
 
             if (t[4] == 0)
                 break;
             if ((randomstash / (sprite[i].hitag + 1)) & 1) {
-                sector[sect].ceilingpal = sprite[i].owner >> 8;
-                sector[sect].floorpal = sprite[i].owner;
+                palette = sprite[i].owner;
+                sector[sect].ceilingpal = palette >> 8;
+                sector[sect].floorpal = palette;
                 t[0] = sprite[i].shade;
             } else {
                 sector[sect].ceilingpal = 0;
@@ -2440,8 +2445,10 @@ void moveeffectors(void)
                 sector[sect].floorpal = 0;
             }
             sector[sect].ceilingshade = sector[sect].floorshade = t[1];
-            endwall = sector[sect].wallnum + sector[sect].wallptr;
-            for (x = (short)sector[sect].wallptr; x < endwall; x++)
+            endwall = (short)sector[sect].wallptr;
+            x = endwall;
+            endwall += sector[sect].wallnum;
+            for (; x < endwall; x++)
                 if (!(wall[x].hitag & 1))
                     wall[x].shade = t[0];
             break;
@@ -2916,17 +2923,17 @@ void moveeffectors(void)
             if (t[0] == 0)
                 break;
             if (sprite[i].ang == 1536)
-                l = (long)&sector[sect].ceilingz;
+                height = &sector[sect].ceilingz;
             else
-                l = (long)&sector[sect].floorz;
+                height = &sector[sect].floorz;
             if (t[0] == 1) {
-                sprite[i].xvel = ksgn(sprite[i].z - *(long *)l) * (sprite[i].yvel << 4);
+                sprite[i].xvel = ksgn(sprite[i].z - *height) * (sprite[i].yvel << 4);
                 t[0]++;
             }
             if (sector[sect].extra == 0) {
-                *(long *)l += sprite[i].xvel;
-                if (klabs(*(long *)l - sprite[i].z) < 1024) {
-                    *(long *)l = sprite[i].z;
+                *height += sprite[i].xvel;
+                if (klabs(*height - sprite[i].z) < 1024) {
+                    *height = sprite[i].z;
                     deletesprite(i);
                     goto BOLT;
                 }
@@ -3056,8 +3063,9 @@ void moveeffectors(void)
                     ps[p].posz += sprite[i].zvel;
                     setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + 9216);
                 }
-            k = sector[sect].wallptr + sector[sect].wallnum;
-            for (j = (short)sector[sect].wallptr; j < k; j++)
+            startwall = (short)sector[sect].wallptr;
+            endwall = startwall + sector[sect].wallnum;
+            for (j = startwall; j < endwall; j++)
                 if (wall[j].lotag == 0)
                     wall[j].xpanning += 4;
             ms(i);
@@ -3116,10 +3124,12 @@ void moveeffectors(void)
         case 7: /* the labels still shape the dispatch tree (split at 15) */
             break;
         case 129: {
+            long next_frame; /* COMPILER_STEERED: name the opposite wall's frame index. */
             unsigned char frames[12] = { 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0 };
 
             wall[t[2]].overpicnum = 790 + frames[t[0]];
-            wall[wall[t[2]].nextwall1].overpicnum = 790 + frames[t[0] + 2];
+            next_frame = t[0] + 2;
+            wall[wall[t[2]].nextwall1].overpicnum = 790 + frames[next_frame];
             t[0]++;
             if (t[0] > 9) {
                 deletesprite(i);
