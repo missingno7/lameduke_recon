@@ -1264,3 +1264,8 @@ Each entry names the command or artefact that supports it.
   Live: both of moveactors' flagged argument differences (EGS tile number at 1:27940, myos shade at 1:2852b) agree for
   all 65,536 inputs -> semir's two SOURCE clusters there are false alarms (allocation/narrowing form only).
   Value: eliminates wrong hypotheses cheaply; no direct gain. Rayman's difftest is the full-function version.
+- GAME round 3: decoder group (sync+main+copies) holds at 607/623 blocks over 84 trials. BLOCKING DECISION (cg95,
+  build/workers/u-game/round3/DECISION.md): in backend block 125 the allocator scores the master angle flag's AND result
+  before the packet-byte temporary gets ESI, so ECX wins 2-0; staging the player index fixes it but costs main 6
+  blocks. Parked with the allocation-tie class. moveeffectors 436/492 on a branch (+47 B); displayrooms' +32 B extent:
+  31 B accumulate inside its inlined drawmasks-related code.
