@@ -1,21 +1,22 @@
 # Permute
 
-`permute.py` searches for C spellings that reproduce Watcom 9.5 GA code generation. It compiles the full translation unit with `tools/wcc.py` and scores independently bound functions with the repository's `match.py` and `blockdiff.py`. Copy the three Python files together to `tools/permute/` to install them. The only runtime Python dependency beyond the standard library is the repository's existing Capstone dependency.
+`permute.py` searches for C spellings that reproduce Watcom 9.5 GA code generation. It compiles the full translation unit with `tools/wcc.py` and scores independently bound functions with the repository's `match.py` and `blockdiff.py`. Install the Python files together under `tools/permute/`. The runtime dependencies are the repository's Capstone dependency and, for tracing, 64-bit Python with WOW64.
 
-Run from the repository root on Windows. Supply a new output directory under `$PERMUTE_WORK` (default `build/permute/`; workers set it to their own directory) for each search.
+Run from the repository root on Windows. Supply a new output directory below `PERMUTE_WORK` for each search. The default is the worker directory for this proposal and `build/permute/` when installed.
 
 ```powershell
-$p = 'tools/permute/permute.py'
-$w = 'build/permute'
-python -B $p game_sector checkhitswitch --transforms decl,loops,commute --budget 60 --out "$w/switch-trial"
-python -B $p engine hline --source "$w/historical/engine/ENGINE.C" --transforms decl --out "$w/hline-trial"
-python -B $p "$w/historical/game/game.c" movetransports --profile game_oe --transforms decl --out "$w/transport-trial"
-python -B tools/match.py --obj "$w/hline-trial/best.obj" hline
+$w = 'build/workers/permute2'
+$p = "$w/tools_proposed/permute.py"
+python -B $p game_actors hitradius --cg95 --budget 150 --out "$w/hitradius-trial"
+python -B $p game_sector checkhitswitch --cg95 --focus i,nextspritestat,w --out "$w/switch-trial"
+python -B tools/match.py --obj "$w/hitradius-trial/best.obj" hitradius
 ```
 
 Pass more function names after the input to search several targets together. For a standalone source, `--profile` is required and `-i DIR` is repeatable. `--symbols` accepts the verifier's usual binding overlay. For a current NEAR function, run `semir.py` first to check the source and allocation classification.
 
-`--focus name1,name2` keeps edits involving those identifiers. `--cg95-explain PATH` takes an existing `explain95.py --out` JSON and uses named values from its first attributed allocation decision. Reports that contain only anonymous compiler temporaries cannot supply a source-level focus.
+`--cg95` runs the repository tracer and explainer for each target using the search's input, include order, flags, and binding overlay. It checks the traced code against ordinary NT and DOS builds. The search takes the first attributed decision, its reported competitors, and source names resolved from their defining operands. Edits must involve at least one focused name in that function. The trace and explanation are saved alongside the search, and `run.json` identifies the decision, the first aligned machine difference, and the source of each focus.
+
+`--focus name1,name2` sets a manual focus when no trace is requested and supplies a fallback when cg95 cannot map a decision to source. Guided targets with neither a mapped nor an explicit focus generate zero variants. `--cg95-explain PATH` uses the named evidence in an existing explanation without running a fresh trace.
 
 ## Search and verification
 
@@ -36,13 +37,17 @@ The input is built once on the canonical DOS host and once on NT. The search rej
 | Transform | Conditions for an edit |
 |---|---|
 | `decl` | Permute, split and merge uninitialised automatic scalar declarations. A comment between declarations ends a permutation group. |
-| `scope` | Move one uninitialised scalar between nested blocks when every reference is accounted for. Jumps, labels and changes across loop lifetimes block the move. |
+| `scope` | Move an uninitialised scalar to the innermost block containing all its references or lift it into an enclosing block. Try positions among the destination's independent declarations. Crossing a loop requires a direct first assignment on each entry. |
 | `types` | Change width or signedness when the interval of every assigned value fits both types. Preserve the old value type at consumers when integer promotions would change. |
-| `temp` | Stage an integer subexpression in a local using its original type. It must execute unconditionally in a modelled assignment, expression statement or return. Inline a single-use local when its definition is the preceding statement. |
+| `ranges` | Split a live range at a direct assignment that dominates the new uses, or merge disjoint same-type live ranges in the same block. |
+| `address` | Add or remove immediate `*(&x)` for a scalar lvalue, or capture a call argument's existing address in a function-scope pointer local. The callee receives the original address. |
+| `temp` | Stage an unconditionally evaluated pure expression, including repeated subexpressions, in a block or function temporary. Inline an adjacent definition where the proof accounts for every use. |
+| `narrow` | Stage an existing cast or assignment conversion, or use a smaller slot if interval bounds preserve the value. A dedicated direct-store rule stages a single volatile index read while retaining the final store. |
+| `save` | Copy an incoming scalar parameter into a local or preserve its original value in a separate local before the first narrowing store. |
 | `commute` | Swap operands of pure integer operations, including reversing the predicate for an ordered comparison. Preserve grouping. |
-| `statements` | Swap neighbouring expression statements with disjoint local-variable sets and no unmodelled effects. |
+| `statements` | Swap or rotate independent direct stores, including fields of a known struct. Check destination and read dependencies against every crossed store. |
 | `loops` | Exchange top-tested `while` and `for` headers. Moving an initializer or update requires additional control-flow and scope checks. |
-| `chain` | Split a discarded chain of assignments to distinct scalar locals, preserving each intermediate conversion. |
+| `chain` | Split discarded assignments to distinct scalar locals. Commit a same-type global update in a local initializer if intervening initializers cannot observe it. |
 | `updates` | Exchange prefix, postfix and compound spellings for discarded unit increments and decrements. |
 
-The parser keeps source spans and edits the original text. It refuses in-body directives, inline assembly and ambiguous function definitions. The expression model covers local integers and integer constants, with conservative bounds. Calls, accesses through pointers, aggregate accesses, volatile objects, unmodelled declarations, macros and address-taking limit the edits it can prove. For declaration order and simple loop-header swaps, unrelated opaque expressions may stay in the function. The tool guards lines observed by location-sensitive macros. This search can leave an allocation tie unresolved even when a manually proven rewrite exists.
+The parser keeps source spans and edits the original text. It refuses in-body directives, inline assembly, and ambiguous function definitions. Its proof rules cover integer locals and parameters, constants, and direct objects and named struct fields with recognized declarations. Opaque calls, pointer aliases, volatile access, macro expansion, and control flow can prevent an edit. Substituting a short's address for a callee's long output is outside the model. The tool guards lines observed by location-sensitive macros. Only the repository verifier can certify a DOS result as STRICT.

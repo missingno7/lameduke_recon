@@ -70,11 +70,13 @@ class CType:
     @property
     def bounds(self):
         bits = {"char": 8, "short": 16, "int": 32, "long": 32}[self.rank]
+        if self.unsigned is None:
+            return -128, 255  # Conservative for plain char under either flag setting.
         return (0, (1 << bits) - 1) if self.unsigned else (-(1 << (bits - 1)), (1 << (bits - 1)) - 1)
 
     @property
     def spelling(self):
-        return ("unsigned " if self.unsigned else "signed " if self.rank == "char" else "") + self.rank
+        return ("unsigned " if self.unsigned else "signed " if self.rank == "char" and self.unsigned is False else "") + self.rank
 
     @property
     def promoted(self):
@@ -91,7 +93,7 @@ def scalar_type(words):
     if len(words) != len(set(words)):
         return None
     if "char" in words and not ({"signed", "unsigned"} & set(words)):
-        return None  # plain char depends on flags
+        return CType("char", None) if words == ["char"] else None
     unsigned = "unsigned" in words
     if unsigned and "signed" in words:
         return None
@@ -116,15 +118,27 @@ class Declaration:
     names: tuple
     ctype: CType | None
     stmt: Stmt
+    initializer: tuple | None = None
+
+
+@dataclass(frozen=True)
+class ObjectType:
+    atom: CType | str
+    dimensions: int = 0
+    pointer: bool = False
+    volatile: bool = False
 
 
 class Source:
-    def __init__(self, text, macros):
+    def __init__(self, text, macros, objects=None, members=None, macro_expansion=None):
         self.text = text
         self.tokens, self.comments = lex(text)
         self.comment_ends = [t.end for t in self.comments]
         self.values = [t.value for t in self.tokens]
         self.macros = macros
+        self.objects = objects or {}
+        self.members = members or {}
+        self.macro_expansion = macro_expansion or {}
         self.nl = "\r\n" if "\r\n" in text else "\n"
         self.pairs = {}
         stack = []
@@ -196,6 +210,15 @@ def walk(stmt):
 class Function:
     def __init__(self, src, name, params, a, b):
         self.src, self.name, self.a, self.b = src, name, a, b
+        self.parameters = {}
+        start = params + 1
+        for end in (*[i for i in src.next_top(start, a - 1) if src.values[i] == ","], a - 1):
+            names = src.values[start:end]
+            if len(names) >= 2 and IDENT.fullmatch(names[-1]) and src.macros.isdisjoint(names):
+                typ = scalar_type([w for w in names[:-1] if w != "register"])
+                if typ:
+                    self.parameters[names[-1]] = (typ, end - 1)
+            start = end + 1
         self.body = self.statement(a, b)
         self.nodes = list(walk(self.body))
         self.uses = {}
@@ -224,13 +247,30 @@ class Function:
             n: refs[0] for n, refs in declarations.items()
             if len(refs) == 1 and n not in params_set and n not in unknown and refs[0][0].ctype
         }
+        self.declared_names = set(declarations) | params_set | unknown
+        self.shadowed_parameters = set(declarations) | unknown
         self.has_macros = not src.macros.isdisjoint(self.uses)
         self.opaque_macro_statement = any(src.values[n.a] in src.macros for n in self.nodes)
+        self.macro_args = set()
+        self.hidden_names = set()
+        for macro in src.macros & self.uses.keys():
+            self.hidden_names.update(src.macro_expansion.get(macro, ()))
+            for i in self.uses[macro]:
+                if src.values[i + 1] == "(":
+                    self.macro_args.update(range(i, src.pairs[i + 1] + 1))
+
+    def editable_name(self, name):
+        return ("##" not in self.hidden_names and name not in self.hidden_names
+                and self.uses.get(name, set()).isdisjoint(self.macro_args))
 
     def possible_declaration(self, a, b):
         if b - a < 2:
             return False
         first, after = self.src.values[a:a + 2]
+        if after == "(" and self.src.pairs[a + 1] == b - 1:
+            argument_tokens = {self.src.values[i] for i in self.src.next_top(a + 2, b - 1)}
+            if argument_tokens & {",", "&", "+", "-", "/", "%", "=", "++", "--"}:
+                return False  # These operators cannot be part of a grouped declarator.
         return first in KEYWORDS or IDENT.fullmatch(first) and (after in ("(", "*") or IDENT.fullmatch(after))
 
     def declaration(self, node):
@@ -241,10 +281,18 @@ class Function:
             i += 1
         if i == node.a or i >= node.b - 1:
             return None
-        names = tuple(range(i, node.b - 1, 2))
+        initializer = None
+        end = node.b - 1
+        if v[i + 1:i + 2] == ["="]:
+            start = i + 2
+            if start >= end or any(v[j] == "," for j in src.next_top(start, end)):
+                return None
+            initializer = (start, end)
+            end = i + 1
+        names = tuple(range(i, end, 2))
         if any(not IDENT.fullmatch(v[n]) or v[n] in KEYWORDS or v[n] in src.macros for n in names):
             return None
-        if len(names) * 2 - 1 != node.b - 1 - i or any(v[n] != "," for n in range(i + 1, node.b - 1, 2)):
+        if len(names) * 2 - 1 != end - i or any(v[n] != "," for n in range(i + 1, end, 2)):
             return None
         # Only ordinary, uninitialised, non-pointer, non-array declarators.
         spec = v[node.a:i]
@@ -253,7 +301,7 @@ class Function:
         typ = scalar_type([s for s in spec if s != "register"])
         if typ is None and sorted(s for s in spec if s != "register") != ["char"]:
             return None
-        return Declaration(" ".join(spec), names, typ, node)
+        return Declaration(" ".join(spec), names, typ, node, initializer)
 
     def statement(self, a, limit, parent=None):
         src = self.src
@@ -330,6 +378,8 @@ class Function:
                     node.kind = "opaque"
                 if node.kind == "simple":
                     node.parts = ((a, i),)
+                elif node.decl and node.decl.initializer:
+                    node.parts = (node.decl.initializer,)
             else:
                 node.kind = "simple"
                 node.parts = ((a, i),)
@@ -338,9 +388,11 @@ class Function:
         return node
 
     def local_type(self, i):
-        node = self.locals.get(self.src.values[i])
+        name = self.src.values[i]
+        node = self.locals.get(name)
         if node is None:
-            return None
+            param = self.parameters.get(name)
+            return param[0] if param and name not in self.shadowed_parameters else None
         decl, index = node
         block = decl.stmt.parent
         if index < i < block.b:
@@ -356,6 +408,7 @@ class Expr:
     children: tuple = ()
     ctype: CType | None = None
     bounds: tuple | None = None
+    object_type: ObjectType | None = None
 
 
 ASSIGN = {"=", "+=", "-=", "*=", "/=", "%=", "<<=", ">>=", "&=", "^=", "|="}
@@ -397,6 +450,10 @@ def integer(text):
 
 
 def converted(bounds, typ):
+    if typ.unsigned is None and not fits(bounds, CType("char")):
+        return typ.bounds
+    if typ.unsigned is None and bounds[0] < 0:
+        return typ.bounds
     if fits(bounds, typ):
         return bounds
     if typ.unsigned and bounds[0] == bounds[1]:
@@ -443,9 +500,10 @@ def pure(expr):
 
 
 class Expressions:
-    def __init__(self, fun):
+    def __init__(self, fun, objects=False):
         self.fun = fun
         self.v = fun.src.values
+        self.objects = objects
 
     def parse(self, span):
         self.i, self.end = span
@@ -461,17 +519,36 @@ class Expressions:
         left = self.prefix()
         while self.i < self.end:
             op = self.v[self.i]
+            if self.objects and op == "?" and minimum <= 1.5:
+                self.i += 1
+                yes = self.read(1)
+                if self.i >= self.end or self.v[self.i] != ":":
+                    raise Unsupported("missing conditional colon")
+                self.i += 1
+                no = self.read(1.5)
+                if not left.ctype or not yes.ctype or not no.ctype:
+                    raise Unsupported("unmodelled conditional type")
+                typ = usual(yes.ctype, no.ctype)
+                ylo, yhi = converted(yes.bounds, typ)
+                nlo, nhi = converted(no.bounds, typ)
+                left = Expr("conditional", left.a, no.b, (left, yes, no), typ,
+                            (min(ylo, nlo), max(yhi, nhi)))
+                continue
             prec = PRECEDENCE.get(op, 0)
             if prec < minimum:
                 break
             self.i += 1
             right = self.read(prec if op in ASSIGN else prec + 1)
             if op in ASSIGN:
-                if bare(left).op != "id":
+                if bare(left).op not in ("id", "object", "index", "member") or not left.ctype:
                     raise Unsupported("unmodelled lvalue")
                 typ, bounds = left.ctype, left.ctype.bounds
             else:
+                if not left.ctype or not right.ctype:
+                    raise Unsupported("unmodelled binary operand")
                 typ, bounds = binary(op, left, right)
+            if not right.ctype:
+                raise Unsupported("unmodelled assignment value")
             left = Expr(op, left.a, right.b, (left, right), typ, bounds)
         return left
 
@@ -494,9 +571,11 @@ class Expressions:
                 if self.i != close or self.i >= self.end:
                     raise Unsupported("unmodelled parenthesised expression")
                 self.i += 1
-                expr = Expr("group", a, self.i, (child,), child.ctype, child.bounds)
+                expr = Expr("group", a, self.i, (child,), child.ctype, child.bounds, child.object_type)
         elif token in ("!", "~", "+", "-", "++", "--"):
             child = self.prefix()
+            if not child.ctype:
+                raise Unsupported("unmodelled unary operand")
             op = "pre" + token
             typ = INT if token == "!" else child.ctype.promoted
             bounds = typ.bounds
@@ -514,9 +593,39 @@ class Expressions:
         else:
             constant = integer(token)
             typ = self.fun.local_type(a)
-            if token in self.fun.src.macros or (not constant and not typ):
+            obj = self.fun.src.objects.get(token) if self.objects and token not in self.fun.declared_names else None
+            if obj and (obj.pointer or obj.volatile):
+                obj = None
+            if token in self.fun.src.macros or not (constant or typ or obj):
                 raise Unsupported(f"unmodelled operand {token!r}")
-            expr = Expr("num", a, self.i, (), *constant) if constant else Expr("id", a, self.i, (), typ, typ.bounds)
+            if constant:
+                expr = Expr("num", a, self.i, (), *constant)
+            elif typ:
+                expr = Expr("id", a, self.i, (), typ, typ.bounds)
+            else:
+                expr = self.object_expr("object", a, obj)
+        while self.i < self.end and self.v[self.i] in ("[", "."):
+            obj = expr.object_type
+            if not obj:
+                raise Unsupported("unmodelled access")
+            op = self.v[self.i]
+            if op == "[" and obj.dimensions:
+                close = self.fun.src.pairs[self.i]
+                self.i += 1
+                index = self.read(1)
+                if self.i != close or not index.ctype:
+                    raise Unsupported("unmodelled index")
+                self.i = close + 1
+                expr = self.object_expr("index", a, ObjectType(obj.atom, obj.dimensions - 1), (expr, index))
+            elif op == "." and not obj.dimensions and isinstance(obj.atom, str) and self.i + 1 < self.end:
+                member = self.v[self.i + 1]
+                typ = self.fun.src.members.get((obj.atom, member))
+                if not typ or typ.pointer or typ.volatile or member in self.fun.src.macros:
+                    raise Unsupported("unmodelled member")
+                self.i += 2
+                expr = self.object_expr("member", a, typ, (expr,))
+            else:
+                raise Unsupported("unmodelled access")
         if self.i < self.end and self.v[self.i] in ("++", "--"):
             if bare(expr).op != "id":
                 raise Unsupported("unmodelled update target")
@@ -524,3 +633,7 @@ class Expressions:
             self.i += 1
             return Expr(op, a, self.i, (expr,), expr.ctype, expr.bounds)
         return expr
+
+    def object_expr(self, op, start, obj, children=()):
+        scalar = obj.atom if not obj.dimensions and isinstance(obj.atom, CType) else None
+        return Expr(op, start, self.i, children, scalar, scalar.bounds if scalar else None, obj)

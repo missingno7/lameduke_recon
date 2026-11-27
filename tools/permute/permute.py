@@ -17,7 +17,9 @@ from time import perf_counter
 
 sys.dont_write_bytecode = True
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / "config/units.json").is_file())
-WORK = Path(os.environ.get("PERMUTE_WORK", str(ROOT / "build/permute"))).resolve()  # workers: set PERMUTE_WORK to their dir
+HERE = Path(__file__).resolve().parent
+DEFAULT_WORK = HERE.parent if HERE.name == "tools_proposed" else ROOT / "build/permute"
+WORK = Path(os.environ.get("PERMUTE_WORK", str(DEFAULT_WORK))).resolve()
 sys.path.insert(0, str(ROOT / "tools"))
 
 import blockdiff
@@ -27,6 +29,8 @@ import omf
 import wcc
 from common import CONFIG, dump_json, load_json
 from c_subset import IDENT, Source, Unsupported
+from guidance import focus_from_report, trace_report
+from object_model import object_model
 from transforms import NAMES, edits
 
 
@@ -43,7 +47,7 @@ def macro_context(source, includes, watcom, flags):
         for path in directory.iterdir():
             if path.is_file() and path.suffix.lower() in (".c", ".h", ".inc"):
                 stage[path.name.lower()] = path
-    seen, definitions = set(), {}
+    seen, definitions, replacements = set(), {}, {}
 
     def visit(path):
         if path in seen:
@@ -64,10 +68,14 @@ def macro_context(source, includes, watcom, flags):
                 m = re.match(r"\s*([A-Za-z_]\w*)(.*)", body)
                 if m:
                     name, value = m.groups()
-                    definitions.setdefault(name, set()).update(re.findall(r"[A-Za-z_]\w*", value))
+                    replacements.setdefault(name, set()).add(value.strip())
+                    body = PP_TRIVIA.sub(" ", value)
+                    definitions.setdefault(name, set()).update(re.findall(r"[A-Za-z_]\w*", body))
+                    if any(token in body for token in ("{", "}", ";")):
+                        definitions[name].add("<statement tokens>")
                     # Token pasting can synthesize a location-sensitive macro.
                     if "##" in value:
-                        definitions[name].add("__LINE__")
+                        definitions[name].update(("__LINE__", "##"))
             elif re.match(r"\s*include_alias\b", body):
                 raise Unsupported(f"{path.name}: #pragma include_alias requires preprocessing")
 
@@ -76,6 +84,7 @@ def macro_context(source, includes, watcom, flags):
         if flag.lower().startswith("-d"):
             name, _, value = flag[2:].partition("=")
             if IDENT.fullmatch(name):
+                replacements.setdefault(name, set()).add(value if "=" in flag else "1")
                 definitions.setdefault(name, set()).update(re.findall(r"[A-Za-z_]\w*", value))
     locations = LOCATION.copy()
     while True:
@@ -83,7 +92,16 @@ def macro_context(source, includes, watcom, flags):
         if not more:
             break
         locations.update(more)
-    return set(definitions) | LOCATION, locations
+    for name in definitions:
+        closure = definitions[name].copy()
+        while True:
+            more = set().union(*(definitions.get(dep, ()) for dep in closure)) - closure
+            if not more:
+                break
+            closure.update(more)
+        definitions[name] = closure
+    storage = {name for name, forms in replacements.items() if forms <= {"", "extern", "static"}}
+    return set(definitions) | LOCATION, locations, definitions, seen, storage
 
 
 @dataclass
@@ -153,31 +171,37 @@ def strict(rows):
     return {name for name, r in rows.items() if r["status"] == "STRICT"}
 
 
-def focus_names(args, source):
-    focus = set(args.focus.split(",")) if args.focus else set()
-    allowed = set().union(*(source.function(fn).uses for fn in args.functions))
-    if args.cg95_explain:
-        def extract(node):
-            if isinstance(node, str):
-                return set(re.findall(r"[A-Za-z_]\w*", node))
-            if isinstance(node, list):
-                return set().union(*(extract(item) for item in node))
-            return set()
-
-        named = set()
-        for path in args.cg95_explain:
-            report = load_json(path)
-            if report["function"] not in args.functions:
-                raise ValueError(f"{path}: function must be a search target")
-            evidence = report.get("first_attributed", {}).get("evidence", {})
-            for key in ("temp", "candidate_slot_holder", "earlier_overlapping_choices", "same_savings_order"):
-                named.update(extract(evidence.get(key)))
-        if not named & allowed:
-            raise ValueError("cg95 explanation has no named source variable in its first attributed decision")
-        focus.update(named & allowed)
-    if focus - allowed:
-        raise ValueError("focus names absent from targets: " + ", ".join(sorted(focus - allowed)))
-    return focus
+def focus_names(args, source, cfg, out):
+    manual = set(args.focus.split(",")) if args.focus else set()
+    functions = {fn: source.function(fn) for fn in args.functions}
+    reports, traces = {}, {}
+    for path in args.cg95_explain or ():
+        report = load_json(path)
+        fn = report["function"]
+        if fn not in functions or fn in reports:
+            raise ValueError(f"{path}: expected a distinct search target")
+        reports[fn] = report
+    if args.cg95:
+        for fn in functions:
+            reports[fn], traces[fn] = trace_report(ROOT, WORK, out, cfg, fn)
+    allowed = set().union(*(fun.uses for fun in functions.values()))
+    if manual - allowed:
+        raise ValueError("focus names absent from targets: " + ", ".join(sorted(manual - allowed)))
+    decisions = {}
+    for fn, fun in functions.items():
+        report = reports.get(fn)
+        named = focus_from_report(fun, report, traces.get(fn)) if report else set()
+        explicit = manual & fun.uses.keys()
+        guided = args.cg95 or args.cg95_explain or args.focus
+        chosen = named if named else explicit
+        decisions[fn] = {
+            "names": sorted(chosen) if guided else None,
+            "basis": ("trace" if named else "manual" if explicit else "unresolved" if guided else "unrestricted"),
+            "decision": report.get("first_attributed") if report else None,
+            "first_aligned_difference": report.get("first_aligned_difference") if report else None,
+            "classification": report.get("classification") if report else None,
+        }
+    return decisions
 
 
 def round_robin(iterators):
@@ -194,11 +218,14 @@ def round_robin(iterators):
 def proposals(src, targets, transforms, focus):
     streams = []
     for name in targets:
+        names = focus[name]["names"]
+        if names == []:
+            continue
         fun = src.function(name)
         for transform in transforms:
-            def stream(fun=fun, transform=transform):
+            def stream(fun=fun, transform=transform, names=names):
                 for edit in edits(fun, {transform}):
-                    if not focus or edit.variables & focus:
+                    if names is None or edit.variables.intersection(names):
                         if any(src.text[a:b] != text for a, b, text in edit.changes):
                             yield fun.name, edit
             streams.append(stream())
@@ -372,13 +399,13 @@ class Search:
         self.source_seen.add(sha256(original.encode("latin1")).digest())
         return Candidate(0, original, nt)
 
-    def trial(self, parent, fn, edit, macros, sensitive, original_locations):
+    def trial(self, parent, fn, edit, source_factory, sensitive, original_locations):
         text = edit.apply(parent.text)
         digest = sha256(text.encode("latin1")).digest()
         if digest in self.source_seen:
             return None
         self.source_seen.add(digest)
-        if original_locations and location_uses(Source(text, macros), sensitive) != original_locations:
+        if original_locations and location_uses(source_factory(text), sensitive) != original_locations:
             self.write_log({"host": "source", "parent": parent.id, "function": fn, "edits": edit.changes,
                             "transform": edit.kind, "skipped": "location-sensitive macro or #line would move"})
             return None
@@ -395,16 +422,16 @@ class Search:
         self.shortlist.sort(key=lambda c: (c.result.score, c.id))
         del self.shortlist[self.args.confirm:]
 
-    def run(self, original, macros, sensitive, transforms, focus):
+    def run(self, original, source_factory, sensitive, transforms, focus):
         baseline = self.baseline(original)
-        original_source = Source(original, macros)
+        original_source = source_factory(original)
         location = location_uses(original_source, sensitive)
         first = list(islice(proposals(original_source, self.args.functions, transforms, focus),
                             self.args.exhaustive_limit + 1))
         strategy = self.args.strategy
         if strategy == "auto":
             strategy = "exhaustive" if len(first) <= self.args.exhaustive_limit else "beam"
-        self.write_log({"event": "search", "strategy": strategy, "focus": sorted(focus),
+        self.write_log({"event": "search", "strategy": strategy, "focus": focus,
                         "protected_dos": sorted(self.protection["dos"]), "protected_nt": sorted(self.protection["nt"])})
         if not first:
             return strategy, "no applicable edits"
@@ -415,7 +442,7 @@ class Search:
         for depth in range(1, self.args.depth + 1):
             next_level = []
             for position, parent in enumerate(frontier):
-                src = original_source if parent.id == 0 else Source(parent.text, macros)
+                src = original_source if parent.id == 0 else source_factory(parent.text)
                 stream = proposals(src, self.args.functions, transforms, focus)
                 remaining = self.args.budget - self.nt_attempts
                 quota = remaining if strategy == "exhaustive" else max(
@@ -424,7 +451,7 @@ class Search:
                 for fn, edit in stream:
                     if self.nt_attempts >= self.args.budget or self.nt_attempts - started >= quota:
                         break
-                    candidate = self.trial(parent, fn, edit, macros, sensitive, location)
+                    candidate = self.trial(parent, fn, edit, source_factory, sensitive, location)
                     if not candidate:
                         continue
                     result = candidate.result
@@ -489,6 +516,7 @@ def main():
     parser.add_argument("--strategy", choices=("auto", "exhaustive", "greedy", "beam"), default="auto")
     parser.add_argument("--focus", help="comma-separated source identifiers to touch")
     parser.add_argument("--cg95-explain", type=Path, action="append", help="use named variables from explain95 JSON")
+    parser.add_argument("--cg95", action="store_true", help="trace and explain each target's allocation before searching")
     parser.add_argument("--budget", type=int, default=100, help="maximum NT variant compilations")
     parser.add_argument("--depth", type=int, default=2, help="maximum successive source edits")
     parser.add_argument("--beam-width", type=int, default=4)
@@ -497,6 +525,8 @@ def main():
     parser.add_argument("--keep-going", action="store_true", help="continue after all targets reach STRICT")
     args = parser.parse_args()
     args.functions = list(dict.fromkeys(args.functions))
+    if args.cg95 and args.cg95_explain:
+        parser.error("--cg95 and --cg95-explain are alternatives")
     transforms = NAMES if args.transforms == "all" else tuple(dict.fromkeys(args.transforms.split(",")))
     if not set(transforms) <= set(NAMES):
         parser.error("unknown transform: " + ", ".join(sorted(set(transforms) - set(NAMES))))
@@ -510,21 +540,25 @@ def main():
         data = cfg.source.read_bytes()
         original = data.decode("latin1")
         _, install = wcc.install(cfg.install)
-        macros, sensitive = macro_context(cfg.source, cfg.includes, install / "H", cfg.flags)
-        source = Source(original, macros)
-        focus = focus_names(args, source)
+        macros, sensitive, expansion, paths, storage = macro_context(cfg.source, cfg.includes, install / "H", cfg.flags)
+        objects, members = object_model(sorted(paths), macros, storage)
+
+        def source_factory(text):
+            return Source(text, macros, objects, members, expansion)
+
         out.mkdir(parents=True, exist_ok=False)
+        focus = focus_names(args, source_factory(original), cfg, out)
         dump_json(out / "run.json", {
             "unit": cfg.unit, "input": str(cfg.source), "input_sha256": sha256(data).hexdigest(),
             "targets": args.functions, "profile": cfg.profile, "install": cfg.install, "flags": cfg.flags,
             "include": list(map(str, cfg.includes)), "symbols": str(cfg.symbols) if cfg.symbols else None,
-            "transforms": transforms, "focus": sorted(focus), "strategy": args.strategy, "depth": args.depth,
+            "transforms": transforms, "focus": focus, "strategy": args.strategy, "depth": args.depth,
             "budget": args.budget, "beam_width": args.beam_width, "exhaustive_limit": args.exhaustive_limit,
             "confirm": args.confirm, "keep_going": args.keep_going,
         })
         with (out / "variants.jsonl").open("w", encoding="utf-8") as log:
             search = Search(args, cfg, out, log)
-            strategy, reason = search.run(original, macros, sensitive, transforms, focus)
+            strategy, reason = search.run(original, source_factory, sensitive, transforms, focus)
             search.finish(original, strategy, reason)
         print(f"{reason}; {search.nt_attempts} NT variants; results in {out}", flush=True)
     except (OSError, RuntimeError, ValueError, KeyError) as exc:

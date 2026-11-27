@@ -801,3 +801,9 @@ Each entry names the command or artefact that supports it.
   origins); nonsharedkeys 320 -> 31 and displayhighscores 544 -> 153 (glyph-width and shade locals); dobonus 2,275 ->
   1,483 with all 159 blocks matched; waitforeverybody exact size 1,952 (short ready counter); moveeffectors 14,096 ->
   14,028 (12 B over; wall bounds reused, promoted indices; 434 blocks matched); main 449 -> 441.
+- permute v2 (permute2, Codex, 2026-11-27; build/workers/permute2/REPORT.md): cg95-guided focus plus checked rewrites
+  for scope, live ranges, widths, address identity, temporaries, narrowing, parameter saves and store order.
+  Calibration: from their pre-fix sources it reproduces four STRICT matches that took a reasoning worker ~40 min
+  (gametext, getpackets, checkcommandline, cameratext; 2,608 B, DOS-confirmed); resetplayer stays at 133 bytes.
+  Live: setview 9 -> 8 bytes; checkhitswitch 2, hitradius 4, scansector 7, comsend 5 unchanged. Usage:
+  `python tools/permute/permute.py UNIT FUNC --cg95 --out DIR`.

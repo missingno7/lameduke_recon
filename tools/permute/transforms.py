@@ -6,7 +6,8 @@ from math import factorial, prod
 from c_subset import ASSIGN, PRECEDENCE, UPDATE, CType, Expressions, bare, expr_walk, fits, pure
 
 
-NAMES = ("decl", "scope", "types", "temp", "commute", "statements", "loops", "chain", "updates")
+NAMES = ("decl", "scope", "types", "ranges", "address", "temp", "narrow", "save",
+         "commute", "statements", "loops", "chain", "updates")
 REVERSE = {"<": ">", ">": "<", "<=": ">=", ">=": "<="}
 COMMUTATIVE = {"+", "*", "&", "|", "^", "==", "!="}
 
@@ -37,7 +38,7 @@ def decl_runs(fun):
             continue
         run = []
         for child in block.children:
-            if child.decl and fun.src.uncommented(child.a, child.b):
+            if child.decl and not child.decl.initializer and fun.src.uncommented(child.a, child.b):
                 if run and not fun.src.uncommented(run[-1].stmt.a, child.b):
                     yield run
                     run = []
@@ -191,7 +192,7 @@ def fold_while(fun):
         if update.op not in ASSIGN | UPDATE or not independent(update):
             continue
         variables = identifiers(fun, update)
-        if any(fun.locals[n][0].stmt.a >= body.a for n in variables):
+        if any(n in fun.locals and fun.locals[n][0].stmt.a >= body.a for n in variables):
             continue
         header = f"for ({src.raw(*before.parts[0])}; {src.raw(*loop.parts[0])}; {src.raw(*step.parts[0])})"
         yield Edit("loops", "fold preceding init and loop tail into for",
@@ -254,7 +255,7 @@ class Effects:
     def closed_uses(self, name, decl_index):
         # No hidden macro use, address taking, sizeof, unknown declarator or
         # other unmodelled reference may survive a type/scope change.
-        if self.fun.has_macros:
+        if not self.fun.editable_name(name):
             return None
         uses = []
         for node, part, expr in self.entries:
@@ -273,38 +274,15 @@ class Effects:
             uses = self.closed_uses(name, index)
             if not uses:
                 continue
-            if "scope" in enabled:
-                yield from self.move_scope(name, decl, index, uses)
             if "types" in enabled:
                 yield from self.change_type(name, decl, index, uses)
 
-    def move_scope(self, name, decl, index, uses):
-        if any(node.kind in ("goto", "label") for node in self.fun.nodes):
-            return
-        source_block = decl.stmt.parent
-        within = [node for node in descendants(source_block) if node.kind == "{"]
-        outer = source_block.parent
-        while outer and outer.kind != "{":
-            outer = outer.parent
-        if outer:
-            within.append(outer)
-        for dest in within:
-            if not all(dest.a < atom.a < dest.b for _, _, _, atom in uses):
-                continue
-            # Shortening a lifetime across a loop could discard a value kept
-            # from the previous iteration. Also refuse the inverse move.
-            inner, outer = (dest, source_block) if dest.a > source_block.a else (source_block, dest)
-            cursor = inner.parent
-            while cursor != outer and cursor.kind not in ("while", "for", "do"):
-                cursor = cursor.parent
-            if cursor != outer:
-                continue
-            old = replacement(self.src, decl.stmt.a, decl.stmt.b, declaration_without(self.fun, decl, index))
-            new = declaration_insert(self.src, dest, f"{decl.spec} {name};")
-            yield Edit("scope", f"move {name} to block at token {dest.a}", frozenset([name]), (old, new))
-
     def change_type(self, name, decl, index, uses):
-        writes, reads = [], []
+        parser = Expressions(self.fun, objects=True)
+        initial = parser.parse(decl.initializer) if decl.initializer else None
+        if decl.initializer and (not initial or not initial.bounds):
+            return
+        writes, reads = ([initial.bounds] if initial else []), []
         for node, part, expr, atom in uses:
             # Match complete value contexts; assignment expressions and updates
             # whose results are consumed are deliberately outside this proof.
@@ -321,6 +299,8 @@ class Effects:
         if not writes:
             return
         old = decl.ctype
+        if old.unsigned is None:
+            return
         others = declaration_without(self.fun, decl, index)
         sep = self.src.nl + self.src.indent(decl.stmt.a)
         storage = "register " if "register" in decl.spec.split() else ""
@@ -328,12 +308,13 @@ class Effects:
             typ = CType(rank, unsigned)
             if typ == old or not all(fits(bounds, old) and fits(bounds, typ) for bounds in writes):
                 continue
-            declaration = f"{storage}{typ.spelling} {name};"
+            value = f" = {self.src.raw(*decl.initializer)}" if decl.initializer else ""
+            declaration = f"{storage}{typ.spelling} {name}{value};"
             edits = [replacement(self.src, decl.stmt.a, decl.stmt.b,
                                  others + sep + declaration if others else declaration)]
             # A cast back to the old value type preserves the usual arithmetic
             # conversions and the type observed by every modelled consumer.
-            if typ.promoted != old.promoted:
+            if typ != old:
                 edits.extend(replacement(self.src, r.a, r.b, f"(({old.spelling}){name})") for r in reads)
             yield Edit("types", f"{name}: {old.spelling} to {typ.spelling}", frozenset([name]), tuple(edits))
 
@@ -359,10 +340,13 @@ class Effects:
         dest, value = left.children
         dest = bare(dest)
         name = src.values[dest.a]
+        if name not in self.fun.locals:
+            return
         decl, index = self.fun.locals[name]
         value_context = right.children[1] if discard_assignment(right) else right
         sites = [e for e in expr_walk(value_context) if e.op == "id" and src.values[e.a] == name]
-        if len(sites) != 1 or self.fun.has_macros or not src.uncommented(decl.stmt.a, decl.stmt.b):
+        if (len(sites) != 1 or decl.initializer or not self.fun.editable_name(name)
+                or not src.uncommented(decl.stmt.a, decl.stmt.b)):
             return
         use, = sites
         if self.fun.uses[name] != {index, dest.a, use.a}:
@@ -465,20 +449,22 @@ def operand(src, expr, minimum):
 
 def unconditional(expr):
     yield expr
-    for child in expr.children[:1] if expr.op in ("&&", "||") else expr.children:
+    for child in expr.children[:1] if expr.op in ("&&", "||", "conditional") else expr.children:
         yield from unconditional(child)
 
 
 def edits(fun, enabled):
+    from allocation import allocation_edits
+
     if "decl" in enabled:
         yield from declaration_edits(fun)
     if "loops" in enabled:
         yield from loop_edits(fun)
-    if fun.opaque_macro_statement:
-        return
-    if enabled - {"decl", "loops"}:
+    if enabled & {"scope", "ranges", "address", "temp", "narrow", "save", "statements", "chain"}:
+        yield from allocation_edits(fun, enabled)
+    if not fun.opaque_macro_statement and enabled & {"types", "temp", "commute", "statements", "chain", "updates"}:
         effects = Effects(fun)
-        if enabled & {"scope", "types"}:
+        if "types" in enabled:
             yield from effects.scoped_edits(enabled)
         if enabled & {"temp", "statements"}:
             yield from effects.neighbouring_edits(enabled)
