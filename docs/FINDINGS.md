@@ -1269,3 +1269,15 @@ Each entry names the command or artefact that supports it.
   before the packet-byte temporary gets ESI, so ECX wins 2-0; staging the player index fixes it but costs main 6
   blocks. Parked with the allocation-tie class. moveeffectors 436/492 on a branch (+47 B); displayrooms' +32 B extent:
   31 B accumulate inside its inlined drawmasks-related code.
+- SECTOR round 5: unit 1,146 -> 1,170 blocks (operateactivators 121 -> 137 by staging the downward elevator's signed
+  speed and assigning both inactive case-22 goals in their branches; checksectors 315 at exact extent).
+- PLAYER: processinput 391/422 (15,691 B, 1 B short; all STRICT kept); fifth findplayer spill +0xfc vs +0x108.
+- GAMEDEF r2: a bound IFDEAD form reproduces the first 1,619 bytes of parse exactly (101 references, 82 fixup sites;
+  opcode read at 1:30ced before storing insptr) but loses blocks later (189/202); first difference moves to CACTOR at
+  1:30f03. Not integrated (net blocks lower); build/workers/u-gamedef/r2/.
+- cevidence (evidence cards, build/workers/cevidence/{CARDS.md,card.py,REPORT.md}): 4/4 historical controls replayed to
+  STRICT with cards pointing at the right regions (retrospective). Live: cards produce correct LOCAL hypotheses
+  (moveactors scoped short +2 exact blocks; checksectors reset cursor +6 camera blocks, EAX->EDX confirmed by cg95) but
+  whole-function pairing falls (moveactors 388 -> 315 exact normalized; checksectors 313 -> 289): local fixes perturb
+  the function-wide allocation. Recommended card: 6-10 lines (named dataflow, one concrete difference, one precedent
+  or trace, two DOS-tested hypotheses). Verdict: useful orientation for workers; not a source of gains by itself.

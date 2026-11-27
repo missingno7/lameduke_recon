@@ -556,11 +556,11 @@ void processinput(short snum)
     long xvect;
     long doubvel;
     long cz;
-    long hz;
+    short psectlotag;
     long wpos;
     short i;
     long lz;
-    short psectlotag;
+    long hz;
     long tics2;
     long eye;
 
@@ -732,8 +732,8 @@ void processinput(short snum)
     }
     if (cz + 4096 > ps[snum].posz) {
         ps[snum].posz = cz + 4096;
-        ps[snum].jumping_counter = 0;
         ps[snum].poszv = 512;
+        ps[snum].jumping_counter = 0;
     }
     ps[snum].posz += ps[snum].poszv;
 
