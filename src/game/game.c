@@ -1607,7 +1607,14 @@ void main(int argc, char **argv)
     puts(main_init_engine);
     initmenus();
     initengine();
-    inittimer();
+    /* PIT and vector setup follows Ken's buil0723 GAME.C inittimer (1995, lines 4128-4133). */
+    outp(0x43, 54);
+    outp(0x40, 9942 & 255);
+    outp(0x40, 9942 >> 8);
+    oldtimerhandler = _dos_getvect(8);
+    _disable();
+    _dos_setvect(8, timerhandler);
+    _enable();
     puts(main_multiplayer);
     initmultiplayers(option[4], option[5]);
     puts(main_loading_art);
@@ -1937,7 +1944,6 @@ void dobonus(void)
     long pct;
     short start;
     short pulse; /* COMPILER_STEERED: keep the pulse in a word before taking its low byte. */
-    short i;
     short shade;
 
     start = totalclock;
@@ -1958,13 +1964,21 @@ void dobonus(void)
             break;
         }
         gametext(36, 160, bonus_press_space, shade);
-        for (i = 0; i < ps[0].level; i++) {
-            short row = bonus_xy[ps[0].volume][i * 2 + 1];
+        {
+            short i;
 
-            overwritesprite(bonus_xy[ps[0].volume][i * 2], row, 1133, shade, 0, 0);
+            for (i = 0; i < ps[0].level; i++) {
+                short row = bonus_xy[ps[0].volume][i * 2 + 1];
+
+                overwritesprite(bonus_xy[ps[0].volume][i * 2], row, 1133, shade, 0, 0);
+            }
+            {
+                short row = bonus_xy[ps[0].volume][i * 2 + 1];
+                short col = bonus_xy[ps[0].volume][i * 2];
+
+                overwritesprite(col, row, 1134, shade, 0, 0);
+            }
         }
-        overwritesprite(bonus_xy[ps[0].volume][i * 2], bonus_xy[ps[0].volume][i * 2 + 1],
-                        1134, shade, 0, 0);
         if (ps[myconnectindex].gm == MODE_EOL) {
             gametext(32, 10, bonus_title, 0);
             if (start + 240 < totalclock) {
