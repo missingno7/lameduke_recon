@@ -644,3 +644,9 @@ Each entry names the command or artefact that supports it.
   Restored hit-result branches and the shoot/sound arguments in execute; reusing `j` for visibility restores parse's
   entry allocation.
 - NEGATIVE explicit inventory tails and movement declaration variants.
+
+## PLAYER follow-up (r5cx-player-2, Codex, 2026-11-27; build/workers/r5cx-player/followup/NOTES.md, integrated)
+- PROVEN shoot STRICT (+1,728 B) after saving the pre-decrement z and ordering the scoped locals; player.h declares
+  `EGS` returning int (implicit-int call of an unprototyped function; GAME's definition returns short). PLAYER 5/8.
+- processinput regains the bullet-frame reload and separate air-reset stores: 15,649 of 15,692 B, content .603 ->
+  .661, fuzzy .906 -> .945 (frame 0x104 vs 0x110). spawn_pistol_tracer content .035 -> .138, fuzzy .789 -> .910.

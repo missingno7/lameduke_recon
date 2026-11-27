@@ -43,22 +43,33 @@ void kickview(short snum, short i)
 /* Pistol laser sight: hitscan along the gun's aim and place a one-frame LASERSITE dot at the hit point. */
 void spawn_pistol_tracer(short snum)
 {
-    short hitspr, hitwall, hitsect, i;
+    /* COMPILER_STEERED: local order for the hitscan argument homes. */
+    short hitspr;
+    short hitwall;
+    short hitsect;
+    short i;
+    long hitx;
+    long hity;
+    long hitz;
+    long sx;
+    long sz;
     long sa;
-    long hitz, hity, hitx;
     unsigned char weapon_pos;
-    long sz, sx;
+    long sy;
+    long dz;
 
+    sx = ps[snum].posx;
+    sy = ps[snum].posy;
     weapon_pos = ps[snum].weapon_pos & 127;
     sz = ps[snum].posz - (weapon_pos << 10) + 5376;
-    sx = ps[snum].posx;
     sa = ps[snum].ang - 16 + ((6 - weapon_pos) << 4);
+    dz = (100 - ps[snum].horiz) << 11;
     hitscan(sx + (sintable[(sa + 512) & 2047] >> 8),
-        ps[snum].posy + (sintable[sa & 2047] >> 8),
+        sy + (sintable[sa & 2047] >> 8),
         sz, ps[snum].cursectnum,
         sintable[(sa + (syncangvel[snum] >> 3) + 512) & 2047],
         sintable[(sa + (syncangvel[snum] >> 3)) & 2047],
-        (100 - ps[snum].horiz) << 11, &hitsect, &hitwall, &hitspr,
+        dz, &hitsect, &hitwall, &hitspr,
         &hitx, &hity, &hitz);
 
     sa += 1024;
@@ -81,18 +92,14 @@ void shoot(short i, short atwith, unsigned char impact)
 {
     /* COMPILER_STEERED: declaration order (stack homes); p is long (the oracle
        uses the sign-extended yvel directly). */
+    short hitspr;
+    short hitwall;
+    long sx;
+    long sy;
+    long sz;
+    long j;
     long distance;
     short sect;
-    short sa;
-    short hitspr;
-    long sy;
-    long j;
-    long sz;
-    short hitwall;
-    long zvel;
-    long p;
-    long sx;
-
     if (impact) {
         hitscan(sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum,
             sintable[(sprite[i].ang + 512) & 2047], sintable[sprite[i].ang & 2047], 0,
@@ -111,74 +118,86 @@ void shoot(short i, short atwith, unsigned char impact)
         return;
     }
 
-    if (sprite[i].picnum == APLAYER) {
-        sx = ps[sprite[i].yvel].posx + (syncangvel[sprite[i].yvel] >> 4);
-        sy = ps[sprite[i].yvel].posy + (syncangvel[sprite[i].yvel] >> 4);
-        sz = ps[sprite[i].yvel].posz + 3584;
-        sa = ps[sprite[i].yvel].ang - 8;
-        if (atwith == RPG)
-            sa += ps[sprite[i].yvel].look_ang;
-        sect = ps[sprite[i].yvel].cursectnum;
-        ps[sprite[i].yvel].fire_flag = 1;
-        switch (atwith) {
-        case SHOTSPARK1:
-            zvel = (100 - ps[sprite[i].yvel].horiz) * 31;
-            break;
-        case RPG:
-            zvel = (100 - ps[sprite[i].yvel].horiz) * 15;
-            sz -= 1536;
-            break;
-        default:
-            zvel = (100 - ps[sprite[i].yvel].horiz) * 22;
+    /* COMPILER_STEERED: scope and order for the firing locals. */
+    {
+        short sa;
+        long zvel;
+        long p;
+
+        if (sprite[i].picnum == APLAYER) {
+            sx = ps[sprite[i].yvel].posx + (syncangvel[sprite[i].yvel] >> 4);
+            sy = ps[sprite[i].yvel].posy + (syncangvel[sprite[i].yvel] >> 4);
+            sz = ps[sprite[i].yvel].posz + 3584;
+            sa = ps[sprite[i].yvel].ang - 8;
+            if (atwith == RPG)
+                sa += ps[sprite[i].yvel].look_ang;
+            sect = ps[sprite[i].yvel].cursectnum;
+            ps[sprite[i].yvel].fire_flag = 1;
+            switch (atwith) {
+            case SHOTSPARK1:
+                zvel = (100 - ps[sprite[i].yvel].horiz) * 31;
+                break;
+            case RPG:
+                zvel = (100 - ps[sprite[i].yvel].horiz) * 15;
+                sz -= 1536;
+                break;
+            default:
+                zvel = (100 - ps[sprite[i].yvel].horiz) * 22;
+                break;
+            }
+            if (ps[sprite[i].yvel].holoduke_on)
+                sprite[ps[sprite[i].yvel].holoduke_on].shade = 0;
+        } else {
+            sx = sprite[i].x;
+            sy = sprite[i].y;
+            sz = sprite[i].z - 8192;
+            sa = sprite[i].ang;
+            p = findplayer(i, &distance);
+            zvel = ((ps[p].posz - sprite[i].z) << 7)
+                / (klabs(sprite[ps[p].i].x - sprite[i].x) + klabs(sprite[ps[p].i].y - sprite[i].y));
+            sect = sprite[i].sectnum;
+        }
+
+        switch (atwith & 0xffff) {
+        case CLUB: {
+            long old_sz;
+
+            sx += sintable[(sa + 544) & 2047] >> 7;
+            sy += sintable[(sa + 32) & 2047] >> 7;
+            /* EGS receives the height before this decrement. */
+            old_sz = sz;
+            sz -= 2048;
+            j = EGS(sect, sx, sy, old_sz, 0, 46, -16, 0, 0, sa, 32, 0, i, 4);
+            if (actorscrptr[CLUB])
+                sprite[i].extra = *actorscrptr[CLUB];
             break;
         }
-        if (ps[sprite[i].yvel].holoduke_on)
-            sprite[ps[sprite[i].yvel].holoduke_on].shade = 0;
-    } else {
-        sx = sprite[i].x;
-        sy = sprite[i].y;
-        sz = sprite[i].z - 8192;
-        sa = sprite[i].ang;
-        p = findplayer(i, &distance);
-        zvel = ((ps[p].posz - sprite[i].z) << 7)
-            / (klabs(sprite[ps[p].i].x - sprite[i].x) + klabs(sprite[ps[p].i].y - sprite[i].y));
-        sect = sprite[i].sectnum;
-    }
-
-    switch (atwith & 0xffff) {
-    case CLUB:
-        sx += sintable[(sa + 544) & 2047] >> 7;
-        sy += sintable[(sa + 32) & 2047] >> 7;
-        j = EGS(sect, sx, sy, sz, 0, 46, -16, 0, 0, sa, 32, 0, i, 4);
-        sz -= 2048;
-        if (actorscrptr[CLUB])
-            sprite[i].extra = *actorscrptr[CLUB];
-        break;
-    case SHOTSPARK1:
-        sa -= 8;
-        hitscan(sx, sy, sz, sect, sintable[(sa + 512) & 2047],
-            sintable[sa & 2047], zvel << 6, &sect, &hitwall, &hitspr, &sx, &sy, &sz);
-        spritesound(31, i);
-        if (sector[sect].ceilingz + 1024 > sz)
-            sz = sector[sect].ceilingz + 2048;
-        if (sprite[i].picnum == APLAYER) {
-            sprite[EGS(sect, sx, sy, sz - 2816, 0, OTHERSHOTSPARK, -16, 10, 10, sa, 64, zvel, i, 4)].yvel = hitwall;
-        } else
-            EGS(sect, sx, sy, sz - 2304, 0, SHOTSPARK1, -16, 16, 16, sa, 64, zvel, i, 4);
-        break;
-    case BULLET:
-        spritesound(1, i);
-        spritesound(24, i);
-        EGS(sect, sx + (sintable[(sa + 512) & 2047] >> 6),
-            sy + (sintable[sa & 2047] >> 6), sz - 2048,
-            1, BULLET, -127, 12, 12, sa, 0, zvel, i, 4);
-        break;
-    case RPG:
-        spritesound(38, i);
-        EGS(sect, sx + (sintable[(sa + 640) & 2047] >> 5),
-            sy + (sintable[(sa + 128) & 2047] >> 5), sz - 2304,
-            65, RPG, -16, 16, 16, sa, 0, zvel, i, 4);
-        break;
+        case SHOTSPARK1:
+            sa -= 8;
+            hitscan(sx, sy, sz, sect, sintable[(sa + 512) & 2047],
+                sintable[sa & 2047], zvel << 6, &sect, &hitwall, &hitspr, &sx, &sy, &sz);
+            spritesound(31, i);
+            if (sector[sect].ceilingz + 1024 > sz)
+                sz = sector[sect].ceilingz + 2048;
+            if (sprite[i].picnum == APLAYER) {
+                sprite[(short)EGS(sect, sx, sy, sz - 2816, 0, OTHERSHOTSPARK, -16, 10, 10, sa, 64, zvel, i, 4)].yvel = hitwall;
+            } else
+                EGS(sect, sx, sy, sz - 2304, 0, SHOTSPARK1, -16, 16, 16, sa, 64, zvel, i, 4);
+            break;
+        case BULLET:
+            spritesound(1, i);
+            spritesound(24, i);
+            EGS(sect, sx + (sintable[(sa + 512) & 2047] >> 6),
+                sy + (sintable[sa & 2047] >> 6), sz - 2048,
+                1, BULLET, -127, 12, 12, sa, 0, zvel, i, 4);
+            break;
+        case RPG:
+            spritesound(38, i);
+            EGS(sect, sx + (sintable[(sa + 640) & 2047] >> 5),
+                sy + (sintable[(sa + 128) & 2047] >> 5), sz - 2304,
+                65, RPG, -16, 16, 16, sa, 0, zvel, i, 4);
+            break;
+        }
     }
 }
 
@@ -518,17 +537,17 @@ void processinput(short snum)
 {
     /* COMPILER_STEERED: local order for Watcom's allocation and stack homes. */
     long wpos;
-    long fz;
-    long lz;
-    long hz;
-    long tics2;
-    long xvect;
-    long yvect;
     long doubvel;
+    long xvect;
     long cz;
-    long eye;
+    long fz;
+    long tics2;
+    long hz;
+    long lz;
     short i;
     short psectlotag;
+    long yvect;
+    long eye;
 
     if (ps[snum].health <= 0) {
         if ((sector[ps[snum].cursectnum].lotag & 0x7FFF) == 2) {
@@ -682,10 +701,12 @@ void processinput(short snum)
         }
     }
     if (ps[snum].jumping_counter) {
+        short jump = ps[snum].jumping_counter;
+
         ps[snum].bobcounter = 1024;
-        if (ps[snum].jumping_counter < 1024) {
+        if (jump < 1024) {
             ps[snum].on_ground = 0;
-            ps[snum].poszv -= sintable[ps[snum].jumping_counter] >> 5;
+            ps[snum].poszv -= sintable[jump] >> 5;
             ps[snum].jumping_counter += 92;
         } else {
             ps[snum].jumping_counter = 0;
@@ -771,7 +792,7 @@ domove:
     } else if (syncbits[snum] & SB_LOOK_DOWN) {
         ps[snum].horiz -= 48;
     }
-    if (ps[snum].hard_landing) {
+    if (ps[snum].hard_landing > 0) {
         ps[snum].hard_landing--;
         ps[snum].horiz -= 13 * ps[snum].hard_landing;
     }
@@ -807,12 +828,15 @@ domove:
         if ((ps[snum].weapon_pos & 0x7F) != 6)
             ps[snum].weapon_pos = 0x81;
         switch (ps[snum].current_weapon) {
-        case SHOTSPARK1:
-            if (ps[snum].ammo_amount > 0) {
+        case SHOTSPARK1: {
+            short ammo = ps[snum].ammo_amount;
+
+            if (ammo > 0) {
                 ps[snum].kickback_pic = 1;
-                ps[snum].ammo_amount--;
+                ps[snum].ammo_amount = ammo - 1;
             }
             break;
+        }
         case BULLET:
             if (ps[snum].ammo_bat_amount > 0) {
                 ps[snum].kickback_pic = 2;
@@ -879,7 +903,8 @@ domove:
             ps[snum].kickback_pic = 0;
         break;
     case BULLET:
-        if (++ps[snum].kickback_pic >= 6)
+        ps[snum].kickback_pic++;
+        if (ps[snum].kickback_pic >= 6)
             ps[snum].kickback_pic = 0;
         if (ps[snum].kickback_pic == 3) {
             shoot(ps[snum].i, BULLET, 0);

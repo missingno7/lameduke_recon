@@ -36,7 +36,8 @@ extern void myos();
 extern void getmousevalues(short *x, short *y, short *buttons);
 extern void hitscan(long x, long y, long z, short sectnum, long xv, long yv, long zv,
     short *hitsect, short *hitwall, short *hitsprite, long *hitx, long *hity, long *hitz);
-extern short EGS();
+/* COMPILER_STEERED: CLUB keeps the full return register in its unused local. */
+extern int EGS();
 extern long setsprite(short i, long x, long y, long z);
 extern long checkhitceiling(short sect);
 extern void checkhitswitch(short wall);

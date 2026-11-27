@@ -2251,7 +2251,7 @@
      "status": "NEAR_MATCH"
     },
     "shoot": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "displayweapon": {
      "status": "NEAR_MATCH"
