@@ -675,3 +675,7 @@ Each entry names the command or artefact that supports it.
   stack-slot displacements left. moveactors frame 0x4c -> 0x48 (oracle), four case targets exact (deltas +1,+1,-3,-3),
   byte differences 7,949 -> 6,141. spawn: repeat-store and declaration order, content .705 -> .789 (252/276 blocks).
 - NEGATIVE the slime cstat temporary reproduces the byte load/OR/store in isolation but shifts case targets.
+- SECTOR follow-up 3 (r5cx-sector-4): checkhitswitch 6 -> 2 differing bytes (content/fuzzy 1.000): a signed byte
+  offset raises the priority of both inlined master-switch conversions and selects the oracle's EAX; case 405 still
+  selects EAX where the oracle uses ECX. checkhitwall unchanged at 78 bytes (two glass arms match in isolation;
+  combined they shift neighbouring code).

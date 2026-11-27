@@ -619,7 +619,9 @@ void operatemasterswitches(short low)
 {
     short i;
 
-    for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nextspritestat[i])
+    /* COMPILER_STEERED: use a signed byte offset in the inlined list walks. */
+    for (i = headspritestat[STAT_ACTOR]; i >= 0;
+         i = *(short *)((char *)&nextspritestat + ((long)i + i)))
         if (sprite[i].picnum == MASTERSWITCH && sprite[i].lotag == low && sprite[i].yvel == 0)
             sprite[i].yvel = 1;
 }
