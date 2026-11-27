@@ -61,6 +61,5 @@ void prelevel(void);
 void newgame(unsigned char episode, unsigned char level, unsigned char skill);
 void enterlevel(unsigned char mode);
 short newscore(void);
-unsigned char getscorename(short row);
 
 #endif

@@ -55,7 +55,7 @@ extern short moustat, menu_mouse, menu_previous_buttons, menu_drag, menu_x, menu
 
 extern long reccnt;
 extern signed char syncangvel[], syncsvel[], syncvel[];
-extern long syncbits[];
+extern unsigned long syncbits[];
 extern unsigned char synctics;
 extern signed char recsyncangvel[16384], recsyncsvel[16384], recsyncvel[16384];
 extern long recsyncbits[16384];
@@ -140,7 +140,7 @@ extern void call_level_load_hook(char *name);
 extern short disable_armor;
 extern unsigned char level_tick_state;
 extern signed char osyncvel[17], osyncsvel[17], osyncangvel[17];
-extern long osyncbits[17];
+extern unsigned long osyncbits[17];
 extern struct sound_voice sound_voices[39];
 
 /* Inline Build helpers from the historical PRAGMAS.H. */
@@ -560,12 +560,11 @@ void sync(void)
                     tempbuf[k >> 3] |= (4 << (k & 7));
                 }
                 if (syncbits[i] != osyncbits[i]) {
-                    tempbuf[j] = syncbits[i];
-                    tempbuf[j + 1] = (syncbits[i] >> 8) & 255;
-                    tempbuf[j + 2] = (syncbits[i] >> 16) & 255;
-                    tempbuf[j + 3] = (syncbits[i] >> 24) & 255;
+                    tempbuf[j++] = (syncbits[i] & 255);
+                    tempbuf[j++] = ((syncbits[i] >> 8) & 255);
+                    tempbuf[j++] = ((syncbits[i] >> 16) & 255);
+                    tempbuf[j++] = ((syncbits[i] >> 24) & 255);
                     osyncbits[i] = syncbits[i];
-                    j += 4;
                     tempbuf[k >> 3] |= (8 << (k & 7));
                 }
                 k += 4;
@@ -573,8 +572,7 @@ void sync(void)
             for (i = connecthead; i >= 0; i = connectpoint2[i])
                 if (i != myconnectindex)
                     sendpacket(i, (unsigned char *)tempbuf, j);
-        domovethings();
-            synctics = 0;
+            domovethings();
         }
     } else {
         getinput(16);
@@ -630,7 +628,7 @@ long next_text_shade(void)
     return shade + 16;
 }
 
-extern unsigned char getscorename(short row);
+extern int getscorename();
 extern short newscore(void);
 
 /* Draw the chat message and the active help quote, decrementing their timers. Later Duke: operatefta(). */
@@ -1559,7 +1557,7 @@ void main(int argc, char **argv)
 {
     unsigned char which;
     short status;
-    long i, j, k;
+    short i, j, k;
     short p, offset;
     unsigned char shade;
     short x, y;
@@ -1622,7 +1620,8 @@ void main(int argc, char **argv)
 attract:
     if (warp_on == 0)
         playback();
-    warp_on = 0;
+    else
+        warp_on = 0;
 
 play:
     while ((ps[myconnectindex].gm & MODE_END) == 0) {

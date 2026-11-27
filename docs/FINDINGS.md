@@ -564,3 +564,18 @@ Each entry names the command or artefact that supports it.
   getpacket recover their exact extents (1,054 / 1,424 B). MULTI 18 -> 20/25. sendpacket content .354 -> .943.
   Two steered forms marked (sequence step `+ 254` on a byte; ring mask on the short index).
 - Engine: neartag 222 -> 202 and makepalookup 306 -> 194 differing bytes (no STRICT change).
+
+## GAME round 4 (r4game, 2026-11-27; build/workers/r4game/NOTES.md, integrated)
+- No STRICT change (31/49); main 3477 -> 1891 and sync 1685 -> 1319 differing bytes (sizes exact); NEAR total
+  24,685 -> 22,733. Ordinary C read off the oracle's dataflow (no steering):
+  syncbits/osyncbits `unsigned long` in game.c (oracle shifts with shr; the other game units already declare them
+  unsigned); sync master sends the four syncbits bytes as four `tempbuf[j++] = (... & 255)` statements (Ken's 1994
+  form extended); no `synctics = 0;` after domovethings() (domovethings clears it); main `short i, j, k;`;
+  `attract: if (warp_on == 0) playback(); else warp_on = 0;`.
+- STRONG GAME calls getscorename without a prototype (`extern int getscorename();`; prototype removed from game.h):
+  main tests EAX after the call while getscorename itself returns only `setne al` (same pattern as strget).
+- Levers not adopted: gamenumber's swapped left/ac stack slots need one anonymous temp fewer (or one late);
+  2 of 16 getpackets bit-test orders make waitforeverybody exact size but break wait_for_players (STRICT);
+  `hudpulse += 128` helps update_menu_cursor/dobonus but costs cameratext/main.
+- NEGATIVE ~870 gametext variants (local names have no effect), update_menu_cursor shade forms, lotsofglass/EGS
+  store orders, displayrooms ang/look_ang operand swap (identical code), main declaration-order search (timed out).
