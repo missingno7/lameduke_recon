@@ -1047,3 +1047,13 @@ Each entry names the command or artefact that supports it.
   advance in each branch lets Watcom merge the tails — the flip set t27 -> EDX realised naturally). MULTI 22/25.
 - neton 298 -> 10 (two initialisation loops differ in register choice; all fixups verify); sendpacket 128 -> 61 (all
   50 blocks; separate timeout, Ken's CRC high-byte expression); getpacket 695 -> 499.
+
+## Unit-wide flag and type audit (levers, Codex, 2026-11-27; build/workers/levers/NOTES.md) — NEGATIVE
+- Constraint: options per translation unit only, historically plausible (AGENTS.md). 523 NT flag variants and 22 DOS
+  controls over game, premap, sector, player, actors, gamedef and engine: no option set preserves every STRICT
+  function and improves the NEAR functions. -5r cuts STRICT 179 -> 33 (game units are -4r, unlike MULTI); -ol is
+  neutral for the game units and cuts ENGINE 88 -> 26. Current profiles confirmed.
+- 32 DOS type controls: none qualifies (volatile wall.cstat gives word accesses in getcliplines/getzrange but costs 17
+  ENGINE STRICT; signed sector wall indices cost 2 SECTOR + 15 ENGINE). 8,850 oracle accesses traced; 281 lack a typed
+  binding and 273 memory operands an anchor (field attribution incomplete, OPEN).
+- Conclusion: the large functions' low register agreement is not a hidden unit-wide flag or struct-width cause.
