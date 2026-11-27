@@ -1038,6 +1038,66 @@
   },
   "leads": {
    "angr_dsurvey": "angr source inspected online at v9.2.42, not acquired or installed. call_state/SimCC and VEX/AIL VariableRecoveryFast are relevant. https://docs.angr.io/en/v9.2.42/_modules/angr/factory.html and https://docs.angr.io/en/v9.2.42/_modules/angr/analyses/variable_recovery/variable_recovery_fast.html"
+  },
+  "gh-matteo-pacini_theme-hospital-decomp": {
+   "url": "https://github.com/matteo-pacini/theme-hospital-decomp.git",
+   "commit": "7993814a4f562a1898b20621dbfa60644f9697d7",
+   "path": "external/gh/matteo-pacini_theme-hospital-decomp",
+   "relevance": "decompilation research survey 2026-11-28 (build/workers/dsurvey/REPORT.md): no direct gain; D-helix point-wise equivalence idea ported as an experiment"
+  },
+  "gh-ayrtondenner_ReverseApoc": {
+   "url": "https://github.com/ayrtondenner/ReverseApoc.git",
+   "commit": "1a8c04e4527466776b807d584a9a63dfb1560231",
+   "path": "external/gh/ayrtondenner_ReverseApoc",
+   "relevance": "decompilation research survey 2026-11-28 (build/workers/dsurvey/REPORT.md): no direct gain; D-helix point-wise equivalence idea ported as an experiment"
+  },
+  "gh-nemo22_retrokit": {
+   "url": "https://github.com/nemo22/retrokit.git",
+   "commit": "7625c6b6a1f29d4793bc528c31621cd9ef784b1d",
+   "path": "external/gh/nemo22_retrokit",
+   "relevance": "decompilation research survey 2026-11-28 (build/workers/dsurvey/REPORT.md): no direct gain; D-helix point-wise equivalence idea ported as an experiment"
+  },
+  "gh-victor-zinkv_wcdctool": {
+   "url": "https://github.com/victor-zinkv/wcdctool.git",
+   "commit": "d9d903be500b02eb96a3b4b4c392830a84f564d3",
+   "path": "external/gh/victor-zinkv_wcdctool",
+   "relevance": "decompilation research survey 2026-11-28 (build/workers/dsurvey/REPORT.md): no direct gain; D-helix point-wise equivalence idea ported as an experiment"
+  },
+  "gh-purseclab_D-helix": {
+   "url": "https://github.com/purseclab/D-helix.git",
+   "commit": "fda23efff257674ef8f09afd96b13450b043bb7d",
+   "path": "external/gh/purseclab_D-helix",
+   "relevance": "decompilation research survey 2026-11-28 (build/workers/dsurvey/REPORT.md): no direct gain; D-helix point-wise equivalence idea ported as an experiment"
+  },
+  "gh-GrammaTech_retypd": {
+   "url": "https://github.com/GrammaTech/retypd.git",
+   "commit": "8f7f72be9a567731bb82636cc91d70a3551050bf",
+   "path": "external/gh/GrammaTech_retypd",
+   "relevance": "decompilation research survey 2026-11-28 (build/workers/dsurvey/REPORT.md): no direct gain; D-helix point-wise equivalence idea ported as an experiment"
+  },
+  "gh-GrammaTech_retypd-ghidra-plugin": {
+   "url": "https://github.com/GrammaTech/retypd-ghidra-plugin.git",
+   "commit": "814bbe20cf4e52ac6e4e798c71fb49b6ff835cd5",
+   "path": "external/gh/GrammaTech_retypd-ghidra-plugin",
+   "relevance": "decompilation research survey 2026-11-28 (build/workers/dsurvey/REPORT.md): no direct gain; D-helix point-wise equivalence idea ported as an experiment"
+  },
+  "gh-mahaloz_sailr-eval": {
+   "url": "https://github.com/mahaloz/sailr-eval.git",
+   "commit": "2c3c6b026acb501d92245f8e69f5438da36562fb",
+   "path": "external/gh/mahaloz_sailr-eval",
+   "relevance": "decompilation research survey 2026-11-28 (build/workers/dsurvey/REPORT.md): no direct gain; D-helix point-wise equivalence idea ported as an experiment"
+  },
+  "gh-macabeus_mizuchi": {
+   "url": "https://github.com/macabeus/mizuchi.git",
+   "commit": "25eaef4214574cc20f376878dbc1b8099e97164e",
+   "path": "external/gh/macabeus_mizuchi",
+   "relevance": "decompilation research survey 2026-11-28 (build/workers/dsurvey/REPORT.md): no direct gain; D-helix point-wise equivalence idea ported as an experiment"
+  },
+  "gh-DrBellubins_DecompileAnything": {
+   "url": "https://github.com/DrBellubins/DecompileAnything.git",
+   "commit": "9aa9243a7ce76899188f5fabb91262e66408cfbc",
+   "path": "external/gh/DrBellubins_DecompileAnything",
+   "relevance": "decompilation research survey 2026-11-28 (build/workers/dsurvey/REPORT.md): no direct gain; D-helix point-wise equivalence idea ported as an experiment"
   }
  },
  "repositories": {
