@@ -21,6 +21,9 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
   comparison masks. Historical .OBJ files are evidence and references; they are never substituted for source.
 - Ken's `#pragma aux` inline-assembly bodies (PRAGMAS.H) may only take forms attested in a dated Ken PRAGMAS.H
   (external/x); inventing or altering a pragma body to fit bytes counts as fabricating code.
+- Compiler options are per translation unit (one original .c compiled once from a makefile, e.g. MULTI's -5r). Never
+  give individual functions different settings (#pragma or otherwise) or split units to fit bytes; a unit-level option
+  change must be historically plausible and explain the whole unit.
 - Assembly is legitimate only where the original was assembly (Ken's `A.ASM`, runtime members). Unknown bytes in
   assembly-origin source stay explicit, labelled debt.
 - Library code (Watcom CLIB/MATH, Apogee Sound System if supplied as a LIB) is identified and tracked separately
