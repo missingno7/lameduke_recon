@@ -762,3 +762,9 @@ Each entry names the command or artefact that supports it.
   32 bits while PLAYER needs a short return; SECTOR compares syncbits unsigned; GAME's 3-byte C gain was rejected
   (tests AL where the oracle tests EAX). The PREMAP-only proposal (new premap.h, tentative short getangle, -16 NEAR
   bytes, no STRICT change) was not integrated.
+
+## Automated allocation search (permute, Codex, 2026-11-27; tools/permute/, build/workers/permute/REPORT.md)
+- tools/permute/permute.py: nine conservative C transforms, bounded exhaustive/beam search, whole-unit STRICT
+  regression checks, DOS confirmation, deduplicated trial log. Calibration: reproduces movetransports' declaration
+  order fix (11 trials) and hline's stack-home fix (5 trials) from their pre-fix sources, both DOS-confirmed STRICT;
+  ~0.5 s per NT trial. Live checkhitswitch (2-byte case-405 tie): no better variant in 60 trials.

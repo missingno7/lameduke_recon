@@ -78,6 +78,9 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
   `report.py` → build/binscan/); `tools/omfdeps.py` dates Watcom objects (COMENT 0xE9). docs/HISTORICAL_DONOR_RESEARCH.md.
 - `tools/names/apply_names.py DIR` — idempotently names magic numbers in game sources from tools/names/names.json
   (DEFS.CON originals, Duke 1.5, neutral names with comments); byte-neutral, run by the integrator at milestones.
+- `tools/permute/permute.py UNIT FUNC... --out DIR` — automated search over semantics-neutral C rewrites
+  (declaration order, temporaries, commutative operands, independent statements, loop forms) with whole-unit STRICT
+  regression checks and DOS confirmation; workers set PERMUTE_WORK to their own directory.
 - `tools/readme.py` — regenerates the README.md progress bars and the docs/STATUS.md unit table from build/verify.json (after `verify.py --update`).
 - Watcom 9.5b compiles run on the canonical DOS host (tools/doshost.py: the original DOS compiler under DOSBox-X,
   ~1.7 s per compile) because CONST padding residue depends on the host; LAMEDUKE_HOST=nt gives the same code
