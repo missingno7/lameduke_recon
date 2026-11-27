@@ -1227,3 +1227,10 @@ Each entry names the command or artefact that supports it.
   cheatkeys debug-door dword reloads restored (content .6262 -> .6715). checkhitceiling in the progress state loses only
   its boundary proof (alignment padding and two relocated table references; body and all 24 table destinations
   identical). POLICY CONFIRMED: one block per round before, +42 with progress branches.
+
+## ENGINE round 7 (r12-engine-7, astra, 2026-11-28; progress branch)
+- grouvline 1,459 -> 471 bytes, 75 -> 84/89 blocks, extent back to 2,169 (all 17 displaced neighbours returned):
+  Ken's April-1994 local drawslab pragma (LOOP; BUIL0422/ENGINE.C:409, verbatim, provenance comment in ENGINE.C) gave
+  3 blocks; page-address order, reusing tempx for the swap and array declaration order gave 6. First difference +0x0d.
+- rotatesprite: a control reproduces both ESP+38h stores and the asm2 reload but is 1,488 B with a 0x5c frame.
+  No dated source for December's ksgn immediate pair. wallfront 79, raytrace 108 unchanged.

@@ -152,6 +152,16 @@ void __interrupt __far keyhandler(void);
 void (__interrupt __far *oldzerohandler)();
 void __interrupt __far zerohandler(void);
 
+// drawslab: Ken Silverman's own local pragma, verbatim from BUIL0422/ENGINE.C (1994-04-22), line 409.
+// Binary evidence: all three drawslab expansions in the December grouvline use LOOP, while every dated
+// PRAGMAS.H (PTEX0726 Jul-1994, buil1995) has DEC/JNZ (FINDINGS 2026-11-27, AGENTS.md pragma rule).
+#pragma aux drawslab =\
+	"startdraw: mov [edi], al",\
+	"sub edi, ebx",\
+	"loop startdraw",\
+	"mov eax, edi",\
+	parm [edi][ecx][eax][ebx]\
+
 extern long setbytesperline(long);
 #pragma aux setbytesperline parm [eax];
 extern long sethlinesizes(long,long,long);
@@ -4686,9 +4696,10 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 	char *ptr;
 	signed char shade;
 	short dir[2], index;
-	// COMPILER_STEERED: Put the row stride before the traversal arrays for stack allocation.
-	long pinc, dist[2], dinc[2], incr[2], p, lastdist;
-	long gx, gy, grid[2], tempx, tempy, x1, y1, x2, y2, stx, sty, cnt, dend;
+	/* COMPILER_STEERED. This declaration order puts dist, dinc, incr and grid
+	   at ESP+08h, +10h, +18h and +20h in the traversal loops. */
+	long pinc, dist[2], dinc[2], grid[2], p, lastdist;
+	long gx, gy, incr[2], tempx, tempy, x1, y1, x2, y2, stx, sty, cnt, dend;
 	long tilebufoffs, heibufoffs, zoffs, they, um, dm, zx, dat, col;
 
 	d1 >>= 6;
@@ -4707,19 +4718,21 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 
 	if (option[0] == 0)
 	{
-		p = mul80(dmost[xscr]-1)+((xscr+viewoffset)>>2)+0xa0000;
+		/* Finish the page address before programming the VGA sequencer. */
+		p = mul80(dmost[xscr]-1)+((xscr+viewoffset)>>2)+(page<<14)+0xa0000;
 		koutpw(0x3c4,2+(256<<((xscr+viewoffset)&3)));
-		p += (page<<14);
 		pinc = 80;
 	}
 	else if (option[0] != 7)
 	{
-		p = mul320(dmost[xscr]-1)+xscr+frameplace+viewoffset;
+		p = mul320(dmost[xscr]-1)+xscr+frameplace;
+		p += viewoffset;
 		pinc = 320;
 	}
 	else
 	{
-		p = mul640(dmost[xscr]-1)+xscr+frameplace+viewoffset;
+		p = mul640(dmost[xscr]-1)+xscr+frameplace;
+		p += viewoffset;
 		pinc = 640;
 	}
 
@@ -4770,7 +4783,8 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 
 	um = umost[xscr] - globalhoriz;
 	dm = dmost[xscr] - globalhoriz;
-	y1 = incr[0]; incr[0] = incr[1]; incr[1] = y1;
+	/* COMPILER_STEERED. Reuse the projection temporary for the increment swap. */
+	tempx = incr[0]; incr[0] = incr[1]; incr[1] = tempx;
 	incr[1] = -incr[1];
 
 	if (waloff[sector[sectnum].floorpicnum] == -1) loadtile(sector[sectnum].floorpicnum);
