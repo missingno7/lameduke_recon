@@ -1987,7 +1987,7 @@
      "status": "STRICT"
     },
     "parsecommand": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "passone": {
      "status": "STRICT"

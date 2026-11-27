@@ -209,9 +209,9 @@ char parsecommand(void)
 {
     /* Compiler-steered: preserve the local allocation around the filename loops. */
     long i, k, j, *tempscrptr;
+    char *origtptr, temp_ifelse_check;
     short tw, temp_line_number;
     int fp;
-    char *origtptr, temp_ifelse_check, c;
 
     if (error + warning > 12)
         return 1;
@@ -240,8 +240,9 @@ char parsecommand(void)
         if (!parsing_actor && !parsing_state) {
             getlabel();
             scriptptr--;
+            labelcode[labelcnt] = (long)scriptptr;
+            labelcnt++;
             parsing_state = 1;
-            labelcode[labelcnt++] = (long)scriptptr;
             return 0;
         }
         getlabel();
@@ -276,10 +277,10 @@ char parsecommand(void)
         if (!parsing_state) {
             printf("  * ERROR!(L%ld) Found 'ends' with no 'state'.\n", (long)line_number);
             error++;
-            return 0;
+            break;
         }
         parsing_state = 0;
-        return 0;
+        break;
 
     case CON_DEFINE:
         getlabel();
@@ -305,16 +306,14 @@ char parsecommand(void)
     case CON_MOVE:
         if (parsing_actor || parsing_state) {
             transnum();
-            j = 0;
-            for (;;) {
-                k = keyword();
-                if (k != -1)
-                    break;
+            i = 0;
+            while (keyword() == -1) {
                 transnum();
-                j |= *--scriptptr;
+                scriptptr--;
+                i |= *scriptptr;
             }
-            *scriptptr++ = j;
-            return 0;
+            *scriptptr++ = i;
+            break;
         }
         scriptptr--;
         getlabel();
@@ -329,12 +328,11 @@ char parsecommand(void)
         if (i == labelcnt)
             labelcode[labelcnt++] = (long)scriptptr;
         for (i = 0; i < 2; i++) {
-            k = keyword();
-            if (k >= 0)
+            if (keyword() >= 0)
                 break;
             transnum();
         }
-        for (; i < 2; i++)
+        for (k = i; k < 2; k++)
             *scriptptr++ = 0;
         return 0;
 
@@ -345,17 +343,16 @@ char parsecommand(void)
         /* Compiler-steered: test the final filename index before advancing it. */
         if (k >= 0) {
             for (j = 0; ; j++) {
-                i = keyword();
-                if (i != -1)
+                if (keyword() != -1)
                     break;
-                while (!(c = *textptr, TOKEN_CHAR(c))) {
+                while (!isaltok(*textptr)) {
                     if (*textptr == '\n')
                         line_number++;
                     if (*++textptr == 0)
                         break;
                 }
                 i = 0;
-                while ((c = textptr[i], TOKEN_CHAR(c))) {
+                while (isaltok(textptr[i])) {
                     music_fn[k][j][i] = textptr[i];
                     i++;
                 }
@@ -368,17 +365,16 @@ char parsecommand(void)
                 strcpy(music_fn[k][i], music_fn[k][j]);
         } else {
             for (j = 0; ; j++) {
-                i = keyword();
-                if (i != -1)
+                if (keyword() != -1)
                     break;
-                while (!(c = *textptr, TOKEN_CHAR(c))) {
+                while (!isaltok(*textptr)) {
                     if (*textptr == '\n')
                         line_number++;
                     if (*++textptr == 0)
                         break;
                 }
                 i = 0;
-                while ((c = textptr[i], TOKEN_CHAR(c))) {
+                while (isaltok(textptr[i])) {
                     env_music_fn[j][i] = textptr[i];
                     i++;
                 }
@@ -389,20 +385,20 @@ char parsecommand(void)
             for (i = 9; i > j; i--)
                 strcpy(env_music_fn[i], env_music_fn[j]);
         }
-        break;
+        return 0;
 
     case CON_INCLUDE:
         scriptptr--;
-        while (!(c = *textptr, TOKEN_CHAR(c))) {
+        while (!isaltok(*textptr)) {
             if (*textptr == '\n')
                 line_number++;
             if (*++textptr == 0)
                 break;
         }
-        i = 0;
-        while ((c = *textptr, TOKEN_CHAR(c)))
-            tempbuf[i++] = *textptr++;
-        tempbuf[i] = 0;
+        j = 0;
+        while (isaltok(*textptr))
+            tempbuf[j++] = *textptr++;
+        tempbuf[j] = 0;
         printf("    Loading include file %s\n", tempbuf);
         fp = open(tempbuf, O_BINARY | O_RDWR, S_IREAD);
         j = filelength(fp);
@@ -445,12 +441,11 @@ char parsecommand(void)
         if (i == labelcnt)
             labelcode[labelcnt++] = (long)scriptptr;
         for (i = 0; i < 5; i++) {
-            k = keyword();
-            if (k >= 0)
+            if (keyword() >= 0)
                 break;
             transnum();
         }
-        for (; i < 5; i++)
+        for (k = i; k < 5; k++)
             *scriptptr++ = 0;
         return 0;
 
@@ -463,29 +458,28 @@ char parsecommand(void)
             printf("  * ERROR!(L%ld) Found 'actor' within 'actor'.\n", (long)line_number);
             error++;
         }
-        parsing_actor = scriptptr - 1;
+        scriptptr--;
+        parsing_actor = scriptptr;
         brace_depth = 0;
-        scriptptr = parsing_actor;
         transnum();
         scriptptr--;
         actorscrptr[*scriptptr] = parsing_actor;
-        for (i = 0; i < 4; i++)
-            parsing_actor[i] = 0;
+        for (j = 0; j < 4; j++)
+            parsing_actor[j] = 0;
         for (i = 0; i < 4; i++) {
             if (i == 3) {
-                j = 0;
-                for (;;) {
-                    k = keyword();
-                    if (k != -1)
-                        break;
+                /* Compiler-steered: reuse i for the move flags in the final actor slot. */
+                i = 0;
+                while (keyword() == -1) {
                     transnum();
-                    j |= *--scriptptr;
+                    scriptptr--;
+                    i |= *scriptptr;
                 }
-                *scriptptr++ = j;
+                *scriptptr = i;
+                scriptptr++;
                 break;
             }
-            k = keyword();
-            if (k >= 0) {
+            if (keyword() >= 0) {
                 scriptptr += 4 - i;
                 break;
             }
@@ -508,7 +502,8 @@ char parsecommand(void)
     case CON_ELSE:
         if (checking_ifelse) {
             checking_ifelse--;
-            tempscrptr = scriptptr++;
+            tempscrptr = scriptptr;
+            scriptptr++;
             parsecommand();
             *tempscrptr = (long)scriptptr;
         } else {
@@ -528,21 +523,23 @@ char parsecommand(void)
     case CON_IFONWATER: case CON_IFINWATER: case CON_IFP:
         if (tw == CON_IFP) {
             j = 0;
-            for (;;) {
-                k = keyword();
-                if (k != -1)
-                    break;
+            while (keyword() == -1) {
                 transnum();
-                j |= *--scriptptr;
+                scriptptr--;
+                j |= *scriptptr;
             }
             *scriptptr++ = j;
         }
-        tempscrptr = scriptptr++;
-        do {
-            k = keyword();
-            if (k == CON_LINECOMMENT || k == CON_BLOCKCOMMENT)
-                parsecommand();
-        } while (k == CON_LINECOMMENT || k == CON_BLOCKCOMMENT);
+        tempscrptr = scriptptr;
+        scriptptr++;
+        {
+            long nextword;
+            do {
+                nextword = keyword();
+                if (nextword == CON_LINECOMMENT || nextword == CON_BLOCKCOMMENT)
+                    parsecommand();
+            } while (nextword == CON_LINECOMMENT || nextword == CON_BLOCKCOMMENT);
+        }
         parsecommand();
         *tempscrptr = (long)scriptptr;
         checking_ifelse++;
@@ -569,7 +566,7 @@ char parsecommand(void)
         if (!parsing_actor) {
             printf("  * ERROR!(L%ld) Found 'aend' without defining 'actor'.\n", (long)line_number);
             error++;
-            return 0;
+            break;
         }
         if (brace_depth > 0) {
             printf("  * ERROR!(L%ld) Found more '{' than '}' before 'aend'.\n", (long)line_number);
@@ -578,7 +575,7 @@ char parsecommand(void)
         if (brace_depth < 0) {
             printf("  * ERROR!(L%ld) Found more '}' than '{' before 'aend'.\n", (long)line_number);
             error++;
-            return 0;
+            break;
         }
         parsing_actor = 0;
         break;
@@ -1167,8 +1164,8 @@ void execute(short i, short p, long x)
     while (!parse(i, player, x))
         ;
     if (killit_flag) {
-        deletesprite(i);
+        deletesprite(index);
         return;
     }
-    move_actor(i, player, x);
+    move_actor(index, player, x);
 }

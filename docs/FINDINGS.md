@@ -715,3 +715,9 @@ Each entry names the command or artefact that supports it.
   wide initiator (8,004 -> 7,542 differing bytes; fuzzy .825 -> .869; frame 0xb8 vs 0xa8). cheatkeys reuses the decoy
   index and reads the menu flag earlier: 5,230 -> 3,605 differing bytes at the exact extent. checkhitswitch still 2
   bytes (case 405 allocation tie), checkhitwall 78.
+
+## GAMEDEF on gpt-6.2-astra (r8astra-gamedef, 2026-11-27; build/workers/r8astra-gamedef/NOTES.md, integrated)
+- PROVEN parsecommand STRICT (5,476 B; all 495 references verified): direct lexer calls, separate read and fill
+  indices, actor-header writes, and case-specific `break` / `return` exits. GAMEDEF 12/14.
+- execute passes the widened actor index to deletesprite and move_actor (4,560 -> 4,519 differing bytes; content
+  .815 -> .842); parse unchanged (first register divergence in the inlined IFRND at 1:30900).
