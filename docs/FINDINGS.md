@@ -991,3 +991,18 @@ Each entry names the command or artefact that supports it.
   configurations, none improves the family without a regression. strget reaches 318 differing bytes at the exact size
   (61/65 blocks) but costs minitext and numtext STRICT; a follow-up restores both but five cursor-palette blocks
   regress. Passed to the trade root-cause investigation.
+
+## Root causes of the apparent trades (trades, astra, 2026-11-27; docs/TRADES.md, docs/TRADE_METHODS.md)
+- None of the four was a genuine trade between two correct reconstructions:
+  - SECTOR: the checkhitswitch prefetch only fixed two case-405 bytes (checkhitswitch stayed 299 bytes off); its inlined
+    expansion shortened checksectors so 20 jump-table entries left the span that proves checkhitceiling. A caller-only
+    edit restores checkhitceiling. Verdict: size cascade, coupled-but-solvable.
+  - MENUES: a candidate keeping all 10 MENUES STRICT functions reduces draw_and_probe 395 -> 4 differing bytes (stack
+    displacements from +0x88; 896-byte extent, 45 references verified) — integrated; no trade needed.
+  - ENGINE: the March-1995 scansector predicate gets the flip-set registers but grows the function by one byte,
+    shifting 13 jumps into shared return sequences of 11 STRICT peers: wrong reconstruction for December 1994.
+  - GAME: shared text helpers allocate glyphs/line origins differently per caller (unavoidable for now);
+    nonsharedkeys 14 -> 12 is possible while preserving all 37 STRICT.
+- Method (from jng_recon islands/two-build, rayman CAUSES): isolate the cause in a reduced unit, then price the edit
+  with a full-unit DOS build; count a gain only when a whole function reaches STRICT. Apparent trades so far were
+  size cascades or wrong reconstructions — accepting them would have locked in mistakes.

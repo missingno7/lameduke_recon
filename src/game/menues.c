@@ -163,15 +163,14 @@ void draw_menu_slider(short x, short y, short *value, short shade)
 
 
 /* Draw menu item text (big font) with the pointer line pulsing; returns the x after the last glyph. */
-long menutext(long x, long y, unsigned char *t, long s,
+long menutext(long x, long y, unsigned char *t, unsigned char s,
     short cursor)
 {
-    /* long s and this local order: COMPILER_STEERED (inlined copies in menus; menutext itself is
-       STRICT with either short or long s). */
+    /* The byte shade is widened after the dimension-mode check. */
     unsigned char shade;
-    short start_x;
-    short base_shade;
     short ac;
+    short base_shade;
+    short start_x;
 
     if (ps[0].dimensionmode == 2) return 0;
     start_x = x;
@@ -194,7 +193,10 @@ long menutext(long x, long y, unsigned char *t, long s,
                 continue;
             }
             if (*t >= '0' && *t <= '9') ac = *t + 101;
-            if (*t >= 'a' && *t <= 'z') ac = *t + 26;
+            if (*t >= 'a' && *t <= 'z') {
+                long glyph = *t;
+                ac = glyph + 26;
+            }
             if (*t >= 'A' && *t <= 'Z') ac = *t + 32;
             overwritesprite(x, y, ac, (unsigned char)shade, 0,
                 sector[ps[screenpeek].cursectnum].floorpal);
