@@ -2539,7 +2539,7 @@
      "status": "NEAR_MATCH"
     },
     "movefta": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "ifhitsectors": {
      "status": "STRICT"

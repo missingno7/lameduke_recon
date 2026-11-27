@@ -666,3 +666,12 @@ Each entry names the command or artefact that supports it.
   7,424 (content .863, fuzzy .971); parsecommand 5,508 vs 5,476 (content .842).
 - NEGATIVE volatile flags and address aliases for move_actor; shared-return variants for getincangle break its
   STRICT match.
+
+## ACTORS/PREMAP follow-up 3 (r5cx-actors-3, Codex, 2026-11-27; build/workers/r5cx-actors/NOTES.md, integrated)
+- PROVEN movefta STRICT (416 B) through direct height subtraction and a 32-bit `findplayer` declaration in actors.h
+  (SECTOR defines it returning short: another implicit-int-style call; it lengthens NEAR moveexplosions by 32 B).
+  ACTORS 12/18, guts STRICT.
+- moveweapons reaches the oracle size (1,456) with all 66 blocks and fixups equal (content/fuzzy 1/1); 17 bytes of
+  stack-slot displacements left. moveactors frame 0x4c -> 0x48 (oracle), four case targets exact (deltas +1,+1,-3,-3),
+  byte differences 7,949 -> 6,141. spawn: repeat-store and declaration order, content .705 -> .789 (252/276 blocks).
+- NEGATIVE the slime cstat temporary reproduces the byte load/OR/store in isolation but shifts case targets.

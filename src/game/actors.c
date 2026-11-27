@@ -178,12 +178,13 @@ void ms(short i)
 void movefta(void)
 {
     short i, nexti, p;
-    long dist, z;
 
     for (i = headspritestat[STAT_ZOMBIEACTOR]; i >= 0; i = nexti) {
+        long dist;
+
         nexti = nextspritestat[i];
         p = findplayer(i, &dist);
-        if (cansee(sprite[i].x, sprite[i].y, sprite[i].z + (z = sprite[i].yrepeat * -128L),
+        if (cansee(sprite[i].x, sprite[i].y, sprite[i].z - (sprite[i].yrepeat << 7),
                 sprite[i].sectnum, ps[p].posx, ps[p].posy, ps[p].posz - (16 << 8),
                 ps[p].cursectnum)) {
             switch ((unsigned short)sprite[i].picnum) {
@@ -318,12 +319,12 @@ void guts(short i)
 /* Update active actors (status 1): hard-coded tiles here, everything else through CON execute(). */
 void moveactors(void)
 {
+    /* COMPILER_STEERED: the player index scope affects the case offsets. */
+    short i, j, nexti, p, sect;
     long l, dist;
-    short i, j, nexti, sect;
 
     for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti) {
         long *t;
-        short p;
 
         nexti = nextspritestat[i];
         p = findplayer(i, &dist);
@@ -399,7 +400,7 @@ shark_steer:
                     j = sintable[(t[1] << 4) & 2047] >> 8;
                     sprite[i].ang += j;
                 }
-                if (j < -32 || j > 32) {
+                if (j > 32 || j < -32) {
                     /* COMPILER_STEERED: ternary changes the case layout. */
                     t[0] = j < 0 ? 4 : 2;
                     if (sprite[i].xvel > 64)
@@ -886,8 +887,8 @@ wait:
                     deletesprite(i);
                     continue;
                 }
-                sprite[i].ang += 300;
                 sprite[i].z -= 6144;
+                sprite[i].ang += 300;
                 shoot(i, 0, 1);
                 sprite[i].z += 6144;
                 switch (t[1]) {
@@ -970,7 +971,14 @@ wait:
                 if (dist < 768) {
                     j = 1024 - (randomstash & 2047);
                     sprite[i].ang += j;
-                    HURT(p, 1);
+                    if (ud.debug == 0 && ps[p].shield_amount > 0) {
+                        ps[p].shield_amount -= 4;
+                        break;
+                    }
+                    if (ps[p].health > 0)
+                        ps[p].health--;
+                    else
+                        ps[p].health = 0;
                 }
                 break;
             case 3:
@@ -991,36 +999,39 @@ BOLT:
 void moveweapons(void)
 {
     /* The original compares and passes the low word of findplayer's distance. */
-    short p, i, x, nexti;
-    long distance;
+    short p, i, nexti;
+    /* COMPILER_STEERED: keep the call result wide before narrowing the player index. */
+    int player;
 
     for (i = headspritestat[STAT_PROJECTILE]; i >= 0; i = nexti) {
+        long distance;
+
         nexti = nextspritestat[i];
-        p = findplayer(i, &distance);
-        x = (short)distance;
+        player = findplayer(i, &distance);
+        p = player;
         if (sprite[i].picnum == BLUESPARK) {
-            execute(i, p, x);
+            execute(i, p, (short)distance);
             continue;
         }
         if (sprite[i].picnum == RADIUSEXPLOSION) {
             if (sprite[i].shade == -15) {
                 shoot(i, CLUB, 1);
-                if (x < 512 && sprite[i].owner != ps[p].i) {
+                if ((short)distance < 512 && sprite[i].owner != ps[p].i) {
                     kickview(p, i);
                     HURT(p, sprite[i].extra);
                 }
             } else
                 sprite[i].shade = -15;
-            execute(i, p, x);
+            execute(i, p, (short)distance);
             continue;
         }
         if (sprite[i].picnum == BOUNCEMINE) {
-            execute(i, p, x);
+            execute(i, p, (short)distance);
             continue;
         }
         if (sprite[i].picnum == RPG) {
             if (sprite[i].extra >= 0) {
-                if (sprite[i].owner != ps[p].i && x < 768
+                if (sprite[i].owner != ps[p].i && (short)distance < 768
                     && klabs((ps[p].posz - sprite[i].z) >> 8) <= 48) {
                     spritesound(13, ps[p].i);
                     kickview(p, i);
@@ -1032,12 +1043,12 @@ void moveweapons(void)
                     sprite[i].extra = -1;
                 }
             }
-            execute(i, p, x);
+            execute(i, p, (short)distance);
             continue;
         }
         if (sprite[i].picnum == BULLET) {
             if (sprite[i].extra >= 0) {
-                if (x < 768 && sprite[i].owner != ps[p].i
+                if ((short)distance < 768 && sprite[i].owner != ps[p].i
                     && klabs((ps[p].posz - sprite[i].z) >> 8) <= 48) {
                     HURT(p, sprite[i].extra);
                     kickview(p, i);
@@ -1050,18 +1061,18 @@ void moveweapons(void)
                     sprite[i].extra = -1;
                 }
             }
-            execute(i, p, x);
+            execute(i, p, (short)distance);
         }
         if (sprite[i].picnum == SHOTSPARK1) {
-            if (x < 512)
+            if ((short)distance < 512)
                 kickview(p, i);
             if (sprite[i].shade == -15)
                 shoot(i, 191, 1);
             else
                 sprite[i].shade = -15;
-            execute(i, p, x);
+            execute(i, p, (short)distance);
         } else if (sprite[i].picnum == OTHERSHOTSPARK) {
-            if (x < 512)
+            if ((short)distance < 512)
                 kickview(p, i);
             if (sprite[i].shade == -15) {
                 shoot(i, OTHERSHOTSPARK, 1);
@@ -1069,7 +1080,7 @@ void moveweapons(void)
                     spritesound(30, i);
             } else
                 sprite[i].shade = -15;
-            execute(i, p, x);
+            execute(i, p, (short)distance);
         }
     }
 }

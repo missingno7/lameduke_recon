@@ -241,7 +241,8 @@ extern long angvel, svel, vel;
 /* Set up map sprite pn (j < 0) or spawn tile pn at sprite j; per-picnum defaults and sector-effector setup. */
 void spawn(long j, short pn)
 {
-    short sect, i, endwall, startwall, s, clostest;
+    /* COMPILER_STEERED: declaration order affects the stack slots. */
+    short sect, i, endwall, startwall, clostest, s;
     long x, y, d;
 
     if (j >= 0) {
@@ -716,7 +717,8 @@ void spawn(long j, short pn)
         sprite[i].owner = i;
         sprite[i].shade = -16;
         show2dsprite[i >> 3] |= 1 << (i & 7);
-        sprite[i].yrepeat = sprite[i].xrepeat = 38;
+        sprite[i].yrepeat = 38;
+        sprite[i].xrepeat = 38;
         sprite[i].cstat |= 1;
         changespritestat(i, STAT_STANDABLE);
         break;
