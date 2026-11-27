@@ -356,7 +356,16 @@ class Search:
                 metrics[pair.name] = {key: report[key] for key in ("content", "regs")}
         for name, row in targets.items():
             row["blockdiff"] = metrics.get(name, {"content": 0.0, "regs": 0.0})
-        score = (len(lost), len(near), sum(r["byte_diffs"] for r in targets.values()),
+        # Collateral guard (integrator, 2026-11-27): an edit can worsen OTHER non-STRICT functions through inlined
+        # copies (prelevel via spawn, main via sync). The first scored build per host is the baseline; any increase
+        # of another function's differing bytes ranks the variant below every variant without collateral damage.
+        others = {r["function"]: r.get("byte_diffs", 0) for r in rows
+                  if r["function"] not in self.targets and r["status"] != "STRICT" and "byte_diffs" in r}
+        base = getattr(self, "_collateral_base", {}).get(host)
+        if base is None:
+            self.__dict__.setdefault("_collateral_base", {})[host] = base = dict(others)
+        collateral = sum(max(0, v - base.get(n, v)) for n, v in others.items())
+        score = (len(lost), collateral, len(near), sum(r["byte_diffs"] for r in targets.values()),
                  -sum(r["blockdiff"]["content"] for r in targets.values()),
                  -sum(r["blockdiff"]["regs"] for r in targets.values()),
                  sum(len(r["problems"]) + len(r["unverified"]) for r in targets.values()))
@@ -435,7 +444,7 @@ class Search:
                         "protected_dos": sorted(self.protection["dos"]), "protected_nt": sorted(self.protection["nt"])})
         if not first:
             return strategy, "no applicable edits"
-        if baseline.result.score[1] == 0 and self.dos_best.result.score[1] == 0 and not self.args.keep_going:
+        if baseline.result.score[2] == 0 and self.dos_best.result.score[2] == 0 and not self.args.keep_going:
             return strategy, "baseline already STRICT"
         frontier, best = [baseline], baseline
         reason = "depth exhausted"
@@ -461,9 +470,9 @@ class Search:
                     if result.score < best.result.score:
                         best = candidate
                         self.improve(candidate.id, "nt", result)
-                    if result.score[:2] == (0, 0) and not self.args.keep_going:
+                    if result.score[:3] == (0, 0, 0) and not self.args.keep_going:
                         verified = self.confirm(candidate)
-                        if verified and verified.score[:2] == (0, 0):
+                        if verified and verified.score[:3] == (0, 0, 0):
                             return strategy, "DOS-confirmed STRICT"
                 if self.nt_attempts >= self.args.budget:
                     reason = "compile budget exhausted"
