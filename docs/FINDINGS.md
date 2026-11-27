@@ -866,3 +866,16 @@ Each entry names the command or artefact that supports it.
   fifth findplayer home off the oracle's +0x108; kept in build/workers/r10-player/alternative/).
 - Attribution (bytes / blocks): own reasoning +508/+8, idioms reverse -133/+5 (alternative +425/+7); near, quirks,
   donors, permute 0.
+
+## Blocker census (blockers, astra, 2026-11-27; docs/BLOCKER_CENSUS.md, docs/BLOCKER_RULES.md)
+- First blocker of all 85 non-STRICT functions, ranked by function extent: switch-table targets 11 fns / 73,520 B;
+  stack-slot displacement 15 / 53,054; frame reservation 11 / 34,325; instruction/access order 11 / 20,669; branch
+  displacement 7 / 13,342; register choice 9 / 5,927; CONST contents 14 / 3,084 (sound library); equal-savings tie
+  1 / 1,740; saved-register set 3 / 1,303; BSS binding 1 / 292.
+- PROVEN by 16 traced experiments: a 3-byte instruction growth early in a function shifts every later switch target
+  (the largest class is a CASCADE: fixing the first local size difference fixes many bytes); declaration order
+  exchanges stack homes of address-taken locals; reusing one local across loops shrinks the frame. cg95 identified
+  an allocator mechanism at the first difference in 12 of 58 traced 9.5 NEAR functions.
+- PROVEN render_camera_tile (816 B) and render_sprite_camera (864 B) STRICT: counter reuse, declaration order, update
+  order and reset placement (build/workers/blockers/camera.patch). ms: 106 -> 89 bytes (first mismatch earlier; not
+  adopted). Next lead: render_mirror (reserves 40 stack bytes vs the oracle's 36).

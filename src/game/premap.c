@@ -734,7 +734,7 @@ void spawn(long j, short pn)
  * drawn back at 1:1 before a second copy establishes the tile's orientation. */
 /* Offsets advance by eight rows per iteration in each buffer. */
 #define COPY_CAMERA_WINDOW(tile, row, dest)                                                  \
-    for (; row < 320 * 95; row += 320 * 8, dest += 96 * 8) {                                 \
+    for (; row < 320 * 95; dest += 96 * 8, row += 320 * 8) {                                 \
         copybuf((void *)(frameplace + row), (void *)(waloff[tile] + dest), 24);              \
         copybuf((void *)(frameplace + row + 320), (void *)(waloff[tile] + dest + 96), 24);   \
         copybuf((void *)(frameplace + row + 640), (void *)(waloff[tile] + dest + 192), 24);  \
@@ -748,7 +748,7 @@ void spawn(long j, short pn)
 /* Render a 96x96 view from (x,y,z,ang,sect) into tile tilenume (viewscreens, mirror). */
 void render_camera_tile(long x, long y, long z, short ang, short sect, short tilenume)
 {
-    short row, dest, row2, dest2;
+    short dest, row;
 
     setview(0, 0, 95, 95);
     drawrooms(x, y, z, ang, 100, sect);
@@ -756,9 +756,9 @@ void render_camera_tile(long x, long y, long z, short ang, short sect, short til
     drawmasks();
     row = dest = 0;
     COPY_CAMERA_WINDOW(tilenume, row, dest)
-    row2 = dest2 = 0;
     rotatesprite(47L << 16, 47L << 16, 1L << 16, 0, tilenume);
-    COPY_CAMERA_WINDOW(tilenume, row2, dest2)
+    row = dest = 0;
+    COPY_CAMERA_WINDOW(tilenume, row, dest)
     vscrn(screenpeek);
 }
 

@@ -2455,10 +2455,10 @@
      "status": "STRICT"
     },
     "render_camera_tile": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "render_sprite_camera": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "render_mirror": {
      "status": "NEAR_MATCH"
