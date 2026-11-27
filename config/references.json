@@ -637,6 +637,332 @@
    "commit": "580c708052525bd568ea2c1de059867bd1a273c5",
    "path": "external/gh/WildPress_vibesynd",
    "relevance": "Syndicate matching decompilation with the same unpatched Watcom 9.5 GA DOS compiler (size/banner; hash unverified). 494 commits reviewed: 21 recurring transformations, 16 already known to us, 5 new; 38 DOS trials on 6 blockers gained nothing (build/workers/vibesynd/REPORT.md)."
+  },
+  "idtech-wacky11": {
+   "title": "Wacky Wheels 1.1 shareware",
+   "url": "https://ftp.idtech.space/3drealms/share/1wacky.zip",
+   "local": "external/dl/histhunt/1wacky.zip",
+   "size": 1655316,
+   "sha256": "3c3c35bb696194b420c5156ac9641819213f01812801f5c1683817c8bb70f4a3",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1994-10-17, both inner EXEs",
+   "relevance": "WW.EXE and SETUP.EXE share the early sound library. TS_Startup has a 192-byte oracle-normalized body and identical sites. GUSWAVE_PlayVOC is closer than the previous binary ranking.",
+   "priority": "high",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 10,
+    "members_with_exact_external_file": 1,
+    "members_with_basename_in_external": 6
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "lobotomy-ps-demo-19951031": {
+   "title": "PowerSlave public demonstration beta",
+   "url": "https://image.dosgamesarchive.com/games/pwrslave(beta).zip",
+   "local": "external/dl/histhunt/pwrslave(beta).zip",
+   "size": 3898497,
+   "sha256": "0a36022e41f5c0980a38c6a0b4929217916cb54ac035520156960663ebae0a13",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1995-10-31 PS.EXE, 1995-11-01 developer README",
+   "relevance": "209839-byte Watcom debug trailer, 225 modules and 2390 symbols. 363 engine symbols, 90 MULTI symbols. Named drawmaskwall, raytrace, neton, getpacket and sendpacket. The complete 8535-byte MULTI code contribution is already represented by buil0723/MULTI.OBJ.",
+   "priority": "high",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 282,
+    "members_with_exact_external_file": 2,
+    "members_with_basename_in_external": 23
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "apogee-boppin10-share": {
+   "title": "Boppin' 1.0 shareware",
+   "url": "https://www.classicdosgames.com/files/games/accursed/1boppin.zip",
+   "local": "external/dl/histhunt/1boppin.zip",
+   "size": 1293583,
+   "sha256": "1a4bce14664554beb928ba76c7058587da94a64256cd510a0a9b2825058b7691",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1994-11-15 inner BOPSW.EXE",
+   "relevance": "November lineage for AL_Init, AL_SetVoiceTimbre, AL_SetVoiceVolume, TS_SetTimerToMaxTaskRate. Later SW950115 already contains these bodies.",
+   "priority": "medium",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 13,
+    "members_with_exact_external_file": 0,
+    "members_with_basename_in_external": 6
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "idtech-boppin11-share": {
+   "title": "Boppin' 1.1 shareware",
+   "url": "https://ftp.idtech.space/3drealms/share/1bop11.zip",
+   "local": "external/dl/histhunt/1bop11.zip",
+   "size": 1340336,
+   "sha256": "185b17cc7acacbe8fdc3442184ab286e5d523cd4c3373ff6682255755ae09dc6",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1994-12-10 inner BOPSW.EXE. Also on a 1995 programming CD",
+   "relevance": "Independent CD witness, duplicate by hash of the installed EXE on Black Art of 3D Game Programming. Same four NEAR audio shapes as Boppin' 1.0.",
+   "priority": "medium",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 9,
+    "members_with_exact_external_file": 1,
+    "members_with_basename_in_external": 5
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "lesbird-whaven2": {
+   "title": "Les Bird's Witchaven II development tree",
+   "url": "https://lesbird.github.io/capstone/FILES/WHAVEN2.ZIP",
+   "local": "external/dl/histhunt/WHAVEN2.ZIP",
+   "size": 39320424,
+   "sha256": "6b53ca2e97aa60bd58f8d8d93bd96018983354b644cb4fa36d1414bbaee77bbb",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "Editor link file 1994-12-30, MULTI.OBJ 1995-09-02, ENGINE.OBJ 1995-11-21, WH2.MAP 1996-05-13",
+   "relevance": "New WLINK 10.5 linker map. Ken objects and dated editor link file duplicate held copies. Weaker engine and MULTI lineage.",
+   "priority": "control",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 544,
+    "members_with_exact_external_file": 108,
+    "members_with_basename_in_external": 317
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "creative-awedip-199407": {
+   "title": "Creative AWE32 Developer Information Package",
+   "url": "https://files.mpoli.fi/software/PROGRAMM/GENERAL/AWEDIP.ZIP",
+   "local": "external/dl/histhunt/AWEDIP.ZIP",
+   "size": 780960,
+   "sha256": "7805969a1b6e1e50c727701cea9cc793b8f0d23994076ce9106dd1e087ab43ff",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "README and flat objects 1994-07-08",
+   "relevance": "Seven 32-bit object files with separately dated provenance. Two complete data objects match members of held PAWE32.LIB. Product license in LICENSE.TXT. Vendor evidence for AWE initialization and sound-bank data.",
+   "priority": "medium",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 83,
+    "members_with_exact_external_file": 0,
+    "members_with_basename_in_external": 10
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "x2ftp-ll-comm13": {
+   "title": "Lord Logics LL_COMM 1.3",
+   "url": "http://ftp.lanet.lv/ftp/mirror/x2ftp/msdos/programming/watcom/ll_comm13.zip",
+   "local": "external/dl/histhunt/ll_comm13.zip",
+   "size": 56754,
+   "sha256": "e377faf09c14fbe1375e30b4f38739c4aa417d796d760fb323d5884dd0329e17",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1994-08-27 archive objects, time_t COMENT dates in LCR.OBJ and LL_STAT.OBJ",
+   "relevance": "Watcom example with C/ASM/OBJ and makefile for serial coding. No named MULTI body hits. Hornet copy is hash-identical.",
+   "priority": "medium",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 15,
+    "members_with_exact_external_file": 0,
+    "members_with_basename_in_external": 1
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "x2ftp-doom-ipxsrc-199402": {
+   "title": "id Software DOOM IPX driver source",
+   "url": "http://ftp.lanet.lv/ftp/mirror/x2ftp/msdos/programming/net/ipxsrc.zip",
+   "local": "external/dl/histhunt/ipxsrc.zip",
+   "size": 8564,
+   "sha256": "fc9419dfd323e27678e88fdfcf0a6b77f05a90568e0b46a8ecb6c0c3d515a92b",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1994-01-09 through 1994-02-18 members",
+   "relevance": "Earlier IPXNET/DOOMNET/IPXSETUP C and H files and Borland project. Different source revision from id's 2012 GitHub upload. Semantics of neton, getpacket and sendpacket only.",
+   "priority": "control",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 6,
+    "members_with_exact_external_file": 0,
+    "members_with_basename_in_external": 3
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "gravis-gusdk210": {
+   "title": "Advanced Gravis UltraSound SDK 2.10",
+   "url": "https://files.mpoli.fi/hardware/SOUND/GRAVIS/UPD/GUSDK210.ZIP",
+   "local": "external/dl/histhunt/GUSDK210.ZIP",
+   "size": 1260701,
+   "sha256": "5829b07d473d98be43c8cbec83c62243df01de4678158a237fe8e7caf9657fe4",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1993-12-22 README and Watcom library stamps",
+   "relevance": "Watcom low-level libraries, example source and linker directives. No named target hits in four 32-bit libraries tested.",
+   "priority": "control",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 217,
+    "members_with_exact_external_file": 1,
+    "members_with_basename_in_external": 20
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "gravis-gusdk221": {
+   "title": "Advanced Gravis UltraSound SDK 2.21",
+   "url": "https://ftp.scene.org/mirrors/scenesp.org/compilations/blastersound_bbs/gusprog/GUSDK221.ZIP",
+   "local": "external/dl/histhunt/GUSDK221.ZIP",
+   "size": 1432756,
+   "sha256": "855803aca19c08b152287f7a3713a2d167dbfa4da3b8eb6c33e73fd9288aa484",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1994-06-19 and 1994-06-29 Watcom library stamps",
+   "relevance": "Five Watcom libraries tested. No named target hits. Additional Gravis hardware reference for GUSWAVE and GUSMIDI.",
+   "priority": "control",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 276,
+    "members_with_exact_external_file": 1,
+    "members_with_basename_in_external": 21
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "gravis-gusdk222": {
+   "title": "Advanced Gravis UltraSound SDK 2.22",
+   "url": "https://files.mpoli.fi/hardware/SOUND/GRAVIS/UPD/GUSDK222.ZIP",
+   "local": "external/dl/histhunt/GUSDK222.ZIP",
+   "size": 950888,
+   "sha256": "6dcacfd81974ecb745a16f3837763267e0e7107bd45eaaad3e788c3fb30a7173",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "README.REV dated in text 1994-12-21, ZIP stamp 1994-12-23, top README stamped 1995-01-03",
+   "relevance": "Contains June low-level libraries and examples. Four Watcom libraries tested. No named target hits.",
+   "priority": "control",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 231,
+    "members_with_exact_external_file": 0,
+    "members_with_basename_in_external": 21
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "ken-labflsrc": {
+   "title": "Ken's Labyrinth 2.1 source",
+   "url": "https://advsys.net/ken/klab/labflsrc.zip",
+   "local": "external/dl/histhunt/labflsrc.zip",
+   "size": 59218,
+   "sha256": "e98a47085e85af1a44673d476fc2d5189c72b332f20121d1c35e06e690616427",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "GRAPHX.C 1993-04-09, LAB3D.C, INIT.C and SUBS.C 1993-06-22, republished header 2008-07-03",
+   "relevance": "Historical pre-Build C sources including picrot and checkhitwall. Earlier drawing/collision idioms, no measured oracle gain.",
+   "priority": "control",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 7,
+    "members_with_exact_external_file": 0,
+    "members_with_basename_in_external": 4
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "ken-kdmsongs": {
+   "title": "Ken's Digital Music tools and nested source",
+   "url": "https://advsys.net/ken/kdmsongs.zip",
+   "local": "external/dl/histhunt/kdmsongs.zip",
+   "size": 518044,
+   "sha256": "38b42f309a5007a101890db3531e61d46abb1c76e8760d47a9fa979df2bb1703",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "Songs dated 1995-02-12, DOS PRAGMAS.H 1998-10-19, KDMENG.C 2000-07-24, patch archive 2023-02-19",
+   "relevance": "Later dated Ken coding reference. No contemporaneous pragma or library for remaining D3D engine/audio code.",
+   "priority": "control",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 36,
+    "members_with_exact_external_file": 3,
+    "members_with_basename_in_external": 12
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "x2ftp-ipxpmode": {
+   "title": "DOS4GW IPX programming example",
+   "url": "http://ftp.lanet.lv/ftp/mirror/x2ftp/msdos/programming/net/ipxpmode.zip",
+   "local": "external/dl/histhunt/ipxpmode.zip",
+   "size": 59080,
+   "sha256": "1b302335f3c0748399e4fe3deb07004c8ac369a09dd8bf2996770c5a93b6ecc8",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1996-05-11 through 1996-05-15",
+   "relevance": "IPX.C/H, INT.ASM, CHAT.EXE. Later diagnostic Watcom source+LE sample for neton, getpacket and sendpacket.",
+   "priority": "control",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 8,
+    "members_with_exact_external_file": 0,
+    "members_with_basename_in_external": 3
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "idtech-hocus11": {
+   "title": "Hocus Pocus 1.1 shareware",
+   "url": "https://ftp.idtech.space/3drealms/share/1hp11.zip",
+   "local": "external/dl/histhunt/1hp11.zip",
+   "size": 937575,
+   "sha256": "83352f33279c05f8e6137c285e2432d0500cb07623a9d3875a17829ec7a342a4",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1994-10-01 inner EXEs",
+   "relevance": "Borland MZ sound-family comparator with UltraMID in __HPGRVS.EXE. No LE code donor for GUS or GUSWAVE.",
+   "priority": "control",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 13,
+    "members_with_exact_external_file": 2,
+    "members_with_basename_in_external": 6
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "idtech-realms-chaos10": {
+   "title": "Realms of Chaos 1.0 shareware",
+   "url": "https://ftp.idtech.space/3drealms/share/1roc.zip",
+   "local": "external/dl/histhunt/1roc.zip",
+   "size": 2755661,
+   "sha256": "f45d23bca59b2fcf2cb5807e0124605d9e4da0ca5a0803ba5666c0cda839a08b",
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1995-11-10 inner game and setup, 1998 distributor documents",
+   "relevance": "Borland MZ game and SETUP.EXE, UltraMID playback. Separate ABI for GUS/GUSWAVE. DCL container fully traversed.",
+   "priority": "control",
+   "overlap": {
+    "archive_hash_in_config": false,
+    "members_including_nested": 3,
+    "members_with_exact_external_file": 0,
+    "members_with_basename_in_external": 2
+   },
+   "inventory": "build/workers/histhunt/members.json"
+  },
+  "black-art-rott": {
+   "url": "https://archive.org/download/BlackArtOf3DGameProgramming/Black_Art_of_3D_Game_Programming.iso",
+   "member": "/GAMES/ROTT/ROTT.EXE",
+   "range": [
+    43419648,
+    44472176
+   ],
+   "size": 1052529,
+   "local": "external/dl/histhunt/black-art-ROTT.EXE",
+   "sha256": "a4d6207ef86d089ea55f2d90b13f0234a699fa61258bb0d47fa34fe4773018d1",
+   "exact_local": [],
+   "local_basename_hits": 1,
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1995-02-15 ISO 9660 member date. See discs.json for directory record and LBA.",
+   "priority": "medium",
+   "archive_hash_in_config": false,
+   "relevance": "Shareware ROTT.EXE with explicit ASS 1.03 banner. 29 whole and 447 split exact+sites hits against 1.04. Dated bridge between the held December 1994 1.01 and August 1995 1.04 game releases."
+  },
+  "black-art-sndsetup": {
+   "url": "https://archive.org/download/BlackArtOf3DGameProgramming/Black_Art_of_3D_Game_Programming.iso",
+   "member": "/GAMES/ROTT/SNDSETUP.EXE",
+   "range": [
+    44617728,
+    44623483
+   ],
+   "size": 5756,
+   "local": "external/dl/histhunt/black-art-SNDSETUP.EXE",
+   "sha256": "1d29f2f7a5620db6ee07c2341aed03b3649a75f8787e5423c6327a122b9fd6d6",
+   "exact_local": [
+    "external/x/idtech-1rott13/_nested/ROTTSW13.SHR/SNDSETUP.EXE"
+   ],
+   "local_basename_hits": 1,
+   "retrieved": "2026-11-27",
+   "build_date_evidence": "1995-02-15 ISO 9660 member date. See discs.json for directory record and LBA.",
+   "priority": "control",
+   "archive_hash_in_config": false,
+   "relevance": "Companion MZ sound setup. Inventory-only in binscan."
   }
  },
  "repositories": {
@@ -716,6 +1042,7 @@
   "hendricks266_2017_sources": "forums.duke4.net topic 7266 post #610 (2017-05-01): Duke3D 1.3D/1.4 source and fragments of much earlier builds found; nothing released.",
   "l7p_full_builds": "Legend of the Seven Paladins full builds 1994-09-26 and 1994-11-01: not public.",
   "sw_beta_decrypted": "Nuke.YKT's decrypted (dongle-cracked) Shadow Warrior beta executables on hendricks266.duke4.net: not acquired (circumvention; user decision).",
-  "more": "Further leads with sources: build/workers/acquire/inventory.json 'leads', 'identified_only', 'unavailable'."
+  "more": "Further leads with sources: build/workers/acquire/inventory.json 'leads', 'identified_only', 'unavailable'.",
+  "watcom95-goodies-multi": "The installed 1993-05-05 GOODIES/BIMODAL.C, BIMO.ASM and SIMULATE.C provide sample-source provenance for Ken's MULTI. Compare the names and comments against the author-published multi.c. See histhunt/REPORT.md."
  }
 }

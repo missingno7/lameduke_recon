@@ -1117,3 +1117,21 @@ Each entry names the command or artefact that supports it.
 - neton and sendpacket: diagnostic allocator replays match every byte; source builds keep ten register-encoding
   differences each (allocation-only). The exact serial-path trial for getpacket costs processreservedmessage its
   STRICT (shared return) and is excluded. MULTI 22/25.
+- inverse (decision-targeted inverse search, build/workers/inverse/{inverse.py,model.py,REPORT.md}): rediscovered the
+  source fixes of comsend, netsend, moveweapons, hitradius and setview from pre-fix source (2,828 B, fresh DOS
+  builds, no STRICT lost) - positive controls pass. Live: 209 NT variants + 49 DOS confirmations on seven targets,
+  0 accepted reductions. checkhitswitch: a case-406 conflict priority change (568 -> 488) suffices to reverse the
+  case-405 order; the source witness restores both instructions but breaks the neighbouring switch table.
+  drawmaskwall: a stock source build reaches the desired ESI allocation and order, but its extent is four bytes
+  short, which displaces cross-public branches and costs 18 STRICT (rejected; not a trade).
+  CONCLUSION for the allocation-only class (neton, sendpacket, scansector, checkhitswitch, drawmaskwall): every
+  method so far (permute, flip/climb, synth, vibesynd, Open Watcom model, inverse) fails; parked unless new evidence.
+- histhunt (build/workers/histhunt/REPORT.md; downloads in external/dl/histhunt, 18 files hashed in references.json):
+  Wacky Wheels 1.1 (1994-10-17) holds a 192-byte TS_Startup with identical instruction bytes outside address operands
+  and all 21 sites aligned (our TS_Startup is NEAR from +3); PowerSlave demo 1995-10-31 has a Watcom debug trailer
+  (2,390 symbols, 363 ENGINE, 90 MULTI; its MULTI equals buil0723/MULTI.OBJ already held); ROTT shareware 1995-02-15
+  identifies ASS 1.03 (between held 1.01 and 1.04). No STRICT gained yet.
+- setvesamode stays CODE_BYTES_MATCH: its eight references go to the function's static RMI block in the engine _BSS,
+  and the _BSS layout cannot be proven because eight engine publics (startposx/y/z, startang, startsectnum,
+  oldzerohandler, posfil, hitcnt) are never referenced by LameDuke code, so no independent binding exists. Not a
+  verifier problem; leave as is unless their existence/positions can be evidenced.
