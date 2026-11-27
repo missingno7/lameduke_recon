@@ -95,7 +95,8 @@ extern char music_fn[4][10][13];
 extern long krand(void);
 extern long ksqrt(long square);
 extern long getangle(long x, long y);
-extern long getincangle(short angle, short target, short shift);
+/* GAME passes the full getangle result as the target. */
+extern long getincangle();
 extern long setsprite(short i, long x, long y, long z);
 extern int deletesprite(short i);
 extern int changespritestat(short i, short stat);
@@ -421,7 +422,7 @@ void gameexit(char *t)
 void getpackets(void)
 {
     short otherconnectindex, tempbufleng, p;
-    long i, j, k;
+    long i, j, k, shift;
 
     while ((tempbufleng = getpacket(&otherconnectindex, (unsigned char *)tempbuf)) > 0) {
         switch (tempbuf[0]) {
@@ -436,7 +437,9 @@ void getpackets(void)
                         syncsvel[i] = tempbuf[j++];
                     if (((4 << (k & 7)) & tempbuf[k >> 3]) > 0)
                         syncangvel[i] = tempbuf[j++];
-                    if ((tempbuf[k >> 3] & (8 << (k & 7))) > 0) {
+                    /* COMPILER_STEERED: keep the final flag shift separate from the byte index. */
+                    shift = k & 7;
+                    if ((tempbuf[k >> 3] & (8 << shift)) > 0) {
                         syncbits[i] = tempbuf[j] +
                                          (tempbuf[j + 1] << 8) +
                                          (tempbuf[j + 2] << 16) +
@@ -621,11 +624,10 @@ void sync(void)
 /* Pulsing text shade for menus and HUD captions; each call advances the pulse. */
 long next_text_shade(void)
 {
-    short phase = hudpulse + 128;
-    long shade = sintable[phase & 2047] >> 10;
+    short phase;
 
-    hudpulse = phase;
-    return shade + 16;
+    phase = hudpulse += 128;
+    return (sintable[phase & 2047] >> 10) + 16;
 }
 
 extern int getscorename();
@@ -673,13 +675,13 @@ void myos(short x, short y, short tilenum, unsigned char shade,
 }
 
 /* Big-font text; returns the next x. Duke Nukem 3D 1.5 keeps the name. */
-long gametext(long sx, long y, unsigned char *t, unsigned char s)
+long gametext(long x, long y, unsigned char *t, unsigned char s)
 {
-    long x = sx;
     short left;
     short ac, descender;
+    long start_x = x; /* COMPILER_STEERED: preserve the incoming x before narrowing the line origin. */
 
-    left = x;
+    left = start_x;
     if (ps[screenpeek].dimensionmode == 2)
         return 0;
     while (*t) {
@@ -755,7 +757,7 @@ void gamenumber(long x, long sy, long n, unsigned char s)
 }
 
 /* Line editor for chat and high-score names; returns nonzero on Enter. Typing loop after Ken Silverman's getinput typemode, Build GAME.C (1994). */
-unsigned char strget(short x, short y, unsigned char shade, unsigned char dalen)
+unsigned char strget(short x, short y, unsigned char input_shade, unsigned char max_length)
 {
     enum {
         KEY_BACKSPACE = 0x0e,
@@ -766,7 +768,9 @@ unsigned char strget(short x, short y, unsigned char shade, unsigned char dalen)
         REPEAT_THRESHOLD = 60,
         LARGE_FONT_FLAG = 128
     };
-    unsigned char ch;
+    /* COMPILER_STEERED: keep separate byte locals for the editor's shade and length limit. */
+    unsigned char shade = input_shade;
+    unsigned char dalen = max_length;
     short i;
 
     for (i = 0; i < 128; i++)
@@ -1459,9 +1463,9 @@ void checkcommandline(int argc, char **argv)
     short i, j;
     char *c, *mapname;
 
+    i = 1;
     ud.quotes = 0;
     warp_on = 0;
-    i = 1;
     if (argc > 1) {
     while (i < argc) {
         c = argv[i];
@@ -1561,6 +1565,7 @@ void main(int argc, char **argv)
     short p, offset;
     unsigned char shade;
     short x, y;
+    short view; /* COMPILER_STEERED: take a fresh view index for each HUD call. */
 
     setvmode(3);
     puts(main_banner);
@@ -1626,7 +1631,8 @@ attract:
 play:
     while ((ps[myconnectindex].gm & MODE_END) == 0) {
         nonsharedkeys();
-        displayrooms(screenpeek);
+        i = screenpeek;
+        displayrooms(i);
         if (ps[myconnectindex].gm & MODE_TYPE) {
             if (strget(10, 140, next_text_shade(), 79)) {
                 short k;
@@ -1656,9 +1662,12 @@ play:
             if (ps[screenpeek].newowner >= 0)
                 cameratext();
             else {
-                displayweapon(screenpeek);
-                displaystatus(screenpeek);
-                operatefta(screenpeek);
+                view = screenpeek;
+                displayweapon(view);
+                view = screenpeek;
+                displaystatus(view);
+                view = screenpeek;
+                operatefta(view);
             }
             if (numplayers < 2) {
                 getinput(0);
@@ -1685,13 +1694,15 @@ play:
         if (p >= 0) {
             while (getscorename(p) == 0) {
                 nextpage();
-                displayrooms(screenpeek);
+                i = screenpeek;
+                displayrooms(i);
                 displayhighscores();
             }
             memcpy(score_names[p], typemessage, 31);
         }
         do {
-            displayrooms(screenpeek);
+            i = screenpeek;
+            displayrooms(i);
             displayhighscores();
             nextpage();
         } while (keystatus[1] == 0 && keystatus[0x39] == 0 && keystatus[0x1c] == 0);
@@ -1781,6 +1792,7 @@ void playback(void)
 {
     unsigned char which_demo = 1;
     long i;
+    short snum; /* COMPILER_STEERED: capture the view index at the displayrooms call. */
 
 restart:
     opendemoread(which_demo);
@@ -1804,7 +1816,8 @@ restart:
             i++;
         }
         while (totalclock <= lockclock) {
-            displayrooms(screenpeek);
+            snum = screenpeek;
+            displayrooms(snum);
             if (ps[screenpeek].newowner >= 0)
                 cameratext();
             else if (ud.camerasprite == -1) {
@@ -1970,7 +1983,7 @@ void cameratext(void)
 void update_menu_cursor(short tile)
 {
     short mousx, mousy;
-    unsigned char shade = next_text_shade();
+    short shade = (unsigned char)next_text_shade();
     long scale;
 
     menu_previous_buttons = menu_drag;
@@ -2357,7 +2370,9 @@ void moveeffectors(void)
                 ms(i);
             }
             break;
-        case 3:
+        case 3: {
+            short endwall;
+
             if (t[4] == 0)
                 break;
             if ((randomstash / (sprite[i].hitag + 1)) & 1) {
@@ -2370,12 +2385,15 @@ void moveeffectors(void)
                 t[0] = t[3];
             }
             sector[sect].floorshade = sector[sect].ceilingshade = t[0];
-            k = sector[sect].wallptr + sector[sect].wallnum;
-            for (x = (short)sector[sect].wallptr; x < k; x++)
+            endwall = sector[sect].wallnum + sector[sect].wallptr;
+            for (x = (short)sector[sect].wallptr; x < endwall; x++)
                 if (!(wall[x].hitag & 1))
                     wall[x].shade = t[0];
             break;
-        case 4:
+        }
+        case 4: {
+            short endwall;
+
             if ((randomstash / (sprite[i].hitag + 1)) & 1) {
                 t[1] = sprite[i].shade;
                 t[0] = sprite[i].shade;
@@ -2388,11 +2406,12 @@ void moveeffectors(void)
                 sector[sect].floorpal = 0;
             }
             sector[sect].ceilingshade = sector[sect].floorshade = t[1];
-            k = sector[sect].wallptr + sector[sect].wallnum;
-            for (x = (short)sector[sect].wallptr; x < k; x++)
+            endwall = sector[sect].wallnum + sector[sect].wallptr;
+            for (x = (short)sector[sect].wallptr; x < endwall; x++)
                 if (!(wall[x].hitag & 1))
                     wall[x].shade = t[0];
             break;
+        }
         case 5:
             p = findplayer(i, &x);
             if (sprite[i].owner == -1) {
@@ -2529,8 +2548,9 @@ void moveeffectors(void)
                 k = sprite[j].sectnum;
                 m = sprite[j].shade;
                 if (sprite[j].lotag == st && sprite[j].hitag == sprite[i].hitag) {
-                    p = sector[k].wallptr + sector[k].wallnum;
-                    for (l = (short)sector[k].wallptr; l < p; l++)
+                    short endwall = sector[k].wallnum + sector[k].wallptr;
+
+                    for (l = (short)sector[k].wallptr; l < endwall; l++)
                         if (!(wall[l].hitag & 1)) {
                             wall[l].shade += x;
                             if (wall[l].shade < m)
@@ -2603,9 +2623,13 @@ void moveeffectors(void)
                 t[0] = 0;
             } else if (t[0] == 2) {
                 if (sector[sect].floorshade > sprite[i].shade) {
+                    short startwall, endwall;
+
                     sector[sect].floorshade -= 2;
                     sector[sect].ceilingshade -= 2;
-                    for (j = (short)sector[sect].wallptr; j < (short)(sector[sect].wallptr + sector[sect].wallnum); j++)
+                    startwall = sector[sect].wallptr;
+                    endwall = startwall + sector[sect].wallnum;
+                    for (j = startwall; j < endwall; j++)
                         wall[j].shade -= 2;
                 } else
                     t[0] = 0;
@@ -2885,8 +2909,12 @@ void moveeffectors(void)
                 if (ifhitsectors(i) >= 0)
                     sprite[i].shade = 1;
             } else if (sprite[i].shade == 1) {
+                short startwall, endwall;
+
                 /* The initial sector comes from the shared l slot. */
-                for (j = (short)sector[l].wallptr; j < (short)(sector[l].wallptr + sector[l].wallnum); j++)
+                startwall = sector[l].wallptr;
+                endwall = startwall + sector[l].wallnum;
+                for (j = startwall; j < endwall; j++)
                     if (sector[wall[j].nextsector1].hitag == sector[l].hitag)
                         wall[j].picnum = 49;
                 q = 0x80000000;
@@ -3053,8 +3081,8 @@ void moveeffectors(void)
         case 129: {
             unsigned char frames[12] = { 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0 };
 
-            wall[t[2]].overpicnum = frames[t[0]] + 790;
-            wall[wall[t[2]].nextwall1].overpicnum = frames[t[0] + 2] + 790;
+            wall[t[2]].overpicnum = 790 + frames[t[0]];
+            wall[wall[t[2]].nextwall1].overpicnum = 790 + frames[t[0] + 2];
             t[0]++;
             if (t[0] > 9) {
                 deletesprite(i);

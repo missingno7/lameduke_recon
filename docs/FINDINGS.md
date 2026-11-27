@@ -735,3 +735,12 @@ Each entry names the command or artefact that supports it.
   instructions of the inlined IFRND at 1:30900 the oracle's registers and order; two exits still branch one byte
   early because IFSTRENGTH is one byte short. execute 4,519 -> 2,948 differing bytes at the exact size: the low-byte
   GET_H test gives the inlined HOVER the oracle's five-byte `add eax, 0x2000`; its frame is still 4 bytes too large.
+
+## GAME on gpt-6.2-astra (r9astra-game, 2026-11-27; build/workers/r9astra-game/NOTES.md, integrated)
+- PROVEN five new STRICT (game_game 31 -> 36/49, +5,792 B): playback (screenpeek captured in a short before
+  displayrooms restores the 16 missing bytes), getpackets (staged shift count of the fourth flag), cameratext (updated
+  HUD pulse kept in a short), checkcommandline (`i` initialised before clearing the global flags), gametext (incoming
+  x saved before narrowing the line origin).
+- main 1,891 -> 449 differing bytes at the exact size; strget reaches 1,024 B; gamenumber regresses 6 -> 219 bytes
+  in its inlined gametext copy (NEAR either way). moveeffectors recovers the 0x60 frame (content .649 -> .664; 80 B
+  over its proven 14,016-byte body; the next 112 bytes are spawn's jump table).

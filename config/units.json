@@ -2307,7 +2307,7 @@
      "status": "STRICT"
     },
     "gametext": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "minitext": {
      "status": "STRICT"
@@ -2352,7 +2352,7 @@
      "status": "NEAR_MATCH"
     },
     "checkcommandline": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "wait_for_players": {
      "status": "STRICT"
@@ -2382,7 +2382,7 @@
      "status": "STRICT"
     },
     "getpackets": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "waitforeverybody": {
      "status": "NEAR_MATCH"
@@ -2412,10 +2412,10 @@
      "status": "STRICT"
     },
     "playback": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "cameratext": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "lotsofglass": {
      "status": "NEAR_MATCH"
