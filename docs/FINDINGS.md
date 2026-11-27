@@ -650,3 +650,7 @@ Each entry names the command or artefact that supports it.
   `EGS` returning int (implicit-int call of an unprototyped function; GAME's definition returns short). PLAYER 5/8.
 - processinput regains the bullet-frame reload and separate air-reset stores: 15,649 of 15,692 B, content .603 ->
   .661, fuzzy .906 -> .945 (frame 0x104 vs 0x110). spawn_pistol_tracer content .035 -> .138, fuzzy .789 -> .910.
+- PLAYER follow-up 2 (r5cx-player-3): processinput jump-counter load moved (one oracle reference recovered; 15,656 of
+  15,692 B, content .665); spawn_pistol_tracer angle bias applied last restores its frame 0x20 (fuzzy .934); two
+  missing findplayer homes located in processinput (OPEN). NEGATIVE short player index (breaks shoot), direct pistol
+  field accesses, RPG/HANDREMOTE branch rewrites in displayweapon.

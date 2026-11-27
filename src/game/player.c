@@ -62,7 +62,8 @@ void spawn_pistol_tracer(short snum)
     sy = ps[snum].posy;
     weapon_pos = ps[snum].weapon_pos & 127;
     sz = ps[snum].posz - (weapon_pos << 10) + 5376;
-    sa = ps[snum].ang - 16 + ((6 - weapon_pos) << 4);
+    /* COMPILER_STEERED: apply the constant angle bias last to reduce spills. */
+    sa = ps[snum].ang + ((6 - weapon_pos) << 4) - 16;
     dz = (100 - ps[snum].horiz) << 11;
     hitscan(sx + (sintable[(sa + 512) & 2047] >> 8),
         sy + (sintable[sa & 2047] >> 8),
@@ -701,9 +702,11 @@ void processinput(short snum)
         }
     }
     if (ps[snum].jumping_counter) {
-        short jump = ps[snum].jumping_counter;
+        short jump;
 
+        /* COMPILER_STEERED: the oracle reloads the counter after this store. */
         ps[snum].bobcounter = 1024;
+        jump = ps[snum].jumping_counter;
         if (jump < 1024) {
             ps[snum].on_ground = 0;
             ps[snum].poszv -= sintable[jump] >> 5;
