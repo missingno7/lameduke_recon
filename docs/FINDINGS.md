@@ -553,3 +553,14 @@ Each entry names the command or artefact that supports it.
   FX_MAN, GUSWAVE). OPEN: the 1994 header revisions, paths and make order that produced those bytes.
 - NEGATIVE memory size, TZ/TMP, header relocation, basenames, -zld, LF line endings, make order and reverse order:
   no further CONST pool verified.
+
+## MULTI is compiled with -5r (r4multi, Codex, 2026-11-27; build/workers/r4multi/NOTES.md)
+- PROVEN Ken's MULTI object was built with `-5r -s` (Pentium register calling), not `-4r -s`: the unchanged source
+  at -5r reproduces netinitconnection (515 B) with the oracle's signed-short promotion (dword load two bytes
+  early + `sar reg,16`, relocation to `_numplayers-2`), which also appears in getpacket, sendpacket and
+  processreservedmessage; every -4r STRICT function still passes. -3r/-ot/-os/-or/-oa/-ol/-ox/-od/-oi and packing
+  do not produce it; -5r on ENGINE drops to 27/103 (engine stays -4r). Profile `multi` changed to -5r -s.
+- processreservedmessage STRICT (649 B) with Ken's later `j = 1; while (j < length)` loop once sendpacket and
+  getpacket recover their exact extents (1,054 / 1,424 B). MULTI 18 -> 20/25. sendpacket content .354 -> .943.
+  Two steered forms marked (sequence step `+ 254` on a byte; ring mask on the short index).
+- Engine: neartag 222 -> 202 and makepalookup 306 -> 194 differing bytes (no STRICT change).

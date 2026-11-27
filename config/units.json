@@ -2059,7 +2059,7 @@
      "status": "STRICT"
     },
     "netinitconnection": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "netuninitconnection": {
      "status": "STRICT"
@@ -2092,7 +2092,7 @@
      "status": "STRICT"
     },
     "processreservedmessage": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "sendlogon": {
      "status": "STRICT"

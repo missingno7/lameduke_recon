@@ -5382,8 +5382,9 @@ neartag (long xs, long ys, long zs, short sectnum, short ange, short *neartagsec
 	ye = ys+vy;
 	ze = zs+vz;
 
-	tempshortnum = 1;
+	/* COMPILER_STEERED. Queue initialization order affects register allocation. */
 	tempshortcnt = 0;
+	tempshortnum = 1;
 	clipsectorlist[0] = sectnum;
 	while (tempshortcnt < tempshortnum)
 	{
@@ -7165,7 +7166,7 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 
 makepalookup(long palnum, char *remapbuf, signed char r, signed char g, signed char b)
 {
-	long i, j, k, palidx, ravg, gavg, bavg, dist, mindist;
+	long i, j, k, paletteoffset, palidx, ravg, gavg, bavg, dist, mindist;
 	char col, *ptr, *ptr2;
 
 	if (paletteloaded == 0) return;
@@ -7199,7 +7200,9 @@ makepalookup(long palnum, char *remapbuf, signed char r, signed char g, signed c
 	{
 		for(i=0;i<256;i++)
 		{
-			palidx = (remapbuf[i]&255)*3;
+			/* COMPILER_STEERED. Form the RGB offset with adds and advance it by three. */
+			palidx = remapbuf[i]&255;
+			palidx = palidx+palidx+palidx;
 			ptr2 = palookup[palnum];
 			ptr2 += i;
 			for(j=0;j<numpalookups;j++)
@@ -7209,9 +7212,9 @@ makepalookup(long palnum, char *remapbuf, signed char r, signed char g, signed c
 				bavg = palette[palidx+2]+((b-palette[palidx+2])*j)/numpalookups;
 				mindist = 0x7fffffff;
 				col = 0;
-				for(k=0;k<256;k++)
+				for(k=0,paletteoffset=0;k<256;k++,paletteoffset+=3)
 				{
-					dist = klabs(palette[k*3]-ravg)+klabs(palette[k*3+1]-gavg)+klabs(palette[k*3+2]-bavg);
+					dist = klabs(palette[paletteoffset]-ravg)+klabs(palette[paletteoffset+1]-gavg)+klabs(palette[paletteoffset+2]-bavg);
 					if (dist < mindist)
 					{
 						col = k;

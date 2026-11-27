@@ -569,6 +569,7 @@ long simulateint(unsigned char intnum, long daeax, long daebx, long daecx,
 void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
 {
     long i, j;
+    unsigned char previoussequence;
 
     if (multioption <= 0) return;
     if (multioption < 5)
@@ -576,7 +577,7 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
         if (buffer[0] == 253 || buffer[0] == 254)
             outcnt = 0;
         outbufindex[outcnt] = *outbufend;
-        comsend((length & 3) + (outcnt << 2));
+        comsend((outcnt << 2) + (length & 3));
         for (i = 0; i < length; i++)
             comsend(buffer[i]);
         if (comrateoption > 0)
@@ -601,10 +602,11 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
     else if (multioption >= 5)
     {
         i = 262144;
-        while (ecbput[8] != 0)
-            if (--i <= 0) break;
-        messout[0] = myconnectindex;
+        while (--i > 0 && ecbput[8] != 0)
+        {
+        }
         j = 1;
+        messout[0] = myconnectindex;
 
         if (buffer[0] == 253 || buffer[0] == 254)
         {
@@ -621,12 +623,16 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
                 messout[j++] = 255;
                 for (i = connecthead; i >= 0; i = connectpoint2[i])
                     if (i != myconnectindex)
-                        messout[j++] = netoutcnt[i]++;
+                    {
+                        messout[j++] = netoutcnt[i];
+                        netoutcnt[i]++;
+                    }
             }
             else
             {
                 messout[j++] = otherconnectindex;
-                messout[j++] = netoutcnt[otherconnectindex]++;
+                messout[j++] = netoutcnt[otherconnectindex];
+                netoutcnt[otherconnectindex]++;
             }
             messout[j++] = length & 255;
             messout[j++] = (length >> 8) & 255;
@@ -636,13 +642,15 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
             {
                 messout[j++] = 255;
                 for (i = connecthead; i >= 0; i = connectpoint2[i])
+                    /* COMPILER_STEERED. Step back two in the byte sequence. */
                     if (i != myconnectindex)
-                        messout[j++] = netoutcnt[i] - 2;
+                        messout[j++] = netoutcnt[i] + 254;
             }
             else
             {
                 messout[j++] = prevpacketindex;
-                messout[j++] = netoutcnt[prevpacketindex] - 2;
+                previoussequence = netoutcnt[prevpacketindex];
+                messout[j++] = previoussequence + 254;
             }
             messout[j++] = prevpacketlength & 255;
             messout[j++] = (prevpacketlength >> 8) & 255;
@@ -659,6 +667,8 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
 {
     short i, j, length, sublength, start;
     unsigned char bad, totalbad, toindex;
+    unsigned char sequence;
+    volatile unsigned char *ring;
 
     if (multioption <= 0) return 0;
     if (multioption < 5)
@@ -680,7 +690,9 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
                         syncbuf[syncbufleng++] = ESC2;
                     else if (i < 64)
                     {
-                        j = (outbufindex[i] + COMBUFSIZ - 2) & (COMBUFSIZ - 1);
+                        /* COMPILER_STEERED. Keep the ring mask on the short index. */
+                        j = outbufindex[i] + COMBUFSIZ - 2;
+                        j &= COMBUFSIZ - 1;
                         outbuf[j] = ESC1;
                         outbuf[j + 1] = ESC2;
                         _disable();
@@ -712,7 +724,8 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
 
             bad = 0;
             length = syncbufleng - 3 + ((comrateoption == 0) << 1);
-            if ((syncbuf[0] >> 2) != *incnt)
+            sequence = syncbuf[0] >> 2;
+            if (sequence != *incnt)
             {
                 if (*incnt == 1 && syncbuf[1] == 254)
                     myconnectindex = myconnectnum < otherconnectnum;
@@ -720,10 +733,13 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
             }
             if ((syncbuf[0] & 3) != (length & 3)) bad = 1;
             for (i = 0; i < length; i++) buffer[i] = syncbuf[i + 1];
-            if (comrateoption > 0 &&
-                getcrc(buffer, length) != ((long)syncbuf[syncbufleng - 2]
-                                          + ((long)syncbuf[syncbufleng - 1] << 8)))
-                bad = 1;
+            if (comrateoption > 0)
+            {
+                long expected;
+                expected = (long)syncbuf[syncbufleng - 1] << 8;
+                expected += syncbuf[syncbufleng - 2];
+                if (getcrc(buffer, length) != expected) bad = 1;
+            }
             syncbufleng = 0;
             if (bad == 1)
             {
@@ -745,9 +761,10 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
         start = *inbufplc;
         if (*inbufplc == *inbufend) return 0;
         totalbad = 0;
-        length = inbuf[*inbufplc];
+        ring = inbuf;
+        length = ring[*inbufplc];
         *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
-        length += (short)inbuf[*inbufplc] << 8;
+        length += (short)ring[*inbufplc] << 8;
         *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
         *otherconnectindex = inbuf[*inbufplc];
         *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
@@ -783,9 +800,10 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
             else
                 netincnt[*otherconnectindex] = 0;
 
-            sublength = inbuf[*inbufplc];
+            ring = inbuf;
+            sublength = ring[*inbufplc];
             *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
-            sublength += (short)inbuf[*inbufplc] << 8;
+            sublength += (short)ring[*inbufplc] << 8;
             *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
             for (i = 0; i < sublength; i++)
             {
@@ -990,11 +1008,13 @@ void processreservedmessage(short length, unsigned char *buffer)
             }
             else if (multioption >= 5)
             {
-                for (j = 1; j < length; j += 14)
+                j = 1;
+                while (j < length)
                 {
                     id = (long)buffer[j] + ((long)buffer[j + 1] << 8)
                        + ((long)buffer[j + 2] << 16) + ((long)buffer[j + 3] << 24);
                     netinitconnection(id, &buffer[j + 4]);
+                    j += 14;
                 }
             }
             break;

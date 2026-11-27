@@ -151,10 +151,10 @@
   "multi": {
    "install": "wc95b",
    "flags": [
-    "-4r",
+    "-5r",
     "-s"
    ],
-   "evidence": "MULTI.OBJ (split from the engine 1994-09-15): same source gives 18 STRICT with -4r -s and 2 STRICT with -4r -s -or (multi worker 2026-11-26)"
+   "evidence": "MULTI.OBJ (split from the engine 1994-09-15): same source gives 18 STRICT with -4r -s and 2 STRICT with -4r -s -or (multi worker 2026-11-26) | 2026-11-27 r4multi: -5r (Pentium register calling) is the original setting: unchanged source at -5r reproduces netinitconnection (515 B) incl. the dword-load + sar 16 signed-short promotions (relocation to _numplayers-2) seen throughout the oracle's MULTI; all -4r STRICT functions still pass; -3r/-ot/-os/-or/-oa/-ol/-ox/-od/-oi/packing do not explain the promotions; -5r on ENGINE gives 27/103 (engine stays -4r)."
   },
   "game_oe": {
    "install": "wc95b",
