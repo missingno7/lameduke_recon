@@ -1020,3 +1020,13 @@ Each entry names the command or artefact that supports it.
   sprite-list while closes it; 33/65 -> 65/65 blocks). drawmaskwall 276 -> 7 bytes (dax reused for the wall repeat
   count; xb1[z] in EBP vs ESI remains); neartag 201 -> 110. ENGINE 88/103. Attribution: idioms reverse 1,673 B /
   +32 blocks, own reasoning 1,053, near 269, donors 91.
+
+## Lock-in audit (lockin, astra, 2026-11-27; docs/LOCKIN.md, docs/COUPLINGS.md) — NEGATIVE for wrong lock-ins
+- 19 compiler-steered STRICT functions, 73 differently declared names, all 60 NEAR functions, 137 DOS caller/callee
+  controls: no change unblocks a NEAR function while preserving every STRICT match; existing STRICT matches are not
+  wrongly locked in. shoot does constrain processinput (a donor-supported declaration order fixes five processinput
+  stack operands but breaks six others). moveweapons' 4-byte write into a 2-byte local is genuine (removing its body
+  leaves the other ACTORS functions byte-identical).
+- STRONG ACTORS saw findplayer as an OLD-STYLE `extern int findplayer();` (reproduces the whole ACTORS DOS object);
+  replaces the compiler-steered prototype in actors.h (byte-neutral). Giving ACTORS the defining unit's short return
+  loses movefta and moveweapons (1,872 B).

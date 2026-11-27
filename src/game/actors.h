@@ -44,8 +44,8 @@ extern void dragpoint(short w, long x, long y);
 extern int getangle(long x, long y);
 extern short getincangle();
 extern long krand(void);
-/* COMPILER_STEERED: ACTORS callers keep the full return register before narrowing. */
-extern int findplayer(short i, long *dist);
+/* Old-style declaration, as ACTORS evidently saw it (int return, no prototype; lockin audit 2026-11-27). */
+extern int findplayer();
 extern short checkcursectnums(short sectnum);
 extern int cansee(long x1, long y1, long z1, short sect1,
     long x2, long y2, long z2, short sect2);
