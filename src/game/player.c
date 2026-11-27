@@ -47,24 +47,24 @@ void kickview(short snum, short i)
 void spawn_pistol_tracer(short snum)
 {
     /* COMPILER_STEERED: local order for the hitscan argument homes. */
-    short hitspr;
-    long hity;
-    long sy;
-    long hitz;
-    short hitsect;
-    long hitx;
-    short i;
-    short hitwall;
     unsigned char weapon_pos;
+    long sx;
+    short hitspr;
+    short hitwall;
+    long sy;
+    short i;
+    long hity;
+    short hitsect;
     long sz;
     long sa;
-    long sx;
+    long hitz;
+    long hitx;
 
-    sa = ps[snum].ang - 16;
     sx = ps[snum].posx;
     sy = ps[snum].posy;
     weapon_pos = ps[snum].weapon_pos & 127;
     sz = ps[snum].posz - (weapon_pos << 10) + 5376;
+    sa = ps[snum].ang - 16;
     hitscan(sx + (sintable[(TRACER_AIM_ANGLE(sa, weapon_pos) + 512) & 2047] >> 8),
         sy + (sintable[TRACER_AIM_ANGLE(sa, weapon_pos) & 2047] >> 8),
         sz, ps[snum].cursectnum,
@@ -95,13 +95,13 @@ void shoot(short i, short atwith, unsigned char impact)
 {
     /* COMPILER_STEERED: declaring p here gives the two inlined
        findplayer results separate stack homes in processinput. */
-    short p;
     short hitspr;
     short hitwall;
     long sx;
     long sy;
     long sz;
     long j;
+    short p;
     long distance;
     short sect;
     if (impact) {
@@ -551,13 +551,13 @@ void update_air(short snum)
 void processinput(short snum)
 {
     /* COMPILER_STEERED: local order for Watcom's allocation and stack homes. */
-    long wpos;
     long fz;
+    long yvect;
     long xvect;
     long doubvel;
     long cz;
     long hz;
-    long yvect;
+    long wpos;
     short i;
     long lz;
     short psectlotag;
@@ -930,7 +930,6 @@ domove:
         break;
     case CLUB: {
         unsigned char frame;
-        struct player_struct *p = &ps[snum];
 
         ps[snum].kickback_pic++;
         frame = clubframes[ps[snum].knee_sequence][ps[snum].kickback_pic];
@@ -941,8 +940,7 @@ domove:
         case 3:
             if (ps[snum].kickback_pic == 4 && ps[snum].ammo_bat_amount && (syncbits[snum] & SB_FIRE)
                 && (sector[ps[snum].cursectnum].lotag & 0x7FFF) != 2) {
-                /* COMPILER_STEERED: the CLUB shot uses the saved player pointer. */
-                shoot(p->i, CLUB, 0);
+                shoot(ps[snum].i, CLUB, 0);
                 spritesound(24, ps[snum].i);
                 ps[snum].ammo_bat_amount--;
                 ps[snum].kickback_pic--;
