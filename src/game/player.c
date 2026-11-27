@@ -237,17 +237,17 @@ signed char clubframes[6][20] = {
 void displayweapon(short snum)
 {
     /* COMPILER_STEERED: local order for the knee table and draw argument allocation. */
-    long weapon_xoffset;
-    unsigned char weapon_pos;
+    long xvel;
     long gs;
     unsigned short cw;
+    long tile;
+    long weapon_xoffset;
     unsigned char gun_pos;
     short look;
     long draw_x;
+    unsigned char weapon_pos;
     short looking_arc;
     long draw_y;
-    long xvel;
-    long tile;
 
     if (ps[snum].health <= 0)
         return;
@@ -426,13 +426,17 @@ void displayweapon(short snum)
         weapon_xoffset = -32;
         if (ps[snum].kickback_pic > 4)
             gun_pos -= 12 * (ps[snum].kickback_pic - 4);
-        if (ps[snum].kickback_pic != 0)
+        if (ps[snum].kickback_pic != 0) {
             tile = HANDREMOTE + frames[ps[snum].kickback_pic];
-        else
+            draw_x = (syncangvel[snum] >> 4) + weapon_xoffset + 150 - (ps[snum].look_ang >> 1);
+            draw_y = looking_arc + 258 - gun_pos - (ps[snum].horiz >> 4);
+            goto draw_overlay;
+        } else {
+            draw_x = (syncangvel[snum] >> 4) + weapon_xoffset + 150 - (ps[snum].look_ang >> 1);
+            draw_y = looking_arc + 258 - gun_pos - (ps[snum].horiz >> 4);
             tile = HANDREMOTE;
-        draw_x = weapon_xoffset + 150 + (syncangvel[snum] >> 4) - (ps[snum].look_ang >> 1);
-        draw_y = looking_arc + 258 - gun_pos - (ps[snum].horiz >> 4);
-        goto draw_overlay;
+            goto draw_overlay;
+        }
     }
     }
     return;

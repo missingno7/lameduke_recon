@@ -744,3 +744,10 @@ Each entry names the command or artefact that supports it.
 - main 1,891 -> 449 differing bytes at the exact size; strget reaches 1,024 B; gamenumber regresses 6 -> 219 bytes
   in its inlined gametext copy (NEAR either way). moveeffectors recovers the 0x60 frame (content .649 -> .664; 80 B
   over its proven 14,016-byte body; the next 112 bytes are spawn's jump table).
+- SECTOR astra follow-up (r8astra-sector-2): scoping the sector index and staging the key latch recover checksectors'
+  exact frame 0xa8 with both lift paths (content .419 -> .603, fuzzy .912); storing the animation pointer before its
+  goal recovers 20 operatesectors blocks (content .672 -> .786). checkhitswitch (2 B tie) and checkhitwall unchanged.
+- PLAYER astra follow-up (r7astra-player-3): only the displayweapon change is adopted (separate HANDREMOTE reads feed
+  one shared draw; 2,994 -> 2,949 differing bytes; all 23 draw calls and 11 CLUB targets verify). Alternatives kept in
+  build/workers/r7astra-player/followup2/: a processinput candidate matching 388/422 blocks (.753/.960) that moves the
+  fifth findplayer home, and a tracer prefix variant that moves both inlined findplayer homes.

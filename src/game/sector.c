@@ -129,8 +129,8 @@ int setanimation(short animsect, long *animptr, long thegoal, long thevel)
             break;
         }
     animatesect[j] = animsect;
-    animategoal[j] = thegoal;
     animateptr[j] = animptr;
+    animategoal[j] = thegoal;
     animatevel[j] = thevel;
     if (j == animatecnt)
         animatecnt++;
@@ -290,15 +290,13 @@ void operatesectors(short sn, short ii)
         break;
     case 9: {
         /* The sliding-door geometry follows Ken's September 1994 routine. */
-        /* COMPILER_STEERED: separate door counter and order the center coordinates for spills. */
-        long cy, cx, first, last, sp, dx, dy;
+        /* COMPILER_STEERED: initialize both center coordinates here for the inlined door scans. */
+        long cx = 0, cy = 0, first, last, sp, dx, dy;
         long door[2], door_index;
         short w, prev;
 
         first = sector[sn].wallptr;
         last = first + sector[sn].wallnum - 1;
-        cx = 0;
-        cy = 0;
         sp = sector[sn].extra >> 4;
         for (w = first; w <= last; w++) {
             cx += wall[w].x;
@@ -1044,10 +1042,9 @@ char checkhitceiling(short sn)
 /* Sector specials and the use key for player snum. */
 void checksectors(short snum)
 {
-    /* COMPILER_STEERED: these locals preserve the extent with the inlined wall toggle. */
     long i = -1;
     short w;
-    short sn;
+    short under_tag;
     short source;
 
     switch (sector[ps[snum].cursectnum].lotag) {
@@ -1066,7 +1063,9 @@ void checksectors(short snum)
         ps[snum].toggle_key_flag = 0;
         return;
     }
-    if (ps[snum].toggle_key_flag)
+    /* COMPILER_STEERED: reuse the wide sprite index for the key latch. */
+    i = ps[snum].toggle_key_flag;
+    if (i)
         return;
 
     ps[snum].toggle_key_flag = 1;
@@ -1101,22 +1100,27 @@ void checksectors(short snum)
         }
     }
 
-    switch ((short)(sector[neartagsector].lotag & 32767)) {
+    /* COMPILER_STEERED: the near tag shares the wall index used below. */
+    w = sector[neartagsector].lotag & 32767;
+    switch (w) {
     case 9:
     case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
-    case 25: case 26: case 27: case 29:
-        /* COMPILER_STEERED: the wide initiator here preserves both inlined lift tails. */
-        sn = neartagsector;
+    case 25: case 26: case 27: case 29: {
+        /* COMPILER_STEERED: this scope and wide initiator preserve both lift tails. */
+        short nearsector = neartagsector;
         i = ps[snum].i;
-        operatesectors(sn, i);
+        operatesectors(nearsector, i);
         return;
     }
-    switch ((short)(sector[ps[snum].cursectnum].lotag & 32767)) {
+    }
+    under_tag = sector[ps[snum].cursectnum].lotag & 32767;
+    switch (under_tag) {
     case 15: case 16: case 17: case 18: case 19:
     case 26: case 27: case 28:
-        sn = ps[snum].cursectnum;
+        /* COMPILER_STEERED: reuse snum after the final player lookup. */
         source = ps[snum].i;
-        operatesectors(sn, source);
+        snum = ps[snum].cursectnum;
+        operatesectors(snum, source);
         return;
     }
     w = neartagwall;
