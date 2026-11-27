@@ -701,11 +701,11 @@ void move_actor(short i, short p, long x)
         sprite[i].xvel >>= 1;
     if (flags & FACE_PLAYER)
         sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-    if (((unsigned char *)&flags)[0] & GET_H)
+    if (flags & GET_H)
         sprite[i].xvel += (moveptr[0] - sprite[i].xvel) >> 1;
     if (flags & GET_V)
         sprite[i].zvel += ((moveptr[1] << 4) - sprite[i].zvel) >> 1;
-    if (flags & HOVER) {
+    if (((unsigned char *)&flags)[0] & HOVER) {
         if ((height = sprite[i].z + 8192) < sector[sprite[i].sectnum].floorz)
             sprite[i].zvel += moveptr[1] << 4;
         else if (height > sector[sprite[i].sectnum].floorz)
@@ -746,8 +746,8 @@ void move_actor(short i, short p, long x)
 /* Run one CON instruction for actor i (player p at distance x); nonzero ends the current block. */
 char parse(short i, short p, long x)
 {
-    /* Compiler-steered: the IFP locals share function scope. STATE saves its script pointer inside the case. */
-    long j, speed, flags;
+    /* Compiler-steered declaration order also affects the inlined interpreter. */
+    long j, flags, speed;
 
     if (killit_flag)
         return 1;
@@ -797,11 +797,16 @@ case CON_IFSQUISHED:
     CON_NEXT();
 
 case CON_IFDEAD:
-    /* Compiler-steered: initialize with sprite health before the player override. */
-    j = sprite[i].extra;
-    if (sprite[i].picnum == APLAYER)
-        j = ps[sprite[i].yvel].health - 1;
-    PARSE_IF(j < 0);
+    /* Compiler-steered health temporary and decrement preserve the two operand loads. */
+    if (sprite[i].picnum == APLAYER) {
+        j = ps[sprite[i].yvel].health;
+        j--;
+    } else {
+        long health = sprite[i].extra;
+        j = health;
+    }
+    /* Compiler-steered signed comparison preserves the following case offset. */
+    PARSE_IF(j <= -1);
     CON_NEXT();
 
 case CON_ACTION:
@@ -946,7 +951,7 @@ case CON_SPAWN:
 
 case CON_IFWASWEAPON:
     insptr++;
-    PARSE_IF(hit_sprite >= 0 && sprite[hit_sprite].picnum == *insptr);
+    PARSE_IF(hit_sprite >= 0 && *insptr == sprite[hit_sprite].picnum);
     CON_NEXT();
 
 case CON_IFACTION:

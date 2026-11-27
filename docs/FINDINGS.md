@@ -823,3 +823,7 @@ Each entry names the command or artefact that supports it.
   claims audited against the 9.5 STRICT corpus: 125 confirmed for 9.5 (with examples), 36 refuted, 414 untested (no
   occurrence). PROVEN version differences: 9.5 pools repeated 30-byte string literals where 10.0 splits them; a double
   constant outside the 10.x 16-digit grid; sparse switches emit REPNE SCASW under the ENGINE and MULTI profiles.
+- GAMEDEF astra follow-up 3 (r8astra-gamedef-4): parse 196 -> 141 differing bytes (IFDEAD's conditional health load;
+  all 139 bytes of IFWASWEAPON; all 52 switch destinations agree); execute 2,948 -> 2,909. Alternatives kept in
+  build/workers/r8astra-gamedef/round4/: an IFCANSEE form matching 1,085 consecutive bytes from parse's entry (but
+  2,354 total after later case shifts), and a 44-byte-frame execute at exact size (4,343 bytes).
