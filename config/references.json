@@ -963,6 +963,81 @@
    "priority": "control",
    "archive_hash_in_config": false,
    "relevance": "Companion MZ sound setup. Inventory-only in binscan."
+  },
+  "repositories": {
+   "ayrtondenner_ReverseApoc": {
+    "url": "https://github.com/ayrtondenner/ReverseApoc.git",
+    "commit": "1a8c04e4527466776b807d584a9a63dfb1560231",
+    "path": "external/gh/ayrtondenner_ReverseApoc",
+    "license": "GPL-3.0-or-later on the inspected converter and probes",
+    "relevance": "10.6 register-call C lifter, signature inference, pointer/field tracing and calibrated stack-slot ordering. Comparative compiler evidence."
+   },
+   "matteo-pacini_theme-hospital-decomp": {
+    "url": "https://github.com/matteo-pacini/theme-hospital-decomp.git",
+    "commit": "7993814a4f562a1898b20621dbfa60644f9697d7",
+    "path": "external/gh/matteo-pacini_theme-hospital-decomp",
+    "license": "GPL-3.0-or-later for project tools, separate terms for src/include (LICENSE)",
+    "relevance": "10.6 C/C++ LE, demo debug-name transfer, relocation-aware objdiff and C variant search. Requires a close named build for transfer."
+   },
+   "nemo22_retrokit": {
+    "url": "https://github.com/nemo22/retrokit.git",
+    "commit": "7625c6b6a1f29d4793bc528c31621cd9ef784b1d",
+    "path": "external/gh/nemo22_retrokit",
+    "license": "Apache-2.0 for tools, separate signature sources per NOTICE",
+    "relevance": "Register/stack LE compiler specs, bottom-up prototype recovery and caller-side register evidence. Compare with existing Ghidra Watcom model."
+   },
+   "victor-zinkv_wcdctool": {
+    "url": "https://github.com/victor-zinkv/wcdctool.git",
+    "commit": "d9d903be500b02eb96a3b4b4c392830a84f564d3",
+    "path": "external/gh/victor-zinkv_wcdctool",
+    "license": "No top-level license found for the inspected tool",
+    "relevance": "WDUMP and objdump annotation for Watcom LE/debug data. Does not infer erased source locals."
+   },
+   "purseclab_D-helix": {
+    "url": "https://github.com/purseclab/D-helix.git",
+    "commit": "fda23efff257674ef8f09afd96b13450b043bb7d",
+    "path": "external/gh/purseclab_D-helix",
+    "license": "BSD-3-Clause (see LICENSE)",
+    "relevance": "Patched symbolic execution of lifted binaries and recompiled decompiler output. Paired bit-vector observations inspired the local DOS slice experiment."
+   },
+   "GrammaTech_retypd": {
+    "url": "https://github.com/GrammaTech/retypd.git",
+    "commit": "8f7f72be9a567731bb82636cc91d70a3551050bf",
+    "path": "external/gh/GrammaTech_retypd",
+    "license": "GPL-3.0 (LICENSE.md)",
+    "relevance": "Interprocedural subtyping constraints and sketches converted to C types. Core requires an external constraint generator."
+   },
+   "GrammaTech_retypd-ghidra-plugin": {
+    "url": "https://github.com/GrammaTech/retypd-ghidra-plugin.git",
+    "commit": "814bbe20cf4e52ac6e4e798c71fb49b6ff835cd5",
+    "path": "external/gh/GrammaTech_retypd-ghidra-plugin",
+    "license": "GPL-3.0 (LICENSE.md)",
+    "relevance": "P-code varnode, signed-operation, pointer-field and interface constraints for Retypd. 32-bit x86 dimensions supported after ABI seeding."
+   },
+   "mahaloz_sailr-eval": {
+    "url": "https://github.com/mahaloz/sailr-eval.git",
+    "commit": "2c3c6b026acb501d92245f8e69f5438da36562fb",
+    "path": "external/gh/mahaloz_sailr-eval",
+    "license": "BSD-2-Clause (LICENSE)",
+    "relevance": "Evaluation of control-flow structuring against source CFGs, wrappers for angr/IDA/Ghidra. Corpus build suppresses inlining."
+   },
+   "macabeus_mizuchi": {
+    "url": "https://github.com/macabeus/mizuchi.git",
+    "commit": "25eaef4214574cc20f376878dbc1b8099e97164e",
+    "path": "external/gh/macabeus_mizuchi",
+    "license": "MIT (LICENSE)",
+    "relevance": "Matching workflow with compiler, objdiff-wasm, m2c and permuter plugins. No DOS Watcom target in inspected platform schema."
+   },
+   "DrBellubins_DecompileAnything": {
+    "url": "https://github.com/DrBellubins/DecompileAnything.git",
+    "commit": "9aa9243a7ce76899188f5fabb91262e66408cfbc",
+    "path": "external/gh/DrBellubins_DecompileAnything",
+    "license": "No top-level license found for the inspected tool",
+    "relevance": "Ghidra and ELF/PE GCC/MSVC build/diff workflow, register abstraction and C++ RTTI extraction. No LE/OMF verifier."
+   }
+  },
+  "leads": {
+   "angr_dsurvey": "angr source inspected online at v9.2.42, not acquired or installed. call_state/SimCC and VEX/AIL VariableRecoveryFast are relevant. https://docs.angr.io/en/v9.2.42/_modules/angr/factory.html and https://docs.angr.io/en/v9.2.42/_modules/angr/analyses/variable_recovery/variable_recovery_fast.html"
   }
  },
  "repositories": {

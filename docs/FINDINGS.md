@@ -1253,3 +1253,14 @@ Each entry names the command or artefact that supports it.
 - SECTOR round 4: joint goal-read + speed-cache form at exact extent raises the unit's matched blocks 1,128 -> 1,146
   (checksectors 303 -> 313, cheatkeys 227 -> 241, operatesectors 394 -> 388); remaining register conflict at the
   downward elevator's speed load 1:17407.
+
+## Decompilation-research survey (dsurvey, astra, 2026-11-28; build/workers/dsurvey/REPORT.md)
+- Watcom projects (Theme Hospital decomp, ReverseApoc, retrokit, wcdctool) target Watcom 10.x and duplicate what we
+  have (per-unit compile/verify, block lifting, convention detection, WDUMP parsing); nothing new for 9.5.
+- Research tools: retypd (type constraints) and SAILR (structuring metrics) overlap structinfer/blockdiff; mizuchi and
+  DecompileAnything add nothing applicable. ONE idea ported as an experiment: D-helix-style point-wise equivalence
+  (compare the value consumed at a specific instruction; search inputs that make the two builds disagree; replay on
+  machine code). Controls: krand equal; AL_SetVoiceVolume's min/max clamp detected (velocity 64: D3D 127, ROTT 64).
+  Live: both of moveactors' flagged argument differences (EGS tile number at 1:27940, myos shade at 1:2852b) agree for
+  all 65,536 inputs -> semir's two SOURCE clusters there are false alarms (allocation/narrowing form only).
+  Value: eliminates wrong hypotheses cheaply; no direct gain. Rayman's difftest is the full-function version.
