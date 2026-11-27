@@ -4537,7 +4537,8 @@ overwritesprite (long thex, long they, short tilenum, signed char shade, char or
 
 		if (option[0] == 0)
 		{
-			p = mul80(um)+(x>>2)+0xa0000+(page<<14);
+			// COMPILER_STEERED: Group the planar page offset separately from the row and column.
+			p = ((x>>2)+mul80(um)) + chainoffset;
 			koutpw(0x3c4,2+(256<<(x&3)));
 		}
 		else
@@ -5203,7 +5204,7 @@ hitscan(long xs, long ys, long zs, short sectnum, long vx, long vy, long vz,
 	short *hitsect, short *hitwall, short *hitsprite, long *hitx, long *hity, long *hitz)
 {
 	long z, zz, xe, ye, ze, x1, y1, z1, x2, y2, z2, intx, inty, intz;
-	long topt, topu, bot, daxsiz, daysiz, dist, offx, offy;
+	long topt, topu, bot, daxsiz, daysiz, dist, offx, offy, dx, dy;
 	short tempshortcnt, tempshortnum, dasector, startwall, endwall;
 	short nextsector1, bad, point2;
 
@@ -5305,21 +5306,23 @@ hitscan(long xs, long ys, long zs, short sectnum, long vx, long vy, long vz,
 		{
 			if (((sprite[z].cstat&1) > 0) && ((sprite[z].cstat&48) != 32))
 			{
+				z1 = sprite[z].z;
 				x1 = sprite[z].x;
 				y1 = sprite[z].y;
-				z1 = sprite[z].z;
 
-				topt = vx*(x1-xs) + vy*(y1-ys);
+				dx = x1-xs; dy = y1-ys;
+				topt = vx*dx + vy*dy;
 				if (topt > 0)
 				{
 					bot = vx*vx + vy*vy;
 					if (bot != 0)
 					{
 						intz = zs+scale(vz,topt,bot);
-						daysiz = (tilesizy[sprite[z].picnum]*sprite[z].yrepeat)<<8;
-						if ((z1 >= intz) && (z1-(daysiz>>6) <= intz))
+						// COMPILER_STEERED: Keep the shifted height calculation in the lower-bound test.
+						daysiz = tilesizy[sprite[z].picnum]*sprite[z].yrepeat;
+						if ((z1 >= intz) && (z1-((daysiz<<8)>>6) <= intz))
 						{
-							topu = vx*(y1-ys) - vy*(x1-xs);
+							topu = vx*dy - vy*dx;
 
 							offx = scale(vx,topu,bot);
 							offy = scale(vy,topu,bot);
@@ -5920,7 +5923,8 @@ void keepaway(long *x, long *y, short clipwall)
 raytrace (long x, long y, long xvect, long yvect, long *intx, long *inty)
 {
 	short z, hitwall;
-	long x1, x2, x3, x4, y1, y2, y3, y4, dx, dy, bot, topu, nintx, ninty;
+	// COMPILER_STEERED: Order the first endpoint locals for Watcom's stack homes.
+	long y1, x2, x3, x4, x1, y2, y3, y4, dx, dy, bot, topu, nintx, ninty;
 	long templong1, templong2, templong3, templong4, cnt;
 
 	x3 = x; y3 = y;
@@ -6825,15 +6829,14 @@ setview(long x1, long y1, long x2, long y2)
 	{
 		j = y2-y1+1;
 		k = (YDIM>>1)-(j>>1);
+		j += k;
 		startumost[i] = k;
-		startdmost[i] = k+j;
+		startdmost[i] = j;
 	}
-	j = y1-startumost[0];
-	if (option[0] != 7)
-		k = (j*5)<<6;
-	else
-		k = (j*5)<<7;
-	viewoffset = k+x1;
+	// COMPILER_STEERED: Reuse the span and loop locals for the view and bottom bounds.
+	j = ((option[0] != 7) ? (y1-startumost[0])*320
+	                      : (y1-startumost[0])*640)+x1;
+	viewoffset = j;
 
 	if (xdimen < XDIM)
 		for(i=xdimen;i<XDIM;i++)
@@ -6843,16 +6846,15 @@ setview(long x1, long y1, long x2, long y2)
 		}
 	if (option[0] == 7)
 	{
-		j = ydimen;
-		ytop = (YDIM-j)>>1;
-		k = YDIM; k += j; k >>= 1;
+		ytop = (YDIM-ydimen)>>1;
+		i = (YDIM+ydimen)>>1;
 	}
 	else
 	{
 		ytop = 0;
-		k = YDIM;
+		i = YDIM;
 	}
-	ybot = k;
+	ybot = i;
 }
 
 precache()

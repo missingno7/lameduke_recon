@@ -97,11 +97,11 @@ used); live fandom pages sit behind a Cloudflare check.
 | ROTT 1.0 ROTT.EXE | TS_AddTask reads `ptr->prev` directly (identical December body in both binaries) | +1 STRICT, +156 B (ASS 349/375) |
 | Duke3D extras GAMERBG.H | player fields, SOUNDOWNER/SAMPLE, clubframes/bonus_xy/diz/user_quote names | names only (byte-neutral) |
 | Asset/CON cross-check | CON `sound` lookup tests `i == 38` as the executable does | semantic fix (no byte change) |
-| L7P 75M/75T, Witchaven objects | engine worker engfix5 (running) | pending |
+| L7P 75M.EXE (Sep 1994), BUIL0719 | setview span/stride form, hitscan sprite deltas, overwritesprite, raytrace | no STRICT change; setview 123 -> 9 differing bytes, content 0.62 -> 0.94; hitscan 0.73 -> 0.77 |
 
 ## Promising directions
 
-1. Engine NEAR functions against the September-1994 L7P binaries (same compiler): in progress (engfix5).
+1. Engine: setview is 9 bytes from STRICT after the L7P-guided rewrite (registers/load order); draw2dscreen and rotatesprite need extent-preserving forms.
 2. Shadow Warrior January/February 1995 prototypes if the user installs the free Steam app.
 3. September-1995 GAME.CON and the 0.99 CON as intermediate CON vocabulary for gamedef (parse/execute).
 4. A source-level xscan run over the newly acquired C (Witchaven/TekWar GAME.C, CONVMAPS, BUILDC) for names and

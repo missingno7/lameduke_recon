@@ -512,3 +512,10 @@ Each entry names the command or artefact that supports it.
 - Leads only (not acquired): SW 1995-01-15/02-10 prototypes (free Steam app 238070, needs a Steam client), L7P full
   builds 1994-09-26/11-01 (not public), decrypted SW betas (circumvention), unreleased Duke builds (Apr/May 1994,
   "LamerDuke", 1995-05-09 beta), Hendricks266's 2017 source finds (topic 7266 #610; unreleased).
+
+## Engine round 5 with the September-1994 binary donors (engfix5, Codex, 2026-11-27; build/workers/engfix5/NOTES.md)
+- No STRICT change (85/103 engine). L7P 75M.EXE (1994-09-22, same Watcom 9.5) clarified setview's span and stride
+  calculation: 123 -> 9 differing bytes, block content 0.62 -> 0.94 (rest: register choice, load/store order).
+  July-1994 BUIL0719 evidence for hitscan's sprite deltas and height: content 0.727 -> 0.765. overwritesprite and
+  raytrace fewer differing bytes. Four edits marked COMPILER_STEERED in ENGINE.C.
+- NEGATIVE draw2dscreen and rotatesprite donor-guided trials changed extents and regressed STRICT neighbours.
