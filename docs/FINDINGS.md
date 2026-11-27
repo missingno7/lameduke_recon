@@ -709,3 +709,9 @@ Each entry names the command or artefact that supports it.
 - moveexplosions frame restored (FLAIR fallthrough, gib ssp calls): 2,590 -> 2,019 differing bytes, content .681 ->
   .777, fuzzy .984. prelevel recovers its 0x1c frame and 13/28 exact jump-table entries (was 3). spawn 4,646 -> 4,592.
   moveactors keeps five exact targets incl. +12,127; slime flag update still open.
+
+## SECTOR on gpt-6.2-astra (r8astra-sector, 2026-11-27; build/workers/r8astra-sector/NOTES.md, integrated)
+- No STRICT change (12/18). checksectors restores both missing lift calls with direct player-field arguments and a
+  wide initiator (8,004 -> 7,542 differing bytes; fuzzy .825 -> .869; frame 0xb8 vs 0xa8). cheatkeys reuses the decoy
+  index and reads the menu flag earlier: 5,230 -> 3,605 differing bytes at the exact extent. checkhitswitch still 2
+  bytes (case 405 allocation tie), checkhitwall 78.

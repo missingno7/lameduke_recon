@@ -655,8 +655,8 @@ void operateforcefields(short low)
 /* Handle player snum's interface and inventory keys (Duke3D 1.5 cheatkeys), including the /d door cheat. */
 void cheatkeys(short snum)
 {
-    /* COMPILER_STEERED: keep an explicit sprite argument for the door loop. */
-    short sn;
+    /* COMPILER_STEERED: reuse the decoy sprite index for the debug-door sector scan. */
+    short i;
     short source;
 
     if ((syncbits[snum] & SB_KNUCKLES) && ps[snum].knuckle_incs == 0)
@@ -700,13 +700,13 @@ void cheatkeys(short snum)
         unsigned char gm;
 
         keystatus[1] = 0;
-        /* COMPILER_STEERED: stage the menu bit across the current_menu store. */
-        gm = ps[snum].gm | MODE_MENU;
+        /* COMPILER_STEERED: read gm before changing current_menu. */
+        gm = ps[snum].gm;
         current_menu = 0;
-        ps[snum].gm = gm;
+        ps[snum].gm = gm | MODE_MENU;
         if (ps[snum].dimensionmode == 2) {
             ps[snum].dimensionmode = 3;
-            if (screenpeek == snum)
+            if (snum == screenpeek)
                 setgamemode();
         }
     }
@@ -759,9 +759,10 @@ void cheatkeys(short snum)
         if (ud.debug)
             ps[snum].inventory[4] = 1;
         if (ps[snum].holoduke_on == 0) {
-            ps[snum].holoduke_on = EGS(ps[snum].cursectnum, ps[snum].posx, ps[snum].posy, ps[snum].posz,
+            i = EGS(ps[snum].cursectnum, ps[snum].posx, ps[snum].posy, ps[snum].posz,
                 0, 283, -16, 48, 48, ps[snum].ang, 0, 0, -1, 10);
-            hittype[ps[snum].holoduke_on][0] = snum;
+            ps[snum].holoduke_on = i;
+            hittype[i][0] = snum;
         } else
             ps[snum].holoduke_on = 0;
     }
@@ -793,20 +794,21 @@ void cheatkeys(short snum)
             ps[snum].gm = gm | MODE_MENU;
         }
         if (syncbits[snum] & SB_SCUBA) {
+            unsigned char gm = ps[snum].gm;
             current_menu = 10;
-            ps[snum].gm = ps[snum].gm | MODE_MENU;
+            ps[snum].gm = gm | MODE_MENU;
         }
     } else if (syncbits[snum] & SB_DEBUG_DOORS) {
         FTA(11);
-        for (sn = 0; sn < numsectors; sn++) {
-            switch ((short)(sector[sn].lotag & 0xfff)) {
+        for (i = 0; i < numsectors; i++) {
+            switch ((short)(sector[i].lotag & 0xfff)) {
             case 15: case 16: case 17: case 18: case 19:
             case 20: case 21: case 22: case 23:
             case 25: case 26: case 27: case 28: case 29:
-                if (sector[sn].lotag & 0xbfff)
-                    sector[sn].lotag &= ~0x4000;
+                if (sector[i].lotag & 0xbfff)
+                    sector[i].lotag &= ~0x4000;
                 source = ps[snum].i;
-                operatesectors(sn, source);
+                operatesectors(i, source);
                 break;
             }
         }
@@ -1047,7 +1049,6 @@ void checksectors(short snum)
     short w;
     short sn;
     short source;
-    playertype *p;
 
     switch (sector[ps[snum].cursectnum].lotag) {
     case 32767:
@@ -1069,8 +1070,7 @@ void checksectors(short snum)
         return;
 
     ps[snum].toggle_key_flag = 1;
-    p = &ps[snum];
-    neartag(p->posx, p->posy, p->posz + 5120, p->cursectnum, p->ang,
+    neartag(ps[snum].posx, ps[snum].posy, ps[snum].posz + 5120, ps[snum].cursectnum, ps[snum].ang,
         &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1024);
     if (wall[neartagwall].picnum == 180 || ps[snum].newowner >= 0) {
         if (syncbits[snum] & SB_ESCAPE)
@@ -1105,10 +1105,10 @@ void checksectors(short snum)
     case 9:
     case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
     case 25: case 26: case 27: case 29:
-        /* COMPILER_STEERED: the two call sites keep separate inlined lift tails. */
+        /* COMPILER_STEERED: the wide initiator here preserves both inlined lift tails. */
         sn = neartagsector;
-        source = ps[snum].i;
-        operatesectors(sn, source);
+        i = ps[snum].i;
+        operatesectors(sn, i);
         return;
     }
     switch ((short)(sector[ps[snum].cursectnum].lotag & 32767)) {
