@@ -188,6 +188,8 @@ def tokenize(code, relocs, branch):
                 ref = relocs.get(fld) if fld is not None else None
                 if isinstance(ref, tuple):                      # relocated branch to a label of this function
                     t, name = ref[1], None
+                    if m == "call" and t == 0:                  # relocated recursive call: a call, as on the oracle side
+                        name = branch(0, True)
                 elif ref is not None:
                     name = ref
                 else:

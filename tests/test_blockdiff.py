@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import blockdiff  # noqa: E402
 
-UNITS = ["a_asm", "ass_dpmi", "game_game"]
+UNITS = ["a_asm", "ass_dpmi", "game_game", "game_gamedef"]
 
 
 @unittest.skipUnless((ROOT / "assets/D3D.EXE").exists() and
