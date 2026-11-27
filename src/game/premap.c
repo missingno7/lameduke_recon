@@ -242,7 +242,7 @@ extern long angvel, svel, vel;
 void spawn(long j, short pn)
 {
     /* COMPILER_STEERED: declaration order affects the stack slots. */
-    short clostest, startwall, i, s, sect, endwall;
+    short clostest, s, i, sect, startwall, endwall;
     long x, y, d;
 
     if (j >= 0) {

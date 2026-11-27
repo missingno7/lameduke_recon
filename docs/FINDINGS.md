@@ -725,3 +725,9 @@ Each entry names the command or artefact that supports it.
   frame, the raw x/y spills at 0x24/0x20 and both findplayer result slots at 0x94/0x108 (signed reloads); expanding
   the tracer angle at each use recovers the raw y spill. Content .682 -> .702; first difference +0x5b -> +0x1e9.
   displayweapon reproduces all 11 CLUB jump-table targets and all 23 myos sites (3,431 -> 2,994 differing bytes).
+- ACTORS astra follow-up (r8astra-actors-2): moveactors uses the oracle's SHARK comparison order and score-addition
+  spelling (6,066 -> 5,904 differing bytes; five exact case targets incl. +12,127). moveexplosions gains one exact
+  arm-piece block (160/167; content .806): Watcom reproduces the oracle's `shl` by 0x40 from a shift whose count
+  is outside the C-defined range (undefined in portable C; reproduced under the pinned compiler, noted in source).
+  spawn local reorder helps both PREMAP functions. findplayer audit: of 15 emitted calls one reads the distance as
+  a short, four use the full width, ten ignore it.

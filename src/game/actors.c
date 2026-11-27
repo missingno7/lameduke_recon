@@ -374,7 +374,8 @@ void moveactors(void)
             j = ifhitbyweapon(i);
             if (j >= 0) {
                 if (sprite[i].extra < 0) {
-                    ps[screenpeek].score = ps[screenpeek].score + 5000;
+                    /* COMPILER_STEERED: the addend order affects register allocation. */
+                    ps[screenpeek].score = 5000 + ps[screenpeek].score;
                     spawn(i, EXPLOSION);
                     deletesprite(i);
                     continue;
@@ -400,7 +401,7 @@ shark_steer:
                     j = sintable[(t[1] << 4) & 2047] >> 8;
                     sprite[i].ang += j;
                 }
-                if (j > 32 || j < -32) {
+                if (j < -32 || j > 32) {
                     /* COMPILER_STEERED: ternary changes the case layout. */
                     t[0] = j < 0 ? 4 : 2;
                     if (sprite[i].xvel > 64)
@@ -1215,7 +1216,8 @@ void moveexplosions(void)
                 sprite[i].zvel = (short)-sprite[i].zvel;
             }
             if ((krand() >> 8) >= 239) {
-                spawn_blood(i, i, (short)t[0], (short)(krand() & 32));
+                /* COMPILER_STEERED: Watcom emits SHL by 0x40. The 386 masks the count to zero. */
+                spawn_blood(i, i, (short)t[0] << 64, (short)(krand() & 32));
             }
             if (sprite[i].z + 2048 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 871;
