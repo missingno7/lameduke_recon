@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include "sector.h"
 
+extern void qsetmode640350(void);
+
 extern short animatesect[MAXANIMATES];
 extern long *animateptr[MAXANIMATES];
 extern long animategoal[MAXANIMATES], animatevel[MAXANIMATES], animatecnt;
@@ -651,6 +653,7 @@ void operateforcefields(short low)
 void cheatkeys(short snum)
 {
     short sn, source;
+    unsigned char gm;
 
     if ((syncbits[snum] & SB_KNUCKLES) && ps[snum].knuckle_incs == 0)
         ps[snum].knuckle_incs = 1;
@@ -690,19 +693,21 @@ void cheatkeys(short snum)
         return;
     if ((syncbits[snum] & SB_ESCAPE) && !(ps[snum].gm & MODE_DEMO) && ps[snum].newowner == -1) {
         keystatus[1] = 0;
+        /* COMPILER_STEERED: stage the menu bit across the current_menu store. */
+        gm = ps[snum].gm | MODE_MENU;
         current_menu = 0;
-        ps[snum].gm |= MODE_MENU;
+        ps[snum].gm = gm;
         if (ps[snum].dimensionmode == 2) {
             ps[snum].dimensionmode = 3;
-            if (snum == screenpeek)
+            if (screenpeek == snum)
                 setgamemode();
         }
     }
     if (syncbits[snum] & SB_MAP) {
         if (ps[snum].dimensionmode == 3) {
             ps[snum].dimensionmode = 2;
-            if (snum == screenpeek)
-                qsetmode640480();
+            if (screenpeek == snum)
+                qsetmode640350();
         } else {
             ps[snum].dimensionmode = 3;
             setgamemode();
@@ -771,16 +776,19 @@ void cheatkeys(short snum)
     }
     if (!ud.debug) {
         if (syncbits[snum] & SB_STEROIDS) {
+            gm = ps[snum].gm | MODE_MENU;
             current_menu = 20;
-            ps[snum].gm |= MODE_MENU;
+            ps[snum].gm = gm;
         }
         if (syncbits[snum] & SB_SHIELD) {
+            gm = ps[snum].gm | MODE_MENU;
             current_menu = 50;
-            ps[snum].gm |= MODE_MENU;
+            ps[snum].gm = gm;
         }
         if (syncbits[snum] & SB_SCUBA) {
+            gm = ps[snum].gm | MODE_MENU;
             current_menu = 10;
-            ps[snum].gm |= MODE_MENU;
+            ps[snum].gm = gm;
         }
     } else if (syncbits[snum] & SB_DEBUG_DOORS) {
         FTA(11);
@@ -1017,7 +1025,7 @@ char checkhitceiling(short sn)
 void checksectors(short snum)
 {
     long i, w;
-    short sn, source;
+    short sn;
 
     switch (sector[ps[snum].cursectnum].lotag) {
     case 32767:
@@ -1074,17 +1082,15 @@ void checksectors(short snum)
     case 9:
     case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
     case 25: case 26: case 27: case 29:
-        sn = neartagsector;
-        source = ps[snum].i;
-        operatesectors(sn, source);
+        /* COMPILER_STEERED: the two call sites keep separate inlined lift tails. */
+        operatesectors(neartagsector, ps[snum].i);
         return;
     }
     switch ((short)(sector[ps[snum].cursectnum].lotag & 32767)) {
     case 15: case 16: case 17: case 18: case 19:
     case 26: case 27: case 28:
         sn = ps[snum].cursectnum;
-        source = ps[snum].i;
-operatesectors(sn, source);
+        operatesectors(sn, ps[snum].i);
         return;
     }
     w = neartagwall;

@@ -607,3 +607,15 @@ Each entry names the command or artefact that supports it.
   .751/.929 with guts STRICT, but its last case target is still 32 B early (not adopted yet).
 - moveweapons: full-width distance output and explicit short copy: byte diffs 1,036 -> 815 (size 1,440 vs 1,456).
 - NEGATIVE movefta (cansee register conflict traced; baseline best), spawn exact-size pointer variant (worse).
+
+## PLAYER and SECTOR round 5 (r5cx-player, r5cx-sector, Codex, 2026-11-27; integrated)
+- No STRICT change (PLAYER 4/8 with animateknuckles; SECTOR 11/18). The identical-block hypothesis does not explain
+  processinput's 184 missing bytes (the suspected blocks exist in both builds).
+- processinput: earlier `tics2` computation and declaration order recover one spill slot (frame 0x100 -> 0x104 vs
+  oracle 0x110); size 15,508 -> 15,581 of 15,692; content .586 -> .603, fuzzy .894 -> .906.
+- STRONG PLAYER calls myos without a prototype (`extern void myos();` in player.h; promoted arguments), as with
+  EGS/strget/getscorename: displayweapon reaches the oracle's exact size (4,180) and keeps animateknuckles STRICT;
+  content .222 -> .244, fuzzy .657 -> .713. spawn_pistol_tracer fuzzy .580 -> .789.
+- PROVEN cheatkeys calls qsetmode640350 (1:199eb -> 1:43f42): the call was missing from our source. cheatkeys and
+  checksectors also regain the lift-success tail; checksectors size 10,976 -> 11,072 of 11,184, cheatkeys 7,584 vs
+  7,568 (frame 0x64 vs 0x60). checkhitceiling 16 bytes from STRICT (boundary depends on checksectors' table).

@@ -55,13 +55,13 @@ size, so it can only grow by proving more of the original.
 - Identified library code, not counted as reconstruction: Watcom 9.5 C runtime (CLIB3R/MATH387R/EMU387) (35,080 bytes), Creative AWE32 + Gravis GF1 vendor objects (48,812 bytes).
 - Every compiled object of the program already has candidate source; the code object is 443,461 bytes in total.
 
-Code that does not match yet (96 functions, 224,171 bytes), by how much of each function's basic blocks already have the original's content (`tools/blockdiff.py`; a diagnostic, never counted as matched):
+Code that does not match yet (96 functions, 224,235 bytes), by how much of each function's basic blocks already have the original's content (`tools/blockdiff.py`; a diagnostic, never counted as matched):
 
-- statements missing or wrong: 158,037 bytes (70.5%)
+- statements missing or wrong: 158,101 bytes (70.5%)
 - nearly written: small block edits: 41,546 bytes (18.5%)
-- code written: order/registers left: 19,620 bytes (8.8%)
+- code written: order/registers left: 19,620 bytes (8.7%)
 - code written: register/stack homes differ: 4,968 bytes (2.2%)
-- byte-weighted share of blocks already right: 61.5% exact, 88.0% counting near-identical blocks
+- byte-weighted share of blocks already right: 61.5% exact, 88.4% counting near-identical blocks
 
 <!-- progress:end -->
 

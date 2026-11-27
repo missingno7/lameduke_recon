@@ -44,15 +44,18 @@ void kickview(short snum, short i)
 void spawn_pistol_tracer(short snum)
 {
     short hitspr, hitwall, hitsect, i;
-    short sa;
-    long hitz, hity, hitx, size;
-    long weapon_pos;
+    long sa;
+    long hitz, hity, hitx;
+    unsigned char weapon_pos;
+    long sz, sx;
 
     weapon_pos = ps[snum].weapon_pos & 127;
+    sz = ps[snum].posz - (weapon_pos << 10) + 5376;
+    sx = ps[snum].posx;
     sa = ps[snum].ang - 16 + ((6 - weapon_pos) << 4);
-    hitscan(ps[snum].posx + (sintable[(sa + 512) & 2047] >> 8),
+    hitscan(sx + (sintable[(sa + 512) & 2047] >> 8),
         ps[snum].posy + (sintable[sa & 2047] >> 8),
-        ps[snum].posz - (weapon_pos << 10) + 5376, ps[snum].cursectnum,
+        sz, ps[snum].cursectnum,
         sintable[(sa + (syncangvel[snum] >> 3) + 512) & 2047],
         sintable[(sa + (syncangvel[snum] >> 3)) & 2047],
         (100 - ps[snum].horiz) << 11, &hitsect, &hitwall, &hitspr,
@@ -63,11 +66,12 @@ void spawn_pistol_tracer(short snum)
         hity + (sintable[sa & 2047] >> 8),
         hitz + 1024 + (sintable[ps[snum].bobcounter & 2047] >> 8),
         0, LASERSITE, -16, 12, 12, sa, 0, 0, ps[snum].i, 5);
-    size = (ksqrt((ps[screenpeek].posx - sprite[i].x) * (ps[screenpeek].posx - sprite[i].x)
+    /* COMPILER_STEERED: reuse the finished aim local for the sprite size. */
+    sa = (ksqrt((ps[screenpeek].posx - sprite[i].x) * (ps[screenpeek].posx - sprite[i].x)
         + (ps[screenpeek].posy - sprite[i].y) * (ps[screenpeek].posy - sprite[i].y)) >> 8) + 1;
-    if (size > 32)
-        size = 32;
-    sprite[i].xrepeat = sprite[i].yrepeat = size;
+    if (sa > 32)
+        sa = 32;
+    sprite[i].xrepeat = sprite[i].yrepeat = sa;
     if (sector[sprite[i].sectnum].floorz - 768 < sprite[i].z)
         sprite[i].z -= 768;
 }
@@ -206,11 +210,17 @@ signed char clubframes[6][20] = {
 /* Draw player snum's first-person weapon (after the knuckle-crack animation). */
 void displayweapon(short snum)
 {
-    long gs, weapon_xoffset, xvel;
-    long draw_x, draw_y, tile;
-    short looking_arc;
-    unsigned char gun_pos, weapon_pos;
+    /* COMPILER_STEERED: local order for the knee table and draw argument allocation. */
+    long draw_x;
+    long weapon_xoffset;
+    long xvel;
+    unsigned char weapon_pos;
+    unsigned char gun_pos;
     unsigned short cw;
+    long gs;
+    short looking_arc;
+    long draw_y;
+    long tile;
 
     if (ps[snum].health <= 0)
         return;
@@ -239,9 +249,7 @@ void displayweapon(short snum)
 
     switch (cw) {
     case CLUB: {
-        short frame = clubframes[ps[snum].knee_sequence][ps[snum].kickback_pic];  /* oracle keeps it in DH; see NOTES (r2pam) */
-
-        switch (frame) {
+        switch ((unsigned char)clubframes[ps[snum].knee_sequence][ps[snum].kickback_pic]) {
         case 0:
         case 1: break;
         case 2: weapon_xoffset -= 10; break;
@@ -384,7 +392,7 @@ void displayweapon(short snum)
                 looking_arc + 260 - gun_pos - (ps[snum].horiz >> 4), 1143, gs, 3);
         break;
     case HANDREMOTE: {
-        unsigned char frames[11] = { 0, 1, 1, 2, 1, 1, 0, 0, 0, 0, 0 };
+        signed char frames[11] = { 0, 1, 1, 2, 1, 1, 0, 0, 0, 0, 0 };
 
         weapon_xoffset = -32;
         if (ps[snum].kickback_pic > 4)
@@ -508,12 +516,19 @@ void update_air(short snum)
 /* Run one tick of player snum from syncvel/syncsvel/syncangvel/syncbits: movement, physics, view and weapon. */
 void processinput(short snum)
 {
-    long doubvel, tics2, cz, hz, fz, lz, xvect, yvect;
-    short psectlotag;
-    long eye;
-    unsigned char impact;
-    short i, atwith;
+    /* COMPILER_STEERED: local order for Watcom's allocation and stack homes. */
     long wpos;
+    long fz;
+    long lz;
+    long hz;
+    long tics2;
+    long xvect;
+    long yvect;
+    long doubvel;
+    long cz;
+    long eye;
+    short i;
+    short psectlotag;
 
     if (ps[snum].health <= 0) {
         if ((sector[ps[snum].cursectnum].lotag & 0x7FFF) == 2) {
@@ -544,6 +559,8 @@ void processinput(short snum)
     if (ps[snum].on_crane >= 0)
         goto domove;
 
+    /* COMPILER_STEERED: compute the run step early to get a stack home for it. */
+    tics2 = doubvel + doubvel;
     getzrange(ps[snum].posx, ps[snum].posy, ps[snum].posz, ps[snum].cursectnum, &cz, &hz, &fz, &lz, 128, 0);
     if (ps[snum].jetpack_on == 0) {
         int dx = ps[snum].oposx - ps[snum].posx, dy = ps[snum].oposy - ps[snum].posy;
@@ -588,7 +605,6 @@ void processinput(short snum)
         }
         goto doturn;
     }
-    tics2 = doubvel + doubvel;
     if (ps[snum].jetpack_on) {
         ps[snum].on_ground = 0;
         ps[snum].jumping_counter = 0;
