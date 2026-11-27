@@ -24,18 +24,15 @@ enum con_opcode {
     CON_IFSPAWNEDBY, NUMKEYWORDS
 };
 
-/* GAMEDEF's typed view of one hittype[] row (Duke 1.5 temp_data[0..4], T1..T5); the other units index
-   hittype[i][0..4] as longs. */
-struct actorstate {
-    long movecount;
-    long *move;
-    long actioncount, actionframe;
-    long *action;
+/* Native actor scratch row. CON stores script addresses in the move and action cells. */
+enum actor_cell {
+    ACTOR_MOVE_COUNT, ACTOR_MOVE_PTR, ACTOR_ACTION_COUNT,
+    ACTOR_ACTION_FRAME, ACTOR_ACTION_PTR
 };
 
 extern struct spritetype sprite[MAXSPRITES];
 extern struct sectortype sector[1024];
-extern struct actorstate hittype[MAXSPRITES];
+extern long hittype[MAXSPRITES][5];
 extern struct player_struct ps[17];
 extern short sintable[2048];
 extern char tempbuf[];

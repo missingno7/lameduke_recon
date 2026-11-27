@@ -685,11 +685,11 @@ void move_actor(short i, short p, long x)
     unsigned char *bytes = (unsigned char *)&flags;
 
     flags = sprite[i].hitag;
-    if (!hittype[i].move || !flags)
+    if (!hittype[i][ACTOR_MOVE_PTR] || !flags)
         return;
 
-    moveptr = hittype[i].move;
-    hittype[i].movecount++;
+    hittype[i][ACTOR_MOVE_COUNT]++;
+    moveptr = (long *)hittype[i][ACTOR_MOVE_PTR];
     if (bytes[1] & (ON_OWNER >> 8)) {
         if (sprite[i].owner >= 0 && sprite[sprite[i].owner].statnum == STAT_ACTOR) {
             sprite[i].x = sprite[sprite[i].owner].x;
@@ -797,7 +797,7 @@ case CON_IFSQUISHED:
     CON_NEXT();
 
 case CON_IFDEAD:
-    /* Compiler-steered health temporary and decrement preserve the two operand loads. */
+    /* Players reach the CON death threshold at zero health. */
     if (sprite[i].picnum == APLAYER) {
         j = ps[sprite[i].yvel].health;
         j--;
@@ -805,15 +805,14 @@ case CON_IFDEAD:
         long health = sprite[i].extra;
         j = health;
     }
-    /* Compiler-steered signed comparison preserves the following case offset. */
-    PARSE_IF(j <= -1);
+    PARSE_IF(j < 0);
     CON_NEXT();
 
 case CON_ACTION:
-    hittype[i].actioncount = 0;
-    hittype[i].actionframe = 0;
+    hittype[i][ACTOR_ACTION_COUNT] = 0;
+    hittype[i][ACTOR_ACTION_FRAME] = 0;
     insptr++;
-    hittype[i].action = (long *)*insptr;
+    hittype[i][ACTOR_ACTION_PTR] = *insptr;
     insptr++;
     CON_NEXT();
 
@@ -935,9 +934,9 @@ case CON_LBRACE:
     CON_NEXT();
 
 case CON_MOVE:
-    hittype[i].movecount = 0;
+    hittype[i][ACTOR_MOVE_COUNT] = 0;
     insptr++;
-    hittype[i].move = (long *)*insptr++;
+    hittype[i][ACTOR_MOVE_PTR] = *insptr++;
     sprite[i].hitag = *insptr++;
     if (sprite[i].hitag & FACE_EXIT)
         sprite[i].ang = furthestangle(i, 8);
@@ -956,17 +955,17 @@ case CON_IFWASWEAPON:
 
 case CON_IFACTION:
     insptr++;
-    PARSE_IF((long)hittype[i].action == *insptr);
+    PARSE_IF(hittype[i][ACTOR_ACTION_PTR] == *insptr);
     CON_NEXT();
 
 case CON_IFACTIONCOUNT:
     insptr++;
-    PARSE_IF(*insptr <= hittype[i].actioncount);
+    PARSE_IF(*insptr <= hittype[i][ACTOR_ACTION_COUNT]);
     CON_NEXT();
 
 case CON_RESETACTIONCOUNT:
     insptr++;
-    hittype[i].actioncount = 0;
+    hittype[i][ACTOR_ACTION_COUNT] = 0;
     CON_NEXT();
 
 case CON_DEBRIS:
@@ -991,7 +990,7 @@ case CON_CSTAT:
 
 case CON_IFMOVE:
     insptr++;
-    PARSE_IF((long)hittype[i].move == *insptr);
+    PARSE_IF(hittype[i][ACTOR_MOVE_PTR] == *insptr);
     CON_NEXT();
 
 case CON_RESETPLAYER:
@@ -1015,12 +1014,12 @@ case CON_IFPLAYERSWEAPON:
 
 case CON_IFMOVECOUNT:
     insptr++;
-    PARSE_IF(hittype[i].movecount >= *insptr);
+    PARSE_IF(hittype[i][ACTOR_MOVE_COUNT] >= *insptr);
     CON_NEXT();
 
 case CON_RESETMOVECOUNT:
     insptr++;
-    hittype[i].movecount = 0;
+    hittype[i][ACTOR_MOVE_COUNT] = 0;
     CON_NEXT();
 
 case CON_ADDINVENTORY:
@@ -1142,39 +1141,34 @@ return 0;
 #undef PARSE_ARGS
 }
 
+#define ACTION_SCRIPT(i) ((long *)hittype[(i)][ACTOR_ACTION_PTR])
+
 /* Execute sprite i's actor script (from actorscrptr[picnum]+4) for one game tick. */
 void execute(short i, short p, long x)
 {
-    /* Compiler-steered widened index for animation setup. */
-    long index = i;
-    long *action;
-    if (!actorscrptr[sprite[index].picnum])
+    if (!actorscrptr[sprite[i].picnum])
         return;
-
-    insptr = actorscrptr[sprite[index].picnum];
-    action = hittype[index].action;
+    insptr = actorscrptr[sprite[i].picnum];
     killit_flag = 0;
     hit_sprite = -1;
     cached_cansee = -1;
     insptr += 4;
-    if (action) {
-        /* Compiler-steered read and comparison order keeps the incoming player stack slot. */
-        long ticks = synctics;
-        long delay = hittype[index].action[4];
-        sprite[i].lotag += ticks;
-        if (delay < sprite[i].lotag) {
-            hittype[index].actioncount++;
+    if (hittype[i][ACTOR_ACTION_PTR]) {
+        sprite[i].lotag += synctics;
+        if (sprite[i].lotag > ACTION_SCRIPT(i)[4]) {
+            hittype[i][ACTOR_ACTION_COUNT]++;
             sprite[i].lotag = 0;
-            hittype[index].actionframe += hittype[index].action[3];
+            hittype[i][ACTOR_ACTION_FRAME] = ACTION_SCRIPT(i)[3] + hittype[i][ACTOR_ACTION_FRAME];
         }
-        if (klabs(hittype[i].actionframe) >= klabs(hittype[i].action[1] * hittype[i].action[3]))
-            hittype[i].actionframe = 0;
+        if (klabs(hittype[i][ACTOR_ACTION_FRAME]) >=
+            klabs(ACTION_SCRIPT(i)[1] * ACTION_SCRIPT(i)[3]))
+            hittype[i][ACTOR_ACTION_FRAME] = 0;
     }
 
     while (!parse(i, p, x))
         ;
     if (killit_flag) {
-        deletesprite(index);
+        deletesprite(i);
         return;
     }
     move_actor(i, p, x);
