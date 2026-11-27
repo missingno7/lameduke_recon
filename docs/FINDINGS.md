@@ -492,3 +492,23 @@ Each entry names the command or artefact that supports it.
 - PROVEN (asset worker, 2026-11-27) the CON compiler's `sound` lookup scans 38 names and then tests `i == 38`
   (1:2f12e cmp ebx,0x98 / 1:2f136 cmp ecx,0x26): the 39th table entry (rpg.voc) can never be named from CON and
   the "Sound not found" error is reachable. src/game/gamedef.c tested `i == 39` (dead error path); fixed.
+
+## Donor acquisition pass (acquire worker, 2026-11-27; build/workers/acquire/NOTES.md, config/references.json)
+- 27 public artefacts acquired (89.6 MB; external/dl/<id>/, external/x/<id>/): 13 of Ken's advsys.net archives
+  (BUILD1, builgrid, buildsec, Build Apr-1994, CONVMAPS, GROUDRAW, CAVE, POLYTEX, BUILDC, kenbuild2000, 2DRAW,
+  CUBES5, CHESS), jonof.id.au L7P/Witchaven/TekWar demos, Les Bird's Witchaven/TekWar/C8GW sources, NY00123's SW
+  source + Build addendum, 3D Realms FTP mirror items (Duke3D 0.99 beta, 1.0 shareware, ROTT 1.3, SW 2005 source,
+  misc/lameduke), Wayback copies of the prototype-CON pages.
+- STRONG jonof-l7pdemo 75M.EXE / 75T.EXE / 75MAIN.EXE are Build (map v4) binaries dated 1994-09-22 with the same
+  Watcom 1988-1993 runtime banner as D3D.EXE; ~6% of D3D.EXE code windows occur verbatim in 75M.EXE (engine and
+  runtime regions) vs 1.2% for Ken's Apr-1994 GAME.EXE: the closest-dated engine binary available.
+- STRONG Watcom OMF dependency comments (COMENT class 0xE9) store a 32-bit time_t under Watcom 9.5 (checked on our
+  own output) but DOS date/time words under 10.0/10.0a (with C:\WATCOM\H headers dated 1994-05-31 / 1994-09-01).
+  This dates Ken's switch from 9.5 to 10.0a to 1995-07-10..16 (Witchaven ENGINE.OBJ 1995-07-16), consistent with a
+  9.5 engine in LameDuke; Capstone's own objects are 10.0a. Decoder: tools/omfdeps.py.
+- Duplicates (by sha256): Build Apr-1994 = kenbuild BUIL0408 (26/31; originals lack the 4-line licence header),
+  kenbuild2000 = dukenukem3d SRC/UTIL (41/45), SW addendum = buildsrc-20190520 (108 files) + audiolib originals (7);
+  new there: AUDIO_WF.LIB 1995-11-13, USRHOOKS.C 1994-09-04, 1996 BUILD.TXT, 1997 ENGINE.C.
+- Leads only (not acquired): SW 1995-01-15/02-10 prototypes (free Steam app 238070, needs a Steam client), L7P full
+  builds 1994-09-26/11-01 (not public), decrypted SW betas (circumvention), unreleased Duke builds (Apr/May 1994,
+  "LamerDuke", 1995-05-09 beta), Hendricks266's 2017 source finds (topic 7266 #610; unreleased).

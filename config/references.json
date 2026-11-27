@@ -48,6 +48,523 @@
    "local": "external/dl/wat95_c32_c.zip",
    "md5": "1aa29ed7af293d13bbaa4fc289f9c191",
    "relevance": "Watcom 9.5 32-bit patch kit (a 1993-09, b 1994-01, c 1994-06-30). Library patches are OMF libraries of replacement members; executables use WATCOM binary patch format (BPATCH)."
+  },
+  "advsys-build1": {
+   "title": "BUILD demo (first ever Build demo), BUILD1.ZIP",
+   "url": "http://advsys.net/ken/build1.zip",
+   "page": "http://advsys.net/ken/build.htm",
+   "local": [
+    "external/dl/advsys-build1/build1.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-build1/build1.zip": "348be193c008995e0ddef8045152054a5cde91f07d50bc1c264b313d4424bc7d"
+   },
+   "extracted": "external/x/advsys-build1/",
+   "license": "Ken Silverman, author-published free download on his official site",
+   "claimed_date": "1993-04-13 (page)",
+   "build_date_evidence": "BUILD.EXE 1993-10-22, data 1993-04-13/14; EDITBORD.EXE/README 1999-11-02 (later additions)",
+   "compiler": "BUILD.EXE: 16-bit MS C runtime (MS Run-Time Library 1990)",
+   "relevance": "LOW: 1993 grid engine; 4/6 files identical to kenbuild-20241213 BUILD1 copies",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "advsys-builgrid": {
+   "title": "grid-based BUILD engine with early editors and full source (BUILGRID.ZIP, 05/08/2019 update)",
+   "url": "http://advsys.net/ken/builgrid.zip",
+   "page": "http://advsys.net/ken/build.htm",
+   "local": [
+    "external/dl/advsys-builgrid/builgrid.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-builgrid/builgrid.zip": "d3e65c86186e3c49a265da2186b12ef6430ec0ee02ddae31d51dfc4d11426221"
+   },
+   "extracted": "external/x/advsys-builgrid/",
+   "license": "Ken Silverman, author-published",
+   "claimed_date": "late 1993",
+   "build_date_evidence": "A.ASM 1993-10-31, BUILD2.C 1993-12-14, GAME.EXE 1993-12-24 (Watcom C/C++32 1988-1993 CLIB, LE module 'game'); EDITBO05/EDITDATA rebuilt 2005",
+   "compiler": "Watcom C/C++32 9.5-era CLIB (1988-1993 banner)",
+   "relevance": "LOW: 16/20 identical to kenbuild-20241213 snapshots; only README/MAKEFILE/2005 QB EXEs unique",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "advsys-buildsec": {
+   "title": "Early QuickBasic sector prototypes (BUILDSEC.ZIP)",
+   "url": "http://advsys.net/ken/buildsec.zip",
+   "page": "http://advsys.net/ken/build.htm",
+   "local": [
+    "external/dl/advsys-buildsec/buildsec.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-buildsec/buildsec.zip": "f929dbf24344a1c3890a49918850d390e820a1bdf68c4d9d7ac3be0d3eabee44"
+   },
+   "extracted": "external/x/advsys-buildsec/",
+   "license": "Ken Silverman, author-published",
+   "claimed_date": "1993-12-20 .. 1994-02-06",
+   "build_date_evidence": "SECTOR.BAS 1993-12-20, BUILD.BAS 1994-01-04, BUILD_2.BAS 1994-02-06, BUILD.EXE 1994-01-02 (LE, Watcom 1988-1993 CLIB)",
+   "compiler": "Watcom 9.5-era CLIB",
+   "relevance": "LOW: 9/10 identical to kenbuild-20241213 builsect/buil010294 copies",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "advsys-build-apr1994": {
+   "title": "Build_Apr1994.zip early Build distribution snapshot",
+   "url": "http://advsys.net/ken/Build_Apr1994.zip",
+   "page": "http://advsys.net/ken/build.htm",
+   "local": [
+    "external/dl/advsys-build-apr1994/Build_Apr1994.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-build-apr1994/Build_Apr1994.zip": "3e5b7656dc8432766a3c4e513efebae08ee356469e2003cb3f82bdd8e2c23a73"
+   },
+   "extracted": "external/x/advsys-build-apr1994/",
+   "license": "Ken Silverman, author-published (2008)",
+   "claimed_date": "1994-04-07",
+   "build_date_evidence": "ENGINE.OBJ 1994-04-07 (OMF 0xE9 dependency stamps time_t: engine.c 1994-04-08 02:22, build.h 1994-04-05), GAME.C 1994-04-07, BUILD.TXT last entry 4/7/94",
+   "compiler": "Watcom 9.5 (CLIB 1988-1993; time_t dependency records)",
+   "relevance": "LOW-MEDIUM: 26/31 byte-identical to kenbuild-20241213/BUIL0408; the 5 unique files are the ORIGINAL unheadered BUILD.H, BUILD.TXT, GAME.C (BUIL0408 copies have a 4-line BUILDLIC header prepended, otherwise identical) plus TABLES.DAT/TILES000.ART variants. Original line numbering may matter for any debug-info or __LINE__ comparisons of the Apr-94 ENGINE.OBJ calibration pair.",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "advsys-convmaps": {
+   "title": "CONVMAPS.ZIP map version converters v3->v7 with source",
+   "url": "http://advsys.net/ken/convmaps.zip",
+   "page": "http://advsys.net/ken/build.htm (FAQ)",
+   "local": [
+    "external/dl/advsys-convmaps/convmaps.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-convmaps/convmaps.zip": "65adcd59843804fe533256ca5ac9584cbe17acc36a77a9f5d5ebd10ea2d7f2b4"
+   },
+   "extracted": "external/x/advsys-convmaps/",
+   "license": "Ken Silverman, author-published",
+   "claimed_date": "2004-11-13 / 2012-04-25 (file dates)",
+   "build_date_evidence": "Win32 PE 4 KB console tools 2004/2012; C sources describe map v4->v5->v6->v7 struct changes",
+   "compiler": "MSVC Win32 (PE)",
+   "relevance": "MEDIUM (semantic): convmap5.c / backmap5.c give the exact v4->v5 and v5->v6 sector/wall/sprite layouts, i.e. the v5 format LameDuke uses (L*.MAP are v5, L9/M8 v4).",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "advsys-groudraw": {
+   "title": "GROUDRAW.ZIP heightmap voxel demos (7 demos from Apr 1993 on) with source",
+   "url": "http://advsys.net/ken/voxlap/groudraw.zip",
+   "page": "http://advsys.net/ken/voxlap.htm",
+   "local": [
+    "external/dl/advsys-groudraw/groudraw.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-groudraw/groudraw.zip": "47efd9acdee3190fd09c8fb531fa3401c88ba667a6c5bb185030424c06b8240d"
+   },
+   "extracted": "external/x/advsys-groudraw/",
+   "license": "Ken Silverman, author-published",
+   "claimed_date": "1993-1995 demos, repackaged 2005-12/2006-03",
+   "build_date_evidence": "all EXEs rebuilt 2005 (PMODE/W 1.33, OpenWatcom 1.3 per page); groudraw.dat 1999",
+   "compiler": "OpenWatcom 1.3 + PMODE/W 1.33 (2005 rebuild)",
+   "relevance": "LOW: semantic background for the abandoned groudraw (heightmap) code present in 1994-95 Build; no period binaries",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "advsys-cave": {
+   "title": "CAVE.ZIP early voxel demo (April 1994) with source",
+   "url": "http://advsys.net/ken/voxlap/cave.zip",
+   "page": "http://advsys.net/ken/voxlap.htm",
+   "local": [
+    "external/dl/advsys-cave/cave.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-cave/cave.zip": "8938f348fa7a72419d4d76bcdef968ecca26e401a26f6c9b9b9ea2bae1658374"
+   },
+   "extracted": "external/x/advsys-cave/",
+   "license": "Ken Silverman, author-published",
+   "claimed_date": "1994-04",
+   "build_date_evidence": "CAVE.TXT 1994-04-21, PALETTE.DAT 1994-04-20; CAVE.C/CAVE.EXE re-dated 2005-04-29 (LE, no CLIB banner found)",
+   "compiler": "Watcom (LE); 2005 rebuild likely",
+   "relevance": "LOW",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "advsys-polytex": {
+   "title": "POLYTEX.ZIP polygon engine demo + source (Build successor started late 1994)",
+   "url": "http://advsys.net/ken/buildsrc/polytex.zip",
+   "page": "http://advsys.net/ken/buildsrc/default.htm",
+   "local": [
+    "external/dl/advsys-polytex/polytex.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-polytex/polytex.zip": "c576391ad2a2801d355208d870bd0014bc381df9f215e5ed07ca600bd82a18fc"
+   },
+   "extracted": "external/x/advsys-polytex/",
+   "license": "Ken Silverman, author-published",
+   "claimed_date": "late 1994 start; source to 1997-10",
+   "build_date_evidence": "POLYTEX.TXT 1995-05-22, models 1995-02-15, POLYTEX.C 1997-10-08, GAME.C 1995-09-07; GAME.EXE rebuilt 2005 (PMODE/W 1.33)",
+   "compiler": "2005 rebuild (PMODE/W)",
+   "relevance": "LOW: later than target; kenbuild-20241213 PTEX0412/0602/0726 already hold the 1994 Polytex snapshots",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "advsys-buildc": {
+   "title": "BUILDC.ZIP: A.ASM ported to C (A.C, June 1996) + ENGINE.C",
+   "url": "http://advsys.net/ken/buildsrc/buildc.zip",
+   "page": "http://advsys.net/ken/buildsrc/default.htm",
+   "local": [
+    "external/dl/advsys-buildc/buildc.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-buildc/buildc.zip": "4701f82cb043e268ddc1ace1cf9d201425195d64f5603406027ed2efff2b28fc"
+   },
+   "extracted": "external/x/advsys-buildc/",
+   "license": "Ken Silverman BUILDLIC",
+   "claimed_date": "1996-06 (A.C), packaged 2003-08-20",
+   "build_date_evidence": "A.C 1996-06-26, TEST.MAP 1996-06-25, ENGINE.C/TEST.C 2003-08-20",
+   "compiler": "source only",
+   "relevance": "LOW-MEDIUM (semantic): readable C of every A.ASM routine (1996 generation) - documents what each asm loop computes; not matching evidence for the 1994 A.ASM",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "advsys-kenbuild2000": {
+   "title": "KENBUILD.ZIP Ken-Build test game with complete Build source (2000 release)",
+   "url": "http://advsys.net/ken/buildsrc/kenbuild.zip",
+   "page": "http://advsys.net/ken/buildsrc/default.htm",
+   "local": [
+    "external/dl/advsys-kenbuild2000/kenbuild.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-kenbuild2000/kenbuild.zip": "704a5eee1b722ed5f452d3fb1aff197f0d201ff9737839846268c6b1e07f8e1f"
+   },
+   "extracted": "external/x/advsys-kenbuild2000/",
+   "license": "Ken Silverman BUILDLIC (June 2000)",
+   "claimed_date": "2000-06",
+   "build_date_evidence": "SRC.ZIP/UTIL.ZIP 2003-06-24, GAME.EXE 2002-11-07 (Sybase Watcom 11 CLIB)",
+   "compiler": "Watcom 11.0",
+   "relevance": "NONE-NEW: 41/45 files identical to external/duke3d-1.3d/dukenukem3d SRC/UTIL and kenbuild archives",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "advsys-2draw": {
+   "title": "2DRAW.ZIP 2D rotate/zoom engine + test game + source",
+   "url": "http://advsys.net/ken/2draw.zip",
+   "page": "http://advsys.net/ken/download.htm",
+   "local": [
+    "external/dl/advsys-2draw/2draw.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-2draw/2draw.zip": "0bde09beb03d20fc755b953719ba6803e7b7a6944890f41c12c55c9057bf4736"
+   },
+   "extracted": "external/x/advsys-2draw/",
+   "license": "Ken Silverman (2DRAWLIC)",
+   "claimed_date": "1995-1999",
+   "build_date_evidence": "A.ASM 1995-05-01, BOARDS.MAP 1995-02-12, GAME.C 1997-06-05, EXEs 1999 (PMODE/W)",
+   "compiler": "Watcom + PMODE/W 1.33 (1999)",
+   "relevance": "LOW: kenbuild-20241213 2DRW0628/2DRW0719 already have the 1994 snapshots; 14/29 dups",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "advsys-cubes5": {
+   "title": "CUBES5.ZIP textured cube engine + editor + source",
+   "url": "http://advsys.net/ken/cubes5.zip",
+   "page": "http://advsys.net/ken/download.htm",
+   "local": [
+    "external/dl/advsys-cubes5/cubes5.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-cubes5/cubes5.zip": "e6fda720468d374efdab4a3c69064b764d622ae83f5d6f0e7b151236911cc339"
+   },
+   "extracted": "external/x/advsys-cubes5/",
+   "license": "Ken Silverman (CUBESLIC)",
+   "claimed_date": "1995-2005",
+   "build_date_evidence": "NEWBOARD.CUB 1995-09-03, sources/EXE 2005-10-17 (PMODE/W)",
+   "compiler": "2005 rebuild",
+   "relevance": "LOW: PRAGMAS.H (2005) shares Ken's pragma style",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "advsys-chess": {
+   "title": "CHESS.ZIP chess game with source",
+   "url": "http://advsys.net/ken/chess.zip",
+   "page": "http://advsys.net/ken/download.htm",
+   "local": [
+    "external/dl/advsys-chess/chess.zip"
+   ],
+   "sha256": {
+    "external/dl/advsys-chess/chess.zip": "a04f07616afe3c1e17fd8cc77d05ed356d73d78c156fd9ded00d41ccb848e1cb"
+   },
+   "extracted": "external/x/advsys-chess/",
+   "license": "Ken Silverman, author-published",
+   "claimed_date": "1998",
+   "build_date_evidence": "CHESS.C/EXE 1998-06-10 (Watcom CLIB 1988-1995)",
+   "compiler": "Watcom 10.5/10.6",
+   "relevance": "NONE for target (later; the 1993 CHESS_anim demo is in kenbuild-20241213)",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "jonof-l7pdemo": {
+   "title": "Rock'n Shaolin: Legend of the Seven Paladins 3D demo (Accend Inc / SKC Soft Land)",
+   "url": "https://www.jonof.id.au/files/buildgames/l7pdemo.zip",
+   "page": "https://www.jonof.id.au/buildgames/l7p.html",
+   "local": [
+    "external/dl/jonof-l7pdemo/l7pdemo.zip"
+   ],
+   "sha256": {
+    "external/dl/jonof-l7pdemo/l7pdemo.zip": "93af38c0cf55d8d667408a8ae74e08e67cd106c3ffd92c4a227ca2c43d0c7a47"
+   },
+   "extracted": "external/x/jonof-l7pdemo/",
+   "license": "Publicly distributed retail/CD demo (1996 Sprint Software demo CD); freely redistributable demo hosted by Jonathon Fowler; no source",
+   "claimed_date": "1994 (map format 4, 1994-04..1994-09 per jonof)",
+   "build_date_evidence": "75M.EXE / 75T.EXE / 75MAIN.EXE dated 1994-09-22 18:46-20:04, ART 1994-09-22, PALETTE 1994-08-09, SETUP.DAT 1995-10-06; no __DATE__ strings",
+   "compiler": "Watcom C/C++32 CLIB banner '1988-1993' - identical banner to D3D.EXE (Watcom 9.5); LE (unbound, DOS4GW.EXE 1993-12-03 alongside); SETUP.EXE Borland C++ 1991",
+   "relevance": "HIGH: the only known third-party Build engine binaries from Sep 1994 compiled with the same Watcom 9.5 CLIB as D3D.EXE. A 24-byte window probe finds 6.0% of D3D.EXE code windows verbatim in 75M.EXE, concentrated in the engine and CLIB regions (D3D obj1 ~0x38000-0x4ffff and 0x60000+), vs 1.2% for the Apr-94 Ken-Build GAME.EXE. Candidate oracle for Sep-94 engine/A.ASM/CLIB member shapes (identify functions by libscan-style comparison).",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "jonof-whaven-demo": {
+   "title": "Witchaven demo (Capstone/IntraCorp)",
+   "url": "https://www.jonof.id.au/files/buildgames/whaven.zip",
+   "page": "https://www.jonof.id.au/buildgames/wh.html",
+   "local": [
+    "external/dl/jonof-whaven-demo/whaven.zip"
+   ],
+   "sha256": {
+    "external/dl/jonof-whaven-demo/whaven.zip": "fd1c113255b0315447224cdc46879626c22f110c249e937fb74cbc40870edffb"
+   },
+   "extracted": "external/x/jonof-whaven-demo/",
+   "license": "Freely distributed shareware demo (1995)",
+   "claimed_date": "1995-07",
+   "build_date_evidence": "WH.EXE 1995-07-21, maps 1995-07-06 (v6)",
+   "compiler": "WH.EXE Watcom CLIB 1988-1994 (10.0x); AUDIO.EXE CLIB 1988-1993",
+   "relevance": "LOW-MEDIUM: 1995 engine binary; source+objects of the same game in lesbird-whaven are more useful",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "jonof-wtchfix2": {
+   "title": "Witchaven demo patch WTCHFIX2",
+   "url": "https://www.jonof.id.au/files/buildgames/wtchfix2.zip",
+   "page": "https://www.jonof.id.au/buildgames/wh.html",
+   "local": [
+    "external/dl/jonof-wtchfix2/wtchfix2.zip"
+   ],
+   "sha256": {
+    "external/dl/jonof-wtchfix2/wtchfix2.zip": "5e865b702361f4062a26d318477e297ee66331e59a0e6e5ed277b2dd7bbdaedc"
+   },
+   "extracted": "external/x/jonof-wtchfix2/",
+   "license": "Freely distributed patch",
+   "claimed_date": "1995-07",
+   "build_date_evidence": "WH.EXE 1995-07-31",
+   "compiler": "Watcom CLIB 1988-1994",
+   "relevance": "LOW",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "jonof-tekwar-demo": {
+   "title": "William Shatner's TekWar demo (Capstone/IntraCorp)",
+   "url": "https://www.jonof.id.au/files/buildgames/tekwar.zip",
+   "page": "https://www.jonof.id.au/buildgames/tekwar.html",
+   "local": [
+    "external/dl/jonof-tekwar-demo/tekwar.zip"
+   ],
+   "sha256": {
+    "external/dl/jonof-tekwar-demo/tekwar.zip": "6f65cfadc8d00e66e7c51d0ccac5ca056c6dd79a524bbf056cf86a470ffac3c0"
+   },
+   "extracted": "external/x/jonof-tekwar-demo/",
+   "license": "Freely distributed demo (1995)",
+   "claimed_date": "1995-08",
+   "build_date_evidence": "TEKD1.EXE 1995-08-15, CITY.MAP 1995-08-15",
+   "compiler": "Watcom CLIB 1988-1994 (10.0x)",
+   "relevance": "LOW",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "lesbird-whaven": {
+   "title": "Witchaven I source and executables (Les Bird Capstone source archive)",
+   "url": "https://lesbird.github.io/capstone/FILES/WHAVEN.ZIP",
+   "page": "https://lesbird.github.io/capstone/index.html (archived: https://web.archive.org/web/20070217144116/http://www.lesbird.com/CAPSTONE/default.htm)",
+   "local": [
+    "external/dl/lesbird-whaven/WHAVEN.ZIP"
+   ],
+   "sha256": {
+    "external/dl/lesbird-whaven/WHAVEN.ZIP": "36a7f8dde149e11392ae987b7fecf31155c711c54376c0e936964c2023f3756e"
+   },
+   "extracted": "external/x/lesbird-whaven/",
+   "license": "Released 2006/2007 by former Capstone programmer Les Bird to the hobbyist community; no formal license, author states he does not own the rights (abandonware). Engine parts are Ken Silverman's Build (BUILDLIC). Page warns DAPI.DOC/DAPI.ZIP may contain viruses - not executed.",
+   "claimed_date": "development snapshot, Witchaven released 1995-07",
+   "build_date_evidence": "SRC member dates 1994-11-20 .. 1996-05-05. Key OMF dependency stamps: GAME.OBJ (Capstone) GAME.C 1995-03-20 16:18, build.h 1995-03-10; Ken's BUILD.OBJ build.c 1995-07-10, build.h 1995-07-09 (time_t); CACHE1D.OBJ cache1d.c 1995-06-07; KDMENG.OBJ 1995-06-07; ENGINE.OBJ D:\\engine.c 1995-07-09 17:24, build.h 1995-07-09, pragmas.h 1995-07-12 (DOS stamps, Watcom headers 1994-09-01); MULTI.OBJ 1995-09-02; BUILD.TXT changelog last entry 7/20/95",
+   "compiler": "Mixed: Ken's BUILD.OBJ/CACHE1D.OBJ/KDMENG.OBJ (Jun-Jul 1995) carry time_t dependency stamps = Watcom 9.5; Ken's ENGINE.OBJ of 1995-07-16 and all Capstone objects (GAME.OBJ 1995-03 onwards) carry DOS-format stamps with C:\\WATCOM\\H headers dated 1994-09-01 = Watcom 10.0a (contradicts Les Bird's recollection of 9.5 for the Capstone code). EXEs CLIB 1988-1994/1995.",
+   "relevance": "MEDIUM-HIGH: new (not previously held) Ken objects from Jun/Jul 1995 - ENGINE.OBJ 1995-07-16 (156725 B, 228 publics), BUILD.OBJ 1995-07-09, CACHE1D.OBJ 1995-06-15, A.OBJ 1995-06-15 - bracketing the buil1995 (Jun-95) ENGINE.C; pins Ken's 9.5 -> 10.0a switch to 1995-07-10..16 (so every Ken object up to mid-1995, including LameDuke's engine, is 9.5). GAME.OBJ (Mar-95, symbols) is a third-party Build game object 11 weeks after LameDuke.",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "lesbird-tekwar": {
+   "title": "TekWar source and executables (Les Bird Capstone source archive)",
+   "url": "https://lesbird.github.io/capstone/FILES/TEKWAR.ZIP",
+   "page": "https://lesbird.github.io/capstone/index.html",
+   "local": [
+    "external/dl/lesbird-tekwar/TEKWAR.ZIP"
+   ],
+   "sha256": {
+    "external/dl/lesbird-tekwar/TEKWAR.ZIP": "c18271a1ebdd542834d71d74ef47d4f894f402eae47a9db0c188eebc64542a02"
+   },
+   "extracted": "external/x/lesbird-tekwar/",
+   "license": "As lesbird-whaven (no formal license; author-published abandonware; Build parts BUILDLIC)",
+   "claimed_date": "1995-10 snapshot",
+   "build_date_evidence": "SRC 1995-03-15 .. 1995-12-31; ENGINE.OBJ/A.OBJ/CACHE1D.OBJ/BUILD.OBJ byte-identical to lesbird-whaven copies; MULTI.OBJ 1995-07-09 (time_t, = buildsrc copy)",
+   "compiler": "Watcom 10.0a for Capstone code (headers 1994-09-01); AV_WC10R.OBJ explicitly wc10_0a",
+   "relevance": "LOW-MEDIUM: Build objects duplicate the Witchaven ones; game source is TekWar-specific",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "lesbird-c8gwsrc": {
+   "title": "Corridor 8: Galactic Wars prototype source (Les Bird archive, 1/18/2013 update)",
+   "url": "https://lesbird.github.io/capstone/FILES/c8gwsrc.zip",
+   "page": "https://lesbird.github.io/capstone/index.html",
+   "local": [
+    "external/dl/lesbird-c8gwsrc/c8gwsrc.zip"
+   ],
+   "sha256": {
+    "external/dl/lesbird-c8gwsrc/c8gwsrc.zip": "0f6523a1ac050b86fccf10ab01e69e8ab7a82509136fdc809b08e33e2faf6606"
+   },
+   "extracted": "external/x/lesbird-c8gwsrc/",
+   "license": "As lesbird-whaven (no formal license; author-published)",
+   "claimed_date": "1996 prototype",
+   "build_date_evidence": "Libs/Build ENGINE.OBJ engine.c 1995-11-21 (= kenbuild BUIL1121), BUILD.TXT 1995-10-06 (last entry 8/14/95), BUILD2.TXT 1995-11-22; game code 1996-10",
+   "compiler": "Watcom 10.0a/10.5 (CLIB 1988-1995)",
+   "relevance": "LOW: Build objects duplicate kenbuild-20241213 BUIL1109/BUIL1121 and buildsrc 1995-10; later than target",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "ny-sw-src-addendum-20190129": {
+   "title": "Shadow Warrior (1997) and bonus Build Engine Source Codes Release - 2019 (NY00123)",
+   "url": "https://ny.duke4.net/files/stuff/sw-src-and-build-addendum-20190129.7z",
+   "page": "https://forums.duke4.net/topic/10448-shadow-warrior-10-12-exes-accurately-recreated-source-code-re-released/ ; https://gitlab.com/NY00123/sw-src-and-build-addendum/",
+   "local": [
+    "external/dl/ny-sw-src-addendum-20190129/sw-src-and-build-addendum-20190129.7z"
+   ],
+   "sha256": {
+    "external/dl/ny-sw-src-addendum-20190129/sw-src-and-build-addendum-20190129.7z": "7fbd84062516a0c17b5c78b940abe66488cf3b63f9fd5c166544d5c74e1f0c10"
+   },
+   "extracted": "external/x/ny-sw-src-addendum-20190129/",
+   "license": "SW code GPLv2+ with linking exception (Devolver Digital permission); Build sources BUILDLIC.TXT (Ken Silverman consent); proprietary helper OBJs in newstuff not GPL",
+   "claimed_date": "1995-1997 materials, released 2019-01-29",
+   "build_date_evidence": "FILESLST.TXT gives original timestamps: 2 files 1993, 3 1994, 389 1995, 323 1996, 2400 1997. Build: build/CODE/CACHE1D.TXT 1995-06-06 (= buil1995 CACHE1D.C), BUILD2.TXT 1995-10-20 (= BUIL1020), BUILD.TXT 1996-07-03 (changelog to 8/14/95), blddbg ENGINE.C 1997-05-22 (SW 1.1/1.2). 1995 objects: F_OBJS MULTI.OBJ 1995-09-02 (= buildsrc 19951025 and lesbird-whaven), CONFIG2.OBJ 1995-08-03, SOUND.OBJ 1995-07-29, TEST.OBJ 1995-07-29. ASS: extras/CODE/SETUP/AUDIO_WF.LIB 1995-11-13 (402432 B, NOT in audiolib reconstructions), oldsetup AUDIO_WF.LIB 1995-05-19 (= origlibs/104), SETUP/TEST/USRHOOKS.C/.H 1994-09-04. MACT: oldsetup MACT.LIB/MACT386.LIB 1995-07-21/23 and 1995 headers.",
+   "compiler": "SW 1997: Watcom 10.6; SW mid-1995 objects (CONFIG2/SOUND/TEST.OBJ) carry DOS-format stamps with C:\\WATCOM\\H dated 1994-05-31 = Watcom 10.0 GA",
+   "relevance": "MEDIUM for ASS lineage (a Nov-1995 AUDIO_WF.LIB between 1.04 and 1.09; 1994-09-04 USRHOOKS.C), LOW for the Dec-94 engine (adds only the 1996-07 BUILD.TXT copy and 1997 ENGINE.C; 108 files duplicate buildsrc-20190520). Over buildsrc-20190520/kenbuild: new are build/CODE/BUILD.TXT (1996 revision), blddbg/ENGINE.C (1997-05), F_OBJS ENGINE.OBJ 1997-03 (SW 1.0) and OLDOBJS.ZIP ENGINE.OBJ 1996-11-12, A.OBJ 1996-05-01; everything else Build-related is identical to existing copies.",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "idtech-3dduke99": {
+   "title": "Duke Nukem 3D v0.99 beta (3dduke99.zip) from the 3D Realms FTP mirror",
+   "url": "https://ftp.idtech.space/3drealms/beta/3dduke99.zip",
+   "page": "https://ftp.idtech.space/3drealms/beta/ (mirror of the historical 3D Realms FTP; also hendricks266.duke4.net/d3dbeta.php)",
+   "local": [
+    "external/dl/idtech-3dduke99/3dduke99.zip"
+   ],
+   "sha256": {
+    "external/dl/idtech-3dduke99/3dduke99.zip": "59fafd7f11193bb25312a51b7e97e8d0cc08dd9d68000ada40fe04736aa5a901"
+   },
+   "extracted": "external/x/idtech-3dduke99/",
+   "license": "Hosted in the 3D Realms FTP 'beta' directory (rights holder's own distribution, dated 2014-10-26 on the mirror). Originally leaked via a magazine previewer in Jan 1996 (Hendricks266 page); acquired only because the rights holder itself distributes it - flag for integrator review.",
+   "claimed_date": "1996-01-04 compile",
+   "build_date_evidence": "DUKE3D.EXE 1996-01-05, GAME.CON 1996-01-04",
+   "compiler": "Watcom CLIB 1988-1994 (10.0x); contains 'Apogee Sound System' strings",
+   "relevance": "LOW-MEDIUM: 1996 game; contains early CON (GAME/DEFS/USER.CON Jan 1996) for gamedef semantics; shares ASS code with D3D.EXE (7% of 24-byte windows, ASS region)",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "idtech-3dduke-share": {
+   "title": "Duke Nukem 3D shareware v1.0 (3dduke.zip)",
+   "url": "https://ftp.idtech.space/3drealms/share/3dduke.zip",
+   "page": "https://ftp.idtech.space/3drealms/share/",
+   "local": [
+    "external/dl/idtech-3dduke-share/3dduke.zip"
+   ],
+   "sha256": {
+    "external/dl/idtech-3dduke-share/3dduke.zip": "c41a2f5390200c90e7b8542ffa93712f5ab1e9af27b628d577a90217d89c7285"
+   },
+   "extracted": "external/x/idtech-3dduke-share/",
+   "license": "Official shareware, freely distributable",
+   "claimed_date": "1996-01-29",
+   "build_date_evidence": "all members 1996-01-29 13:00 (release stamp); DUKE3D.EXE bound DOS/4GW Professional",
+   "compiler": "Watcom CLIB 1988-1994 (10.0x)",
+   "relevance": "LOW: earliest Duke3D release binary; ASS 1.0x code. Note: _nested/DUKE3DS/DUKE3D.GRP is TRUNCATED (395110 of 10429258 bytes) because the installer splits the zip across DUKE3DS._1-._4 with per-volume headers; EXE/CON/RTS/DMO extracted complete.",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "idtech-1rott13": {
+   "title": "Rise of the Triad shareware v1.3 (1rott13.zip)",
+   "url": "https://ftp.idtech.space/3drealms/share/1rott13.zip",
+   "page": "https://ftp.idtech.space/3drealms/share/",
+   "local": [
+    "external/dl/idtech-1rott13/1rott13.zip"
+   ],
+   "sha256": {
+    "external/dl/idtech-1rott13/1rott13.zip": "eea67a85845d52fa0ee7272e3ae24b79769ed1e8bdff7b1360904078bc51ad1e"
+   },
+   "extracted": "external/x/idtech-1rott13/",
+   "license": "Official shareware, freely distributable",
+   "claimed_date": "1995-08-01",
+   "build_date_evidence": "ROTT.EXE 1995-08-01 (bound DOS/4GW Pro), VENDOR.DOC 1998 repack",
+   "compiler": "Watcom CLIB 1988-1994 (10.0x); Apogee Sound System strings",
+   "relevance": "LOW-MEDIUM: an Aug-1995 ASS binary between ROTT 1.0 (Dec-94, already held as external/dl/rott10.zip) and Duke 1.0",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "idtech-swsource2005": {
+   "title": "Shadow Warrior source code 2005 GPL release (shadowwarriorsource.zip)",
+   "url": "https://ftp.idtech.space/3drealms/source/shadowwarriorsource.zip",
+   "page": "https://ftp.idtech.space/3drealms/source/",
+   "local": [
+    "external/dl/idtech-swsource2005/shadowwarriorsource.zip"
+   ],
+   "sha256": {
+    "external/dl/idtech-swsource2005/shadowwarriorsource.zip": "e1ad3eb30b8aecebd9180be33b38c9d37276fddd77878b1311b0037391db8445"
+   },
+   "extracted": "external/x/idtech-swsource2005/",
+   "license": "GPLv2 (3D Realms 2005); AudioLib.zip inside is the ASS source as shipped with that release",
+   "claimed_date": "2005-04-01 release",
+   "build_date_evidence": "README 2005-04-01, sources re-dated 2005-03-31, BSTUBOLD.C 1995-07-28, AudioLib.zip 2003-03-26 (members 2002-12-25)",
+   "compiler": "source only (Watcom 10.6 era)",
+   "relevance": "LOW: 205 files duplicate external/rott (audiolib) and kenbuild; acquired for dedupe of ny-sw-src-addendum (12 shared files)",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "idtech-misc-lameduke": {
+   "title": "lameduke.zip from the 3D Realms FTP 'misc' directory",
+   "url": "https://ftp.idtech.space/3drealms/misc/lameduke.zip",
+   "page": "https://ftp.idtech.space/3drealms/misc/",
+   "local": [
+    "external/dl/idtech-misc-lameduke/lameduke.zip"
+   ],
+   "sha256": {
+    "external/dl/idtech-misc-lameduke/lameduke.zip": "597800e5e29b2ce6a0461063082acad69f3de28c23ef36c66a0ac5e4c65c63fb"
+   },
+   "extracted": null,
+   "license": "Official 3D Realms release (1997)",
+   "claimed_date": "1994-12-30 build, released 1997",
+   "build_date_evidence": "md5 81a0a391cd064b4279b6f995fada7eda",
+   "compiler": "-",
+   "relevance": "DUPLICATE: byte-identical to external/dl/lameduke.zip (not extracted)",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "wayback-fandom-prototype-texts": {
+   "title": "Duke Nukem Wiki (Fandom) 'Prototype CON files', 'Prototype header files', 'Prototype episode lists' pages (Wayback Machine copies)",
+   "url": "https://web.archive.org/web/20260225071741id_/https://dukenukem.fandom.com/wiki/Prototype_CON_files",
+   "page": "https://dukenukem.fandom.com/wiki/Prototype_CON_files (live site blocked by a Cloudflare challenge; fetched from web.archive.org snapshots 20260225071741 / 20260223095829 / 20260227030919)",
+   "local": [
+    "external/dl/wayback-fandom-prototype-texts/Prototype_CON_files.20260225071741.html.gz",
+    "external/dl/wayback-fandom-prototype-texts/Prototype_episode_lists.20260227030919.html",
+    "external/dl/wayback-fandom-prototype-texts/Prototype_header_files.20260223095829.html"
+   ],
+   "sha256": {
+    "external/dl/wayback-fandom-prototype-texts/Prototype_CON_files.20260225071741.html.gz": "c154abdb87c16687e429268805b7e1d3a1c1c30f9f2e05f778aec986813225a0",
+    "external/dl/wayback-fandom-prototype-texts/Prototype_episode_lists.20260227030919.html": "b6d5e57a0324c7b3dec8f55f63819514c21c1370e0724e2b63b0b81e7bbcf34e",
+    "external/dl/wayback-fandom-prototype-texts/Prototype_header_files.20260223095829.html": "47244690dfa21351433a7c39989768ae4e956a9e0936e5cfe03d877ebad337c3"
+   },
+   "extracted": "external/x/wayback-fandom-prototype-texts/",
+   "license": "Wiki text CC-BY-SA; the CON transcription originates from Richard 'TerminX' Gobeille's post of a September 1995 GAME.CON to the Duke4 Discord on 2017-11-28 (no original file hosted anywhere public)",
+   "claimed_date": "GAME.CON September 1995",
+   "build_date_evidence": "header comment '// September 1995' in the transcription; provenance only via the wiki/Discord",
+   "compiler": "-",
+   "relevance": "MEDIUM (semantic, gamedef): an intermediate CON between LameDuke (Dec-94) and v0.99 (Jan-96). external/x/wayback-fandom-prototype-texts/GAME_CON_1995-09_wiki_transcription.txt is a mechanical concatenation of the page's <pre> blocks - whitespace/line breaks are the wiki's, not the original file's; the tail also contains the page's '1996 shareware' snippets. RGAME.H (May-Sep 1995) itself is already held: external/duke3d-1.3d/dukenukem3d/extras/RGAME.H.",
+   "retrieved": "2026-11-27",
+   "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
   }
  },
  "repositories": {
@@ -108,7 +625,12 @@
  "leads": {
   "tekwar_witchaven": "Les Bird Capstone dev snapshots (archive.org tekwar_source, WHAVEN): Build ENGINE.OBJ 1995-07, A.OBJ 1995-06, built with Watcom 9.5 per author; Witchaven GAME.OBJ 1995-03, BUILD.TXT 1995-09.",
   "rott_shareware_1_0": "ROTT 1.0 shareware 1994-12-21 (classicdosgames 1rott.zip): Apogee Sound System binary 9 days before LameDuke.",
-  "sw_prototypes": "Shadow Warrior 1995-01-15 / 02-10 prototypes (Steam Shadow Warrior Classic extras): post-LameDuke engine binaries, map v6; unverified.",
-  "convmaps": "advsys.net/ken CONVMAPS.ZIP: map v4-7 converters with source (v5 format)."
+  "sw_prototypes": "Shadow Warrior 1995-01-15 / 1995-02-10 prototypes ship in the free Steam app 238070 'Shadow Warrior Classic (1997)' (Devolver, 2017-05-19). Requires a Steam client/account; not acquired (user decision).",
+  "convmaps": "advsys.net/ken CONVMAPS.ZIP: map v4-7 converters with source (v5 format).",
+  "duke3d_oct1994_prototype": "Not publicly released (3D Realms archives, seen under NDA). Only footage and a video exist; no legitimate source.",
+  "hendricks266_2017_sources": "forums.duke4.net topic 7266 post #610 (2017-05-01): Duke3D 1.3D/1.4 source and fragments of much earlier builds found; nothing released.",
+  "l7p_full_builds": "Legend of the Seven Paladins full builds 1994-09-26 and 1994-11-01: not public.",
+  "sw_beta_decrypted": "Nuke.YKT's decrypted (dongle-cracked) Shadow Warrior beta executables on hendricks266.duke4.net: not acquired (circumvention; user decision).",
+  "more": "Further leads with sources: build/workers/acquire/inventory.json 'leads', 'identified_only', 'unavailable'."
  }
 }

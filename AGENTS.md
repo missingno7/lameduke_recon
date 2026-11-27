@@ -74,6 +74,8 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
 - `tools/blockdiff.py` — diagnostic (never proof): basic-block comparison of non-STRICT functions with the oracle
   (content/loose/fuzzy/skeleton/layout/regs), `UNIT FUNC --worklist` lists missing/extra blocks, frame, references
   and register renaming; `--census` triages every unit; `--selftest` (all STRICT functions score 1.0).
+- `tools/binscan/` — binary donor corpus and lineage scanner over every artefact under external/ (`binscan.py`, then
+  `report.py` → build/binscan/); `tools/omfdeps.py` dates Watcom objects (COMENT 0xE9). docs/HISTORICAL_DONOR_RESEARCH.md.
 - `tools/readme.py` — regenerates the README.md progress bars and the docs/STATUS.md unit table from build/verify.json (after `verify.py --update`).
 - Watcom 9.5b compiles run on the canonical DOS host (tools/doshost.py: the original DOS compiler under DOSBox-X,
   ~1.7 s per compile) because CONST padding residue depends on the host; LAMEDUKE_HOST=nt gives the same code
