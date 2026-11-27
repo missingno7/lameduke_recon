@@ -974,3 +974,9 @@ Each entry names the command or artefact that supports it.
   restored glass-case order together remove all 46 bytes (either alone made it worse). checksectors' first near-lift
   jump and destination match (were 45 B late): 7,522 -> 7,135, verified references 96 -> 139; frame 176 vs 168;
   next lead the `first` wall-index store at +0x3d1 (ESP+0x78 vs ESP+0x90). SECTOR 13/18.
+- GAME tie round (r10-game-4): unforced cg95 traces show each tie CAN be flipped by natural source (narrowing the pulse
+  in place reorders displayhighscores' score homes; reusing a spacing temporary flips operatefta's 21/21 tie; staging
+  the caption column puts nonsharedkeys' three glyphs at oracle ranks 11, 9, 10), but every such edit changes other
+  functions through shared inlined helpers (minitext/gametext copies): best case nonsharedkeys 14 -> 12 while
+  strget, main and dobonus change. Not adopted. These ties need a coordinated multi-function change of the inlined
+  helpers, not local edits.
