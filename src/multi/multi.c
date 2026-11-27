@@ -583,10 +583,11 @@ long simulateint(unsigned char intnum, long daeax, long daebx, long daecx,
 void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
 {
     long i, j;
-    long timeout;
-    /* COMPILER_STEERED. Hold the transmit cursor during its advance. */
+    long position;
+    unsigned char lengthbits;
+    /* COMPILER_STEERED. Stage the UART byte and use the port and cursor pointers in turn. */
     volatile short *plc;
-    unsigned char previoussequence;
+    unsigned char packetbyte;
 
     if (multioption <= 0) return;
     if (multioption < 5)
@@ -594,7 +595,10 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
         if (buffer[0] == 253 || buffer[0] == 254)
             outcnt = 0;
         outbufindex[outcnt] = *outbufend;
-        comsend((outcnt << 2) + (length & 3));
+        /* COMPILER_STEERED. Stage the two serial header fields as bytes. */
+        lengthbits = length & 3;
+        packetbyte = outcnt;
+        comsend(lengthbits + (packetbyte << 2));
         for (i = 0; i < length; i++)
             comsend(buffer[i]);
         if (comrateoption > 0)
@@ -609,7 +613,10 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
         _disable();
         if ((kinp(*comport + 5) & 0x40) > 0 && *outbufplc != *outbufend)
         {
-            koutp(*comport, outbuf[*outbufplc]);
+            position = *outbufplc;
+            packetbyte = outbuf[position];
+            plc = comport;
+            koutp(*plc, packetbyte);
             plc = outbufplc;
             *plc = (*plc + 1) & (COMBUFSIZ - 1);
         }
@@ -618,9 +625,11 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
     }
     else if (multioption >= 5)
     {
-        timeout = 262144;
-        while (--timeout > 0 && ecbput[8] != 0)
+        i = 262144;
+        /* COMPILER_STEERED. Test the busy byte before decrementing the timeout. */
+        for (; ecbput[8] != 0; )
         {
+            if (--i <= 0) break;
         }
         j = 0;
         messout[j++] = myconnectindex;
@@ -666,8 +675,8 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
             else
             {
                 messout[j++] = prevpacketindex;
-                previoussequence = netoutcnt[prevpacketindex];
-                messout[j++] = previoussequence + 254;
+                packetbyte = netoutcnt[prevpacketindex];
+                messout[j++] = packetbyte + 254;
             }
             messout[j++] = prevpacketlength & 255;
             messout[j++] = (prevpacketlength >> 8) & 255;
@@ -682,7 +691,9 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
 
 short getpacket(short *otherconnectindex, unsigned char *buffer)
 {
-    short i, j, length, sublength, start;
+    short start, length, sublength, i, j;
+    /* COMPILER_STEERED. Widen the read cursor before fetching the ring base. */
+    long offset;
     unsigned char bad, toindex, totalbad;
     volatile unsigned char *ring;
 
@@ -774,8 +785,9 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
         start = *inbufplc;
         if (*inbufplc == *inbufend) return 0;
         totalbad = 0;
+        offset = *inbufplc;
         ring = inbuf;
-        length = ring[*inbufplc];
+        length = ring[offset];
         *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
         length += (short)ring[*inbufplc] << 8;
         *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
@@ -813,14 +825,17 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
             else
                 netincnt[*otherconnectindex] = 0;
 
+            offset = *inbufplc;
             ring = inbuf;
-            sublength = ring[*inbufplc];
+            sublength = ring[offset];
             *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
             sublength += (short)ring[*inbufplc] << 8;
             *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
             for (i = 0; i < sublength; i++)
             {
-                buffer[i] = inbuf[*inbufplc];
+                /* COMPILER_STEERED. Form the destination before reading the ring. */
+                unsigned char *dst = buffer + i;
+                *dst = inbuf[*inbufplc];
                 *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
             }
 

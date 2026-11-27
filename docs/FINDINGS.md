@@ -1110,3 +1110,10 @@ Each entry names the command or artefact that supports it.
   unpatched 9.5 GA reproduces 86/106 extents: patch levels produce different code, so the GA identification of our
   compiler is meaningful (LameDuke's STRICT set needs GA). Descent: 168 files with RCS dates 1993-1994 (code donor
   value nil). Doom recreation: technique of checking function order against a related port's debug symbols.
+
+## MULTI round 2 (r13-multi-2, astra, 2026-11-27; build/workers/r13-multi/NOTES.md)
+- sendpacket 61 -> 10 bytes: test the volatile ECB in-use byte before decrementing the timeout, and byte-sized serial
+  header fields (resolved all eight fixup problems). getpacket 499 -> 498 (first IPX length block recovered).
+- neton and sendpacket: diagnostic allocator replays match every byte; source builds keep ten register-encoding
+  differences each (allocation-only). The exact serial-path trial for getpacket costs processreservedmessage its
+  STRICT (shared return) and is excluded. MULTI 22/25.
