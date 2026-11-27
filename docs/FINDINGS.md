@@ -1281,3 +1281,11 @@ Each entry names the command or artefact that supports it.
   whole-function pairing falls (moveactors 388 -> 315 exact normalized; checksectors 313 -> 289): local fixes perturb
   the function-wide allocation. Recommended card: 6-10 lines (named dataflow, one concrete difference, one precedent
   or trace, two DOS-tested hypotheses). Verdict: useful orientation for workers; not a source of gains by itself.
+
+## Blind reconstruction test (blind, sol, 2026-11-28; build/workers/blind/REPORT.md, hashes written before reveal)
+- NEGATIVE for anchoring: no incorrect canonical gameplay assumption found. hitradius (control) blind 8/8 blocks, 1 B
+  off (STRICT with canonical's y-square and temporary reuse); lotsofglass blind = canonical body (7/9 both);
+  spawn_pistol_tracer blind 3/5 vs canonical 4/5; displayweapon blind 70/101 vs canonical 79/101.
+- One new idea: caching the RPG frame in displayweapon gains 104 matched block bytes (all PLAYER STRICT kept) but leaves
+  it 80 B short - queued for the PLAYER worker. Use blind reconstruction as a targeted check when semantics or control
+  flow are disputed, not routinely.
