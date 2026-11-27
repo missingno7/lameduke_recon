@@ -792,3 +792,7 @@ Each entry names the command or artefact that supports it.
   blocks (3,596 -> 3,332 differing bytes); checksectors, operatesectors, operateactivators, checkhitwall,
   checkhitswitch unchanged (case-21 control loses two checksectors lift tails; glass and case-405 trials fail).
   SECTOR paused: all six NEAR functions have exact extents; residue is allocation/scheduling.
+- GAMEDEF astra follow-up 2 (r8astra-gamedef-3): two width-qualified IFP flag tests restore all 172 bytes of
+  IFSTRENGTH, all 142 of IFRND and both exit destinations; all 52 parse switch destinations align: parse 495 -> 196
+  differing bytes (first difference now IFCANSEE's index-load order). execute: the exact-size variant (frame 48 vs
+  oracle 44, 2,948 bytes) is integrated; a frame-exact variant is 25 B short (build/workers/r8astra-gamedef/round3/).

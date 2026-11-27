@@ -678,18 +678,19 @@ short furthestangle(short i, short angs)
 /* Apply sprite i's CON move and hitag move flags (Duke 1.5 move()). */
 void move_actor(short i, short p, long x)
 {
-    /* Compiler-steered: the byte tests preserve the stack layout and select the accumulator for the inlined HOVER add. */
+    /* Compiler-steered byte tests for the movement flags. */
     unsigned short flags;
     long *moveptr;
     long height;
+    unsigned char *bytes = (unsigned char *)&flags;
 
     flags = sprite[i].hitag;
     if (!hittype[i].move || !flags)
         return;
 
-    hittype[i].movecount++;
     moveptr = hittype[i].move;
-    if (((unsigned char *)&flags)[1] & (ON_OWNER >> 8)) {
+    hittype[i].movecount++;
+    if (bytes[1] & (ON_OWNER >> 8)) {
         if (sprite[i].owner >= 0 && sprite[sprite[i].owner].statnum == STAT_ACTOR) {
             sprite[i].x = sprite[sprite[i].owner].x;
             sprite[i].y = sprite[sprite[i].owner].y;
@@ -700,7 +701,7 @@ void move_actor(short i, short p, long x)
         sprite[i].xvel >>= 1;
     if (flags & FACE_PLAYER)
         sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-    if ((unsigned char)flags & GET_H)
+    if (((unsigned char *)&flags)[0] & GET_H)
         sprite[i].xvel += (moveptr[0] - sprite[i].xvel) >> 1;
     if (flags & GET_V)
         sprite[i].zvel += ((moveptr[1] << 4) - sprite[i].zvel) >> 1;
@@ -881,7 +882,9 @@ case CON_ADDBATTERYAMMO:
 
 case CON_NUKE:
     insptr++;
-    nuke(sprite[i].x, sprite[i].y, sprite[i].z, i);
+    /* Compiler-steered load order for the coordinate arguments. */
+    j = sprite[i].y;
+    nuke(sprite[i].x, j, sprite[i].z, i);
     CON_NEXT();
 
 case CON_KILLIT:
@@ -1038,13 +1041,14 @@ case CON_HITRADIUS:
     CON_NEXT();
 
 case CON_IFP: {
+        /* Compiler-steered widths keep the IFSTRENGTH opcode and pointer in separate registers. */
         insptr++;
         flags = *insptr;
         j = 0;
         speed = syncvel[p] + syncsvel[p];
         if ((flags & 8) && ps[p].on_ground && (syncbits[p] & SB_CROUCH))
             j = 1;
-        else if ((flags & 16) && !ps[p].jumping_counter && !ps[p].on_ground &&
+        else if (((unsigned char)flags & 16) && !ps[p].jumping_counter && !ps[p].on_ground &&
             sector[ps[p].cursectnum].floorz - ps[p].posz > 18432)
             j = 1;
         else if ((flags & 32) && ps[p].jumping_counter > 348)
@@ -1065,7 +1069,7 @@ case CON_IFP: {
             j = 1;
         else if ((flags & 1024) && ps[p].look_ang > 128)
             j = 1;
-        else if (flags & 2048) {
+        else if ((unsigned short)flags & 2048) {
             /* Compiler-steered: retain the oracle's mask after the angle shift. */
             if (((((sprite[i].ang + 3200 - sprite[ud.camerasprite].ang) & 2047) >> 8) & 7) < 2)
                 j = 1;
@@ -1136,41 +1140,36 @@ return 0;
 /* Execute sprite i's actor script (from actorscrptr[picnum]+4) for one game tick. */
 void execute(short i, short p, long x)
 {
-    /* Compiler-steered: retain widened indices, tick count and animation period across setup. */
+    /* Compiler-steered widened index for animation setup. */
     long index = i;
-    long player = p;
-    long *actor = actorscrptr[sprite[index].picnum];
     long *action;
-
-    if (!actor)
+    if (!actorscrptr[sprite[index].picnum])
         return;
 
-    insptr = actor;
+    insptr = actorscrptr[sprite[index].picnum];
+    action = hittype[index].action;
     killit_flag = 0;
     hit_sprite = -1;
-    action = hittype[index].action;
     cached_cansee = -1;
     insptr += 4;
     if (action) {
-        long period;
+        long delay = hittype[index].action[4];
         long ticks = synctics;
-
         sprite[i].lotag += ticks;
-        if (sprite[i].lotag > hittype[index].action[4]) {
+        if (sprite[i].lotag > delay) {
             hittype[index].actioncount++;
             sprite[i].lotag = 0;
             hittype[index].actionframe += hittype[index].action[3];
         }
-        period = hittype[index].action[1] * hittype[index].action[3];
-        if (klabs(hittype[index].actionframe) >= klabs(period))
-            hittype[index].actionframe = 0;
+        if (klabs(hittype[i].actionframe) >= klabs(hittype[i].action[1] * hittype[i].action[3]))
+            hittype[i].actionframe = 0;
     }
 
-    while (!parse(i, player, x))
+    while (!parse(i, p, x))
         ;
     if (killit_flag) {
         deletesprite(index);
         return;
     }
-    move_actor(index, player, x);
+    move_actor(i, p, x);
 }
