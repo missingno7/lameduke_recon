@@ -1,5 +1,20 @@
 # First blockers in the canonical DOS build
 
+## First near-lift dispatch and glass hits at 3dab741
+
+The stock DOS wc95b builds use the registered game_oe profile. Extent-relative first-byte offsets include the 264-byte leading table of checksectors. The jump and destination measurements below start at the PUBLIC.
+
+| Target | Result | Extent B | Differing bytes | First difference | Fixup diagnostics | Proven reference records |
+| --- | --- | ---: | ---: | --- | ---: | ---: |
+| checksectors | NEAR_MATCH | 11,448 | 7,522 → 7,135 | 0x110 → 0x110 | 601 → 556 | 96 → 139 |
+| checkhitwall | STRICT | 1,648 | 46 → 0 | 0x1e4 → equal | 3 → 0 | 83 → 85 |
+
+**checksectors.** The proposed source tests the byte latch directly and stages the arguments to the two lifts in short locals. The player number now stays in EDI. The first near-lift dispatch moves from PUBLIC+0x366 to its oracle position at +0x339. Entry zero moves from +0x3da to +0x3ad and verifies independently. The full 11,448-byte extent and the preceding ceiling proof both hold. The verifier confirms 38/66 leading table entries, compared with 37 at baseline. The frame is 176 B against the oracle's 168 B. The first instruction-length difference after entry zero occurs at +0x3d1 when saving the first sliding-door wall index. The oracle uses ESP+0x90 (7 B) and this build uses ESP+0x78 (4 B). The next displaced distinct destination is +0x9ad in the oracle and +0x9b6 in the candidate. A DOS control loading the initiator first selected the six-byte absolute word load into AX and put both dispatch coordinates one byte early. The proposal loads neartagsector into BX at +0x2c2 using the oracle’s seven-byte encoding.
+
+**checkhitwall.** Two separate statements write 573, first to the hit wall and then to its linked wall. Ordering the four glass groups by first tile (819, 823, 860, 864) restores their destinations. The stock verifier confirms 1,648 bytes and all 85 reference records, including the signed effector-list advance. Each edit on its own increases the whole-function difference count.
+
+The SECTOR unit has 13/18 STRICT publics covering 5,602 bytes. The 856-byte checkhitceiling remains STRICT. The two complete DOS objects are byte-identical. [Worker evidence](../build/workers/blockers/lift/predictions.md)
+
 ## SECTOR DOS verification at 12e1107
 
 The baseline and proposed source use the stock DOS wc95b `game_oe` profile (`-4r -s -otexan -oe=3000`). Differences count unequal bytes at the bound extent. First-byte offsets below include each function's leading table. Fixup diagnostics count verifier messages. One message can cover several sites.

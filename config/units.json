@@ -2218,7 +2218,7 @@
      "status": "NEAR_MATCH"
     },
     "checkhitwall": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "checkhitceiling": {
      "status": "STRICT"

@@ -970,3 +970,7 @@ Each entry names the command or artefact that supports it.
 - Live: 0 new STRICT on operatefta (4), nonsharedkeys (14), checkhitswitch (2), scansector (7), comsend (4),
   moveexplosions (74): the decisions are known (diagnostic flips reach the oracle for four) but no automated rewrite
   yet makes the compiler take them.
+- SECTOR census round (blockers-6): PROVEN checkhitwall STRICT (1,648 B, 85 references): split case-790 stores plus the
+  restored glass-case order together remove all 46 bytes (either alone made it worse). checksectors' first near-lift
+  jump and destination match (were 45 B late): 7,522 -> 7,135, verified references 96 -> 139; frame 176 vs 168;
+  next lead the `first` wall-index store at +0x3d1 (ESP+0x78 vs ESP+0x90). SECTOR 13/18.

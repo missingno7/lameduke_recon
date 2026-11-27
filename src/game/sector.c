@@ -911,9 +911,10 @@ void checkhitwall(long dawallnum, long x, long y, long z, short atwith)
         spritesound(5, i);
         return;
     case 790:
-        if (atwith == 563)
-            wall[wall[dawallnum].nextwall1].overpicnum = wall[dawallnum].overpicnum = 573;
-        else {
+        if (atwith == 563) {
+            wall[dawallnum].overpicnum = 573;
+            wall[wall[dawallnum].nextwall1].overpicnum = 573;
+        } else {
             updatesector(x, y, &sn);
             i = EGS(sn, x, y, z, 0, SECTOREFFECTOR, 0, 0, 0, 0, 0, 0, ps[screenpeek].i, 3);
             sprite[i].lotag = 129;
@@ -922,16 +923,16 @@ void checkhitwall(long dawallnum, long x, long y, long z, short atwith)
         return;
     }
     switch (wall[dawallnum].picnum) {
-    case 860: case 861: case 862: case 863:
-        wall[dawallnum].picnum = 1180;
-        xyzsound(23, -1, wall[dawallnum].x, wall[dawallnum].y, sector[wall[dawallnum].nextsector1].floorz);
-        break;
     case 819: case 820: case 821: case 822:
         wall[dawallnum].picnum = 1183;
         xyzsound(23, -1, wall[dawallnum].x, wall[dawallnum].y, sector[wall[dawallnum].nextsector1].floorz);
         break;
     case 823: case 824: case 825: case 826:
         wall[dawallnum].picnum = 1182;
+        xyzsound(23, -1, wall[dawallnum].x, wall[dawallnum].y, sector[wall[dawallnum].nextsector1].floorz);
+        break;
+    case 860: case 861: case 862: case 863:
+        wall[dawallnum].picnum = 1180;
         xyzsound(23, -1, wall[dawallnum].x, wall[dawallnum].y, sector[wall[dawallnum].nextsector1].floorz);
         break;
     case 864: case 865: case 866: case 867:
@@ -1048,9 +1049,9 @@ char checkhitceiling(short sn)
 /* Sector specials and the use key for player snum. */
 void checksectors(short snum)
 {
-    long i = -1;
     short w;
-    short under_tag;
+    short target;
+    long i = -1;
     short source;
 
     switch (sector[ps[snum].cursectnum].lotag) {
@@ -1069,9 +1070,7 @@ void checksectors(short snum)
         ps[snum].toggle_key_flag = 0;
         return;
     }
-    /* COMPILER_STEERED: reuse the wide sprite index for the key latch. */
-    i = ps[snum].toggle_key_flag;
-    if (i)
+    if (ps[snum].toggle_key_flag)
         return;
 
     ps[snum].toggle_key_flag = 1;
@@ -1106,31 +1105,28 @@ void checksectors(short snum)
         }
     }
 
-    /* COMPILER_STEERED: the near tag shares the wall index used below. */
     w = sector[neartagsector].lotag & 32767;
     switch (w) {
     case 9:
     case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
     case 25: case 26: case 27: case 29: {
-        /* COMPILER_STEERED: this scope and wide initiator preserve both lift tails. */
-        short nearsector = neartagsector;
-        i = ps[snum].i;
-        operatesectors(nearsector, i);
+        target = neartagsector;
+        w = ps[snum].i;
+        operatesectors(target, w);
         return;
     }
     }
-    under_tag = sector[ps[snum].cursectnum].lotag & 32767;
-    if (under_tag == 28 || under_tag == 27 || under_tag == 26 ||
-        (under_tag >= 18 && under_tag <= 19) || under_tag == 17 ||
-        (under_tag >= 15 && under_tag <= 16)) {
-        /* COMPILER_STEERED: reuse snum after the final player lookup. */
+    target = sector[ps[snum].cursectnum].lotag & 32767;
+    if (target == 28 || target == 27 || target == 26 ||
+        (target >= 18 && target <= 19) || target == 17 ||
+        (target >= 15 && target <= 16)) {
         source = ps[snum].i;
-        snum = ps[snum].cursectnum;
-        operatesectors(snum, source);
+        w = ps[snum].cursectnum;
+        operatesectors(w, source);
         return;
     }
-    w = neartagwall;
-    checkhitswitch(w);
+    target = neartagwall;
+    checkhitswitch(target);
 }
 
 /* Align all warp elevators of a group to the master (shade > 16) at level start. */

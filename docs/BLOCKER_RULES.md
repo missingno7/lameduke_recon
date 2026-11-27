@@ -1,5 +1,55 @@
 # Watcom 9.5 GA rules for diagnosing a first difference
 
+## SECTOR dispatch distance and independent glass stores
+
+**PROVEN for the canonical checksectors at 3dab741.** Four changes account for all 45 extra bytes before the first inlined near-lift dispatch. Offsets here start at the checksectors PUBLIC.
+
+| Oracle instructions | Candidate encoding | Added bytes |
+| --- | --- | ---: |
+| +0x0c saves the incoming player number in EDI. +0x82, +0xd5, +0x179, +0x1b2, +0x1f1 and +0x2bf sign-extend its low word. | One store and six signed loads through ESP+0x8c. Each instruction costs five extra bytes. | 35 |
+| +0xed compares the byte-valued key latch with zero. | Clear EDX, load DL, test EDX. | 3 |
+| +0x184 uses a short conditional jump in the camera search. | The corresponding JNE at +0x19b takes a four-byte displacement. | 4 |
+| +0x1a9 stores one directly to the camera's yvel. | Load ESI with one and store SI. | 3 |
+
+The four-byte frame deficit changes the SUB immediate but adds no bytes to its encoding. The jump and first table destination in the baseline are +0x366 and +0x3da. The oracle positions are +0x339 and +0x3ad. Both jump-to-destination distances are 116 B.
+
+The camera JNE has a final relative displacement of +107 in the oracle and +115 in the candidate. Both values fit a signed byte. Even with the target fixed and a two-byte encoding at the same candidate address the displacement would be +119. Final displacement alone therefore does not explain Watcom's longer encoding.
+
+| Whole-unit DOS control | Frame B | Player in EDI at entry | First jump | Entry zero | Extent including table B | checkhitceiling |
+| --- | ---: | --- | ---: | ---: | ---: | --- |
+| Canonical | 164 | no | +0x366 | +0x3da | 11,448 | STRICT |
+| Test the byte latch directly | 164 | no | +0x363 | +0x3d7 | 11,368 | CODE_BYTES_MATCH |
+| Current-lift arguments in a block-local short sector and wide i | 168 | yes | +0x33c | +0x3b0 | 11,272 | CODE_BYTES_MATCH |
+| Both changes | 168 | yes | +0x339 | +0x3ad | 11,272 | CODE_BYTES_MATCH |
+| Byte latch with current sector in w and initiator in source | 184 | yes | +0x339 | +0x3ad | 11,576 | STRICT |
+
+Combining the argument and latch changes reproduces the 168-byte frame and both offsets. The next distinct destination at +0x9ad is already 16 bytes early after the inlined sliding-door arm. This build ends 176 bytes early and loses its own extent proof as well as the preceding ceiling proof. The last control ends 128 bytes late. Frame reservation, dispatch position and the two extent proofs require separate measurements.
+
+**PROVEN for stock checkhitwall.** The effects of splitting the case-790 assignment and reordering the four glass cases depend on one another. These results cover the entire function in the standard DOS translation unit.
+
+| Case 790 | Glass group order | Differing bytes | Fixup diagnostics | Status |
+| --- | --- | ---: | ---: | --- |
+| Chained assignment | 860, 819, 823, 864 | 46 | 3 | NEAR_MATCH |
+| Chained assignment | 819, 823, 860, 864 | 76 | 12 | NEAR_MATCH |
+| Two ordered stores | 860, 819, 823, 864 | 96 | 11 | NEAR_MATCH |
+| Two ordered stores | 819, 823, 860, 864 | 0 | 0 | STRICT |
+
+At ascending case order, both the chained and split sources match the oracle through +0x212, including case 790 itself. The first difference appears in the later glass dispatch. At conflict sorting, the two builds have the same 18 optimized IR instructions in each of the four glass handlers. Comparing opcode, operand type and size, constant, symbol and offset, temporary ID, register and indexed address gives 72 identical instructions. Each handler begins with a constant-to-indexed-memory move. All 24 temporaries whose live ranges start in these blocks receive the same registers. In the 1183 handler t101 and t102 exchange visit order, retaining EBX and ECX respectively. These observations leave the later choice of immediate versus register store open. Each trace independently reproduced its stock DOS CODE/public/fixup projection.
+
+**NEGATIVE for the rank exchange as the cause.** Both conflicts have savings 1,776. The flip95 replay exchanging t101 and t102 on the chained build leaves its 1,648 raw function bytes and verifier references identical to its unforced build (76 differences). The reverse test on the split build also leaves its function bytes and references identical (zero differences). On canonical checksectors all leaves for t1_snum are rejected for interference. The flip95 candidate list offers no EDI leaf selection for that temporary. Changing its live range in C does produce EDI.
+
+### Frame and extent control
+
+The closest tested 168-byte frame with the jump at +0x339 and entry zero at +0x3ad has a stock DOS extent of 11,432 B against 11,448 B. The verifier reports 7,426 differing bytes, 625 fixup diagnostics and an unverified end boundary for checksectors. The adjacent checkhitceiling is STRICT. The proposed build reserves 176 B and verifies the full extent.
+
+The stock verifier records `extent end 1:1f180 is not a confirmed function boundary`.
+
+At frame assignment CG95 reports 41 distinct temporary home offsets in the 168-byte control and 43 in the proposal. Both traces reproduce the corresponding DOS code.
+
+The named first wall index has home ESP+0x70 in the control and ESP+0x78 in the proposal. The oracle store at PUBLIC+0x3d1 addresses ESP+0x90.
+
+Moving or swapping the declarations of first and last in the case-9 callee did not produce a full-extent 168-byte caller with both dispatch positions and the other publics retained. The NT whole-unit controls covered both caller forms (accepted 24, short 24). In 46 of the 48 builds at least one other public changed its size or verifier result.
+
 ## SECTOR jump-table extent and allocator controls
 
 **PROVEN for checkhitceiling and checksectors.** The 264 B immediately preceding `checksectors` at 1:1c5e0 contain 66 jump-table entries. The largest oracle target, at table+4, is PUBLIC+0x2b9c. When the candidate retains this table and the next PUBLIC binding, the verifier requires each oracle target to fall strictly below the end of the candidate public span. The minimum span is 11,165 B. The baseline span of 11,184 B has 19 B of slack. This condition proves the previous function's end at 1:1c4d8. Identity of the individual candidate destinations is a separate test when verifying `checksectors` itself.
