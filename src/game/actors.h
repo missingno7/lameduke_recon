@@ -41,8 +41,8 @@ extern long movesprite(short i, long dx, long dy, long dz, long radius,
 extern void rotatepoint(long pivotx, long pivoty, long x, long y, long angle,
     long *outx, long *outy);
 extern void dragpoint(short w, long x, long y);
-extern short getangle(long x, long y);
-extern short getincangle(short ang, short goal, short shift);
+extern int getangle(long x, long y);
+extern short getincangle();
 extern long krand(void);
 extern short findplayer(short i, long *dist);
 extern short checkcursectnums(short sectnum);

@@ -5,6 +5,11 @@
 
 #include "actors.h"
 
+/* Ken's PRAGMAS.H sign helper, also used by PREMAP. */
+extern long ksgn(long value);
+#pragma aux ksgn = "add ebx,0x80000000" "sbb eax,eax" "add ebx,0x7fffffff" "adc eax,0" \
+    parm nomemory [ebx] modify exact [eax ebx];
+
 /* Tile names from the prototype DEFS.CON. */
 #define RADIUSEXPLOSION 46
 #define MASTERSWITCH 51
@@ -313,11 +318,12 @@ void guts(short i)
 /* Update active actors (status 1): hard-coded tiles here, everything else through CON execute(). */
 void moveactors(void)
 {
-    short i, nexti, j, hit;
+    long l, dist;
+    short i, j, nexti, sect;
 
     for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti) {
-        long *t, dist, d;
-        short p, sect;
+        long *t;
+        short p;
 
         nexti = nextspritestat[i];
         p = findplayer(i, &dist);
@@ -334,6 +340,8 @@ void moveactors(void)
                 continue;
             operatesectors(sect, i);
             for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j]) {
+                short pic;
+
                 if (sprite[j].statnum == STAT_EFFECTOR)
                     switch (sprite[j].lotag) {
                     case 2:
@@ -347,84 +355,89 @@ void moveactors(void)
                         sprite[i].shade = 1;
                         break;
                     }
-                else if (sprite[j].statnum == STAT_STANDABLE && sprite[j].picnum == SEENINE)
-                    sprite[j].shade = -31;
+                else if (sprite[j].statnum == STAT_STANDABLE) {
+                    pic = sprite[j].picnum;
+                    if (pic == SEENINE)
+                        sprite[j].shade = -31;
+                }
             }
             deletesprite(i);
             continue;
         }
         if (sprite[i].picnum == SHARK) {
             unsigned char frames[4] = { 0, 1, 0, 3 };
-            playertype *pl = &ps[p];
-            short turn;
 
             if (MOVE_ALONG(i, sprite[i].zvel, 0))
                 sprite[i].ang += 1024;
-            hittype[i][1]++;
-            turn = ifhitbyweapon(i);
-            if (turn >= 0) {
+            t[1]++;
+            j = ifhitbyweapon(i);
+            if (j >= 0) {
                 if (sprite[i].extra < 0) {
-                    ps[screenpeek].score += 5000;
+                    ps[screenpeek].score = ps[screenpeek].score + 5000;
                     spawn(i, EXPLOSION);
                     deletesprite(i);
                     continue;
                 }
-                hittype[i][2] = -1;
+                t[2] = -1;
                 sprite[i].ang += 1024;
             }
-            switch (hittype[i][2]) {
+            switch (t[2]) {
             case 0:
                 if ((krand() >> 8) >= 251) {
-                    hittype[i][2] = 1;
+                    t[2] = 1;
                     goto shark_steer;
                 }
                 /* fall through */
             case -1:
-                if (hittype[i][2] == -1)
-                    hittype[i][2]++;
+                if (t[2] == -1)
+                    t[2]++;
 shark_steer:
-                /* Preserve the hit index when the shark steers toward the player. */
-                if ((krand() >> 8) < 247) {
-                    turn = (signed char)(sintable[(16 * hittype[i][1]) & 2047] >> 8);
-                    sprite[i].ang += turn;
-                } else
-                    sprite[i].ang += getincangle(sprite[i].ang, getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y), 2);
-                if (turn >= -32 && turn <= 32) {
-                    t[0] = frames[hittype[i][1] & 3];
-                    if (sprite[i].xvel < 112)
-                        sprite[i].xvel += 8;
-                } else {
-                    t[0] = turn >= 0 ? 2 : 4;
+                /* j keeps the hit index when the shark steers toward the player. */
+                if ((krand() >> 8) >= 247)
+                    sprite[i].ang += getincangle(sprite[i].ang, getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 2);
+                else {
+                    j = sintable[(t[1] << 4) & 2047] >> 8;
+                    sprite[i].ang += j;
+                }
+                if (j < -32 || j > 32) {
+                    /* COMPILER_STEERED: ternary changes the case layout. */
+                    t[0] = j < 0 ? 4 : 2;
                     if (sprite[i].xvel > 64)
                         sprite[i].xvel -= 8;
+                } else {
+                    t[0] = frames[t[1] & 3];
+                    if (sprite[i].xvel < 112)
+                        sprite[i].xvel += 8;
                 }
                 break;
             case 1:
-                if (pl->posz + 768 < sprite[i].z)
+                if (ps[p].posz + 768 < sprite[i].z)
                     sprite[i].z -= 1024;
-                else if (pl->posz - 768 > sprite[i].z)
+                else if (ps[p].posz - 768 > sprite[i].z)
                     sprite[i].z += 1024;
-                sprite[i].ang += getincangle(sprite[i].ang, getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y), 3);
-                if (sprite[i].xvel >= 144)
-                    t[0] = 0;
-                else {
-                    t[0] = frames[hittype[i][1] & 3];
+                sprite[i].ang = sprite[i].ang + getincangle(sprite[i].ang, getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 3);
+                if (sprite[i].xvel < 144) {
+                    t[0] = frames[t[1] & 3];
                     sprite[i].xvel += 16;
-                }
+                } else
+                    t[0] = 0;
                 if (dist < 768) {
-                    hittype[i][2] = (krand() >> 8) < 247 ? 0 : 2;
+                    if ((krand() >> 8) >= 247)
+                        t[2] = 2;
+                    else
+                        t[2] = 0;
                     sprite[i].ang += 1024;
                 }
                 break;
             case 2:
-                sprite[i].x = (sintable[(pl->ang + 512) & 2047] >> 6) + pl->posx;
-                sprite[i].y = pl->posy + (sintable[pl->ang & 2047] >> 6);
-                sprite[i].z = pl->posz + 3072;
-                t[0] = frames[hittype[i][1] & 3];
-                pl->ang += sintable[((unsigned short)hittype[i][1] << 8) & 2047] >> 12;
-                sprite[i].ang = pl->ang + 1024;
+                sprite[i].x = ps[p].posx + (sintable[(ps[p].ang + 512) & 2047] >> 6);
+                sprite[i].y = (sintable[ps[p].ang & 2047] >> 6) + ps[p].posy;
+                sprite[i].z = ps[p].posz + 3072;
+                t[0] = frames[t[1] & 3];
+                ps[p].ang += sintable[(t[1] << 8) & 2047] >> 12;
+                sprite[i].ang = ps[p].ang + 1024;
                 if ((krand() >> 8) >= 223)
-                    hittype[i][2] = 0;
+                    t[2] = 0;
                 break;
             }
             continue;
@@ -438,137 +451,141 @@ shark_steer:
                 deletesprite(i);
                 continue;
             }
-            d = klabs(sector[sect].ceilingz - sector[sect].floorz);
-            sprite[i].yrepeat = (unsigned char)(d >> 9);
-            sprite[i].xrepeat = (unsigned char)(25 - ((short)(d >> 9) >> 1));
+            j = klabs(sector[sect].ceilingz - sector[sect].floorz) >> 9;
+            sprite[i].yrepeat = j;
+            sprite[i].xrepeat = 25 - (j >> 1);
             sprite[i].z = sector[sect].floorz;
             continue;
         }
         if (sprite[i].picnum >= 961 && sprite[i].picnum <= 968) {
-            short bite[8] = { 5, 5, 6, 6, 7, 7, 6, 5 };
-            playertype *pl = &ps[p];
-            short j, xv;
-
-            hittype[i][1] += 128;
-            if (hittype[i][0] == -4) {
+            t[1] += 128;
+            if (t[0] == -4) {
                 setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
                 sprite[i].cstat &= ~8;
-                sprite[i].ang = pl->ang;
+                sprite[i].ang = ps[p].ang;
                 if (syncbits[p] & SB_FIRE) {
-                    pl->kickback_pic = 0;
+                    ps[p].kickback_pic = 0;
                     sprite[i].xvel = 128;
-                    sprite[i].zvel = (short)(16 * (100 - pl->horiz) - 512);
-                    hittype[i][0] = 0;
-                    pl->somethingonplayer = -1;
+                    sprite[i].zvel = ((100 - ps[p].horiz) << 4) - 512;
+                    t[0] = 0;
+                    ps[p].somethingonplayer = -1;
                 }
-                sprite[i].z = pl->posz - hittype[i][2] + 2048;
-                sprite[i].z += 16 * (100 - pl->horiz);
-                if (hittype[i][2] > 512)
-                    hittype[i][2] -= 128;
-                if (hittype[i][2] < 348)
-                    hittype[i][2] += 128;
-                if (hittype[i][3] <= 0) {
+                sprite[i].z = ps[p].posz - t[2] + 2048;
+                sprite[i].z += (100 - ps[p].horiz) << 4;
+                if (t[2] > 512)
+                    t[2] -= 128;
+                if (t[2] < 348)
+                    t[2] += 128;
+                if (t[3] > 0) {
+                    short frames[8] = { 5, 5, 6, 6, 7, 7, 6, 5 };
+
+                    sprite[i].picnum = 961 + frames[t[3]];
+                    if (t[3] == 4) {
+                        HURT(p, 5);
+                        spritesound(13, ps[p].i);
+                    }
+                    if (t[3] < 7)
+                        t[3]++;
+                    else
+                        t[3] = 0;
+                } else {
                     sprite[i].picnum = 966;
                     if ((krand() >> 8) >= 223)
-                        hittype[i][3] = 1;
-                } else {
-                    sprite[i].picnum = bite[hittype[i][3]] + 961;
-                    if (hittype[i][3] == 4) {
-                        HURT(p, 5);
-                        spritesound(13, pl->i);
-                    }
-                    hittype[i][3] = hittype[i][3] >= 7 ? 0 : hittype[i][3] + 1;
+                        t[3] = 1;
                 }
-                sprite[i].xrepeat = (unsigned char)((sintable[hittype[i][1] & 2047] >> 13) + 20);
-                sprite[i].yrepeat = (unsigned char)((sintable[hittype[i][1] & 2047] >> 13) + 15);
-                sprite[i].x = pl->posx + (sintable[(pl->ang + 512) & 2047] >> 7);
-                sprite[i].y = (sintable[pl->ang & 2047] >> 7) + pl->posy;
+                sprite[i].xrepeat = (sintable[t[1] & 2047] >> 13) + 20;
+                sprite[i].yrepeat = (sintable[t[1] & 2047] >> 13) + 15;
+                sprite[i].x = ps[p].posx + (sintable[(ps[p].ang + 512) & 2047] >> 7);
+                sprite[i].y = ps[p].posy + (sintable[ps[p].ang & 2047] >> 7);
                 continue;
             }
-            if (sprite[i].xvel < 64 && dist < 512 && pl->somethingonplayer == -1) {
-                pl->somethingonplayer = i;
-                hittype[i][2] = (hittype[i][0] == 3 || hittype[i][0] == 2) ? 3072 : -3328;
-                hittype[i][0] = -4;
-            } else if (hittype[i][0] == -3) {
+            if (sprite[i].xvel < 64 && dist < 512 && ps[p].somethingonplayer == -1) {
+                ps[p].somethingonplayer = i;
+                if (t[0] == 3 || t[0] == 2)
+                    t[2] = 3072;
+                else
+                    t[2] = -3328;
+                t[0] = -4;
+            } else if (t[0] == -3) {
                 if (sprite[i].xrepeat > 4)
                     sprite[i].xrepeat -= 4;
-                if (sprite[i].yrepeat > 4)
-                    sprite[i].yrepeat -= 4;
-                else
+                if (sprite[i].yrepeat <= 4)
                     deletesprite(i);
+                else
+                    sprite[i].yrepeat -= 4;
                 continue;
             }
             j = ifhitbyweapon(i);
             if (j >= 0) {
-                pl->score += 1000;
+                ps[p].score += 1000;
                 if (sprite[j].picnum == BULLET) {
-                    hittype[i][0] = -3;
+                    t[0] = -3;
                     continue;
                 }
                 if ((krand() >> 8) >= 251 && klabs(sector[sect].floorz - sector[sect].ceilingz) < 49152
-                    && (hittype[i][0] == 0 || hittype[i][0] == 2))
-                    hittype[i][0]++;
+                    && (t[0] == 0 || t[0] == 2))
+                    t[0]++;
             }
-            if (hittype[i][0] == -1) {
+            if (t[0] == -1) {
                 FALL(&sprite[i]);
                 sprite[i].picnum = 965;
-                sprite[i].cstat &= 0xF7;
+                sprite[i].cstat &= ~8;
                 if (sprite[i].yrepeat > 62)
                     guts(i);
                 if (sprite[i].xrepeat > 32)
                     sprite[i].xrepeat -= krand() & 7;
-                if (sprite[i].yrepeat <= 16) {
+                if (sprite[i].yrepeat > 16)
+                    sprite[i].yrepeat -= krand() & 7;
+                else {
                     sprite[i].xrepeat = 40;
                     sprite[i].yrepeat = 16;
                     sprite[i].owner = -1;
-                    hittype[i][0] = 0;
-                } else
-                    sprite[i].yrepeat -= krand() & 7;
+                    t[0] = 0;
+                }
                 continue;
             }
-            if (hittype[i][0] == -2) {
-                spritetype *o;
-
+            if (t[0] == -2) {
                 FALL(&sprite[i]);
-                o = &sprite[sprite[i].owner];
-                o->xvel = 0;
-                sprite[i].z = o->z;
-                sprite[i].x = (sintable[(o->ang + 512) & 2047] >> 11) + o->x;
-                sprite[i].y = (sintable[o->ang & 2047] >> 11) + o->y;
-                sprite[i].picnum = (short)((randomstash & 1) + 963);
+                sprite[sprite[i].owner].xvel = 0;
+                l = sprite[sprite[i].owner].ang;
+                sprite[i].z = sprite[sprite[i].owner].z;
+                sprite[i].x = sprite[sprite[i].owner].x + (sintable[(l + 512) & 2047] >> 11);
+                sprite[i].y = sprite[sprite[i].owner].y + (sintable[l & 2047] >> 11);
+                sprite[i].picnum = 963 + (randomstash & 1);
                 if (sprite[i].yrepeat < 64)
                     sprite[i].yrepeat += 2;
                 else if (sprite[i].xrepeat < 32)
                     sprite[i].xrepeat += 4;
                 else {
-                    hittype[i][0] = -1;
-                    if (klabs(sprite[i].x - o->x) + klabs(sprite[i].y - o->y) < 768)
+                    t[0] = -1;
+                    dist = klabs(sprite[i].x - sprite[sprite[i].owner].x) + klabs(sprite[i].y - sprite[sprite[i].owner].y);
+                    if (dist < 768)
                         deletesprite(sprite[i].owner);
                 }
                 continue;
             }
+            /* Check randomly for an actor to swallow. */
             if ((krand() >> 8) >= 223)
-                for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j]) {
+                for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
                     switch (sprite[j].picnum) {
                     case 408: case 490: case 1536: case 1680: case 1820:
                         if (klabs(sprite[i].x - sprite[j].x) + klabs(sprite[i].y - sprite[j].y) < 768
                             && klabs(sprite[i].z - sprite[j].z) < 8192) {
                             sprite[i].owner = j;
-                            hittype[i][0] = -2;
-                            hittype[i][1] = 0;
-                            goto next_actor;
+                            t[0] = -2;
+                            t[1] = 0;
+                            goto BOLT;
                         }
-                        break;
                     }
-                }
-            if (hittype[i][0] == 0 || hittype[i][0] == 2) {
+            /* Moving on the ground or ceiling. */
+            if (t[0] == 0 || t[0] == 2) {
                 sprite[i].picnum = GREENSLIME;
-                if (hittype[i][0] == 2) {
+                if (t[0] == 2) {
                     sprite[i].zvel = 0;
                     sprite[i].cstat &= ~8;
                     if (sector[sect].ceilingz + 6144 < sprite[i].z) {
                         sprite[i].z += 2048;
-                        hittype[i][0]++;
+                        t[0]++;
                         continue;
                     }
                 } else {
@@ -576,23 +593,22 @@ shark_steer:
                     FALL(&sprite[i]);
                 }
                 MOVE_ALONG(i, sprite[i].zvel, 0);
-                xv = sprite[i].xvel;
-                if (xv > 96) {
-                    sprite[i].xvel = xv - 2;
+                if (sprite[i].xvel > 96) {
+                    sprite[i].xvel -= 2;
                     continue;
                 }
-                if (xv < 32)
-                    sprite[i].xvel = xv + 4;
-                sprite[i].xvel = (short)(64 - (sintable[(hittype[i][1] + 512) & 2047] >> 9));
-                sprite[i].ang += getincangle(sprite[i].ang, getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y), 3);
-                sprite[i].xrepeat = (unsigned char)((sintable[(hittype[i][1] + 512) & 2047] >> 11) + 36);
-                sprite[i].yrepeat = (unsigned char)((sintable[hittype[i][1] & 2047] >> 13) + 16);
+                if (sprite[i].xvel < 32)
+                    sprite[i].xvel += 4;
+                sprite[i].xvel = 64 - (sintable[(t[1] + 512) & 2047] >> 9);
+                sprite[i].ang += getincangle(sprite[i].ang, getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 3);
+                sprite[i].xrepeat = (sintable[(t[1] + 512) & 2047] >> 11) + 36;
+                sprite[i].yrepeat = (sintable[t[1] & 2047] >> 13) + 16;
                 if ((krand() >> 8) >= 251 && klabs(sector[sect].floorz - sector[sect].ceilingz) < 49152) {
                     sprite[i].zvel = 0;
-                    hittype[i][0]++;
+                    t[0]++;
                 }
             }
-            if (hittype[i][0] == 1) {
+            if (t[0] == 1) {
                 sprite[i].picnum = GREENSLIME;
                 if (sprite[i].yrepeat < 40)
                     sprite[i].yrepeat += 8;
@@ -604,26 +620,26 @@ shark_steer:
                 if (sector[sect].ceilingz + 4096 > sprite[i].z) {
                     sprite[i].z = sector[sect].ceilingz + 4096;
                     sprite[i].xvel = 0;
-                    hittype[i][0]++;
+                    t[0]++;
                 }
             }
-            if (hittype[i][0] == 3) {
+            if (t[0] == 3) {
                 sprite[i].picnum = 962;
                 if (sprite[i].zvel < 3072)
                     sprite[i].zvel += 348;
                 sprite[i].z += sprite[i].zvel;
-                if (sector[sect].floorz - 0x2000 >= sprite[i].z) {
+                if (sector[sect].floorz - 0x2000 < sprite[i].z) {
+                    sprite[i].yrepeat -= 4;
+                    sprite[i].xrepeat += 2;
+                } else {
                     if (sprite[i].yrepeat < 36)
                         sprite[i].yrepeat += 8;
                     if (sprite[i].xrepeat > 8)
                         sprite[i].xrepeat -= 4;
-                } else {
-                    sprite[i].yrepeat -= 4;
-                    sprite[i].xrepeat += 2;
                 }
                 if (sector[sect].floorz - 2048 < sprite[i].z) {
                     sprite[i].z = sector[sect].floorz - 2048;
-                    hittype[i][0] = 0;
+                    t[0] = 0;
                     sprite[i].xvel = 0;
                 }
             }
@@ -631,131 +647,125 @@ shark_steer:
             /* A drip: grows on the ceiling, falls, splashes. */
             if (dist > 0x2000)
                 continue;
-            if (hittype[i][0] == 0) {
-                if (hittype[i][1] > 0)
-                    hittype[i][1]--;
+            if (t[0] == 0) {
+                if (t[1] > 0)
+                    t[1]--;
                 else {
                     sprite[i].yrepeat++;
                     sprite[i].xrepeat -= 2;
                     if (sprite[i].yrepeat > 8) {
-                        hittype[i][0] = 1;
+                        t[0] = 1;
                         sprite[i].xrepeat = 8;
                     }
                 }
             }
-            if (hittype[i][0] == 1) {
+            if (t[0] == 1) {
                 FALL(&sprite[i]);
                 if (sector[sect].floorz - 2048 < sprite[i].z) {
-                    hittype[i][0] = 2;
+                    t[0] = 2;
                     spritesound(17, i);
                 }
             }
-            if (hittype[i][0] == 2) {
+            if (t[0] == 2) {
                 sprite[i].xrepeat += 8;
                 sprite[i].yrepeat -= 2;
                 if (sprite[i].yrepeat < 2) {
                     sprite[i].z = sector[sect].ceilingz + 512;
-                    hittype[i][0] = 0;
-                    hittype[i][1] = krand() & 31;
+                    t[0] = 0;
+                    t[1] = krand() & 31;
                     sprite[i].xrepeat = 16;
                     sprite[i].yrepeat = 0;
                 }
             }
-        } else if (sprite[i].picnum == 930 || sprite[i].picnum == 931)
-            {
-                playertype *pl = &ps[p];
-
-                hit = ifhitbyweapon(i);
-                if (hit >= 0) {
-                    hittype[i][4] = 0;
-                    if (sprite[i].extra < 0) {
-                        pl->score += 1000;
-                        spawn(i, EXPLOSION);
-                        /* the exe counts this loop in its distance variable */
-                        for (dist = 0; dist < 30; dist += 3) {
-                            short zv = (short)(-(krand() & 511) - 512), xv = (short)((krand() & 128) + 64), a = (short)(krand() & 2047);
-
-                            EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z, 0, (short)(krand() % 11 + 235), -8, 32, 32, a, xv, zv, i, 5);
-                        }
-                        pl->actors_killed++;
-                        t[0] = 2;
-                        sprite[i].xrepeat = sprite[i].yrepeat = 0;
+        } else if (sprite[i].picnum >= 930 && sprite[i].picnum <= 931) {
+            /* Floor (930) and ceiling (931) turrets. */
+            j = ifhitbyweapon(i);
+            if (j >= 0) {
+                t[4] = 0;
+                if (sprite[i].extra < 0) {
+                    ps[p].score += 1000;
+                    spawn(i, EXPLOSION);
+                    for (dist = 0; dist < 30; dist += 3)
+                        EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z, 0, krand() % 11 + 235, -8, 32, 32,
+                            krand() & 2047, (krand() & 128) + 64, -(krand() & 511) - 512, i, 5);
+                    ps[p].actors_killed++;
+                    t[0] = 2;
+                    sprite[i].xrepeat = sprite[i].yrepeat = 0;
+                }
+            }
+            if (t[0] == 0) {
+                t[4] = 0;
+                if (sprite[i].xrepeat == 0) {
+                    deletesprite(i);
+                    continue;
+                }
+                if (dist < 4096) {
+                    if (klabs(sprite[i].z - ps[p].posz) < 2048) {
+                        t[1] = 0;
+                        t[0]++;
+                    } else {
+                        j = ksgn(ps[p].posz - sprite[i].z) << 11;
+                        sprite[i].z += j;
+                        if (sprite[i].picnum == 930)
+                            sector[sect].floorz += j;
+                        else
+                            sector[sect].ceilingz += j;
                     }
                 }
-                if (t[0] == 0) {
-                    hittype[i][4] = 0;
-                    if (sprite[i].xrepeat == 0) {
-                        deletesprite(i);
+            }
+            if (t[0] == 1) {
+                sprite[i].ang += getincangle(sprite[i].ang, getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 1) << 1;
+                sprite[i].ang &= 0xff80;
+                if (++t[1] < 8) {
+                    t[4] ^= 1;
+                    if (t[4]) {
+                        sprite[i].z -= 0x2000;
+                        shoot(i, BULLET, 0);
+                        sprite[i].shade = -16;
+                        sprite[i].z += 0x2000;
+                    }
+                } else {
+                    sprite[i].shade = 4;
+                    t[1] = 0;
+                    if (dist > 1024) {
+                        t[0] = 4;
+                        goto wait;
+                    }
+                }
+            }
+            if (t[0] == 2) {
+                t[4] = 0;
+                if (sprite[i].picnum == 930) {
+                    sprite[i].z += 2048;
+                    sector[sect].floorz += 2048;
+                    if (sector[sect].floorz > t[3]) {
+                        t[0] = 0;
                         continue;
                     }
-                    if (dist < 4096) {
-                        if (klabs(sprite[i].z - pl->posz) >= 2048) {
-                            short step = ksgn(pl->posz - sprite[i].z) * 2048;
-
-                            sprite[i].z += step;
-                            if (sprite[i].picnum == 930)
-                                sector[sect].floorz += step;
-                            else
-                                sector[sect].ceilingz += step;
-                        } else {
-                            hittype[i][1] = 0;
-                            t[0]++;
-                        }
+                } else {
+                    sprite[i].z -= 2048;
+                    sector[sect].ceilingz -= 2048;
+                    if (sector[sect].ceilingz < t[3]) {
+                        t[0] = 0;
+                        continue;
                     }
                 }
-                if (t[0] == 1) {
-                    sprite[i].ang += 2 * getincangle(sprite[i].ang, getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y), 1);
-                    sprite[i].ang &= (short)0xFF80;
-                    if (++hittype[i][1] >= 8) {
-                        sprite[i].shade = 4;
-                        hittype[i][1] = 0;
-                        if (dist > 1024) {
-                            t[0] = 4;
-                            goto wait;
-                        }
-                    } else {
-                        hittype[i][4] ^= 1;
-                        if (hittype[i][4]) {
-                            sprite[i].z -= 0x2000;
-                            shoot(i, BULLET, 0);
-                            sprite[i].shade = -16;
-                            sprite[i].z += 0x2000;
-                        }
-                    }
-                }
-                if (t[0] == 2) {
-                    hittype[i][4] = 0;
-                    if (sprite[i].picnum == 930) {
-                        sprite[i].z += 2048;
-                        sector[sect].floorz += 2048;
-                        if (sector[sect].floorz > hittype[i][3]) {
-                            t[0] = 0;
-                            continue;
-                        }
-                    } else {
-                        sprite[i].z -= 2048;
-                        sector[sect].ceilingz -= 2048;
-                        if (sector[sect].ceilingz < hittype[i][3]) {
-                            t[0] = 0;
-                            continue;
-                        }
-                    }
-                }
-                if (t[0] <= 3)
-                    continue;
-            wait:
+            }
+            if (t[0] > 3) {
+wait:
                 t[0]++;
                 if (dist > 4096)
                     t[0] = 2;
                 else if (t[0] > 10)
                     t[0] = 1;
-                sprite[i].ang = (short)getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y);
-            } else if (sprite[i].picnum == HEAVYHBOMB) {
-            long own = hittype[sprite[i].owner][0];
-
+                sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
+            }
+        } else if (sprite[i].picnum == HEAVYHBOMB) {
+            /* l: the owner's player (hittype[-1] for an ownerless bomb). */
+            l = hittype[sprite[i].owner][0];
             j = ifsquished(i, p);
             if (j >= 0 && sprite[i].extra < 0)
-                ps[own].hbomb_on = 0;
+                ps[l].hbomb_on = 0;
             FALL(&sprite[i]);
             if (sprite[i].xvel > 0) {
                 sprite[i].xvel -= 4;
@@ -764,7 +774,7 @@ shark_steer:
             } else
                 sprite[i].xvel = 0;
             MOVE_ALONG(i, sprite[i].zvel, 0);
-            if (ps[own].hbomb_on == 0 && ps[own].i == sprite[i].owner) {
+            if (ps[l].hbomb_on == 0 && ps[l].i == sprite[i].owner) {
                 sprite[i].yvel++;
                 if (sprite[i].xrepeat || sprite[i].yrepeat) {
                     sprite[i].xrepeat = sprite[i].yrepeat = 0;
@@ -781,89 +791,96 @@ shark_steer:
                 deletesprite(i);
             }
         } else if (sprite[i].picnum == DOORSHOCK) {
-            if (dist <= 0x2000) {
-                d = klabs(sector[sect].ceilingz - sector[sect].floorz);
-                sprite[i].xrepeat = 16;
-                sprite[i].yrepeat = (unsigned char)((d >> 9) + 8);
-                sprite[i].z = sector[sect].floorz;
-            }
+            if (dist > 0x2000)
+                continue;
+            j = klabs(sector[sect].ceilingz - sector[sect].floorz) >> 9;
+            sprite[i].xrepeat = 16;
+            sprite[i].yrepeat = j + 8;
+            sprite[i].z = sector[sect].floorz;
         } else if (sprite[i].picnum == 32) {
-            long range = (sprite[i].lotag + (sprite[i].hitag << 16)) >> 13;
-
-            if (range != 0 && sprite[i].hitag != 0) {
-                if (dist >= range || klabs(sprite[i].z - ps[p].posz) >= 12288)
+            /* Touch plate: range (lotag + hitag << 16) >> 13, or a player standing in its sector. */
+            l = (sprite[i].lotag + (sprite[i].hitag << 16)) >> 13;
+            if (l != 0 && sprite[i].hitag != 0) {
+                if (dist < l && klabs(sprite[i].z - ps[p].posz) < 12288) {
+                    if (t[0] == 0) {
+                        t[0] = 1;
+                        operatemasterswitches(sprite[i].lotag);
+                        operateactivators(sprite[i].lotag);
+                    }
+                } else
                     t[0] = 0;
-                else if (t[0] == 0) {
-                    t[0] = 1;
-                    operatemasterswitches(sprite[i].lotag);
-                    operateactivators(sprite[i].lotag);
-                }
             } else {
-                short occupant = checkcursectnums(sect);
-
-                if (occupant < 0 || !ps[occupant].on_ground)
+                j = checkcursectnums(sect);
+                if (j >= 0 && ps[j].on_ground) {
+                    if (t[0] == 0) {
+                        t[0] = 1;
+                        operatemasterswitches(sprite[i].lotag);
+                        operateactivators(sprite[i].lotag);
+                    }
+                } else
                     t[0] = 0;
-                else if (t[0] == 0) {
-                    t[0] = 1;
-                    operatemasterswitches(sprite[i].lotag);
-                    operateactivators(sprite[i].lotag);
-                }
             }
-        } else if (sprite[i].picnum >= 305 && sprite[i].picnum <= 308)
-            {
-
-                if (dist > 0x2000)
-                    continue;
-                if (hittype[i][3] == 0)
-                    hittype[i][3] = sector[sect].floorshade;
-                for (;;) {
-                    if (hittype[i][2]) {
-                        hittype[i][2]--;
-                        sector[sect].floorshade = 20;
-                        sector[sect].ceilingshade = 20;
-                        goto next_actor;
-                    }
-                    if ((sprite[i].xrepeat | sprite[i].yrepeat) == 0) {
-                        sprite[i].xrepeat = (unsigned char)t[0];
-                        sprite[i].yrepeat = (unsigned char)hittype[i][1];
-                        break;
-                    }
-                    if (krand() & 8)
-                        break;
-                    t[0] = sprite[i].xrepeat;
-                    hittype[i][1] = sprite[i].yrepeat;
-                    hittype[i][2] = randomstash & 4;
-                    sprite[i].xrepeat = sprite[i].yrepeat = 0;
+        } else if (sprite[i].picnum >= 305 && sprite[i].picnum <= 308) {
+            /* Flickering light. */
+            if (dist > 0x2000)
+                continue;
+            if (t[3] == 0)
+                t[3] = sector[sect].floorshade;
+            for (;;) {
+                if (t[2]) {
+                    t[2]--;
+                    sector[sect].floorshade = 20;
+                    sector[sect].ceilingshade = 20;
+                    goto BOLT;
                 }
-                sprite[i].xrepeat = (unsigned char)((randomstash & 7) + 8);
-                sprite[i].picnum++;
-                if (randomstash & 1)
-                    sprite[i].cstat ^= 2;
-                if (dist < 512)
-                    spritesound(24, i);
-                if (sprite[i].picnum == 309)
-                    sprite[i].picnum = 305;
-                sector[sect].floorshade = sector[sect].ceilingshade = (sprite[i].picnum & 1) ? 0 : 20;
-            } else if (sprite[i].picnum >= 620 && sprite[i].picnum <= 625) {
-            short k;
-            long n;
-
-            sprite[i].picnum = (short)(((krand() >> 8) < 63 ? 623 : 620) + (short)hittype[i][2]);
-            if (++hittype[i][2] == 3)
-                hittype[i][2] = 0;
-            if (dist >= 4096) {
-                hittype[i][3] = 0;
-                stopsound(26);
+                if ((sprite[i].xrepeat | sprite[i].yrepeat) == 0) {
+                    sprite[i].xrepeat = t[0];
+                    sprite[i].yrepeat = t[1];
+                    break;
+                }
+                if (krand() & 8)
+                    break;
+                t[0] = sprite[i].xrepeat;
+                t[1] = sprite[i].yrepeat;
+                t[2] = randomstash & 4;
+                sprite[i].xrepeat = sprite[i].yrepeat = 0;
+            }
+            l = randomstash & 7;
+            sprite[i].xrepeat = l + 8;
+            sprite[i].picnum++;
+            if (l & 1)
+                sprite[i].cstat ^= 2;
+            if (dist < 512)
+                spritesound(24, i);
+            if (sprite[i].picnum == 309)
+                sprite[i].picnum = 305;
+            if (sprite[i].picnum & 1) {
+                sector[sect].floorshade = 0;
+                sector[sect].ceilingshade = 0;
             } else {
+                sector[sect].floorshade = 20;
+                sector[sect].ceilingshade = 20;
+            }
+        } else if (sprite[i].picnum >= REACTOR && sprite[i].picnum <= 625) {
+            if ((krand() >> 8) >= 63)
+                sprite[i].picnum = 620 + t[2];
+            else
+                sprite[i].picnum = 623 + t[2];
+            if (++t[2] == 3)
+                t[2] = 0;
+            if (dist < 4096) {
                 t[0] += 128;
                 myos(246, 18, 611, (sintable[t[0] & 2047] >> 11) + 8, 1);
-                if (hittype[i][3] == 0) {
+                if (t[3] == 0) {
                     spritesound(26, i);
-                    hittype[i][3] = 1;
+                    t[3] = 1;
                 }
+            } else {
+                t[3] = 0;
+                stopsound(26);
             }
-            if (hittype[i][1]) {
-                if (++hittype[i][1] == 24) {
+            if (t[1]) {
+                if (++t[1] == 24) {
                     ps[screenpeek].score += 100000;
                     stopsound(26);
                     deletesprite(i);
@@ -873,25 +890,27 @@ shark_steer:
                 sprite[i].z -= 6144;
                 shoot(i, 0, 1);
                 sprite[i].z += 6144;
-                n = hittype[i][1];
-                if (n == 2)
-                    for (k = headspritestat[STAT_EFFECTOR]; k >= 0; k = nextspritestat[k])
-                        if (sprite[k].lotag == 3)
-                            hittype[k][4] = 1;
-                if (n == 2 || n == 4 || n == 7 || n == 10 || n == 15) {
-                    EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (krand() & 0x3FFF) + 5120, 2, FLAIR, -127, 96, 48, 0, 0, 0, i, 5);
+                switch (t[1]) {
+                case 2:
+                    for (j = headspritestat[STAT_EFFECTOR]; j >= 0; j = nextspritestat[j])
+                        if (sprite[j].lotag == 3)
+                            hittype[j][4] = 1;
+                case 4:
+                case 7:
+                case 10:
+                case 15:
+                    EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (krand() & 0x3FFF) + 5120, 2, FLAIR,
+                        -127, 96, 48, 0, 0, 0, i, 5);
                     spawn(i, EXPLOSION);
-                    for (k = 0; k < 16; k += 2) {
-                        short zv = (short)-(krand() & 1023);
-
-                        EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z + (k << 9), 0, 235, -8, 32, 32, sprite[i].ang, (krand() & 255) + 128, zv, i, 5);
-                    }
+                    for (j = 0; j < 16; j += 2)
+                        EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z + (j << 9), 0, 235, -8, 32, 32,
+                            sprite[i].ang, (krand() & 255) + 128, -(krand() & 1023), i, 5);
                 }
             }
-            if (hittype[i][1] == 0) {
-                hit = ifhitbyweapon(i);
-                if (hit >= 0 && sprite[i].extra < 0)
-                    hittype[i][1] = 1;
+            if (t[1] == 0) {
+                j = ifhitbyweapon(i);
+                if (j >= 0 && sprite[i].extra < 0)
+                    t[1] = 1;
             }
         } else if (sprite[i].picnum == 265) {
             sprite[i].owner += 8;
@@ -905,65 +924,65 @@ shark_steer:
                 sprite[i].owner = 8;
                 sprite[i].ang += 16;
             }
-        } else if (sprite[i].picnum == 263)
-            {
-                playertype *pl = &ps[p];
-
-                if (dist > 4096)
-                    continue;
-                hit = ifhitbyweapon(i);
-                if (hit >= 0 && sprite[i].extra < 0) {
-                    sprite[i].picnum = 273;
-                    t[0] = 0;
-                    sprite[i].cstat &= ~1;
-                    continue;
-                }
-                switch (t[0]) {
-                case 0:
-                    if (dist < 4096)
-                        t[0]++;
-                    break;
-                case 1:
-                    t[0]++;
-                    sprite[i].ang = (short)getangle(pl->posx - sprite[i].x, pl->posy - sprite[i].y);
-                    if (dist != 0)
-                        sprite[i].zvel = (short)(((pl->posz + 2048 - sprite[i].z) << 8) / dist);
-                    sprite[i].xvel = 16;
-                    break;
-                case 2:
-                    if (sprite[i].zvel > -1024)
-                        sprite[i].zvel -= 64;
-                    sprite[i].z += sprite[i].zvel;
-                    if (sprite[i].xvel < 256)
-                        sprite[i].xvel += 16;
-                    if (MOVE_ALONG(i, sprite[i].zvel, 0))
-                        t[0]++;
-                    if (dist < 768) {
-                        sprite[i].ang += 1024 - (randomstash & 2047);
-                        HURT(p, 1);
-                    }
-                    break;
-                case 3:
-                    if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
-                        sprite[i].ang += 512;
-                        t[0] = 1;
-                    }
-                    break;
-                }
-            } else if (sprite[i].picnum == 273) {
+        } else if (sprite[i].picnum == 273) {
             if (dist > 4096)
                 continue;
             FALL(&sprite[i]);
-            if (++t[0] > 1024)
+            if (++t[0] > 1024) {
                 deletesprite(i);
-            else if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
+                continue;
+            }
+            if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
                 sprite[i].z = sector[sect].floorz;
                 if (sector[sect].lotag == 1)
                     deletesprite(i);
             }
+        } else if (sprite[i].picnum == 263) {
+            if (dist > 4096)
+                continue;
+            j = ifhitbyweapon(i);
+            if (j >= 0 && sprite[i].extra < 0) {
+                sprite[i].picnum = 273;
+                t[0] = 0;
+                sprite[i].cstat &= ~1;
+                continue;
+            }
+            switch (t[0]) {
+            case 0:
+                if (dist < 4096)
+                    t[0]++;
+                break;
+            case 1:
+                t[0]++;
+                sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
+                if (dist != 0)
+                    sprite[i].zvel = ((2048 + ps[p].posz - sprite[i].z) << 8) / dist;
+                sprite[i].xvel = 16;
+                break;
+            case 2:
+                if (sprite[i].zvel > -1024)
+                    sprite[i].zvel -= 64;
+                sprite[i].z += sprite[i].zvel;
+                if (sprite[i].xvel < 256)
+                    sprite[i].xvel += 16;
+                if (MOVE_ALONG(i, sprite[i].zvel, 0))
+                    t[0]++;
+                if (dist < 768) {
+                    j = 1024 - (randomstash & 2047);
+                    sprite[i].ang += j;
+                    HURT(p, 1);
+                }
+                break;
+            case 3:
+                if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
+                    sprite[i].ang += 512;
+                    t[0] = 1;
+                }
+                break;
+            }
         } else
             execute(i, p, dist);
-    next_actor:
+BOLT:
         ;
     }
 }

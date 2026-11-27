@@ -435,8 +435,9 @@ void spawn(long j, short pn)
         sprite[i].yrepeat = 43;
         show2dsprite[i >> 3] |= 1 << (i & 7);
         sprite[i].xrepeat = 52;
+        /* COMPILER_STEERED: the explicit assignment affects Watcom register allocation. */
         if (sprite[i].picnum == 408)
-            sprite[i].xrepeat -= 9;
+            sprite[i].xrepeat = sprite[i].xrepeat - 9;
         changespritestat(i, STAT_ZOMBIEACTOR);
         sprite[i].cstat |= 1;
         break;
@@ -567,9 +568,11 @@ void spawn(long j, short pn)
             sprite[i].xrepeat = sprite[i].yrepeat = 64;
             sprite[i].shade = 0;
             hittype[i][1] = tempwallptr;
+            x = tempwallptr;
             for (s = 0; s < numsectors; s++)
                 if (sector[s].hitag == sprite[i].hitag) {
-                    msx[tempwallptr] = s;
+                    msx[x] = s;
+                    x++;
                     tempwallptr++;
                     hittype[i][0]++;
                 }

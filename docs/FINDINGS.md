@@ -630,3 +630,9 @@ Each entry names the command or artefact that supports it.
   the shared face- and wall-sprite height checks (.170 -> .257); grouvline projection and declaration order (fuzzy
   .884 -> .899); hitscan local order (-3 bytes). drawsprite/draw2dscreen trials that scored higher changed extents
   and regressed STRICT neighbours (not adopted).
+- ACTORS/PREMAP follow-up (r5cx-actors-2): moveactors rewritten with loop-level `t[n]`/`ps[p].field`, the historical
+  inline `ksgn` and restored late cases reaches the oracle's exact size (12,320) with content .791 / fuzzy .941 (was
+  .41/.65); its last case target lands exactly at +12,127 so guts stays STRICT; seven other targets within 3 B; frame
+  0x4c vs 0x48. STRONG ACTORS saw `getangle` returning int (ENGINE.C defines it without a return type) and
+  getincangle without a prototype (actors.h). spawn reaches the oracle's size (8,736) via the lotag-23 index and
+  repeat-store order (sprite-index stack slot restored).
