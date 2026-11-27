@@ -1057,3 +1057,20 @@ Each entry names the command or artefact that supports it.
   ENGINE STRICT; signed sector wall indices cost 2 SECTOR + 15 ENGINE). 8,850 oracle accesses traced; 281 lack a typed
   binding and 273 memory operands an anchor (field attribution incomplete, OPEN).
 - Conclusion: the large functions' low register agreement is not a hidden unit-wide flag or struct-width cause.
+
+## Open Watcom cg source vs 9.5 traces (owcg, astra, 2026-11-27; docs/CG_SOURCE.md, build/workers/owcg/EXPLAIN.md)
+- PROVEN: the 9.5 traces agree with the Open Watcom v2 candidate/conflict/stack-home sort for all 52 orders and
+  1,302 scored register choices checked. OW v2 differs from 9.5 in register rotation, conversion scoring,
+  stack-home ordering, inline depth and switch costs, so OW v2 source explains ties but cannot be compiled as a 9.5 model.
+- NEGATIVE: 53 whole-unit DOS trials on the stuck ties (checkhitswitch, moveexplosions, drawmaskwall, ...) gave
+  0 new STRICT. checkhitswitch: both tied conflicts score 160 raw savings + 404 adjustment (a genuine tie, broken by
+  temp id order). moveexplosions: one FLAIR local change restores ECX but the function worsens 74 -> 127 bytes.
+  drawmaskwall: ESI still holds the quotient when EBP is assigned to xb1[z]; scheduling moves the load afterwards.
+
+## Ken-style idioms (kenstyle, sol, 2026-11-27; docs/KENSTYLE.md, build/workers/kenstyle/DEVIATIONS.md)
+- 20 dated idioms, 25 reduced probes; 68 whole-unit DOS trials, 0 new STRICT.
+- Applied: PLAYER processinput multiplication operand order restored to the attested spelling (byte-identical).
+- Queued: ENGINE drawline16 operand order (935 -> 934 bytes) and MULTI comma-operator spelling (byte-identical),
+  held until the running engine/multi workers return.
+- NEGATIVE/trade: getpacket CRC form 499 -> 232 bytes but breaks the shared return of STRICT processreservedmessage
+  (not adopted).

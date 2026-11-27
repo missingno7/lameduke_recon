@@ -739,7 +739,7 @@ void processinput(short snum)
 
 doturn:
     if (syncangvel[snum]) {
-        ps[snum].ang += doubvel * syncangvel[snum] / 24;
+        ps[snum].ang += syncangvel[snum] * doubvel / 24;
         ps[snum].ang = (ps[snum].ang + 2048) & 2047;
     }
     if (klabs(cz - fz) < 7168) {
@@ -777,12 +777,12 @@ doturn:
         if (ps[snum].hard_landing)
             doubvel = 0;
         if (syncvel[snum]) {
-            xvect += (doubvel * syncvel[snum] * sintable[(ps[snum].ang + 2560) & 2047]) >> 3;
-            yvect += (doubvel * syncvel[snum] * sintable[(ps[snum].ang + 2048) & 2047]) >> 3;
+            xvect += (syncvel[snum] * doubvel * sintable[(ps[snum].ang + 2560) & 2047]) >> 3;
+            yvect += (syncvel[snum] * doubvel * sintable[(ps[snum].ang + 2048) & 2047]) >> 3;
         }
         if (syncsvel[snum]) {
-            xvect += (doubvel * syncsvel[snum] * sintable[(ps[snum].ang + 2048) & 2047]) >> 3;
-            yvect += (doubvel * syncsvel[snum] * sintable[(ps[snum].ang + 1536) & 2047]) >> 3;
+            xvect += (syncsvel[snum] * doubvel * sintable[(ps[snum].ang + 2048) & 2047]) >> 3;
+            yvect += (syncsvel[snum] * doubvel * sintable[(ps[snum].ang + 1536) & 2047]) >> 3;
         }
         if (syncbits[snum] & SB_CROUCH) {
             xvect >>= 1;
