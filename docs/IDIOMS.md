@@ -56,3 +56,25 @@ The Intel assembly query returned the single matched `getinput` cast at `1:20e6e
 ## Controlled comparisons
 
 [WATCOM95_QUIRKS.md](WATCOM95_QUIRKS.md) and [quirks.json](quirks.json) contain the catalogue. [probes.json](../probes.json) captures fixtures under all four code-bearing default profiles. The switch matrix varies case count and stride with distinct external callees so the compiler must preserve distinct destinations. Its observed choices apply to that source shape. The matrix gives no universal minimum density or case count for jump tables. Separate tests varied operand width, volatile reads and writes, constant expressions, return and branch forms, literal reuse, and prototype shape. The tests also observed right-to-left evaluation for six effectful integer arguments in the tested register convention.
+
+## Reverse search
+
+```powershell
+$w = 'build/idioms'
+python -B "tools/idioms/idioms.py" reverse game_game gamenumber
+python -B "tools/idioms/idioms.py" reverse game_actors moveexplosions --json
+python -B "tools/idioms/reverse_search.py"
+python -B "tools/idioms/validate_followup.py"
+```
+
+- The oracle side looks up each complete normalized block directly in the STRICT C index. It works without a matching candidate block. `moveexplosions` at `1:2993a` retrieves `moveplayers` at `1:2a66d` and its signed floor comparison. The current candidate lacks the normalized block.
+- The candidate side consumes oracle counterparts as a multiset. An unmatched candidate block with a donor either has a key absent from the oracle or is an extra occurrence of a key present there. `gamenumber` at candidate `+0xda` retrieves `gametext` at `1:02810` while the equal normalized key is absent from the oracle caller. Candidate addresses remain relative to the candidate extent.
+- Inline diagnostics use LINNUM in a verified DOS object, a same-unit source call, and named references in common sequences across the standalone callee and both caller versions. For `gamenumber`, the oracle window `1:0295b`–`1:02a2c` corroborates the inline `gametext` call at `src/game/game.c:765` and has 33 aligned symbolic changes. This locates context effects without assuming that register pressure, scope, or source order caused a particular change. An alternate `--obj` supports the block searches and omits source-based inline inference.
+
+[shared_blocks.md](../shared_blocks.md) ranks the 61 game, ENGINE and MULTI entries from the non-STRICT census by missing oracle bytes that have exact normalized C donors. It lists 2,351 oracle block occurrences with donors, totaling 25,396 bytes, of which 1,406 bytes are missing in the current candidate. The candidate side identifies 47 blocks (738 bytes) with keys absent on the oracle side and 40 surplus duplicates. The report flags 83 inline windows spanning 37 caller–callee pairs. [shared_blocks.json](../shared_blocks.json) preserves every donor, including those sharing short or generic patterns, and records the candidate object and source hashes.
+
+Inline windows compare symbolic instructions and can miss small, unanchored, or heavily rerouted copies. The exact normalized block search does not depend on the inline heuristic. Reverse reports use the census for membership and status, and the registered DOS objects for current candidate code. The GAME line object was refreshed after a source edit shifted its line coordinates. A source hash mismatch on a rebuilt unit requires a fresh worker index before reusing its line anchors.
+
+## Cross-version audit
+
+The [catalogue](WATCOM95_QUIRKS.md#rules-imported-from-watcom-10x) and [JSON](quirks.json) include the Watcom 10.x audit. The JSON retains the originating path and line range, the transferred claim and its compiler/profile scope, and the STRICT witness or fixture evidence. Untested rows preserve literal-snippet searches and related construct hits where available. A generic analogue, a compiler-internal rule beyond the line index, or a C++-only trigger does not establish compatibility.

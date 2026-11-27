@@ -812,3 +812,14 @@ Each entry names the command or artefact that supports it.
   edit (its parser/safety guards refuse most constructs of this game code; incl. operatefta at 4 bytes). Conclusion
   (shared with the user): the permuter is a last-step helper; reasoning with the idiom index and quirks catalogue is
   the main path.
+
+## Reverse search and imported Watcom rules (quirks-2, Codex, 2026-11-27; docs/WATCOM95_QUIRKS.md, docs/IDIOMS.md)
+- Reverse search over the 61 non-STRICT game/engine/MULTI functions: 2,351 oracle blocks have exact normalised twins
+  inside STRICT functions (1,406 of those bytes are code our candidates lack); 738 candidate bytes have STRICT twins but
+  no oracle counterpart (context effects); 83 differing inline windows across 37 caller-callee pairs (e.g. gametext in
+  gamenumber: 33 aligned differences). `python -B tools/idioms/idioms.py reverse UNIT FUNC`; worklist
+  build/idioms/shared_blocks.md (regenerable, not committed).
+- Watcom 10.x knowledge from rayman_recon, cyberstorm_recon, kegg_recon and the matching-decompilation skill: 575
+  claims audited against the 9.5 STRICT corpus: 125 confirmed for 9.5 (with examples), 36 refuted, 414 untested (no
+  occurrence). PROVEN version differences: 9.5 pools repeated 30-byte string literals where 10.0 splits them; a double
+  constant outside the 10.x 16-digit grid; sparse switches emit REPNE SCASW under the ENGINE and MULTI profiles.

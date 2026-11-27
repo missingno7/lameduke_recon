@@ -318,7 +318,11 @@ def main():
     n.add_argument('--block', help='oracle block start as 1:offset, hex offset, or +offset from extent start')
     n.add_argument('--limit', type=int, default=3, help='hits per block (default 3)')
     n.add_argument('--obj', type=Path, help='compare a different candidate object')
-    for command in (q, c, n):
+    r = commands.add_parser('reverse', help='find exact normalized oracle and candidate matches in STRICT C')
+    r.add_argument('unit')
+    r.add_argument('function')
+    r.add_argument('--obj', type=Path, help='compare a different object with the same census status')
+    for command in (q, c, n, r):
         command.add_argument('--json', action='store_true')
     args = parser.parse_args()
     try:
@@ -328,6 +332,11 @@ def main():
                 raise ValueError('limit must be positive')
             result = near(index, args.unit, args.function, args.block, args.limit, args.obj)
             show = print_near
+        elif args.command == 'reverse':
+            from reverse_search import render, reverse
+            census = load_json(bd.BUILD / 'blockdiff.json')['functions']
+            result = reverse(index, census, bd.Analyzer(), (args.unit, args.function), args.obj)
+            show = lambda data: print(render(data))
         else:
             if args.command == 'c':
                 result = list(c_search(index, args.pattern))

@@ -64,6 +64,9 @@ def main():
     config = load_json(CONFIG / 'toolchain.json')
     units = load_json(CONFIG / 'units.json')['units']
     out = {'host': 'DOSBox-X', 'units': {}}
+    manifest = WORK / 'neutrality.json'
+    if len(sys.argv) > 1 and manifest.is_file():
+        out = load_json(manifest)
     for unit, entry in units.items():
         if entry['kind'] != 'c' or (len(sys.argv) > 1 and unit not in sys.argv[1:]):
             continue
@@ -71,14 +74,18 @@ def main():
         effective = list(entry.get('flags_override', profile['flags'])) + entry.get('extra_flags', [])
         clean = [flag for flag in effective if flag != '-d1']
         debug = effective if '-d1' in effective else effective + ['-d1']
+        source = ROOT / entry['source']
+        source_digest = sha256_file(source)
         a = build(unit, 'plain', entry, profile, clean)
         b = build(unit, 'lines', entry, profile, debug)
+        if sha256_file(source) != source_digest:
+            raise RuntimeError(f'{source} changed during the DOS build pair')
         row = compare(*[omf.load(path)[0] for path in (a, b)])
         row.update({'plain': object_info(a), 'lines': object_info(b), 'profile': entry['profile'],
                     'install': profile['install'], 'plain_flags': clean, 'line_flags': debug,
-                    'canonical': 'lines' if '-d1' in effective else 'plain'})
+                    'canonical': 'lines' if '-d1' in effective else 'plain', 'source_sha256': source_digest})
         out['units'][unit] = row
-        dump_json(WORK / 'neutrality.json', out)
+        dump_json(manifest, out)
         print(unit, 'equal' if row['whole_object_payload_equal'] else str([(s['before'], s['sizes'],
               len(s['byte_diffs'] or [])) for s in row['changed_segments']]) + str(row['equal']),
               'lines', {k: v for k, v in row['lines']['record_counts'].items() if k in ('94','95','c4','c5')}, flush=True)

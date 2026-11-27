@@ -186,6 +186,8 @@ def main():
             lines = {1: listing_rows(WORK / 'objects' / f'{unit}.lst', source)}
         else:
             neutral = neutrality[unit]
+            if neutral.get('source_sha256', sha256_file(source_path)) != sha256_file(source_path):
+                raise ValueError(f'{source_path} changed since the DOS build pair')
             artifact = plain.with_name(f'{unit}.lines.obj')
             for path, label in ((plain, 'plain'), (artifact, 'lines')):
                 if sha256_file(path) != neutral[label]['sha256']:
