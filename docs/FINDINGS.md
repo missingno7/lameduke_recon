@@ -1183,3 +1183,10 @@ Each entry names the command or artefact that supports it.
   stack-home exchanges between locals of an inlined text helper (minitext/menutext style) and caller locals. Flipping
   the tied home pair in the trace gives exact bytes (draw_and_probe accepted by the verifier as a diagnostic).
   Hypothesis under test (worker handcopy): the text loops were hand-copied or macros in December, not -oe inlined.
+- handcopy (sol, 2026-11-27; build/workers/handcopy/REPORT.md): hypothesis "text loops hand-copied or macros"
+  REJECTED as tested: STRICT playback keeps two minitext calls and STRICT menus ten menutext calls, so the helpers are
+  real functions; replacing them by loops/macros loses those proofs. A per-caller hand copy with chosen declaration
+  order DOES reproduce the oracle's stack homes in operatefta and draw_and_probe, but the copied body's code differs
+  from the inlined shape. displayhighscores best copy 10 -> 308 B. 15 full-unit DOS trials, 0 STRICT.
+  Same signature (all blocks + fixups match, only font-helper homes differ): nonsharedkeys (111/111 blocks, 14 B).
+  Class "inlined font-helper home ties": operatefta, displayhighscores, draw_and_probe, nonsharedkeys - parked.
