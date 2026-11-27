@@ -40,6 +40,22 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
   in `docs/FINDINGS.md` (integrator) or your worker report, with the exact toolchain and context.
 - Keep paths short when compiling (Watcom tools can crash on long paths); `build/tmp` is fine.
 
+## Progress branches for large functions (user authorization 2026-11-27)
+When a function's correct source changes its size before the rest of it is fixed, the size change shifts later
+functions: positional byte counts rise and neighbours may drop to CODE_BYTES_MATCH with identical code. Conditions:
+- Temporary STRICT regressions are permitted only in isolated experimental branches (a worker's own directory), never
+  in src/ or the canonical tree.
+- Each regression must be understood, documented in the branch ledger (NOTES.md/LEDGER.md: which neighbours, why -
+  e.g. identical code bytes with only displaced targets) and justified by meaningful progress toward matching
+  (measured by matched blocks with tools/blockdiff.py, not positional bytes).
+- Every existing verified match must remain recoverable (the canonical tree is untouched; the branch records how its
+  neighbours return, typically when the target's extent is back to the oracle size).
+- Nothing enters the canonical tree unless it passes the existing strict verification and integration requirements
+  (tools/gate.py, every STRICT function preserved; trades only under the rules below).
+- Historical authenticity, natural C and verification standards are not weakened.
+Evidence: SECTOR checksectors 269 -> 311/387 blocks in one progress-branch round vs one block before; ENGINE grouvline's
+attested LOOP pragma (+3 blocks while 3 bytes short).
+
 ## Trades (user decision 2026-11-27)
 A change that makes one function STRICT but costs another function its STRICT status ("trade") is NOT adopted by a
 worker. It is reported to the integrator with: both functions and byte counts, the mechanism (shared inlined helper,
