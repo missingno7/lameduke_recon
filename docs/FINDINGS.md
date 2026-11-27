@@ -883,3 +883,7 @@ Each entry names the command or artefact that supports it.
   first: player stack slot recovered; frame still 48 vs 44); parse unchanged at 141 bytes (IFCANSEE +0x1f8). A
   movement-pointer alternative (2,873 bytes, 3 B long) is kept in round5/reload/. GAMEDEF paused: its residues are the
   census's frame-reservation and stack-slot classes; hand to the census-rule worker.
+- ACTORS/PREMAP follow-up (r10-actors-2): PROVEN newgame STRICT (272 B: byte-sized weapon-ownership local and the
+  order of independent stores select BL); moveactors 5,889 -> 4,421 differing bytes, six of eight case targets exact
+  incl. +12,127 (two one byte late); moveexplosions 673 (register interference traced at 1:29847). Attribution:
+  quirks +1,943 bytes, near +5 blocks, own reasoning incl. cg95 the 272 STRICT bytes; reverse, donors, permute 0.

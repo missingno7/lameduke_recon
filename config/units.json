@@ -2470,7 +2470,7 @@
      "status": "NEAR_MATCH"
     },
     "newgame": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "enterlevel": {
      "status": "STRICT"

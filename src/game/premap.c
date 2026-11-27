@@ -961,8 +961,8 @@ void prelevel(void)
 /* Start a new game: episode vn, level ln, skill sk; fresh inventory, pistol and ammo for player 0. */
 void newgame(unsigned char vn, unsigned char ln, unsigned char sk)
 {
-    /* COMPILER_STEERED: a short local controls the register used to clear weapon ownership. */
-    short owned;
+    /* COMPILER_STEERED: the byte local and the order of these independent stores select BL for pistol ownership. */
+    unsigned char owned;
 
     ps[0].level = ln;
     ps[0].volume = vn;
@@ -979,10 +979,10 @@ void newgame(unsigned char vn, unsigned char ln, unsigned char sk)
     owned = 0;
     ps[0].gotweapon[0] = owned;
     ps[0].gotweapon[2] = owned;
-    ps[0].gotweapon[3] = owned;
-    ps[0].gotweapon[4] = owned;
     ps[0].screen_size = -4;
     ps[0].gotweapon[1] = 1;
+    ps[0].gotweapon[3] = owned;
+    ps[0].gotweapon[4] = owned;
     ps[0].score = 0;
     if (ud.debug) {
         ps[0].ammo_r_amount = 99;

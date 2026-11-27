@@ -322,7 +322,7 @@ void guts(short i)
 void moveactors(void)
 {
     /* COMPILER_STEERED: short-local order selects the actor index stack home. */
-    short nexti, j, i, p, sect;
+    short nexti, j, sect, i, p;
     long dist;
 
     for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti) {
@@ -352,7 +352,9 @@ void moveactors(void)
                         hittype[j][0] = 1;
                         break;
                     case 3:
-                        hittype[j][4] = 1;
+                        /* COMPILER_STEERED: the named constant changes the master-switch allocation. */
+                        l = 1;
+                        hittype[j][4] = l;
                         break;
                     case 23:
                         sprite[i].shade = 1;
@@ -603,9 +605,10 @@ shark_steer:
                 }
                 if (sprite[i].xvel < 32)
                     sprite[i].xvel += 4;
-                sprite[i].xvel = 64 - (sintable[(t[1] + 512) & 2047] >> 9);
+                /* COMPILER_STEERED: both masked sine indices use word temporaries. */
+                sprite[i].xvel = 64 - (sintable[(unsigned short)((t[1] + 512) & 2047)] >> 9);
                 sprite[i].ang += getincangle(sprite[i].ang, getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 3);
-                sprite[i].xrepeat = (sintable[(t[1] + 512) & 2047] >> 11) + 36;
+                sprite[i].xrepeat = (sintable[(unsigned short)((t[1] + 512) & 2047)] >> 11) + 36;
                 sprite[i].yrepeat = (sintable[t[1] & 2047] >> 13) + 16;
                 if ((krand() >> 8) >= 251 && klabs(sector[sect].floorz - sector[sect].ceilingz) < 49152) {
                     sprite[i].zvel = 0;
@@ -951,9 +954,7 @@ wait:
                 sprite[i].cstat &= ~1;
                 continue;
             }
-            /* COMPILER_STEERED: copy the state before the switch. */
-            l = t[0];
-            switch (l) {
+            switch (t[0]) {
             case 0:
                 if (dist < 4096)
                     t[0]++;
@@ -961,8 +962,9 @@ wait:
             case 1:
                 t[0]++;
                 sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
+                /* COMPILER_STEERED: adding the height offset first affects the state switch. */
                 if (dist != 0)
-                    sprite[i].zvel = ((ps[p].posz + (2048 - sprite[i].z)) << 8) / dist;
+                    sprite[i].zvel = ((ps[p].posz + 2048 - sprite[i].z) << 8) / dist;
                 sprite[i].xvel = 16;
                 break;
             case 2:
