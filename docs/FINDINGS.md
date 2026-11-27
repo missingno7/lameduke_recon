@@ -904,3 +904,13 @@ Each entry names the command or artefact that supports it.
 - PROVEN render_mirror STRICT (976 B, 50 references; r11-frames, astra): saving viewer y alongside viewer x before the
   midpoint restores the oracle's 36-byte frame. PREMAP 10/12. GAMEDEF execute/parse and PLAYER processinput unchanged
   this round (a PREMAP trial lowering spawn/prelevel byte counts dropped exact prelevel table targets 13 -> 3: rejected).
+
+## Allocator decision flipping (tieflip, Codex, 2026-11-27; tools/cg95/flip95.py, climb95.py; docs/TIEFLIP.md)
+- cg95 FLIP mode forces equal-priority/conflict swaps, stack-home swaps and register choices during a real compile;
+  the objects are diagnostics only. Minimal flip sets reaching the oracle bytes (match.py-verified, no regression):
+  operatefta: swap homes t15_left/t102 (4 -> 0); nonsharedkeys: three home swaps t190_ac/t218_ac, t160_ac/t190_ac,
+  t159_left/t160_ac (14 -> 0); checkhitswitch: swap equal-savings t116/t117 (2 -> 0); scansector: t92 -> EDX and
+  t91 -> EDI (7 -> 0); comsend: t27 -> EDX in the ESC2 arm (5 -> 0); setview: t37 -> EDX (9 -> 3; viewoffset store /
+  xdimen load order remains).
+- 84 DOS source trials did not yet reproduce those decisions naturally (0 new STRICT). The flip sets now state exactly
+  which decision each source lever must change.
