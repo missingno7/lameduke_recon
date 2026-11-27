@@ -1153,3 +1153,11 @@ Each entry names the command or artefact that supports it.
 - wallfront 414 -> 79 (entry block only), makepalookup 194 -> 130 (May palette pointers, RGB order). raytrace 108
   (December body persists into Jan/Feb-95 SW), rotatesprite 1,225 (Feb-95 GAME frame 0x5c vs December 0x60),
   grouvline 1,459, scansector 7, drawmaskwall 7.
+
+## Assumption check: compiler patch level of the December units (integrator, 2026-11-27) — NEGATIVE
+- Re-tested because every source method failed on the parked residuals (docs/PARKED.md): could Ken have patched his
+  compiler between April and December 1994? Current canonical sources, NT host, each unit's own flags:
+  ENGINE (-4r -s -or) GA 95/103 STRICT, 9.5a 36, 9.5b-patched 35, 9.5c 35; MULTI (-5r -s) GA 22/25, a/b/c 15.
+  The patched compilers also blow up the parked functions (scansector 7 -> 484 B, drawmaskwall 7 -> 341, neton 10 -> 243,
+  sendpacket 10 -> 711). PROVEN: the December units were built with unpatched 9.5 GA; the parked residuals are not a
+  compiler-version effect.
