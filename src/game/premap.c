@@ -926,8 +926,7 @@ void prelevel(void)
             /* fall through */
         case 764: case 765: case 766: case 767:
             animwall[numanimwalls].wallnum = i;
-            animwall[numanimwalls].tag = wall[i].picnum;
-            numanimwalls++;
+            animwall[numanimwalls++].tag = wall[i].picnum;
             break;
         case 406:
             wall[i].picnum = 405;

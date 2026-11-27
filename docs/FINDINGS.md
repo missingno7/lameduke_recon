@@ -598,3 +598,12 @@ Each entry names the command or artefact that supports it.
   forms, old-style prototypes in sector.h (no code change), moveweapons/render_mirror forms, for->while over all
   loops; moveactors `t`/`ps[p]` raises content to .58 but shrinks it so that guts' table target moves (reverted).
 - Next lead: apply the identical-block rule to processinput (-184 B), checksectors (-224 B), prelevel (-32 B).
+
+## ACTORS/PREMAP round 5 (r5cx-actors, Codex, 2026-11-27; build/workers/r5cx-actors/NOTES.md, integrated)
+- No STRICT change (ACTORS 11/18, PREMAP 6/12; guts stays STRICT). prelevel now has the oracle's exact size (9,872)
+  after the tag-store postfix increment restores tile 570's separate tail (identical-block rule).
+- moveactors: separate OOZ deletes, slime and flicker loop exits and the bomb crush path restored (content .401 ->
+  .409, fuzzy .626 -> .648; size 12,496 vs oracle 12,320). An exploratory loop-level `t[n]`/`ps[p]` candidate reaches
+  .751/.929 with guts STRICT, but its last case target is still 32 B early (not adopted yet).
+- moveweapons: full-width distance output and explicit short copy: byte diffs 1,036 -> 815 (size 1,440 vs 1,456).
+- NEGATIVE movefta (cansee register conflict traced; baseline best), spawn exact-size pointer variant (worse).
