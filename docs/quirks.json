@@ -1,0 +1,1694 @@
+{
+ "schema": 1,
+ "rules": [
+  {
+   "id": "switch-dense",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe",
+    "multi",
+    "audiolib"
+   ],
+   "rule": "Dense dispatch can use a bounds check and a CS-relative jump table.",
+   "trigger": "Several distinct targets in a compact value range.",
+   "source_form": "switch (hittype[i][0]) with four distinct arms.",
+   "emitted_code": "CMP selector,3; JA default; JMP CS:[selector*4+table]. A nonzero first case adds an index bias.",
+   "counter_example": "The DOS fixture with three contiguous cases used comparisons in all four profiles. Four contiguous cases used tables in all four.",
+   "examples": [
+    {
+     "unit": "game_actors",
+     "function": "movefx",
+     "profile": "game_oe",
+     "source": "src/game/actors.c",
+     "address": "1:2aa58",
+     "entry": "1:2a860",
+     "line": 1425,
+     "source_text": "switch (hittype[i][0])"
+    },
+    {
+     "unit": "game_gamedef",
+     "function": "parsecommand",
+     "profile": "game_oe",
+     "source": "src/game/gamedef.c",
+     "address": "1:2edab",
+     "entry": "1:2ed60",
+     "line": 222,
+     "source_text": "switch (tw)"
+    }
+   ],
+   "reference": "probes.json / sw_3_1 and sw_4_1",
+   "mined_from_index": true
+  },
+  {
+   "id": "switch-cost",
+   "class": "STRONG",
+   "profiles": [
+    "engine",
+    "game_oe",
+    "multi",
+    "audiolib"
+   ],
+   "rule": "Case density and the optimization profile influence dispatch selection.",
+   "trigger": "Distinct cases with identical arm structure, all calling separate external functions, and the same external default.",
+   "source_form": "switch (x) with cases 100 + i*step for i=0 through n-1.",
+   "emitted_code": "For stride 2, only n=4 used a table in engine/multi. game_oe/audiolib used tables for n=4,5,6,8,10,16. For stride 3, only game_oe/audiolib n=4,5 used tables. All stride 4,8,16 fixtures used comparisons.",
+   "counter_example": "At stride 2, n=12 uses a comparison tree in all profiles. There is no monotone case-count threshold in this fixture.",
+   "examples": [
+    {
+     "unit": "game_actors",
+     "function": "addweapon",
+     "profile": "game_oe",
+     "source": "src/game/actors.c",
+     "address": "1:25187",
+     "entry": "1:25180",
+     "line": 55,
+     "source_text": "switch (weapon)"
+    },
+    {
+     "unit": "game_actors",
+     "function": "movefx",
+     "profile": "game_oe",
+     "source": "src/game/actors.c",
+     "address": "1:2aa58",
+     "entry": "1:2a860",
+     "line": 1425,
+     "source_text": "switch (hittype[i][0])"
+    }
+   ],
+   "reference": "probes.json / case_matrix",
+   "mined_from_index": true
+  },
+  {
+   "id": "switch-comparisons",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "Compare trees retain the selector width and can encode adjacent labels as a range.",
+   "trigger": "Case selector can remain in a narrow live value, and contiguous case labels share a body.",
+   "source_form": "switch (tempbuf[0]); switch (wall[i].picnum).",
+   "emitted_code": "CMP AL in getpackets. CMP AX plus JB/JBE around a contiguous case range in animatewalls.",
+   "counter_example": "parsecommand uses a word bounds test followed by a long index into a dispatch table.",
+   "examples": [
+    {
+     "unit": "game_game",
+     "function": "getpackets",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:00d35",
+     "entry": "1:00d10",
+     "line": 430,
+     "source_text": "switch (tempbuf[0])"
+    },
+    {
+     "unit": "game_sector",
+     "function": "animatewalls",
+     "profile": "game_oe",
+     "source": "src/game/sector.c",
+     "address": "1:155b3",
+     "entry": "1:15550",
+     "line": 176,
+     "source_text": "switch (wall[i].picnum)"
+    },
+    {
+     "unit": "game_gamedef",
+     "function": "parsecommand",
+     "profile": "game_oe",
+     "source": "src/game/gamedef.c",
+     "address": "1:2edab",
+     "entry": "1:2ed60",
+     "line": 222,
+     "source_text": "switch (tw)"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / Game code-shape rules and SECTOR round 3",
+   "mined_from_index": true
+  },
+  {
+   "id": "switch-empty-labels",
+   "class": "STRONG",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "Keep labels with empty bodies when reconstructing a compare tree.",
+   "trigger": "A label falls through into a shared body, or shares the default destination.",
+   "source_form": "case 1: case 7: ... in moveeffectors. Group actual empty and contiguous labels.",
+   "emitted_code": "Changing the case-value set changes the split keys and block order even when the high-level effect is unchanged for tested inputs.",
+   "counter_example": "The specific 1/7 split at 15 is local evidence from the still-NEAR moveeffectors.",
+   "examples": [
+    {
+     "unit": "game_sector",
+     "function": "animatewalls",
+     "profile": "game_oe",
+     "source": "src/game/sector.c",
+     "address": "1:155b3",
+     "entry": "1:15550",
+     "line": 176,
+     "source_text": "switch (wall[i].picnum)"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / GAME inlining structure",
+   "mined_from_index": false
+  },
+  {
+   "id": "table-before-entry",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe",
+    "multi",
+    "audiolib"
+   ],
+   "rule": "Switch tables can precede the entry label in CODE.",
+   "trigger": "An indexed indirect jump has a relocated intra-segment table base.",
+   "source_form": "A dense switch with distinct case bodies.",
+   "emitted_code": "Relocated dwords, then entry alignment padding, then the dispatcher public. Some Watcom 10.0 slots relocate to external tail callees.",
+   "counter_example": "Comparison trees have no such prefix. A table with external targets can remain inside the preceding public\u2019s verified extent under the current verifier attribution rule.",
+   "examples": [
+    {
+     "unit": "game_actors",
+     "function": "movefx",
+     "profile": "game_oe",
+     "source": "src/game/actors.c",
+     "address": "1:2aa58",
+     "entry": "1:2a860",
+     "line": 1425,
+     "source_text": "switch (hittype[i][0])"
+    },
+    {
+     "unit": "game_gamedef",
+     "function": "parsecommand",
+     "profile": "game_oe",
+     "source": "src/game/gamedef.c",
+     "address": "1:2edab",
+     "entry": "1:2ed60",
+     "line": 222,
+     "source_text": "switch (tw)"
+    },
+    {
+     "unit": "ass_fx_man",
+     "function": "FX_SetVolume",
+     "profile": "audiolib",
+     "source": "src/audiolib/fx_man.c",
+     "address": "1:5e33b",
+     "entry": "1:5e338",
+     "line": 552,
+     "source_text": "switch( FX_SoundDevice )"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / Jump-table attribution in the verifier",
+   "mined_from_index": false
+  },
+  {
+   "id": "small-signed-loads",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe"
+   ],
+   "rule": "A signed byte or word can extend directly into a long.",
+   "trigger": "An 8- or 16-bit signed memory value is needed as a 32-bit operand under -4r.",
+   "source_form": "(long)sprite[i].sectnum; klabs(ps[snum].look_ang).",
+   "emitted_code": "MOVSX r32,m16, or MOV AX,m16 followed by CWDE in the EAX-specific pragma path. The signed-byte fixture used MOVSX r32,m8.",
+   "counter_example": "The signed global -5r fixtures may read a dword at a negative addend and shift instead.",
+   "examples": [
+    {
+     "unit": "game_actors",
+     "function": "moveplayers",
+     "profile": "game_oe",
+     "source": "src/game/actors.c",
+     "address": "1:2a66d",
+     "entry": "1:2a470",
+     "line": 1364,
+     "source_text": "if (sprite[i].z < sector[sprite[i].sectnum].floorz)"
+    },
+    {
+     "unit": "game_player",
+     "function": "animateknuckles",
+     "profile": "game_oe",
+     "source": "src/game/player.c",
+     "address": "1:1fd6d",
+     "entry": "1:1fd20",
+     "line": 220,
+     "source_text": "looking_arc = klabs(ps[snum].look_ang) / 9;"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / Allocator lever and MULTI; probes.json / widenschar and widensshort",
+   "mined_from_index": true
+  },
+  {
+   "id": "pentium-wide-load",
+   "class": "PROVEN",
+   "profiles": [
+    "multi",
+    "audiolib"
+   ],
+   "rule": "Some -5r signed extensions use a wider, negatively displaced memory read.",
+   "trigger": "Promoting a signed narrow global. Watch for a relocation to an adjacent symbol or symbol plus a negative addend.",
+   "source_form": "i < numplayers - 1 with a signed-short numplayers. Fixture returns a signed char or short as long.",
+   "emitted_code": "MOV r32,[short-2]; SAR r32,16. The signed-byte fixture uses [char-3] and SAR r32,24.",
+   "counter_example": "A volatile short in the same -5r fixture used MOVSX directly. Several ordinary loads in the same modules also use MOVSX.",
+   "examples": [
+    {
+     "unit": "multi",
+     "function": "netinitconnection",
+     "profile": "multi",
+     "source": "src/multi/multi.c",
+     "address": "1:48a98",
+     "entry": "1:488f5",
+     "line": 502,
+     "source_text": "for (i = 0; i < numplayers - 1; i++)"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / MULTI is compiled with -5r; probes.json / widenvolatile",
+   "mined_from_index": true
+  },
+  {
+   "id": "small-unsigned-loads",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe",
+    "multi",
+    "audiolib"
+   ],
+   "rule": "Zeroing a register followed by a low-byte or low-word load is a promotion idiom.",
+   "trigger": "An unsigned narrow load must supply a zero-extended long.",
+   "source_form": "Unsigned char synctics or key byte used in a wide call/expression.",
+   "emitted_code": "XOR EAX,EAX; MOV AL,[synctics]. A word uses AX in the fixture. Other allocations can use MOVZX.",
+   "counter_example": "Multiple uses, preload timing, and inlining can favor AND r32,255 or a MOVZX instead.",
+   "examples": [
+    {
+     "unit": "game_actors",
+     "function": "ssp",
+     "profile": "game_oe",
+     "source": "src/game/actors.c",
+     "address": "1:25605",
+     "entry": "1:25600",
+     "line": 138,
+     "source_text": "return MOVE_ALONG(i, sprite[i].zvel, cliptype) == 0;"
+    },
+    {
+     "unit": "game_game",
+     "function": "timerhandler",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:002c7",
+     "entry": "1:002a0",
+     "line": 391,
+     "source_text": "keytimerstuff();"
+    }
+   ],
+   "reference": "probes.json / widenuchar, widenushort; corpus timerhandler inlined calls",
+   "mined_from_index": true
+  },
+  {
+   "id": "compare-width",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "An int-promoted expression can still compare at byte or word width.",
+   "trigger": "The optimizer can establish that a narrow operand and bound fit the required comparison.",
+   "source_form": "sprite[i].picnum == MASTERSWITCH; sprite[i].yvel == 0; totalclock & 16.",
+   "emitted_code": "CMP m16,imm or CMP r16,m16. A low-bit mask on a long can become TEST m8,imm8.",
+   "counter_example": "The same record\u2019s long dimensionmode compares with CMP m32,imm. A cast or declaration affects the usable width.",
+   "examples": [
+    {
+     "unit": "game_sector",
+     "function": "operatemasterswitches",
+     "profile": "game_oe",
+     "source": "src/game/sector.c",
+     "address": "1:19550",
+     "entry": "1:19540",
+     "line": 623,
+     "source_text": "if (sprite[i].picnum == MASTERSWITCH && sprite[i].lotag == low && sprite[i].yvel == 0)"
+    },
+    {
+     "unit": "game_game",
+     "function": "cameratext",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:0a655",
+     "entry": "1:0a420",
+     "line": 1991,
+     "source_text": "if (totalclock & 16)"
+    },
+    {
+     "unit": "game_game",
+     "function": "displaystatus",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:0789b",
+     "entry": "1:07890",
+     "line": 1727,
+     "source_text": "if (ps[snum].dimensionmode != 3)"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / Game code-shape rules",
+   "mined_from_index": true
+  },
+  {
+   "id": "enum-width",
+   "class": "STRONG",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "Check replaced enums during a narrow comparison mismatch.",
+   "trigger": "A narrow game expression is compared against a named enum constant or macro literal.",
+   "source_form": "Use the byte/short comparison from the recorded PLAYER/GAMEDEF controls to choose between declarations.",
+   "emitted_code": "The recorded controls changed 32-bit comparisons back to 16-bit comparisons or byte tests with literal macros.",
+   "counter_example": "A global signed-short return expression ss == 5 and ss == enum_five generate the same CMP word and even alias to one entry in all four fixtures.",
+   "examples": [
+    {
+     "unit": "game_sector",
+     "function": "operatemasterswitches",
+     "profile": "game_oe",
+     "source": "src/game/sector.c",
+     "address": "1:19550",
+     "entry": "1:19540",
+     "line": 623,
+     "source_text": "if (sprite[i].picnum == MASTERSWITCH && sprite[i].lotag == low && sprite[i].yvel == 0)"
+    },
+    {
+     "unit": "game_gamedef",
+     "function": "move_actor",
+     "profile": "game_oe",
+     "source": "src/game/gamedef.c",
+     "address": "1:304be",
+     "entry": "1:304a0",
+     "line": 688,
+     "source_text": "if (!hittype[i].move || !flags)"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / Game code-shape rules; probes.json / cmpliteral versus cmpenum",
+   "mined_from_index": false
+  },
+  {
+   "id": "narrow-arithmetic",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "A narrow result can pull the arithmetic itself down to word width.",
+   "trigger": "Inputs are long, but only the low word survives the explicit conversion.",
+   "source_form": "i = (short)(totalclock - lockclock);",
+   "emitted_code": "MOV AX,word [totalclock]; SUB AX,word [lockclock].",
+   "counter_example": "A full-width relational use reads and compares dwords, as in playback\u2019s clock wait.",
+   "examples": [
+    {
+     "unit": "game_player",
+     "function": "getinput",
+     "profile": "game_oe",
+     "source": "src/game/player.c",
+     "address": "1:20e6e",
+     "entry": "1:20e60",
+     "line": 454,
+     "source_text": "i = (short)(totalclock - lockclock);"
+    },
+    {
+     "unit": "game_game",
+     "function": "playback",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:08351",
+     "entry": "1:081c0",
+     "line": 1825,
+     "source_text": "while (totalclock <= lockclock)"
+    }
+   ],
+   "reference": "STRICT source and operand widths in index",
+   "mined_from_index": true
+  },
+  {
+   "id": "signed-power-of-two-divide",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe",
+    "multi",
+    "audiolib"
+   ],
+   "rule": "Signed division by a power of two includes a correction toward zero.",
+   "trigger": "A signed 32-bit dividend can be negative, divisor is a positive power of two.",
+   "source_form": "((long)menu_y - m.y) / 16 + 1.",
+   "emitted_code": "Copy dividend to r, SAR r,31; SHL r,4; SBB dividend,r; SAR dividend,4. The +1 remains an INC.",
+   "counter_example": "Unsigned /16 used one SHR r,4 in all four fixtures. Signed division by 9 used IDIV.",
+   "examples": [
+    {
+     "unit": "game_menues",
+     "function": "probe",
+     "profile": "game_oe",
+     "source": "src/game/menues.c",
+     "address": "1:2c77e",
+     "entry": "1:2c6f0",
+     "line": 240,
+     "source_text": "return ((long)menu_y - m.y) / 16 + 1;"
+    },
+    {
+     "unit": "game_player",
+     "function": "animateknuckles",
+     "profile": "game_oe",
+     "source": "src/game/player.c",
+     "address": "1:1fd6d",
+     "entry": "1:1fd20",
+     "line": 220,
+     "source_text": "looking_arc = klabs(ps[snum].look_ang) / 9;"
+    }
+   ],
+   "reference": "probes.json / signed16 and unsigned16",
+   "mined_from_index": true
+  },
+  {
+   "id": "nonpower-divide",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe",
+    "multi",
+    "audiolib"
+   ],
+   "rule": "Small non-power-of-two constants can retain hardware division.",
+   "trigger": "A genuinely variable signed long dividend divided by 5, 9 or 20 in the indexed contexts.",
+   "source_form": "ni = n / 5; klabs(ps[snum].look_ang) / 9.",
+   "emitted_code": "Prepare EDX with SAR 31, load the divisor in a register, then IDIV. The unsigned fixture clears EDX and uses DIV.",
+   "counter_example": "(4 * 9 + 2) / 2 folds to MOV EAX,19. A /16 uses a shift sequence.",
+   "examples": [
+    {
+     "unit": "game_game",
+     "function": "scratchmarks",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:03986",
+     "entry": "1:03970",
+     "line": 1155,
+     "source_text": "ni = n / 5;"
+    },
+    {
+     "unit": "game_player",
+     "function": "animateknuckles",
+     "profile": "game_oe",
+     "source": "src/game/player.c",
+     "address": "1:1fd6d",
+     "entry": "1:1fd20",
+     "line": 220,
+     "source_text": "looking_arc = klabs(ps[snum].look_ang) / 9;"
+    },
+    {
+     "unit": "game_player",
+     "function": "kickview",
+     "profile": "game_oe",
+     "source": "src/game/player.c",
+     "address": "1:1f2e9",
+     "entry": "1:1f2e0",
+     "line": 29,
+     "source_text": "if (sprite[ps[snum].i].extra / 20 >= ps[snum].health)"
+    }
+   ],
+   "reference": "probes.json / signed9, unsigned9 and folded",
+   "mined_from_index": true
+  },
+  {
+   "id": "mul-near-powers",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe",
+    "multi",
+    "audiolib"
+   ],
+   "rule": "Some constant products become shift plus add or subtract.",
+   "trigger": "A 32-bit product by a constant one away from a power of two.",
+   "source_form": "zvel = (...) * 31; offs = (x + 1) * (LAVASIZ + 2) + 1;",
+   "emitted_code": "Copy the input, shift left 5 then subtract the input for 31. In movelava, shift left 6 and add the input to get 65*x, then double for the product by 130. The final doubling appears under the next source line anchor.",
+   "counter_example": "The -4r fixture multiplies by 38 with IMUL. Under both -5r profiles the scalar *38 fixture uses shifts, adds and subtraction.",
+   "examples": [
+    {
+     "unit": "game_player",
+     "function": "shoot",
+     "profile": "game_oe",
+     "source": "src/game/player.c",
+     "address": "1:1f873",
+     "entry": "1:1f660",
+     "line": 141,
+     "source_text": "zvel = (100 - ps[sprite[i].yvel].horiz) * 31;"
+    },
+    {
+     "unit": "game_menues",
+     "function": "movelava",
+     "profile": "game_oe",
+     "source": "src/game/menues.c",
+     "address": "1:2e610",
+     "entry": "1:2e200",
+     "line": 592,
+     "source_text": "offs = (x + 1) * (LAVASIZ + 2) + 1;"
+    }
+   ],
+   "reference": "probes.json / times31, times65 and times38",
+   "mined_from_index": true
+  },
+  {
+   "id": "packed-index-shapes",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "Packed records of different sizes produce distinct index arithmetic.",
+   "trigger": "The map v5 layout uses sprite/wall/sector strides of 38/35/37. The game player record uses stride 240.",
+   "source_form": "sprite[i]; wall[i]; sector[sprite[i].sectnum]; ps[p].",
+   "emitted_code": "Sprite stride 38 often IMUL imm 0x26. Wall stride 35 is 9*i then 4*(9*i)-i. Sector stride 37 is 9*i then 4*(9*i)+i. Player stride 240 is 15*i shifted by 4.",
+   "counter_example": "A saved pointer, induction variable, or direct SIB scale (e.g. sintable[index*2]) changes what remains at each access.",
+   "examples": [
+    {
+     "unit": "game_sector",
+     "function": "operatemasterswitches",
+     "profile": "game_oe",
+     "source": "src/game/sector.c",
+     "address": "1:19550",
+     "entry": "1:19540",
+     "line": 623,
+     "source_text": "if (sprite[i].picnum == MASTERSWITCH && sprite[i].lotag == low && sprite[i].yvel == 0)"
+    },
+    {
+     "unit": "game_sector",
+     "function": "animatewalls",
+     "profile": "game_oe",
+     "source": "src/game/sector.c",
+     "address": "1:155b3",
+     "entry": "1:15550",
+     "line": 176,
+     "source_text": "switch (wall[i].picnum)"
+    },
+    {
+     "unit": "game_actors",
+     "function": "moveplayers",
+     "profile": "game_oe",
+     "source": "src/game/actors.c",
+     "address": "1:2a66d",
+     "entry": "1:2a470",
+     "line": 1364,
+     "source_text": "if (sprite[i].z < sector[sprite[i].sectnum].floorz)"
+    },
+    {
+     "unit": "game_game",
+     "function": "displaystatus",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:0789b",
+     "entry": "1:07890",
+     "line": 1727,
+     "source_text": "if (ps[snum].dimensionmode != 3)"
+    }
+   ],
+   "reference": "STRICT normalized index and src/game/records.h",
+   "mined_from_index": true
+  },
+  {
+   "id": "constant-folding",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe"
+   ],
+   "rule": "A constant subexpression can disappear into an earlier immediate load.",
+   "trigger": "All operands of a parenthesized subexpression are compile-time constants.",
+   "source_form": "hplc2 = (65536*2048)/yb2[z]; 160L << 16.",
+   "emitted_code": "MOV EAX,0x08000000 before the variable division. MOV EAX,0x00a00000 for the draw argument.",
+   "counter_example": "The variable division still emits IDIV. The calcwalls immediate is moved across the previous statement\u2019s debug anchor.",
+   "examples": [
+    {
+     "unit": "engine",
+     "function": "calcwalls",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:349f4",
+     "entry": "1:3493d",
+     "line": 595,
+     "source_text": "hplc = hplc2;"
+    },
+    {
+     "unit": "engine",
+     "function": "calcwalls",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:34a01",
+     "entry": "1:3493d",
+     "line": 596,
+     "source_text": "hplc2 = (65536*2048)/yb2[z];"
+    },
+    {
+     "unit": "game_menues",
+     "function": "draw_pause_sign",
+     "profile": "game_oe",
+     "source": "src/game/menues.c",
+     "address": "1:2e09b",
+     "entry": "1:2e060",
+     "line": 469,
+     "source_text": "rotatesprite(160L << 16, (100L - tilesizy[1139] / 2L - 8) << 16,\n        ((long)ud.gamepaused << 3) - 4096, ud.gamepaused, 1139);"
+    }
+   ],
+   "reference": "STRICT index; probes.json / folded",
+   "mined_from_index": true
+  },
+  {
+   "id": "short-circuit",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe",
+    "audiolib"
+   ],
+   "rule": "Short-circuit operands commonly occupy separate conditional branches in source order.",
+   "trigger": "The next operand is evaluated only when the previous operand\u2019s condition permits it.",
+   "source_form": "sprite[i].picnum == MASTERSWITCH && sprite[i].lotag == low && sprite[i].yvel == 0; flags joined by ||.",
+   "emitted_code": "Three CMP/JNE pairs for the && guard. A nonzero first operand jumps over the second load for || in BLASTER_BeginBufferedPlayback.",
+   "counter_example": "Pure operands or simple Boolean results can compile differently. Branch inversion in blockdiff hides polarity, so check symbolic assembly.",
+   "examples": [
+    {
+     "unit": "game_sector",
+     "function": "operatemasterswitches",
+     "profile": "game_oe",
+     "source": "src/game/sector.c",
+     "address": "1:19550",
+     "entry": "1:19540",
+     "line": 623,
+     "source_text": "if (sprite[i].picnum == MASTERSWITCH && sprite[i].lotag == low && sprite[i].yvel == 0)"
+    },
+    {
+     "unit": "ass_blastold",
+     "function": "BLASTER_BeginBufferedPlayback",
+     "profile": "audiolib",
+     "source": "src/audiolib/blastold.c",
+     "address": "1:5fa49",
+     "entry": "1:5fa3c",
+     "line": 1119,
+     "source_text": "if ( BLASTER_SoundPlaying || BLASTER_SoundRecording )"
+    }
+   ],
+   "reference": "STRICT index; probes.json / andalso and orelse",
+   "mined_from_index": true
+  },
+  {
+   "id": "boolean-materialization",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe"
+   ],
+   "rule": "SETcc materializes a Boolean in a low byte, with widening only where required.",
+   "trigger": "A comparison is used as a value by the caller or enclosing arithmetic.",
+   "source_form": "return strget(...) != 0; ((xvect < 0) << 10).",
+   "emitted_code": "SETNE AL for the narrow result. SETL AL, AND EAX,255, SHL EAX,10 for an arithmetic use.",
+   "counter_example": "A branch consumes the flags without SETcc. The ternary fixture plain ? 1 : 0 uses SETNE, whereas plain ? 11 : 22 uses separate branches and immediate loads.",
+   "examples": [
+    {
+     "unit": "game_premap",
+     "function": "getscorename",
+     "profile": "game_oe",
+     "source": "src/game/premap.c",
+     "address": "1:14f8b",
+     "entry": "1:14f80",
+     "line": 1128,
+     "source_text": "return strget(50, row * 11 + 50, next_text_shade(), 31) != 0;"
+    },
+    {
+     "unit": "engine",
+     "function": "getangle",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:3baad",
+     "entry": "1:3ba86",
+     "line": 3195,
+     "source_text": "return(((xvect<0)<<10));"
+    }
+   ],
+   "reference": "STRICT index; probes.json / ternfold and ternconst",
+   "mined_from_index": true
+  },
+  {
+   "id": "top-tested-loop",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe",
+    "multi"
+   ],
+   "rule": "Top-tested source can preserve a loop\u2019s early exit and bottom recheck.",
+   "trigger": "A list index is initialized before a while loop and tested before dereference.",
+   "source_form": "while (k >= 0) or j = 1; while (j < length).",
+   "emitted_code": "A zero-iteration edge before the first traversal and a conditional recheck leading toward the body.",
+   "counter_example": "Standalone checkhitswitch variants were identical while the inline layout in checksectors changed. A while can also have a bottom physical test after a jump from the entry.",
+   "examples": [
+    {
+     "unit": "game_game",
+     "function": "movetransports",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:0afba",
+     "entry": "1:0ae90",
+     "line": 2086,
+     "source_text": "while (k >= 0)"
+    },
+    {
+     "unit": "multi",
+     "function": "processreservedmessage",
+     "profile": "multi",
+     "source": "src/multi/multi.c",
+     "address": "1:49afc",
+     "entry": "1:498c5",
+     "line": 1012,
+     "source_text": "while (j < length)"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / SECTOR round 3, Other game units round 4 and MULTI is compiled with -5r",
+   "mined_from_index": false
+  },
+  {
+   "id": "tail-merging",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe"
+   ],
+   "rule": "Identical return paths can share an epilogue across functions.",
+   "trigger": "A compatible save set, frame, and value state permit reuse of a neighbouring tail.",
+   "source_form": "Distinct `return` statements or simple functions with an identical terminal sequence.",
+   "emitted_code": "The later routine can JMP into the earlier return or restore sequence. Entire identical fixture bodies can have two publics at one offset.",
+   "counter_example": "A differing stack frame, live register or branch position can prevent sharing. A neighbour that changes size can break a STRICT function\u2019s shared jump displacement.",
+   "examples": [
+    {
+     "unit": "engine",
+     "function": "setredbluepalette",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:479aa",
+     "entry": "1:479aa"
+    },
+    {
+     "unit": "engine",
+     "function": "setverts",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:47699",
+     "entry": "1:47699"
+    },
+    {
+     "unit": "game_sector",
+     "function": "checkcursectnums",
+     "profile": "game_oe",
+     "source": "src/game/sector.c",
+     "address": "1:14ff5",
+     "entry": "1:14fb0",
+     "line": 36,
+     "source_text": "return -1;"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / Engine round 4; probes.json / cmpliteral and cmpenum",
+   "mined_from_index": false
+  },
+  {
+   "id": "identical-fallthrough",
+   "class": "STRONG",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "Identical blocks can be merged into a sibling that falls through to the common join.",
+   "trigger": "Two interchangeable blocks join the same successor and at least one falls through.",
+   "source_form": "Repeated update_menu_cursor(614); break; tails in switch arms.",
+   "emitted_code": "A merge leaves one block. With two explicit outgoing jumps both identical blocks survived the recorded mini test.",
+   "counter_example": "The suspected shared paths in processinput existed in both builds, so this rule did not explain its 184-byte size deficit.",
+   "examples": [
+    {
+     "unit": "game_sector",
+     "function": "checkcursectnums",
+     "profile": "game_oe",
+     "source": "src/game/sector.c",
+     "address": "1:14ff5",
+     "entry": "1:14fb0",
+     "line": 36,
+     "source_text": "return -1;"
+    },
+    {
+     "unit": "engine",
+     "function": "setverts",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:47699",
+     "entry": "1:47699"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / Other game units round 4 and PLAYER and SECTOR round 5",
+   "mined_from_index": false
+  },
+  {
+   "id": "distinct-store-order",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "Separate stores can fix emitted store order and remain distinct if their values coincide.",
+   "trigger": "Multiple stores have equal values or are adjacent in a branch.",
+   "source_form": "syncvel[snum] = 0; syncsvel[snum] = 0; syncangvel[snum] = 0;",
+   "emitted_code": "Three stores in the order in getinput. The same value can be shared in a register.",
+   "counter_example": "The recorded chained-assignment rewrite changes bytes. resetplayer needed a separate order for equal-valued stores.",
+   "examples": [
+    {
+     "unit": "game_player",
+     "function": "getinput",
+     "profile": "game_oe",
+     "source": "src/game/player.c",
+     "address": "1:20ec2",
+     "entry": "1:20e60",
+     "line": 462,
+     "source_text": "syncvel[snum] = 0;"
+    },
+    {
+     "unit": "game_premap",
+     "function": "resetplayer",
+     "profile": "game_oe",
+     "source": "src/game/premap.c",
+     "address": "1:11de0",
+     "entry": "1:11de0"
+    },
+    {
+     "unit": "game_game",
+     "function": "saveplayer",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:0b630",
+     "entry": "1:0b630"
+    },
+    {
+     "unit": "game_game",
+     "function": "loadplayer",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:0b700",
+     "entry": "1:0b700"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / GAME findings, PLAYER/ACTORS/MENUES round 2 and PREMAP/GAME round 3",
+   "mined_from_index": false
+  },
+  {
+   "id": "block-boundary-schedule",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "A basic-block boundary can retain a memory read-modify-write.",
+   "trigger": "A memory update is followed by a branch or an inlined body that can affect scheduling.",
+   "source_form": "reccnt--; do { if (...) ... else ... } while (0); or totalclock++ before keytimerstuff().",
+   "emitted_code": "SUB [reccnt],EDX or INC [totalclock] survives. Inline expansion starts a new basic block in the recorded timer probe.",
+   "counter_example": "Removing the do/while in closedemowrite splits the update and adds 16 bytes. reccnt-- in playback has a register load at its debug anchor.",
+   "examples": [
+    {
+     "unit": "game_game",
+     "function": "closedemowrite",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:0b937",
+     "entry": "1:0b920",
+     "line": 2292,
+     "source_text": "reccnt--;"
+    },
+    {
+     "unit": "game_game",
+     "function": "timerhandler",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:002c1",
+     "entry": "1:002a0",
+     "line": 390,
+     "source_text": "totalclock++;"
+    },
+    {
+     "unit": "game_game",
+     "function": "playback",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:081f8",
+     "entry": "1:081c0",
+     "line": 1811,
+     "source_text": "reccnt--;"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / Inliner facts and GAME NEAR round 2",
+   "mined_from_index": false
+  },
+  {
+   "id": "inline-threshold",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "-oe=N applies a per-callee expression-tree budget.",
+   "trigger": "Same translation unit, callee eligible for user-function inlining. A forward definition is eligible.",
+   "source_form": "Natural calls under -4r -s -otexan -oe=3000.",
+   "emitted_code": "Plain -oe used N=20 in the recorded controls. N >=2500 fits the GAME call/inline pattern. Unit floors from oeunits were MENUES >=90, PLAYER >=485, SECTOR roughly >=1520, GAMEDEF roughly >=1330.",
+   "counter_example": "ENGINE has no -oe and all 181 intra-engine calls match. One ACTORS addweapon site needs the integrated comma-expression spelling at N=3000.",
+   "examples": [
+    {
+     "unit": "game_game",
+     "function": "timerhandler",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:002c7",
+     "entry": "1:002a0",
+     "line": 391,
+     "source_text": "keytimerstuff();"
+    },
+    {
+     "unit": "game_game",
+     "function": "wait_for_players",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:0580a",
+     "entry": "1:057c0",
+     "line": 1561,
+     "source_text": "getpackets();"
+    },
+    {
+     "unit": "engine",
+     "function": "drawrooms",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:33f18",
+     "entry": "1:33f18"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / GAME\u2019s inlining is real compiler inlining, All game units and Engine compiled without inlining",
+   "mined_from_index": false
+  },
+  {
+   "id": "inline-depth",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "Inline expansion is one level deep in the recorded cases, including recursive callees.",
+   "trigger": "An otherwise eligible same-unit call under -oe=N.",
+   "source_form": "An eligible caller contains a call to getpackets or a recursive parser path.",
+   "emitted_code": "The outer callee expands and the copy retains inner calls. parsecommand retains five recursive calls in the oracle.",
+   "counter_example": "Genuinely separate units never inline across the object boundary. A recursive call is eligible for one expansion.",
+   "examples": [
+    {
+     "unit": "game_game",
+     "function": "wait_for_players",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:0580a",
+     "entry": "1:057c0",
+     "line": 1561,
+     "source_text": "getpackets();"
+    },
+    {
+     "unit": "game_gamedef",
+     "function": "parsecommand",
+     "profile": "game_oe",
+     "source": "src/game/gamedef.c",
+     "address": "1:2ed60",
+     "entry": "1:2ed60"
+    },
+    {
+     "unit": "game_premap",
+     "function": "enterlevel",
+     "profile": "game_oe",
+     "source": "src/game/premap.c",
+     "address": "1:149b0",
+     "entry": "1:149b0"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / oeprobe and oeunits (supersedes the early macro model)",
+   "mined_from_index": false
+  },
+  {
+   "id": "inline-veto",
+   "class": "STRONG",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "Owned static data and prior runtime address computation can leave calls intact.",
+   "trigger": "Callee owns a literal, static local or initialized local array, or caller evaluates a dynamic address before the call within one expression.",
+   "source_form": "A GAME callee with a literal or sprite[i].owner = findlocator(...).",
+   "emitted_code": "Retains an ordinary CALL in the documented controls, even above the size threshold.",
+   "counter_example": "Parameter count, static linkage and forward definition alone do not veto inlining. Splitting an expression can change the result.",
+   "examples": [
+    {
+     "unit": "game_game",
+     "function": "gameexit",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:00c60",
+     "entry": "1:00c60"
+    },
+    {
+     "unit": "game_sounds",
+     "function": "bootleg_cache_alloc",
+     "profile": "game_oe",
+     "source": "src/game/sounds.c",
+     "address": "1:2ba3f",
+     "entry": "1:2ba30",
+     "line": 51,
+     "source_text": "gameexit(\"Clog Error.\");"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / Inliner facts and oeprobe",
+   "mined_from_index": false
+  },
+  {
+   "id": "inline-context",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "Two inline copies of the same source need not use identical instructions.",
+   "trigger": "Caller liveness and uses extend across several calls to an eligible same-unit function.",
+   "source_form": "Six keytimerstuff() calls in timerhandler.",
+   "emitted_code": "At the first copy the byte-load prefix uses XOR EAX/MOV AL then XOR EDX/MOV DL. The fifth inline site uses EDX for consecutive loads then AND EDX,255.",
+   "counter_example": "The standalone body has its own prologue and allocation. On the getpackets example, changing one mask operand order altered an inline copy while the standalone match survived.",
+   "examples": [
+    {
+     "unit": "game_game",
+     "function": "timerhandler",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:002c7",
+     "entry": "1:002a0",
+     "line": 391,
+     "source_text": "keytimerstuff();"
+    },
+    {
+     "unit": "game_game",
+     "function": "timerhandler",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:00463",
+     "entry": "1:002a0",
+     "line": 394,
+     "source_text": "keytimerstuff();"
+    },
+    {
+     "unit": "game_game",
+     "function": "timerhandler",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:005eb",
+     "entry": "1:002a0",
+     "line": 395,
+     "source_text": "keytimerstuff();"
+    },
+    {
+     "unit": "game_game",
+     "function": "timerhandler",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:00777",
+     "entry": "1:002a0",
+     "line": 396,
+     "source_text": "keytimerstuff();"
+    },
+    {
+     "unit": "game_game",
+     "function": "timerhandler",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:008ff",
+     "entry": "1:002a0",
+     "line": 397,
+     "source_text": "keytimerstuff();"
+    },
+    {
+     "unit": "game_game",
+     "function": "timerhandler",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:00a90",
+     "entry": "1:002a0",
+     "line": 398,
+     "source_text": "keytimerstuff();"
+    },
+    {
+     "unit": "game_game",
+     "function": "keytimerstuff",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:000d0",
+     "entry": "1:000d0"
+    },
+    {
+     "unit": "game_game",
+     "function": "wait_for_players",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:0580a",
+     "entry": "1:057c0",
+     "line": 1561,
+     "source_text": "getpackets();"
+    }
+   ],
+   "reference": "STRICT code at timerhandler 1:002c7 and 1:008ff; docs/FINDINGS.md / GAME NEAR round 2",
+   "mined_from_index": true
+  },
+  {
+   "id": "register-call-args",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe",
+    "multi",
+    "audiolib"
+   ],
+   "rule": "The tested Watcom register call puts four integer arguments in EAX, EDX, EBX, ECX.",
+   "trigger": "An ordinary __watcall with six integer arguments and no custom pragma.",
+   "source_form": "sink(side(1), side(2), side(3), side(4), side(5), side(6)).",
+   "emitted_code": "Calls side(6), side(5), then side(4) to side(1). Pushes the first two results, moves the other results into ECX, EBX, EDX, and leaves the final result in EAX.",
+   "counter_example": "Unrelated computations can move between pushes. Variadic printf/open and #pragma aux functions use other arrangements.",
+   "examples": [
+    {
+     "unit": "game_actors",
+     "function": "spawn_blood",
+     "profile": "game_oe",
+     "source": "src/game/actors.c",
+     "address": "1:256e6",
+     "entry": "1:256e0",
+     "line": 151,
+     "source_text": "EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[at].z,\n        0, BLOOD, -16, 24, 13, ang + (krand() & 127),\n        speed + (krand() & 31), -(krand() & 511), i, 5);"
+    },
+    {
+     "unit": "game_premap",
+     "function": "check_file_id",
+     "profile": "game_oe",
+     "source": "src/game/premap.c",
+     "address": "1:14e03",
+     "entry": "1:14e00",
+     "line": 1083,
+     "source_text": "fil = open(\"FILE_ID.DIZ\", O_RDWR | O_BINARY, S_IREAD);"
+    }
+   ],
+   "reference": "probes.json / args; STRICT EGS call in spawn_blood",
+   "mined_from_index": true
+  },
+  {
+   "id": "stack-args-and-cleanup",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "Variadic calls can use stack arguments with caller cleanup.",
+   "trigger": "The library call is variadic, even when the format or actual argument count is constant.",
+   "source_form": "open(\"FILE_ID.DIZ\", O_RDWR | O_BINARY, S_IREAD) and printf(help_usage, argv[0]).",
+   "emitted_code": "Rightmost argument pushed first, pointer pushed last, CALL, ADD ESP,12 or ADD ESP,8.",
+   "counter_example": "Ordinary game calls store four integer arguments in registers and pass excess arguments on the stack.",
+   "examples": [
+    {
+     "unit": "game_premap",
+     "function": "check_file_id",
+     "profile": "game_oe",
+     "source": "src/game/premap.c",
+     "address": "1:14e03",
+     "entry": "1:14e00",
+     "line": 1083,
+     "source_text": "fil = open(\"FILE_ID.DIZ\", O_RDWR | O_BINARY, S_IREAD);"
+    },
+    {
+     "unit": "game_game",
+     "function": "comlinehelp",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:054fe",
+     "entry": "1:054f0",
+     "line": 1455,
+     "source_text": "printf(help_usage, argv[0]);"
+    }
+   ],
+   "reference": "STRICT index",
+   "mined_from_index": true
+  },
+  {
+   "id": "old-style-declaration",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "A missing prototype keeps default promotions at the call site.",
+   "trigger": "Caller sees an old-style function declaration or implicit int; callee can be in another TU.",
+   "source_form": "extern int EGS(); as seen by PLAYER; extern int strget(); in PREMAP.",
+   "emitted_code": "Arguments are built/passed without the prototype\u2019s narrowing conversions, and getscorename tests EAX for the declared int return. Its own narrow Boolean result is SETNE AL.",
+   "counter_example": "A prototype with short parameter emitted CWDE in the long-to-short fixture. Actual declarations vary by caller; wholesale old-style conversion lost matches.",
+   "examples": [
+    {
+     "unit": "game_player",
+     "function": "shoot",
+     "profile": "game_oe",
+     "source": "src/game/player.c",
+     "address": "1:1fa60",
+     "entry": "1:1f660",
+     "line": 177,
+     "source_text": "j = EGS(sect, sx, sy, old_sz, 0, 46, -16, 0, 0, sa, 32, 0, i, 4);"
+    },
+    {
+     "unit": "game_premap",
+     "function": "getscorename",
+     "profile": "game_oe",
+     "source": "src/game/premap.c",
+     "address": "1:14f8b",
+     "entry": "1:14f80",
+     "line": 1128,
+     "source_text": "return strget(50, row * 11 + 50, next_text_shade(), 31) != 0;"
+    },
+    {
+     "unit": "game_actors",
+     "function": "movefta",
+     "profile": "game_oe",
+     "source": "src/game/actors.c",
+     "address": "1:258c0",
+     "entry": "1:258c0"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / PLAYER follow-up, PREMAP/GAME round 3 and Unit-wide declaration experiment; probes.json / oldarg and narrowarg",
+   "mined_from_index": false
+  },
+  {
+   "id": "allocator-savings",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe"
+   ],
+   "rule": "Use counts can move one value ahead of others in allocation.",
+   "trigger": "A long-lived local or compiler temporary competes with other values for overlapping register homes.",
+   "source_form": "playmusic(ps[screenpeek].music) instead of a song local; stage a common tile sum in cacheit.",
+   "emitted_code": "Different conflict savings/order can change the selected colour and later spills. One known control stages a named long tile and gains a 1,968-byte STRICT function.",
+   "counter_example": "A move of source text that preserves backend conflict order can give byte-identical output across many trials.",
+   "examples": [
+    {
+     "unit": "game_game",
+     "function": "cacheit",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:02fb0",
+     "entry": "1:02fb0"
+    },
+    {
+     "unit": "game_actors",
+     "function": "moveplayers",
+     "profile": "game_oe",
+     "source": "src/game/actors.c",
+     "address": "1:2a470",
+     "entry": "1:2a470"
+    }
+   ],
+   "reference": "docs/CG95.md / Validation and engine results; docs/FINDINGS.md / Allocator lever",
+   "mined_from_index": false
+  },
+  {
+   "id": "allocator-ties",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe"
+   ],
+   "rule": "Register preference on a savings tie depends on traversal, overlap and prior-use state.",
+   "trigger": "The allocator sorts conflicts by descending savings and visits eligible register masks in order.",
+   "source_form": "Check same-priority spills and local scope/declaration order. In calcwalls and hline, homes change with declaration order.",
+   "emitted_code": "The first equal-score eligible mask stays incumbent unless a challenger was already used and the incumbent was not. The gap sorter can reorder equal-priority records as other records cross them.",
+   "counter_example": "A fixed list such as \u201calways EAX then EDX\u201d cannot predict the winner. checkhitswitch is a two-byte near control at equal savings 564; changing visit order also changed its neighbour.",
+   "examples": [
+    {
+     "unit": "engine",
+     "function": "calcwalls",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:3493d",
+     "entry": "1:3493d"
+    },
+    {
+     "unit": "engine",
+     "function": "hline",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:39a7f",
+     "entry": "1:39a7f"
+    },
+    {
+     "unit": "game_game",
+     "function": "movetransports",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:0ae90",
+     "entry": "1:0ae90"
+    }
+   ],
+   "reference": "docs/CG95.md / Breakpoints and recovered decisions; docs/FINDINGS.md / Allocation ties and checkhitswitch follow-up",
+   "mined_from_index": false
+  },
+  {
+   "id": "stack-homes",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe"
+   ],
+   "rule": "Home order depends on priority and address-taking; declaration order can break ties.",
+   "trigger": "Frame slots survive optimization. Trace home priority uses a flag and size; aliases of the same temp have an offset order.",
+   "source_form": "Address-take s in spawn or reorder equal-priority locals as in hline.",
+   "emitted_code": "Trace placed spawn\u2019s address-taken s at its last local home ([esp+0x14]) across declarations tested. hline changes the relative homes of r and xr.",
+   "counter_example": "A variable may remain in registers or share a home, and different flags or lifetimes can override any declaration-order effect.",
+   "examples": [
+    {
+     "unit": "engine",
+     "function": "hline",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:39a7f",
+     "entry": "1:39a7f"
+    },
+    {
+     "unit": "engine",
+     "function": "calcwalls",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:3493d",
+     "entry": "1:3493d"
+    },
+    {
+     "unit": "game_player",
+     "function": "shoot",
+     "profile": "game_oe",
+     "source": "src/game/player.c",
+     "address": "1:1f660",
+     "entry": "1:1f660"
+    }
+   ],
+   "reference": "docs/CG95.md / stack home comparator; docs/FINDINGS.md / PREMAP/GAME round 3 and Engine round 4",
+   "mined_from_index": false
+  },
+  {
+   "id": "short-address-home",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "One address-taken short receives a four-byte local slot in the matched frame.",
+   "trigger": "Watcom 9.5 GA game_oe and the exact moveweapons local layout.",
+   "source_form": "short distance; findplayer(i, (long *)&distance);",
+   "emitted_code": "Slot at ESP+0xc is written as a long while projectile branches compare its signed low word.",
+   "counter_example": "The recorded 4-byte array and union variants leave 17 differences. Writing a long through a pointer cast to a short object has undefined behavior in portable C.",
+   "examples": [
+    {
+     "unit": "game_actors",
+     "function": "moveweapons",
+     "profile": "game_oe",
+     "source": "src/game/actors.c",
+     "address": "1:28f5f",
+     "entry": "1:28f30",
+     "line": 1012,
+     "source_text": "player = findplayer(i, (long *)&distance);"
+    },
+    {
+     "unit": "game_actors",
+     "function": "moveweapons",
+     "profile": "game_oe",
+     "source": "src/game/actors.c",
+     "address": "1:28fba",
+     "entry": "1:28f30",
+     "line": 1021,
+     "source_text": "if (distance < 512 && sprite[i].owner != ps[p].i)"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / ACTORS/PREMAP on gpt-6.2-astra",
+   "mined_from_index": false
+  },
+  {
+   "id": "copybuf-pragma",
+   "class": "PROVEN",
+   "profiles": [
+    "game_oe"
+   ],
+   "rule": "The shape of a pragma aux declaration affects scheduling and register allocation.",
+   "trigger": "An inline pragma supplies the string move and register parameter mapping.",
+   "source_form": "Ken\u2019s copybuf form with parm [esi][edi][ecx], without a modify clause.",
+   "emitted_code": "REP MOVSD in movelava and compiler unrolling around it, reproducing the 1,248-byte function.",
+   "counter_example": "The manual unroll and later modify clause were different source models. klabs without a C prototype also gives a distinctive MOV AX/CWDE path.",
+   "examples": [
+    {
+     "unit": "game_menues",
+     "function": "movelava",
+     "profile": "game_oe",
+     "source": "src/game/menues.c",
+     "address": "1:2e3d6",
+     "entry": "1:2e200",
+     "line": 565,
+     "source_text": "offs2 += LAVASIZ + 2;"
+    },
+    {
+     "unit": "game_player",
+     "function": "animateknuckles",
+     "profile": "game_oe",
+     "source": "src/game/player.c",
+     "address": "1:1fd6d",
+     "entry": "1:1fd20",
+     "line": 220,
+     "source_text": "looking_arc = klabs(ps[snum].look_ang) / 9;"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / Ken-Build ancestry and Allocator lever",
+   "mined_from_index": false
+  },
+  {
+   "id": "literal-pooling",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe",
+    "multi",
+    "audiolib"
+   ],
+   "rule": "An ordinary literal is addressed by relocation into the unit\u2019s CONST pool and can be reused.",
+   "trigger": "Same literal bytes, same unit, ordinary duplicate-string setting.",
+   "source_form": "string_sink(\"the same text\"); in two procedures.",
+   "emitted_code": "The fixture emits the same CONST relocation and folds the identical procedures to the same entry. Game open/printf sites push the literal address.",
+   "counter_example": "An explicit reuse_duplicate_strings pragma or moving a call across a TU boundary changes pooling. Trailing embedded NUL bytes can affect the pool.",
+   "examples": [
+    {
+     "unit": "game_premap",
+     "function": "check_file_id",
+     "profile": "game_oe",
+     "source": "src/game/premap.c",
+     "address": "1:14e03",
+     "entry": "1:14e00",
+     "line": 1083,
+     "source_text": "fil = open(\"FILE_ID.DIZ\", O_RDWR | O_BINARY, S_IREAD);"
+    },
+    {
+     "unit": "game_sounds",
+     "function": "USRHOOKS_GetMem",
+     "profile": "game_oe",
+     "source": "src/game/sounds.c",
+     "address": "1:2bb71",
+     "entry": "1:2bb60",
+     "line": 96,
+     "source_text": "gameexit(\"Out a memory.\\0\\0\");"
+    },
+    {
+     "unit": "game_gamedef",
+     "function": "loadefs",
+     "profile": "game_oe",
+     "source": "src/game/gamedef.c",
+     "address": "1:301e4",
+     "entry": "1:301e0",
+     "line": 603,
+     "source_text": "fp = open(\"game.con\", O_BINARY | O_RDWR, S_IREAD);"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / Link layout rules, GAME is two objects and CONST residue; probes.json / string_a\u2013c",
+   "mined_from_index": true
+  },
+  {
+   "id": "literal-residue",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe"
+   ],
+   "rule": "String alignment padding can inherit compiler record-buffer contents.",
+   "trigger": "Alignment gaps in reused covered LEDATA records, especially in literal-heavy GAMEDEF and SOUNDS.",
+   "source_form": "Use the actual source literal and headers to reproduce the full CONST segment.",
+   "emitted_code": "Prior LEDATA record contents can survive in covered padding. A record-transition hole is zero-filled by the linker. DOS 9.5 gives zero in the seed bytes observed in the oracle.",
+   "counter_example": "NT can seed the buffer from heap residue. Splitting GAMEDEF into .inc files changed about 50 bytes under DOS. Apogee 10.0 uses different residue in some pools.",
+   "examples": [
+    {
+     "unit": "game_gamedef",
+     "function": "loadefs",
+     "profile": "game_oe",
+     "source": "src/game/gamedef.c",
+     "address": "1:301e4",
+     "entry": "1:301e0",
+     "line": 603,
+     "source_text": "fp = open(\"game.con\", O_BINARY | O_RDWR, S_IREAD);"
+    },
+    {
+     "unit": "game_sounds",
+     "function": "USRHOOKS_GetMem",
+     "profile": "game_oe",
+     "source": "src/game/sounds.c",
+     "address": "1:2bb71",
+     "entry": "1:2bb60",
+     "line": 96,
+     "source_text": "gameexit(\"Out a memory.\\0\\0\");"
+    }
+   ],
+   "reference": "docs/CONST_RESIDUE.md and docs/FINDINGS.md / Canonical DOS host",
+   "mined_from_index": false
+  },
+  {
+   "id": "ass-residue",
+   "class": "STRONG",
+   "profiles": [
+    "audiolib"
+   ],
+   "rule": "Watcom 10.0 CONST residue can come from the reused source-read buffer.",
+   "trigger": "A covered alignment gap in an Apogee unit after an include read or different predecessor unit.",
+   "source_form": "Unchanged source with the recorded guest include and source paths.",
+   "emitted_code": "Source offset model 4096*chunk+2153-round_up_4(DOS path length) predicts seven held-out offsets. Predecessor BLASTOLD reproduces some residue in MUSIC and FX_MAN.",
+   "counter_example": "No tested build reproduced all nine remaining pools. Exact 10.0 header versions and make order remain open.",
+   "examples": [
+    {
+     "unit": "ass_dma",
+     "function": "DMA_ErrorString",
+     "profile": "audiolib",
+     "source": "src/audiolib/dma.c",
+     "address": "1:5ec90",
+     "entry": "1:5ec90"
+    },
+    {
+     "unit": "ass_blastold",
+     "function": "BLASTER_GetCurrentPos",
+     "profile": "audiolib",
+     "source": "src/audiolib/blastold.c",
+     "address": "1:5f6d0",
+     "entry": "1:5f6d0"
+    }
+   ],
+   "reference": "docs/FINDINGS.md / Watcom 10.0 on the DOS host and Watcom 10.0 CONST residue solver",
+   "mined_from_index": false
+  },
+  {
+   "id": "bss-order",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe",
+    "multi",
+    "audiolib"
+   ],
+   "rule": "Watcom orders BSS by size buckets and declaration-slot and identifier-hash rules.",
+   "trigger": "File-scope uninitialized definitions; emitted allocation is sensitive to a rename or a new declaration.",
+   "source_form": "Same variables with reordered declarations; a far pointer or double under -ot can alter segment alignment.",
+   "emitted_code": "9.5 rule uses newest 22-slot page first and ascending 12-bit identifier hash modulo 211, with type alignment under -ot and witnessed paragraph alignment for double/far function pointer. 10.0 uses its separately calibrated 25-slot/%241 model.",
+   "counter_example": "Using the 9.5 rule for the 10.0 calibration predicted 38/163; the calibrated 10.0 model predicted 163/163.",
+   "examples": [
+    {
+     "unit": "engine",
+     "function": "keyhandler",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:33e5c",
+     "entry": "1:33e5c"
+    },
+    {
+     "unit": "ass_blastold",
+     "function": "BLASTER_Init",
+     "profile": "audiolib",
+     "source": "src/audiolib/blastold.c",
+     "address": "1:60770",
+     "entry": "1:60770"
+    }
+   ],
+   "reference": "docs/BSS_LAYOUT.md; docs/FINDINGS.md / Compile environment, Link layout rules and Watcom 10.0 GA _BSS rule",
+   "mined_from_index": false
+  },
+  {
+   "id": "volatile-access-count",
+   "class": "PROVEN",
+   "profiles": [
+    "engine",
+    "game_oe",
+    "multi",
+    "audiolib"
+   ],
+   "rule": "Volatile keeps independent accesses and can affect operand selection.",
+   "trigger": "A repeated read or write to the same visible volatile object in one expression or block.",
+   "source_form": "return vol + vol; vol = 1; vol = 2; if (BLASTER_SoundPlaying || BLASTER_SoundRecording).",
+   "emitted_code": "The first fixture uses MOV and ADD from memory (two reads), while the nonvolatile version loads once and doubles the register. Both volatile stores survive. Both modes select a genuine word access for volatile short promotion.",
+   "counter_example": "Engine/multi also keep both nonvolatile stores in this fixture, whereas game_oe/audiolib keep only the second. A memory operand alone cannot identify volatile.",
+   "examples": [
+    {
+     "unit": "ass_blastold",
+     "function": "BLASTER_BeginBufferedPlayback",
+     "profile": "audiolib",
+     "source": "src/audiolib/blastold.c",
+     "address": "1:5fa49",
+     "entry": "1:5fa3c",
+     "line": 1119,
+     "source_text": "if ( BLASTER_SoundPlaying || BLASTER_SoundRecording )"
+    },
+    {
+     "unit": "ass_blastold",
+     "function": "BLASTER_DSP2xx_BeginPlayback",
+     "profile": "audiolib",
+     "source": "src/audiolib/blastold.c",
+     "address": "1:5f7f4",
+     "entry": "1:5f784",
+     "line": 1033,
+     "source_text": "BLASTER_SoundPlaying = TRUE;"
+    },
+    {
+     "unit": "game_game",
+     "function": "timerhandler",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:002c1",
+     "entry": "1:002a0",
+     "line": 390,
+     "source_text": "totalclock++;"
+    }
+   ],
+   "reference": "probes.json / readvolatile, storevolatile and widenvolatile; STRICT volatile uses",
+   "mined_from_index": true
+  },
+  {
+   "id": "global-register-order",
+   "class": "HYPOTHESIS",
+   "profiles": [
+    "engine",
+    "game_oe"
+   ],
+   "rule": "A simple global register-order rule is unlikely to explain the remaining ties.",
+   "trigger": "A function has a late alternate assignment with equal apparent costs in the disassembly.",
+   "source_form": "Compare neighbouring named and anonymous live ranges before editing the first differing operand.",
+   "emitted_code": "A local lifetime change may reproduce a tie by reordering the global conflict list. A controlled winning edit still needs a new strict verification.",
+   "counter_example": "The 150-trial permutation sweeps did not resolve the closest remaining ties; the trace establishes conditional preferences instead of a universal ranking.",
+   "examples": [
+    {
+     "unit": "game_game",
+     "function": "movetransports",
+     "profile": "game_oe",
+     "source": "src/game/game.c",
+     "address": "1:0ae90",
+     "entry": "1:0ae90"
+    },
+    {
+     "unit": "engine",
+     "function": "calcwalls",
+     "profile": "engine",
+     "source": "src/engine/ENGINE.C",
+     "address": "1:3493d",
+     "entry": "1:3493d"
+    }
+   ],
+   "reference": "docs/CG95.md; docs/FINDINGS.md / First tools/permute sweep",
+   "mined_from_index": false
+  }
+ ]
+}
