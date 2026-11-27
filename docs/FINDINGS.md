@@ -1144,3 +1144,12 @@ Each entry names the command or artefact that supports it.
   differences are register copies/spills; no later algorithm should be backported.
 - getpacket: whole-unit compiler controls reproduce January's wider stack spill with the same short declaration; the
   two-packet retry bound is already in December. Owner constraints: build/workers/xver/constraints.md.
+
+## ENGINE round 5 (r12-engine-5, astra, 2026-11-27; build/workers/r12-engine/NOTES.md, sw95/comparison.json)
+- PROVEN drawline16 (April clipping and Bresenham forms + kenstyle operand order), overwritesprite (March scaled column
+  pointers, signed centring offsets) and hitscan (April direct wall endpoint loads, shifted sprite-height bound)
+  STRICT. Attribution: donors 2,650 B / 24 blocks (the SW 1995 prototypes located the December-era forms), reasoning
+  361 / 4, kenstyle 1 / 1; reverse/near/quirks/permute 0. Engine 95/103.
+- wallfront 414 -> 79 (entry block only), makepalookup 194 -> 130 (May palette pointers, RGB order). raytrace 108
+  (December body persists into Jan/Feb-95 SW), rotatesprite 1,225 (Feb-95 GAME frame 0x5c vs December 0x60),
+  grouvline 1,459, scansector 7, drawmaskwall 7.
