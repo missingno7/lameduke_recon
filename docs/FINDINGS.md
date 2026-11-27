@@ -954,3 +954,7 @@ Each entry names the command or artefact that supports it.
   the flip tool's forced EAX; glass cases reordered). cheatkeys/operateactivators: source controls reach their oracle
   frames (96 / 92) but lose their own extent proofs (not adopted). Next: checksectors' first near-lift dispatch
   (jump and destination 45 bytes late).
+- ACTORS follow-up 5 (r10-actors-5): moveexplosions 127 -> 74 differing bytes (166/167 blocks; a separate FLAIR
+  random-word local recovers the arm-movement block; one diagnostic y/z spill choice leaves 5 bytes); moveactors
+  4,267 -> 4,211 with all eight targets (six diagnostic stack-home swaps move its first difference to +0xbc).
+  Attribution: flip95/climb95 +60 B / +1 block, own reasoning +49 B.

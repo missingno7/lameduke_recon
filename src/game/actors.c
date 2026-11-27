@@ -322,7 +322,7 @@ void guts(short i)
 void moveactors(void)
 {
     /* COMPILER_STEERED: short-local order selects the actor index stack home. */
-    short j, p, nexti, sect, i;
+    short sect, p, nexti, j, i;
 
     for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti) {
         long *t, dist, l;
@@ -407,7 +407,8 @@ shark_steer:
                     j = sintable[(t[1] << 4) & 2047] >> 8;
                     sprite[i].ang += j;
                 }
-                if (j <= -33 || j >= 33) {
+                /* COMPILER_STEERED: use the strict lower steering bound. */
+                if (j < -32 || j >= 33) {
                     /* COMPILER_STEERED: separate stores preserve the SHARK case targets. */
                     if (j < 0)
                         t[0] = 4;
@@ -614,7 +615,8 @@ shark_steer:
                 /* COMPILER_STEERED: narrowing the masked index keeps the later switch targets aligned. */
                 sprite[i].xvel = 64 - (sintable[(unsigned short)((t[1] + 512) & 2047)] >> 9);
                 sprite[i].ang += getincangle(sprite[i].ang, getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 3);
-                sprite[i].xrepeat = (sintable[(t[1] + 512) & 2047] >> 11) + 36;
+                /* COMPILER_STEERED: narrowing the phase keeps the actor switch targets aligned. */
+                sprite[i].xrepeat = (sintable[(unsigned short)((t[1] + 512) & 2047)] >> 11) + 36;
                 sprite[i].yrepeat = (sintable[t[1] & 2047] >> 13) + 16;
                 if ((krand() >> 8) >= 251 && klabs(sector[sect].floorz - sector[sect].ceilingz) < 49152) {
                     sprite[i].zvel = 0;
@@ -878,8 +880,9 @@ wait:
                 sector[sect].ceilingshade = 20;
             }
         } else if (sprite[i].picnum >= REACTOR && sprite[i].picnum <= 625) {
+            /* COMPILER_STEERED: the frame-first sum pairs with the narrow slime phase above. */
             if ((krand() >> 8) >= 63)
-                sprite[i].picnum = 620 + t[2];
+                sprite[i].picnum = t[2] + 620;
             else
                 sprite[i].picnum = 623 + t[2];
             if (++t[2] == 3)
@@ -1107,7 +1110,7 @@ void moveexplosions(void)
     short i, sect, nexti;
     long x;
     short p;
-    /* COMPILER_STEERED: the arm piece and FLAIR loop share this angle. */
+    /* COMPILER_STEERED: keep the arm blood angle in a separate short. */
     short angle;
 
     for (i = headspritestat[STAT_MISC]; i >= 0; i = nexti) {
@@ -1323,11 +1326,12 @@ void moveexplosions(void)
                 sprite[i].xrepeat -= 48;
             sprite[i].yrepeat -= 3;
             if (t[0] == t[1])
-                /* COMPILER_STEERED: reuse the distance slot for the emission loop. */
+                /* COMPILER_STEERED: reuse the distance for the loop and the player index for the emission angle. */
                 for (x = 0; x < 2048; x += 768) {
-                    angle = randomstash;
-                    angle &= 255;
-                    sprite[i].ang = x + angle;
+                    short emission = randomstash;
+                    emission &= 255;
+                    p = x + emission;
+                    sprite[i].ang = p;
                     spawn(i, EXPLOSION);
                 }
             if (t[0] > 3) {
