@@ -349,7 +349,9 @@ void moveactors(void)
                     switch (sprite[j].lotag) {
                     case 2:
                     case 21:
-                        hittype[j][0] = 1;
+                        /* COMPILER_STEERED: hold the activation value in l, as in case 3. */
+                        l = 1;
+                        hittype[j][0] = l;
                         break;
                     case 3:
                         /* COMPILER_STEERED: the named constant changes the master-switch allocation. */
@@ -558,7 +560,8 @@ shark_steer:
                 sprite[sprite[i].owner].xvel = 0;
                 l = sprite[sprite[i].owner].ang;
                 sprite[i].z = sprite[sprite[i].owner].z;
-                sprite[i].x = sprite[sprite[i].owner].x + (sintable[(l + 512) & 2047] >> 11);
+                /* COMPILER_STEERED: the sine addend comes first in this owner-coordinate update. */
+                sprite[i].x = (sintable[(l + 512) & 2047] >> 11) + sprite[sprite[i].owner].x;
                 sprite[i].y = sprite[sprite[i].owner].y + (sintable[l & 2047] >> 11);
                 sprite[i].picnum = 963 + (randomstash & 1);
                 if (sprite[i].yrepeat < 64)
@@ -608,7 +611,8 @@ shark_steer:
                 }
                 if (sprite[i].xvel < 32)
                     sprite[i].xvel += 4;
-                sprite[i].xvel = 64 - (sintable[(t[1] + 512) & 2047] >> 9);
+                /* COMPILER_STEERED: narrowing the masked index keeps the later switch targets aligned. */
+                sprite[i].xvel = 64 - (sintable[(unsigned short)((t[1] + 512) & 2047)] >> 9);
                 sprite[i].ang += getincangle(sprite[i].ang, getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 3);
                 sprite[i].xrepeat = (sintable[(t[1] + 512) & 2047] >> 11) + 36;
                 sprite[i].yrepeat = (sintable[t[1] & 2047] >> 13) + 16;
@@ -1103,12 +1107,14 @@ void moveexplosions(void)
     short i, sect, nexti;
     long x;
     short p;
+    /* COMPILER_STEERED: the arm piece and FLAIR loop share this angle. */
+    short angle;
 
     for (i = headspritestat[STAT_MISC]; i >= 0; i = nexti) {
         long *t;
 
-        sect = sprite[i].sectnum;
         nexti = nextspritestat[i];
+        sect = sprite[i].sectnum;
         t = hittype[i];
         p = findplayer(i, &x);
         switch (sprite[i].picnum) {
@@ -1229,7 +1235,8 @@ void moveexplosions(void)
             }
             if ((krand() >> 8) >= 239) {
                 /* COMPILER_STEERED: Watcom emits SHL by 0x40. The 386 masks the count to zero. */
-                spawn_blood(i, i, (short)t[0] << 64, (short)(krand() & 32));
+                angle = (short)t[0] << 64;
+                spawn_blood(i, i, angle, (short)(krand() & 32));
             }
             if (sprite[i].z + 2048 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 871;
@@ -1295,9 +1302,9 @@ void moveexplosions(void)
                 sprite[i].zvel = (short)-sprite[i].zvel;
             }
             if ((krand() >> 8) >= 239) {
-                /* COMPILER_STEERED: save the low word before evaluating the blood arguments. */
-                short ang = t[0];
-                spawn_blood(i, i, ang << 7, (short)(krand() & 32));
+                /* COMPILER_STEERED: reuse the player local for the leg-piece angle. */
+                p = (short)t[0];
+                spawn_blood(i, i, (short)p << 7, (short)(krand() & 32));
             }
             if (sprite[i].z + 4096 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 879;
@@ -1318,7 +1325,9 @@ void moveexplosions(void)
             if (t[0] == t[1])
                 /* COMPILER_STEERED: reuse the distance slot for the emission loop. */
                 for (x = 0; x < 2048; x += 768) {
-                    sprite[i].ang = (short)((randomstash & 255) + x);
+                    angle = randomstash;
+                    angle &= 255;
+                    sprite[i].ang = x + angle;
                     spawn(i, EXPLOSION);
                 }
             if (t[0] > 3) {

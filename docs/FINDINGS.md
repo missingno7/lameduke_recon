@@ -933,3 +933,7 @@ Each entry names the command or artefact that supports it.
   the inlined i/p homes 2,899 -> 2,888; passing `index` to parse restores the 44-byte frame naturally but raises it to
   4,698. processinput: swapping xvect with the divisor temporary restores both ESP+88h accesses (first difference
   +0x1e9 -> +0x20e) but the closest scoped source loses a verified findplayer stack home.
+- ACTORS with flip95 (r10-actors-4): moveexplosions 555 -> 127 differing bytes (165/167 blocks; first difference
+  +0x15 -> +0x59c): flip95 identified the FLAIR mask's AX allocation and a shared `short angle` reproduces it in plain
+  C; six diagnostic flips leave 3 bytes (sector.floorz held in EBP instead of ECX). moveactors 4,300 -> 4,267 with all
+  eight switch targets exact. Attribution: flip95/climb95 +364 B, blocker rules +1,865 B.
