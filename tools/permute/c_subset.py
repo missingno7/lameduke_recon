@@ -196,8 +196,12 @@ class Source:
         params, a = signatures[0]
         b = self.pairs[a] + 1
         for t in self.tokens[a:b]:
-            if t.kind == "directive" or t.value in ("asm", "_asm", "__asm", "__asm__", "_emit", "__emit"):
-                raise Unsupported(f"{name}: preprocessor directive or inline assembly in body")
+            if t.kind == "directive":
+                if not getattr(self, "body_directives", False) or not re.match(
+                        r"^[ 	]*#[ 	]*(?:define\b|undef\b|pragma[ 	]+warn\b)", t.value):
+                    raise Unsupported(f"{name}: conditional or unsupported body directive")
+            if t.value in ("asm", "_asm", "__asm", "__asm__", "_emit", "__emit"):
+                raise Unsupported(f"{name}: inline assembly in body")
         return Function(self, name, params, a, b)
 
 
@@ -309,7 +313,9 @@ class Function:
         if a >= limit:
             raise Unsupported("missing statement")
         node = Stmt(v[a], a, a + 1, parent=parent)
-        if v[a] == "{":
+        if src.tokens[a].kind == "directive":
+            node.kind = "opaque"
+        elif v[a] == "{":
             end = src.pairs[a]
             i = a + 1
             while i < end:

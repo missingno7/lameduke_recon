@@ -962,3 +962,11 @@ Each entry names the command or artefact that supports it.
   (scoped row counter, pulse scratch reused for the displayed rank; two diagnostic stack-home swaps resolve the
   last 10); main 1,032 -> 1,021; dobonus 958 -> 942. operatefta / nonsharedkeys: diagnostic flips match, source not
   yet. Attribution: flip95/climb95 +143 B, quirks +16, own +11.
+
+## Permute v3 (permute3, Codex, 2026-11-27; tools/permute/, docs/PERMUTE_V3.md)
+- Body-only pycparser edits (coverage 73/85 -> 77/85 historical, every archived guided target now has an edit),
+  allocator-margin scoring from flip95 decision sets, deterministic beam. Calibration: rediscovers setview's STRICT
+  fix (DOS, no collateral); reproduces moveexplosions' FLAIR BX -> AX (555 -> 127) but not the shared angle.
+- Live: 0 new STRICT on operatefta (4), nonsharedkeys (14), checkhitswitch (2), scansector (7), comsend (4),
+  moveexplosions (74): the decisions are known (diagnostic flips reach the oracle for four) but no automated rewrite
+  yet makes the compiler take them.

@@ -2,10 +2,10 @@
 """Search safe C spellings with Watcom 9.5 and the repository verifier."""
 import argparse
 from contextlib import redirect_stdout
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from difflib import unified_diff
 from hashlib import sha256
-from itertools import islice
+from itertools import chain, islice
 import json
 from io import StringIO
 import os
@@ -22,16 +22,19 @@ DEFAULT_WORK = HERE.parent if HERE.name == "tools_proposed" else ROOT / "build/p
 WORK = Path(os.environ.get("PERMUTE_WORK", str(DEFAULT_WORK))).resolve()
 sys.path.insert(0, str(ROOT / "tools"))
 
-import blockdiff
 import doshost
 import match
 import omf
 import wcc
 from common import CONFIG, dump_json, load_json
-from c_subset import IDENT, Source, Unsupported
-from guidance import focus_from_report, trace_report
+from c_subset import IDENT, Unsupported
+from body_parser import Source, typedef_names, within_body
+from use_edits import use_edits
+from guidance import focus_from_report
 from object_model import object_model
-from transforms import NAMES, edits
+from transforms import NAMES as V2_NAMES, edits
+
+NAMES = (*V2_NAMES, "branch", "loopuses")
 
 
 DIRECTIVE = re.compile(r"^[ \t]*#[ \t]*(define|include|pragma)\b([^\r\n]*)", re.M)
@@ -171,7 +174,7 @@ def strict(rows):
     return {name for name, r in rows.items() if r["status"] == "STRICT"}
 
 
-def focus_names(args, source, cfg, out):
+def focus_names(args, source, cfg, out, plans, baseline_events):
     manual = set(args.focus.split(",")) if args.focus else set()
     functions = {fn: source.function(fn) for fn in args.functions}
     reports, traces = {}, {}
@@ -181,9 +184,19 @@ def focus_names(args, source, cfg, out):
         if fn not in functions or fn in reports:
             raise ValueError(f"{path}: expected a distinct search target")
         reports[fn] = report
+    hints = {}
     if args.cg95:
+        from decision import prepare
+        hints = load_json(args.flip_focus) if args.flip_focus else {}
+        match.Bindings.extra = str(cfg.symbols) if cfg.symbols else None
         for fn in functions:
-            reports[fn], traces[fn] = trace_report(ROOT, WORK, out, cfg, fn)
+            try:
+                plans[fn], baseline_events[fn], reports[fn] = prepare(
+                    cfg, fn, WORK, out / "decisions" / fn, hints.get(fn, {}), args.flip_trials)
+                traces[fn] = {"events": baseline_events[fn]}
+            except (OSError, RuntimeError, ValueError, KeyError) as exc:
+                reports[fn] = {"error": str(exc)}
+                dump_json(out / f"{fn}-trace-error.json", reports[fn])
     allowed = set().union(*(fun.uses for fun in functions.values()))
     if manual - allowed:
         raise ValueError("focus names absent from targets: " + ", ".join(sorted(manual - allowed)))
@@ -191,11 +204,14 @@ def focus_names(args, source, cfg, out):
     for fn, fun in functions.items():
         report = reports.get(fn)
         named = focus_from_report(fun, report, traces.get(fn)) if report else set()
+        named |= set(hints.get(fn, {}).get("source_names", ())) & fun.uses.keys()
         explicit = manual & fun.uses.keys()
         guided = args.cg95 or args.cg95_explain or args.focus
-        chosen = named if named else explicit
+        chosen = explicit if manual else named
         decisions[fn] = {
-            "names": sorted(chosen) if guided else None,
+            "names": sorted(explicit) if manual else sorted(named) if args.cg95_explain and named else None,
+            "preferred": sorted(chosen),
+            "trace_error": report.get("error") if report else None,
             "basis": ("trace" if named else "manual" if explicit else "unresolved" if guided else "unrestricted"),
             "decision": report.get("first_attributed") if report else None,
             "first_aligned_difference": report.get("first_aligned_difference") if report else None,
@@ -222,12 +238,20 @@ def proposals(src, targets, transforms, focus):
         if names == []:
             continue
         fun = src.function(name)
+        preferred = set(focus[name].get("preferred", ()))
         for transform in transforms:
-            def stream(fun=fun, transform=transform, names=names):
-                for edit in edits(fun, {transform}):
-                    if names is None or edit.variables.intersection(names):
-                        if any(src.text[a:b] != text for a, b, text in edit.changes):
-                            yield fun.name, edit
+            def stream(fun=fun, transform=transform, names=names, preferred=preferred):
+                deferred = []
+                for edit in chain(use_edits(fun, {transform}), edits(fun, {transform})):
+                    if not within_body(fun, edit) or (names is not None and not edit.variables.intersection(names)):
+                        continue
+                    if all(src.text[a:b] == value for a, b, value in edit.changes):
+                        continue
+                    if preferred and not edit.variables.intersection(preferred):
+                        deferred.append((fun.name, edit))
+                    else:
+                        yield fun.name, edit
+                yield from deferred
             streams.append(stream())
     yield from round_robin(streams)
 
@@ -254,6 +278,7 @@ class Result:
     score: tuple
     targets: dict
     lost: list
+    collateral: dict
     strict_names: set
     strict_bytes: int
     counts: dict
@@ -261,7 +286,7 @@ class Result:
     def record(self):
         return {"object_sha256": self.object_hash, "score": self.score,
                 "targets": self.targets, "lost_strict": self.lost,
-                "unit_counts": self.counts, "strict_bytes": self.strict_bytes}
+                "unit_counts": self.counts, "strict_bytes": self.strict_bytes, "collateral": self.collateral}
 
 
 @dataclass
@@ -272,8 +297,12 @@ class Candidate:
 
 
 class Search:
-    def __init__(self, args, cfg, out, log):
+    def __init__(self, args, cfg, out, log, plans, baseline_events):
         self.args, self.cfg, self.out, self.log = args, cfg, out, log
+        self.plans, self.baseline_events = plans, baseline_events
+        self.baseline_collateral = {}
+        from decision import ex
+        self.oracle = ex.semir.Oracle(str(cfg.symbols) if cfg.symbols else None)
         self.targets = set(args.functions)
         self.protection = {}
         self.object_cache = {"nt": {}, "dos": {}}
@@ -285,13 +314,13 @@ class Search:
         self.dos_best = None
         self.best_dos_object = None
         self.trajectory = []
+        self.best_nt = None
         self.next_id = 1
         self.workspace = out / "candidate"
         self.workspace.mkdir()
         self.file = self.workspace / cfg.source.name
         self.obj = out / "trial.obj"
         match.Bindings.extra = str(cfg.symbols) if cfg.symbols else None
-        self.analyzer = blockdiff.Analyzer()
         # Match the repository wrappers while keeping every mutable path in WORK.
         wcc.STAGE_ROOT = WORK / "cc"
         doshost.WORKER = WORK / "dos"
@@ -319,13 +348,32 @@ class Search:
                 raise RuntimeError(log)
             digest = sha256(self.obj.read_bytes()).hexdigest()
             cache = self.object_cache[host]
-            if digest in cache:
-                result = cache[digest]
+            active = [fn for fn, plan in self.plans.items() if plan.required or plan.missing]
+            events = self.baseline_events if ident == 0 else {}
+            if host == "nt" and ident and active:
+                from decision import cg, observe
+                expected = cg.projection(self.obj.read_bytes())
+                trace_obj = self.out / "observed.obj"
+                for target in active:
+                    try:
+                        events[target] = observe(self.cfg, target, self.file, trace_obj, WORK)
+                        if cg.projection(trace_obj.read_bytes()) != expected:
+                            raise RuntimeError("observed and ordinary NT code/publics/fixups differ")
+                    except (OSError, ValueError, RuntimeError) as exc:
+                        events.pop(target, None)
+                        record.setdefault("trace_errors", {})[target] = str(exc)
+                trace_obj.unlink(missing_ok=True)
+            trace_key = digest
+            if host == "nt" and active:
+                # Code-equivalent sources can have different savings and rank margins.
+                trace_key = digest, tuple(self.plans[fn].distance(events.get(fn, []))[0] for fn in active)
+            if trace_key in cache and (host != "nt" or not active):
+                result = cache[trace_key]
                 record.update(object_sha256=digest, duplicate_of=result.id)
             else:
                 record["object_sha256"] = digest
-                result = self.score(ident, digest, host)
-                cache[digest] = result
+                result = self.score(ident, digest, host, events)
+                cache[trace_key] = result
                 record.update(result.record())
         except (OSError, ValueError, subprocess.TimeoutExpired, RuntimeError) as exc:
             record["error"] = str(exc)
@@ -336,9 +384,12 @@ class Search:
             self.write_log(record)
         return result
 
-    def score(self, ident, digest, host):
+    def score(self, ident, digest, host, events):
+        from decision import allocation, ex
         module, = omf.load(self.obj)
-        rows = match.verify_object(self.analyzer.img, module)
+        segments = []
+        rows = match.verify_object(self.oracle.img, module, seg_report=segments)
+        bases = ex.semir.segment_bases(self.oracle, module, segments)
         by_name = {r["function"]: r for r in rows}
         if len(by_name) != len(rows):
             raise ValueError("ambiguous function names in OMF publics")
@@ -349,29 +400,30 @@ class Search:
         keys = ("status", "oracle", "byte_diffs", "first_diff", "size", "problems", "unverified", "verified_bytes")
         targets = {name: {k: by_name[name][k] for k in keys if k in by_name[name]} for name in self.args.functions}
         near = self.targets - strict_names
-        metrics = {name: {"content": 1.0, "regs": 1.0} for name in self.targets - near}
-        if near:
-            for pair in self.analyzer.object_pairs(self.obj, only=near):
-                report = blockdiff.metrics(pair.orig, pair.cand)
-                metrics[pair.name] = {key: report[key] for key in ("content", "regs")}
+        decisions = [0] * 5
         for name, row in targets.items():
-            row["blockdiff"] = metrics.get(name, {"content": 0.0, "regs": 0.0})
-        # Collateral guard (integrator, 2026-11-27): an edit can worsen OTHER non-STRICT functions through inlined
-        # copies (prelevel via spawn, main via sync). The first scored build per host is the baseline; any increase
-        # of another function's differing bytes ranks the variant below every variant without collateral damage.
-        others = {r["function"]: r.get("byte_diffs", 0) for r in rows
-                  if r["function"] not in self.targets and r["status"] != "STRICT" and "byte_diffs" in r}
-        base = getattr(self, "_collateral_base", {}).get(host)
-        if base is None:
-            self.__dict__.setdefault("_collateral_base", {})[host] = base = dict(others)
-        collateral = sum(max(0, v - base.get(n, v)) for n, v in others.items())
-        score = (len(lost), collateral, len(near), sum(r["byte_diffs"] for r in targets.values()),
-                 -sum(r["blockdiff"]["content"] for r in targets.values()),
-                 -sum(r["blockdiff"]["regs"] for r in targets.values()),
+            row["allocation"] = (allocation(self.oracle, module, by_name[name], bases)
+                                 if name in near else {"gaps": 0, "locations": 0, "pairs": 0})
+            if host == "nt" and name in self.plans:
+                distance, row["decisions"] = self.plans[name].distance(events.get(name, []))
+                if name in near:
+                    decisions = [a + b for a, b in zip(decisions, distance)]
+        def measure(row):
+            return (row.get("byte_diffs", 0), len(row["problems"]), len(row["unverified"]))
+        others = {n: (r["status"], measure(r)) for n, r in by_name.items() if n not in self.targets}
+        base = self.baseline_collateral.setdefault(host, others)
+        order = {"STRICT": 0, "CODE_BYTES_MATCH": 1, "NEAR_MATCH": 2, "UNPLACED": 3}
+        collateral = {n: {"baseline": old, "variant": others.get(n)} for n, old in base.items()
+                      if n not in others or order[others[n][0]] > order[old[0]]
+                      or any(a > b for a, b in zip(others[n][1], old[1]))}
+        score = (len(lost), len(collateral), len(near), *decisions,
+                 *(sum(row["allocation"][key] for row in targets.values())
+                   for key in ("gaps", "locations", "pairs")),
+                 sum(r["byte_diffs"] for r in targets.values()),
                  sum(len(r["problems"]) + len(r["unverified"]) for r in targets.values()))
         counts = {s: sum(row["status"] == s for row in rows)
                   for s in ("STRICT", "CODE_BYTES_MATCH", "NEAR_MATCH", "UNPLACED")}
-        return Result(ident, digest, score, targets, lost, strict_names,
+        return Result(ident, digest, score, targets, lost, collateral, strict_names,
                       sum(r["verified_bytes"] for r in rows if r["status"] == "STRICT"), counts)
 
     def confirm(self, candidate):
@@ -379,7 +431,14 @@ class Search:
             return self.dos_tested[candidate.id]
         result = self.evaluate(candidate.text, "dos", candidate.id)
         self.dos_tested[candidate.id] = result
-        if result and not result.lost and (not self.dos_best or result.score < self.dos_best.result.score):
+        reference = self.dos_tested[0].targets
+        progress = result and all(
+            row["status"] == "STRICT" or (
+                row["byte_diffs"] <= reference[name]["byte_diffs"]
+                and len(row["problems"]) <= len(reference[name]["problems"])
+                and len(row["unverified"]) <= len(reference[name]["unverified"]))
+            for name, row in result.targets.items())
+        if progress and result.score[:2] == (0, 0) and result.score < self.dos_best.result.score:
             self.dos_best = Candidate(candidate.id, candidate.text, result)
             self.best_dos_object = self.obj.read_bytes()
             self.improve(candidate.id, "dos", result)
@@ -410,11 +469,18 @@ class Search:
 
     def trial(self, parent, fn, edit, source_factory, sensitive, original_locations):
         text = edit.apply(parent.text)
+        try:
+            updated = source_factory(text)
+            updated.function(fn)
+        except Unsupported as exc:
+            self.write_log({"host": "source", "parent": parent.id, "function": fn,
+                            "transform": edit.kind, "skipped": str(exc)})
+            return None
         digest = sha256(text.encode("latin1")).digest()
         if digest in self.source_seen:
             return None
         self.source_seen.add(digest)
-        if original_locations and location_uses(source_factory(text), sensitive) != original_locations:
+        if original_locations and location_uses(updated, sensitive) != original_locations:
             self.write_log({"host": "source", "parent": parent.id, "function": fn, "edits": edit.changes,
                             "transform": edit.kind, "skipped": "location-sensitive macro or #line would move"})
             return None
@@ -425,7 +491,7 @@ class Search:
         return Candidate(ident, text, result) if result else None
 
     def remember(self, candidate):
-        if candidate.result.lost or any(c.result.object_hash == candidate.result.object_hash for c in self.shortlist):
+        if candidate.result.score[:2] != (0, 0) or any(c.result.object_hash == candidate.result.object_hash for c in self.shortlist):
             return
         self.shortlist.append(candidate)
         self.shortlist.sort(key=lambda c: (c.result.score, c.id))
@@ -447,28 +513,25 @@ class Search:
         if baseline.result.score[2] == 0 and self.dos_best.result.score[2] == 0 and not self.args.keep_going:
             return strategy, "baseline already STRICT"
         frontier, best = [baseline], baseline
+        self.best_nt = baseline
         reason = "depth exhausted"
         for depth in range(1, self.args.depth + 1):
             next_level = []
-            for position, parent in enumerate(frontier):
+            for parent in frontier:
                 src = original_source if parent.id == 0 else source_factory(parent.text)
                 stream = proposals(src, self.args.functions, transforms, focus)
-                remaining = self.args.budget - self.nt_attempts
-                quota = remaining if strategy == "exhaustive" else max(
-                    1, remaining // (len(frontier) - position + self.args.depth - depth))
-                started = self.nt_attempts
                 for fn, edit in stream:
-                    if self.nt_attempts >= self.args.budget or self.nt_attempts - started >= quota:
+                    if self.nt_attempts >= self.args.budget:
                         break
                     candidate = self.trial(parent, fn, edit, source_factory, sensitive, location)
                     if not candidate:
                         continue
                     result = candidate.result
-                    if strategy == "exhaustive" or not result.lost:
+                    if result.score[:2] == (0, 0):
                         next_level.append(candidate)
                     self.remember(candidate)
                     if result.score < best.result.score:
-                        best = candidate
+                        best = self.best_nt = candidate
                         self.improve(candidate.id, "nt", result)
                     if result.score[:3] == (0, 0, 0) and not self.args.keep_going:
                         verified = self.confirm(candidate)
@@ -497,6 +560,8 @@ class Search:
         (self.out / "best").mkdir()
         (self.out / "best" / name).write_bytes(selected.text.encode("latin1"))
         (self.out / "best.obj").write_bytes(self.best_dos_object)
+        if self.best_nt is not None and self.best_nt.id:
+            (self.out / "best-nt.diff").write_bytes(make_diff(original, self.best_nt.text, name).encode("latin1"))
         self.file.unlink()
         self.workspace.rmdir()
         self.obj.unlink(missing_ok=True)
@@ -504,6 +569,7 @@ class Search:
         dump_json(self.out / "trajectory.json", self.trajectory)
         dump_json(self.out / "summary.json", {
             "strategy": strategy, "reason": reason, "selected": selected.id, "best": selected.result.record(),
+            "best_nt": self.best_nt.result.record() if self.best_nt else None,
             "dos_baseline": self.dos_tested[0].record(), "protected_dos": sorted(self.protection["dos"]),
             "nt_guard_inconclusive": sorted(self.protection["dos"] - self.protection["nt"]),
             "nt_variants": self.nt_attempts, "nt_distinct_objects": len(self.object_cache["nt"]),
@@ -525,7 +591,9 @@ def main():
     parser.add_argument("--strategy", choices=("auto", "exhaustive", "greedy", "beam"), default="auto")
     parser.add_argument("--focus", help="comma-separated source identifiers to touch")
     parser.add_argument("--cg95-explain", type=Path, action="append", help="use named variables from explain95 JSON")
-    parser.add_argument("--cg95", action="store_true", help="trace and explain each target's allocation before searching")
+    parser.add_argument("--cg95", action="store_true", help="prepare and score allocator decision targets with stock cg95")
+    parser.add_argument("--flip-focus", type=Path, help="JSON of optional per-function allocator replay and climb hints")
+    parser.add_argument("--flip-trials", type=int, default=16, help="initial and per-round diagnostic climb cap")
     parser.add_argument("--budget", type=int, default=100, help="maximum NT variant compilations")
     parser.add_argument("--depth", type=int, default=2, help="maximum successive source edits")
     parser.add_argument("--beam-width", type=int, default=4)
@@ -539,6 +607,8 @@ def main():
     transforms = NAMES if args.transforms == "all" else tuple(dict.fromkeys(args.transforms.split(",")))
     if not set(transforms) <= set(NAMES):
         parser.error("unknown transform: " + ", ".join(sorted(set(transforms) - set(NAMES))))
+    if args.flip_trials < 0:
+        parser.error("flip trials cannot be negative")
     if min(args.budget, args.depth, args.beam_width, args.exhaustive_limit, args.confirm) < 1:
         parser.error("budget, depth, beam width, exhaustive limit and confirm count must be positive")
     out = args.out.resolve()
@@ -546,19 +616,28 @@ def main():
         parser.error(f"--out must be a new directory below {WORK}")
     try:
         cfg = settings(args)
-        data = cfg.source.read_bytes()
+        input_path = cfg.source
+        data = input_path.read_bytes()
         original = data.decode("latin1")
+        out.mkdir(parents=True, exist_ok=False)
+        snapshot = out / "input" / input_path.name
+        snapshot.parent.mkdir()
+        snapshot.write_bytes(data)
+        cfg = replace(cfg, source=snapshot)
         _, install = wcc.install(cfg.install)
         macros, sensitive, expansion, paths, storage = macro_context(cfg.source, cfg.includes, install / "H", cfg.flags)
         objects, members = object_model(sorted(paths), macros, storage)
 
-        def source_factory(text):
-            return Source(text, macros, objects, members, expansion)
+        typedefs = typedef_names(paths)
 
-        out.mkdir(parents=True, exist_ok=False)
-        focus = focus_names(args, source_factory(original), cfg, out)
+        def source_factory(text):
+            return Source(text, macros, objects, members, expansion, typedefs=typedefs)
+
+        plans, baseline_events = {}, {}
+        focus = focus_names(args, source_factory(original), cfg, out, plans, baseline_events)
         dump_json(out / "run.json", {
-            "unit": cfg.unit, "input": str(cfg.source), "input_sha256": sha256(data).hexdigest(),
+            "unit": cfg.unit, "input": str(input_path), "snapshot": str(snapshot),
+            "input_sha256": sha256(data).hexdigest(),
             "targets": args.functions, "profile": cfg.profile, "install": cfg.install, "flags": cfg.flags,
             "include": list(map(str, cfg.includes)), "symbols": str(cfg.symbols) if cfg.symbols else None,
             "transforms": transforms, "focus": focus, "strategy": args.strategy, "depth": args.depth,
@@ -566,7 +645,7 @@ def main():
             "confirm": args.confirm, "keep_going": args.keep_going,
         })
         with (out / "variants.jsonl").open("w", encoding="utf-8") as log:
-            search = Search(args, cfg, out, log)
+            search = Search(args, cfg, out, log, plans, baseline_events)
             strategy, reason = search.run(original, source_factory, sensitive, transforms, focus)
             search.finish(original, strategy, reason)
         print(f"{reason}; {search.nt_attempts} NT variants; results in {out}", flush=True)
