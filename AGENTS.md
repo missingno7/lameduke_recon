@@ -101,8 +101,11 @@ hide a misunderstanding.
 - `tools/idioms/idioms.py` — source<->code index of every STRICT function (rebuild: `python -B tools/idioms/build_index.py`
   into build/idioms/, not committed): `near UNIT FUNC` (matched C for each unmatched oracle block), `reverse UNIT FUNC [--external[-loose]]` (oracle blocks with
   STRICT twins incl. code we lack, context-effect blocks, differing inline copies), `query --asm`,
-  `c --pattern`. docs/WATCOM95_QUIRKS.md + docs/quirks.json: Watcom 9.5 rules with verified examples. RULE: before
-  hand-solving a block, check `idioms.py near` and the quirks catalogue.
+  `c --pattern`. docs/WATCOM95_QUIRKS.md + docs/quirks.json: Watcom 9.5 rules with verified examples. Check
+  `idioms.py near`/`reverse` and the quirks catalogue when a block resists; it is cheap, but in recent rounds donors
+  (incl. dated binary donors) and oracle-guided reasoning produced nearly all gains, so do not let it delay those.
+- docs/PARKED.md — functions where several independent methods failed on the same residual. RULE: do not re-attack a
+  parked function without new evidence (new donor body, new compiler fact, or a change made anyway that moves it).
 - `tools/readme.py` — regenerates the README.md progress bars and the docs/STATUS.md unit table from build/verify.json (after `verify.py --update`).
 - Watcom 9.5b compiles run on the canonical DOS host (tools/doshost.py: the original DOS compiler under DOSBox-X,
   ~1.7 s per compile) because CONST padding residue depends on the host; LAMEDUKE_HOST=nt gives the same code
