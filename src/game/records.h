@@ -11,8 +11,8 @@
 
 #pragma pack(1)
 
-/* Build map v5 records (map version 5 as loaded by loadboard). Field names and types follow
-   Ken Silverman's BUILD.H of October 1994 (src/engine/BUILD.H), including nextsector1/nextwall1. */
+/* Packed Build map v5 layouts from Ken's October 1994 BUILD.H.
+   Watcom 9.5 uses unsigned plain char under the registered profiles. */
 
 struct sectortype {                     /* 37 bytes */
     unsigned short wallptr, wallnum;    /* first wall, number of walls */
@@ -20,11 +20,11 @@ struct sectortype {                     /* 37 bytes */
     short ceilingheinum, floorheinum;   /* slopes (0 = flat) */
     long ceilingz, floorz;              /* z grows downward */
     signed char ceilingshade, floorshade;
-    unsigned char ceilingxpanning, floorxpanning;
-    unsigned char ceilingypanning, floorypanning;
-    unsigned char ceilingstat, floorstat;
-    unsigned char ceilingpal, floorpal;
-    unsigned char visibility;
+    char ceilingxpanning, floorxpanning;
+    char ceilingypanning, floorypanning;
+    char ceilingstat, floorstat;
+    char ceilingpal, floorpal;
+    char visibility;
     short lotag, hitag;
     short extra;                        /* game: door/lift speed (default 256) */
 };
@@ -44,7 +44,7 @@ struct walltype {                       /* 35 bytes */
 
 struct spritetype {                     /* 38 bytes */
     long x, y, z;
-    unsigned char cstat;
+    char cstat;
     signed char shade;
     unsigned char xrepeat, yrepeat;
     short picnum, ang, xvel, yvel, zvel, owner;

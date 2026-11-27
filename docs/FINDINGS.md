@@ -1074,3 +1074,14 @@ Each entry names the command or artefact that supports it.
   held until the running engine/multi workers return.
 - NEGATIVE/trade: getpacket CRC form 499 -> 232 bytes but breaks the shared return of STRICT processreservedmessage
   (not adopted).
+
+## Structure inference (structinfer, sol, 2026-11-27; docs/STRUCTS.md, build/workers/structinfer/attributions.tsv)
+- PROVEN: all 554 flagged oracle operands attributed; 33 audit labels corrected; sampled record layouts confirmed.
+- Applied: records.h/BUILD.H type corrections and consistent input-bit declarations (byte-identical; gate OK).
+- NEGATIVE: signed weapon_pos worsens processinput; unifying the two declarations of the actor scratch array keeps
+  every proof but changes execute's stack allocation (trial patch held). OPEN: score-table signedness, unused
+  menu/settings fields.
+
+## Shadow Warrior Classic prototypes acquired (2026-11-27)
+- external/steam-swclassic (user's Steam install, app 238070): SW 1994-05-23, 1995-01-15, 1995-02-10 (+ BUILD.EXE,
+  EDITART.EXE, GAME.EXE), 1995-09-08, Ninja 1993-09-16. Hashes in config/references.json. Donor scan pending.

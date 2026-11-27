@@ -58,7 +58,7 @@ extern short moustat, menu_mouse, menu_previous_buttons, menu_drag, menu_x, menu
 
 extern long reccnt;
 extern signed char syncangvel[], syncsvel[], syncvel[];
-extern long syncbits[];
+extern unsigned long syncbits[];
 extern unsigned char synctics;
 extern signed char recsyncangvel[16384], recsyncsvel[16384], recsyncvel[16384];
 extern long recsyncbits[16384];
@@ -143,7 +143,7 @@ extern void call_level_load_hook(char *name);
 extern short disable_armor;
 extern unsigned char level_tick_state;
 extern signed char osyncvel[17], osyncsvel[17], osyncangvel[17];
-extern long osyncbits[17];
+extern unsigned long osyncbits[17];
 extern struct sound_voice sound_voices[39];
 
 /* Inline Build helpers from the historical PRAGMAS.H. */

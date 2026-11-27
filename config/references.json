@@ -565,6 +565,36 @@
    "relevance": "MEDIUM (semantic, gamedef): an intermediate CON between LameDuke (Dec-94) and v0.99 (Jan-96). external/x/wayback-fandom-prototype-texts/GAME_CON_1995-09_wiki_transcription.txt is a mechanical concatenation of the page's <pre> blocks - whitespace/line breaks are the wiki's, not the original file's; the tail also contains the page's '1996 shareware' snippets. RGAME.H (May-Sep 1995) itself is already held: external/duke3d-1.3d/dukenukem3d/extras/RGAME.H.",
    "retrieved": "2026-11-27",
    "inventory": "build/workers/acquire/inventory.json (2026-11-27 donor research pass)"
+  },
+  "steam-swclassic": {
+   "title": "Shadow Warrior Classic (1997) prototype directories (Steam app 238070, user's install)",
+   "source": "C:/Program Files (x86)/Steam/steamapps/common/Shadow Warrior Original/gameroot/{nn930916,sw940523,sw950115,sw950210,sw950908}",
+   "path": "external/steam-swclassic",
+   "sha256": {
+    "external/steam-swclassic/nn930916/NINJA.EXE": "42e9145f495b5f105d918d52ce6ef20e8243321642c2fc5fc418649634d225f8",
+    "external/steam-swclassic/sw940523/SW.EXE": "4d4ff11543998ac2bb5fdf0f817f511deb55eefcfb63d820f69b7c54e4ad64e5",
+    "external/steam-swclassic/sw950115/SW.EXE": "2c65f14f9eb727a4f5b6e3753b88e62b0e5f1063e8c1777bc398d7ad4c2645b5",
+    "external/steam-swclassic/sw950210/BUILD.EXE": "53fa22c69f5a6dffa041e0133e0db02a54019bb1319dddc730e3fa66fba00d1c",
+    "external/steam-swclassic/sw950210/CONVMAP6.EXE": "f24849cdd729e588d5ef4f7030f9c0d2e607efc33a5470d00401e15d9cb0db2b",
+    "external/steam-swclassic/sw950210/EDITART.EXE": "3eb0414db7268986f7fd733fa7b8526a533498b0dfc5e11ae2a1747a47bc1e9b",
+    "external/steam-swclassic/sw950210/GAME.EXE": "6057fe30e3519af57f8bc2dcfc2bbaecddaf49668525ac4002d99a2367ec9d47",
+    "external/steam-swclassic/sw950210/NCOPY.EXE": "bc16ecd7328963389a3879ae2f43f774f9b5cc930e0a3f07681d42fb126e9d4e",
+    "external/steam-swclassic/sw950210/original/BUILD.EXE": "027df5acfd724dc67224ed1fe302bc6536607be925b6e3a403d7e38f583f0587",
+    "external/steam-swclassic/sw950210/original/EDITART.EXE": "c8c71c7578131939dcf6a08cb3e4cccf72fba4d03da0873cf8bb159b2adb8d21",
+    "external/steam-swclassic/sw950210/original/SW.EXE": "c44602b38aee242441298efafcb39f3d8edf08d2fa91d3b04f3f33fe021c1f84",
+    "external/steam-swclassic/sw950210/RSIZEART.EXE": "c5e94d88e54c2866b407bbe09d76120a01bd2fa3112bae5d96bd4b00539964ff",
+    "external/steam-swclassic/sw950210/SW.EXE": "6e3fc1c6e4d0df3896c898f36c07ee544e82af457d3fb91488ec6e8ba9b95ac2",
+    "external/steam-swclassic/sw950210/SW950115.EXE": "2c65f14f9eb727a4f5b6e3753b88e62b0e5f1063e8c1777bc398d7ad4c2645b5",
+    "external/steam-swclassic/sw950210/TERM.EXE": "396350532a7f002433ebd7611d2d74639b65bd394113b3a30207ccf9ae2c560f",
+    "external/steam-swclassic/sw950210/TRANSPAL.EXE": "2ed739c1c31b0f673b820011497d3f4f25dc87d6bfb98a17969b986813a7e9b5",
+    "external/steam-swclassic/sw950908/COMMIT.EXE": "4111d99511ba3db4440dc744aa2440221fc42a89ecb50dbaed89f172e4fb181f",
+    "external/steam-swclassic/sw950908/SETMAIN.EXE": "fa196fc5c60e25912021589a72a8c1f951b3a6ab16c94e51969e596dd3e114f3",
+    "external/steam-swclassic/sw950908/SW.EXE": "c8f9826901620334c98f4ef1023a4114db8a7d986ac4664e6d09f135e437cbfb",
+    "external/steam-swclassic/sw950908/SW950115.EXE": "2c65f14f9eb727a4f5b6e3753b88e62b0e5f1063e8c1777bc398d7ad4c2645b5",
+    "external/steam-swclassic/sw950908/SW951031.EXE": "6380b16c6eea6602bc901f0518260dbf87394556b5c0890a764e1f1e909e4c28"
+   },
+   "license": "Proprietary (Devolver Digital); local reference only, never redistributed",
+   "relevance": "Engine donors bracketing LameDuke: SW 1994-05-23 and 1995-01-15/02-10 prototypes, Feb-1995 BUILD.EXE/EDITART.EXE/GAME.EXE; Ninja 1993-09-16."
   }
  },
  "repositories": {
@@ -638,7 +668,7 @@
  "leads": {
   "tekwar_witchaven": "Les Bird Capstone dev snapshots (archive.org tekwar_source, WHAVEN): Build ENGINE.OBJ 1995-07, A.OBJ 1995-06, built with Watcom 9.5 per author; Witchaven GAME.OBJ 1995-03, BUILD.TXT 1995-09.",
   "rott_shareware_1_0": "ROTT 1.0 shareware 1994-12-21 (classicdosgames 1rott.zip): Apogee Sound System binary 9 days before LameDuke.",
-  "sw_prototypes": "Shadow Warrior 1995-01-15 / 1995-02-10 prototypes ship in the free Steam app 238070 'Shadow Warrior Classic (1997)' (Devolver, 2017-05-19). Requires a Steam client/account; not acquired (user decision).",
+  "sw_prototypes": "ACQUIRED 2026-11-27 from the user's own Steam install (app 238070); see entry steam-swclassic.",
   "convmaps": "advsys.net/ken CONVMAPS.ZIP: map v4-7 converters with source (v5 format).",
   "duke3d_oct1994_prototype": "Not publicly released (3D Realms archives, seen under NDA). Only footage and a video exist; no legitimate source.",
   "hendricks266_2017_sources": "forums.duke4.net topic 7266 post #610 (2017-05-01): Duke3D 1.3D/1.4 source and fragments of much earlier builds found; nothing released.",

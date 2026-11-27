@@ -117,6 +117,7 @@ struct spritetype
 	short extra;
 };
 
+// Map v5 extra record: four 16-bit tags and a 16-bit link (10 bytes on disk).
 struct extratype
 {
 	short tag[4];
@@ -317,7 +318,8 @@ OTHER VARIABLES:
 						  option[1] is the digitized sound (0-5)
 						  option[2] is the music (0-1)
 						  option[3] is the input type (0-1)
-						  option[4] is the serial port (0-2)
+						  option[4] selects multiplayer (0 solo, 1-4 serial, 5+ IPX)
+						  option[5] selects the serial rate (0-5)
 			Please look at the SETUP program - the array is set up just like you
 				would expect.
 		NUMSECTORS - the total number of existing sectors.  Modified every time
