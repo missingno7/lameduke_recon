@@ -1,5 +1,28 @@
 # First blockers in the canonical DOS build
 
+## SECTOR wall-index stores at 553678e
+
+checksectors remains NEAR_MATCH. The pinned DOS game_oe build verifies 13 of 18 SECTOR functions STRICT for 5,602 bytes, including checkhitceiling (856 B) and checkhitwall (1,648 B). The five remaining functions are NEAR_MATCH. All builds in the table keep the first near-lift jump at PUBLIC+0x339, the first destination at +0x3ad and the first wall store at +0x3d1. Extents include the 264-byte leading table.
+
+| Whole-unit DOS build | Frame B | First-wall homes (near / underfoot), ESP+ | Underfoot store, PUBLIC-relative | Extent B | Byte differences | Fixup diagnostics | Verified table entries / 66 | checkhitceiling |
+| --- | ---: | --- | --- | ---: | ---: | ---: | ---: | --- |
+| Canonical | 176 | 0x78 / 0x78 | +0x1760 | 11,448 | 7,135 | 556 | 38 | STRICT |
+| First and last at outer function scope | 172 | 0x6c / 0x70 | +0x1763 | 11,352 | 7,487 | 622 | 2 | CODE_BYTES_MATCH |
+| Outer bounds and counters, short-frame caller | 168 | 0x80 / 0x7c | +0x16f6 | 11,176 | 7,242 | 622 | 2 | CODE_BYTES_MATCH |
+| Exact frame and extent | 168 | 0x5c / 0x6c | +0x1728 | 11,448 | 7,483 | 620 | 3 | STRICT |
+| Long return with a narrow case-26 comparison | 168 | 0x88 / 0x88 | +0x1773 | 11,464 | 7,459 | 616 | 2 | STRICT |
+| Exact homes, diagnostic source | 176 | 0x90 / 0x8c | +0x17b9 | 11,624 | 7,638 | 632 | 2 | STRICT |
+| Closest extent with both exact homes | 176 | 0x90 / 0x8c | +0x1777 | 11,544 | 7,674 | 627 | 2 | STRICT |
+| Oracle | 168 | 0x90 / 0x8c | +0x173f | 11,448 | 0 | 0 | 66 | STRICT |
+
+Canonical source retained. The integration source.patch is empty. Canonical retains its confirmed 11,448-byte extent, 139 proven reference records and 38/66 proven table entries. Its first differing byte is extent+0x110 (PUBLIC+0x8). The 176-byte frame and the four-byte store to ESP+0x78 remain open.
+
+The earlier 168-byte control ended 16 B early. The new exact-frame, exact-extent control puts the near wall at ESP+0x5c and regresses operatesectors, operateactivators, cheatkeys and checkhitswitch. The long-return control that ends 16 B late preserves all 13 STRICT proofs, but both inlined walls use ESP+0x88 and three other NEAR functions regress. The exact-homes controls also preserve checkhitceiling and checkhitwall. None recovers the canonical target proofs and peer scores together. A separate caller-only comparison reorder reduced the raw mismatch count by one through an immediate overlapping an oracle branch displacement. It left both wall homes unchanged and was rejected.
+
+A DOS control with just the 32-bit return and reordered case-9 declarations reaches the 168-byte frame and the seven-byte store to ESP+0x90 together. The dispatch remains at +0x339, but entry zero and the store are one byte early (+0x3ac and +0x3d0). The underfoot store also uses ESP+0x90, and the extent ends 48 B late. All 13 STRICT publics survive. Four NEAR peers regress. The independently applicable diagnostic source is prototype/one-byte-early/control.patch.
+
+The full per-public verdicts, allocator traces and standalone control patches are under build/workers/blockers/wallhome. prototype/exact-homes/control.patch reproduces the closest DOS extent with both wall homes correct.
+
 ## First near-lift dispatch and glass hits at 3dab741
 
 The stock DOS wc95b builds use the registered game_oe profile. Extent-relative first-byte offsets include the 264-byte leading table of checksectors. The jump and destination measurements below start at the PUBLIC.

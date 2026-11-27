@@ -1,5 +1,19 @@
 # Watcom 9.5 GA rules for diagnosing a first difference
 
+## Inlined sliding-door bounds and stack homes
+
+**PROVEN for Watcom 9.5b, game_oe, SECTOR at 553678e.** Moving only the declarations of first and last from operatesectors case 9 across the extra brace into the outermost function block changes the allocator identities visible in the two inlined calls. In canonical checksectors both copies use t154 for first and t153 for last. In the outer-scope control the near and underfoot first walls use distinct temps (t109 and t950), as do the last walls (t108 and t949). The reads, writes and declared types stay the same. The homes of first change from ESP+0x78 in both calls to ESP+0x6c and ESP+0x70. CG95 reproduces the DOS bytes. The small two-call C experiment independently reproduces one ID per nested declaration (first t6, last t5) and two per outer declaration (first t6/t34, last t5/t33). Scope predicts whether those two uses share an identity in these tests. The resulting displacement still depends on the rest of the caller.
+
+The 176-byte canonical and earlier 168-byte controls both put first 56 bytes below the top of the frame. Shrinking this frame alone moves the slot from ESP+0x78 to ESP+0x70. The oracle needs the near first wall 24 bytes below the top and the underfoot first wall 28 bytes below it. Flipping just the canonical home-order tie for t153 and t154 (ranks 242 and 252) moves both first walls to ESP+0x74 and leaves the frame at 176.
+
+**PROVEN from accesses and allocator traces.** In the oracle, only the first four slots below the frame top receive word accesses before the five consecutive dword-only slots containing all four bounds. The near and underfoot last-wall slots are ESP+0x84 and ESP+0x88. Both calls access door[0] at ESP+0. In canonical, twelve successive slots below the top receive word accesses. Four hold results from getanimationgoal in the two case-22 arms (PUBLIC+0x104f, +0x1172, +0x23ba and +0x24e3). The oracle also stores animation-index results but places them lower in the frame.
+
+**Controlled return width.** The reconstruction defines getanimationgoal as short in SECTOR. GAME and PREMAP declare long, and the Duke 1.5 source defines the function with implicit int. Changing the private SECTOR declaration and definition to long and narrowing the case-26 comparison keeps getanimationgoal and setanimation STRICT. It yields the 168-byte frame, two ESP+0x88 stores and an extent 16 B too long. Caller evidence matters even when the callee bytes are identical.
+
+**Remaining allocation difference.** In the 11,624-byte exact-homes control, the seven bytes of the first store at +0x3d1 match. The first subsequent instruction difference in that arm is the reload at +0x3f1, where the control chooses EDX and the oracle chooses EBP. At +0x403 the control stores last to ESP+0x80 and the oracle uses ESP+0x84. Both control copies spill the X center, near at ESP+0x94 and underfoot at ESP+0x98. In the oracle the near copy holds X in EBP and spills Y to ESP+0x6c. The underfoot copy instead spills X to ESP+0x74 and holds Y in EBP. The direction is visible from the wall.x and wall.y relocation targets in the centroid loop. The oracle uses EBX for the wall counter loaded at +0x413. These accesses distinguish which center should receive the cheaper register in each copy.
+
+The NT exploration varied center declaration scope, reuse of j/middle/daz, the order of X/Y accumulation, and the position of the resets relative to reading the wall bounds. Of 570 distinct sources, 0 recovered the 168-byte frame, the first dispatch and its destination, and the near wall store together. The exact-homes and exact-extent entries above are independent DOS controls.
+
 ## SECTOR dispatch distance and independent glass stores
 
 **PROVEN for the canonical checksectors at 3dab741.** Four changes account for all 45 extra bytes before the first inlined near-lift dispatch. Offsets here start at the checksectors PUBLIC.
