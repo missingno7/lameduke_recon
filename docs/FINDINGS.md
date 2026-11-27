@@ -847,3 +847,15 @@ Each entry names the command or artefact that supports it.
   +32 blocks / 648 B loose (field displacements abstracted) — under 1% of the remaining bytes: LameDuke's own 581
   STRICT functions already cover most idioms. Three DOS trials recovered blocks (overwritesprite palette offset,
   hitscan `intz` first in both comparisons, draw2dscreen signed visibility guard) without new STRICT.
+
+## Measured tool-first round: GAME (r10-game, astra, 2026-11-27; build/workers/r10-game/NOTES.md)
+- PROVEN gamenumber STRICT (272 B): glyph and line-origin declaration order in gametext (quirks-catalogue rule;
+  its inlined copies first worsened two callers). GAME 37/49. nonsharedkeys 31 -> 14 bytes (111/111 blocks, every
+  fixup verified); sync regains its 2,832-byte extent, 1,079 -> 730; waitforeverybody 1,100 -> 687 (separate
+  broadcast index); dobonus 1,483 -> 958; strget 541 -> 525; main 2,929 -> 1,338 (main had regressed from 441
+  because the permute sweep-2 sync temporary changed main's inlined sync copy). NEAR total 19,472 -> 16,335.
+- Attribution (net raw bytes removed): idioms reverse 1,871, idioms near 1,827, own/prior reasoning 92, quirks -653
+  but all 272 new STRICT bytes, donors 0, permute 0.
+- LESSON: tools/permute's regression guard protects only STRICT functions; its patches have twice worsened NEAR
+  inlined copies elsewhere (prelevel via spawn, main via sync). Permute must also guard NEAR functions' differing
+  bytes, or its patches must be checked unit-wide before adoption.

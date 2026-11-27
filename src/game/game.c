@@ -498,6 +498,7 @@ void getpackets(void)
 /* Wait until every player is ready. After Ken Silverman's waitforeverybody, Build GAME.C (1995); Duke 1.5 PREMAP.C keeps the name. */
 void waitforeverybody(void)
 {
+    long player; /* COMPILER_STEERED: keep the send index separate from the ready-count walk. */
     long i, j, oldtotalclock;
 
     if (numplayers < 2)
@@ -513,9 +514,9 @@ void waitforeverybody(void)
             if (totalclock >= oldtotalclock + 120) {
                 oldtotalclock = totalclock;
                 tempbuf[0] = 5;
-                for (i = connecthead; i >= 0; i = connectpoint2[i])
-                    if (i != connecthead)
-                        sendpacket(i, (unsigned char *)tempbuf, 1);
+                for (player = connecthead; player >= 0; player = connectpoint2[player])
+                    if (player != connecthead)
+                        sendpacket(player, (unsigned char *)tempbuf, 1);
             }
             getpackets();
             ready = 0;
@@ -537,7 +538,6 @@ void waitforeverybody(void)
 /* Master/slave input synchronisation for one frame. After Ken Silverman's sync, Build GAME.C (1994). */
 void sync(void)
 {
-    unsigned long obits;    /* COMPILER_STEERED: staged old sync bits (found by tools/permute) */
     long i, j, k;
     short p;
 
@@ -545,6 +545,8 @@ void sync(void)
         getinput(myconnectindex);
         getpackets();
         if (synctics > 0 && getoutputcirclesize() < 16) {
+            short packet_length; /* COMPILER_STEERED: save the master packet length in a word. */
+
             tempbuf[0] = 2;
             tempbuf[1] = synctics;
             j = ((numplayers + 1) >> 1) + 2;
@@ -567,8 +569,7 @@ void sync(void)
                     osyncangvel[i] = syncangvel[i];
                     tempbuf[k >> 3] |= (4 << (k & 7));
                 }
-                obits = osyncbits[i];
-                if (syncbits[i] != obits) {
+                if (syncbits[i] != osyncbits[i]) {
                     tempbuf[j++] = (syncbits[i] & 255);
                     tempbuf[j++] = ((syncbits[i] >> 8) & 255);
                     tempbuf[j++] = ((syncbits[i] >> 16) & 255);
@@ -578,9 +579,10 @@ void sync(void)
                 }
                 k += 4;
             }
+            packet_length = j;
             for (i = connecthead; i >= 0; i = connectpoint2[i])
                 if (i != myconnectindex)
-                    sendpacket(i, (unsigned char *)tempbuf, j);
+                    sendpacket(i, (unsigned char *)tempbuf, packet_length);
             domovethings();
         }
     } else {
@@ -683,15 +685,17 @@ void myos(short x, short y, short tilenum, unsigned char shade,
 /* Big-font text; returns the next x. Duke Nukem 3D 1.5 keeps the name. */
 long gametext(long x, long y, unsigned char *t, unsigned char s)
 {
-    long advance; /* COMPILER_STEERED: name the promoted width in inlined draws. */
+    /* COMPILER_STEERED: the glyph and line origin persist across characters. */
+    short ac;
     short left;
-    short ac, descender;
-    long start_x = x; /* COMPILER_STEERED: preserve the incoming x before narrowing the line origin. */
 
-    left = start_x;
+    left = x;
     if (ps[screenpeek].dimensionmode == 2)
         return 0;
     while (*t) {
+        long advance;
+        short descender;
+
         descender = 2;
         if (*t == '\n') {
             x = left;
@@ -780,6 +784,7 @@ unsigned char strget(short x, short y, unsigned char input_shade, unsigned char 
     /* COMPILER_STEERED: keep separate byte locals for the editor's shade and length limit. */
     unsigned char shade = input_shade;
     unsigned char dalen = max_length;
+    short ink; /* COMPILER_STEERED: save the masked small-font shade in a word. */
     short i;
 
     for (i = 0; i < 128; i++)
@@ -827,7 +832,8 @@ unsigned char strget(short x, short y, unsigned char input_shade, unsigned char 
         }
 
     if (shade < 128) {
-        x = minitext(x, y, typemessage, shade & 127);
+        ink = shade & 127;
+        x = minitext(x, y, typemessage, ink);
         myos(x, y, 1023, shade, 0);
     } else {
         x = gametext(x, y, typemessage, shade & 127);
@@ -1166,10 +1172,12 @@ void scratchmarks(long x, long y, long n, unsigned char s)
 /* Choose rotation/animation frames for visible sprites. Duke Nukem 3D 1.5 keeps the name (Ken's analyzesprites). */
 void animatesprites(short daang)
 {
-    short i, j, k, sect;
+    short j, k, sect;
     long l;
 
     for (j = 0; j < spritesortcnt; j++) {
+        short i; /* COMPILER_STEERED: the sprite index belongs to this iteration. */
+
         i = thesprite[j];
         if ((sprite[i].xrepeat | sprite[i].yrepeat) == 0)
             continue;
@@ -1359,6 +1367,9 @@ void displayrooms(short snum)
 /* Local (non-synchronised) function keys and the debug warp screen. Duke Nukem 3D 1.5 keeps the name. */
 void nonsharedkeys(void)
 {
+    /* COMPILER_STEERED: read each ordinary and extended arrow before combining them. */
+    int normal_key, extended_key;
+
     if (keystatus[0x58]) {
         keystatus[0x58] = 0;
         screencapture();
@@ -1425,12 +1436,16 @@ void nonsharedkeys(void)
                 ps[0].volume--;
                 keystatus[0xd1] = 0;
             }
-            if (keystatus[0x48] | keystatus[0xc8]) {
+            normal_key = keystatus[0x48];
+            extended_key = keystatus[0xc8];
+            if (normal_key | extended_key) {
                 ps[0].level++;
                 keystatus[0x48] = 0;
                 keystatus[0xc8] = 0;
             }
-            if (keystatus[0x50] | keystatus[0xd0]) {
+            normal_key = keystatus[0x50];
+            extended_key = keystatus[0xd0];
+            if (normal_key | extended_key) {
                 ps[0].level--;
                 keystatus[0x50] = 0;
                 keystatus[0xd0] = 0;
@@ -1574,7 +1589,6 @@ void main(int argc, char **argv)
     short p, offset;
     unsigned char shade;
     short x, y;
-    short view; /* COMPILER_STEERED: take a fresh view index for each HUD call. */
 
     setvmode(3);
     puts(main_banner);
@@ -1671,12 +1685,13 @@ play:
             if (ps[screenpeek].newowner >= 0)
                 cameratext();
             else {
-                view = screenpeek;
-                displayweapon(view);
-                view = screenpeek;
-                displaystatus(view);
-                view = screenpeek;
-                operatefta(view);
+                /* COMPILER_STEERED: reuse the display index and reload it for each HUD call. */
+                i = screenpeek;
+                displayweapon(i);
+                i = screenpeek;
+                displaystatus(i);
+                i = screenpeek;
+                operatefta(i);
             }
             if (numplayers < 2) {
                 getinput(0);
@@ -1917,6 +1932,7 @@ void domovethings(void)
 void dobonus(void)
 {
     short i, start, shade;
+    short pulse; /* COMPILER_STEERED: capture the pulse before taking its low byte. */
     long pct;
 
     start = totalclock;
@@ -1924,7 +1940,8 @@ void dobonus(void)
     while (menu_drag == 0 &&
            (keystatus[0x1c] | keystatus[0x9c] | keystatus[0x39] | keystatus[1]) == 0 &&
            start + 2048 > totalclock) {
-        shade = (unsigned char)next_text_shade();
+        pulse = next_text_shade();
+        shade = (unsigned char)pulse;
         if (keystatus[0x39])
             start = totalclock - 2400;
         switch (ps[0].volume) {
@@ -1937,10 +1954,9 @@ void dobonus(void)
         }
         gametext(36, 160, bonus_press_space, shade);
         for (i = 0; i < ps[0].level; i++) {
-            short tile = 1133; /* COMPILER_STEERED: the completed-level marker is a word. */
+            short row = bonus_xy[ps[0].volume][i * 2 + 1];
 
-            overwritesprite(bonus_xy[ps[0].volume][i * 2], bonus_xy[ps[0].volume][i * 2 + 1],
-                            tile, shade, 0, 0);
+            overwritesprite(bonus_xy[ps[0].volume][i * 2], row, 1133, shade, 0, 0);
         }
         overwritesprite(bonus_xy[ps[0].volume][i * 2], bonus_xy[ps[0].volume][i * 2 + 1],
                         1134, shade, 0, 0);

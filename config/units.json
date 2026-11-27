@@ -2397,7 +2397,7 @@
      "status": "STRICT"
     },
     "gamenumber": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "LocateTheLocator": {
      "status": "STRICT"
