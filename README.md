@@ -44,10 +44,10 @@ size, so it can only grow by proving more of the original.
 | Part | Byte-identical (STRICT) | Functions | Bytes |
 |---|---|---:|---:|
 | Game code (GAME, PREMAP, SECTOR, PLAYER, ACTORS, SOUNDS, MENUES, GAMEDEF) | `█████████░░░░░░░░░░░░░░░░░░░░░`  29.4% | 113 / 143 | 62,500 / 212,556 |
-| Build engine (ENGINE.C + A.ASM) | `█████████████████░░░░░░░░░░░░░`  58.0% | 106 / 123 | 49,037 / 84,515 |
+| Build engine (ENGINE.C + A.ASM) | `██████████████████░░░░░░░░░░░░`  59.8% | 107 / 123 | 50,548 / 84,515 |
 | Multiplayer (MULTI.C) | `███████████████░░░░░░░░░░░░░░░`  50.1% | 20 / 25 | 4,328 / 8,645 |
 | Apogee Sound System | `██████████████████████████░░░░`  85.0% | 351 / 375 | 45,800 / 53,853 |
-| **Whole program (all non-library code)** | `█████████████░░░░░░░░░░░░░░░░░`  45.0% | 590 / 666 | 161,665 / 359,569 |
+| **Whole program (all non-library code)** | `██████████████░░░░░░░░░░░░░░░░`  45.4% | 591 / 666 | 163,176 / 359,569 |
 
 - Initialised data proven at its original address (CONST/_DATA): `███████░░░░░░░░░░░░░░░░░░░░░░░`  23.6% (10,630 of 45,056 file-backed bytes).
 - Uninitialised data (_BSS) whose layout is proven: 714,205 bytes.
@@ -55,13 +55,13 @@ size, so it can only grow by proving more of the original.
 - Identified library code, not counted as reconstruction: Watcom 9.5 C runtime (CLIB3R/MATH387R/EMU387) (35,080 bytes), Creative AWE32 + Gravis GF1 vendor objects (48,812 bytes).
 - Every compiled object of the program already has candidate source; the code object is 443,461 bytes in total.
 
-Code that does not match yet (76 functions, 197,130 bytes), by how much of each function's basic blocks already have the original's content (`tools/blockdiff.py`; a diagnostic, never counted as matched):
+Code that does not match yet (75 functions, 195,619 bytes), by how much of each function's basic blocks already have the original's content (`tools/blockdiff.py`; a diagnostic, never counted as matched):
 
-- statements missing or wrong: 140,807 bytes (71.4%)
-- nearly written: small block edits: 26,243 bytes (13.3%)
-- code written: order/registers left: 20,068 bytes (10.2%)
+- statements missing or wrong: 140,807 bytes (72.0%)
+- nearly written: small block edits: 26,243 bytes (13.4%)
+- code written: order/registers left: 18,557 bytes (9.5%)
 - code written: register/stack homes differ: 10,012 bytes (5.1%)
-- byte-weighted share of blocks already right: 70.3% exact, 91.9% counting near-identical blocks
+- byte-weighted share of blocks already right: 70.1% exact, 91.8% counting near-identical blocks
 
 <!-- progress:end -->
 

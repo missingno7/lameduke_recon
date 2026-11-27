@@ -183,7 +183,7 @@
      "status": "STRICT"
     },
     "screencapture": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "inside": {
      "status": "STRICT"

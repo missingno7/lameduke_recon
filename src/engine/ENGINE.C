@@ -2954,16 +2954,15 @@ screencapture()
 {
 	char *ptr, filename[13];
 	long ncol;
-	long fil, i, bufplc, p, col, count, leng, numbytes, xres, inverseit;
+	long fil, i, bufplc, p, col, leng, numbytes, xres, inverseit;
 
 	inverseit = (keystatus[0x2a]|keystatus[0x36]);
 	strcpy(filename,"captxxxx.pcx");
 
-	count = capturecount;
-	filename[4] = ((count/1000)%10)+48;
-	filename[5] = ((count/100)%10)+48;
-	filename[6] = ((count/10)%10)+48;
-	filename[7] = (count%10)+48;
+	filename[4] = ((capturecount/1000)%10)+48;
+	filename[5] = ((capturecount/100)%10)+48;
+	filename[6] = ((capturecount/10)%10)+48;
+	filename[7] = (capturecount%10)+48;
 	capturecount++;
 	if ((fil=open(filename,O_BINARY|O_CREAT|O_TRUNC|O_WRONLY,S_IWRITE))==-1)
 	{
@@ -3027,13 +3026,15 @@ screencapture()
 
 		if (qsetmode == 200)
 		{
+			/* COMPILER_STEERED: Both display modes may advance to the next byte. */
+			char *nextptr = ptr+1;
 			if (option[0] == 0)
 			{
 				koutp(0x3ce,4); koutp(0x3cf,p&3); col = *ptr;
-				p++; if ((p&3) == 0) ptr++;
+				p++; if ((p&3) == 0) ptr = nextptr;
 			}
 			else
-				{ col = *ptr; p++; ptr++; }
+				{ col = *ptr; p++; ptr = nextptr; }
 		}
 		else
 		{
@@ -3089,7 +3090,7 @@ screencapture()
 			enginetempbuf[bufplc++] = (leng|0xc0);
 			if (bufplc == 256)
 			{
-				if (write(fil,&enginetempbuf[0],bufplc) < bufplc)
+				if (write(fil,&enginetempbuf[0],256) < 256)
 					{ close(fil); capturecount--; return(-1); }
 				bufplc = 0;
 			}
@@ -3097,7 +3098,7 @@ screencapture()
 		enginetempbuf[bufplc++] = col;
 		if (bufplc == 256)
 		{
-			if (write(fil,&enginetempbuf[0],bufplc) < bufplc)
+			if (write(fil,&enginetempbuf[0],256) < 256)
 				{ close(fil); capturecount--; return(-1); }
 			bufplc = 0;
 		}
@@ -3106,7 +3107,7 @@ screencapture()
 	enginetempbuf[bufplc++] = 0xc;
 	if (bufplc == 256)
 	{
-		if (write(fil,&enginetempbuf[0],bufplc) < bufplc)
+		if (write(fil,&enginetempbuf[0],256) < 256)
 			{ close(fil); capturecount--; return(-1); }
 		bufplc = 0;
 	}
@@ -3119,7 +3120,7 @@ screencapture()
 			enginetempbuf[bufplc++] = (kinp(0x3c9)<<2);
 			if (bufplc == 256)
 			{
-				if (write(fil,&enginetempbuf[0],bufplc) < bufplc)
+				if (write(fil,&enginetempbuf[0],256) < 256)
 					{ close(fil); capturecount--; return(-1); }
 				bufplc = 0;
 			}
@@ -3129,21 +3130,13 @@ screencapture()
 	{
 		for(i=0;i<768;i++)
 		{
-			unsigned char entry;
 			if (i < 48)
-			{
-				entry = vgapal16[i]<<2;
-				bufplc++;
-			}
+				enginetempbuf[bufplc++] = vgapal16[i]<<2;
 			else
-			{
-				entry = 0;
-				bufplc++;
-			}
-			enginetempbuf[bufplc-1] = entry;
+				enginetempbuf[bufplc++] = 0;
 			if (bufplc == 256)
 			{
-				if (write(fil,&enginetempbuf[0],bufplc) < bufplc)
+				if (write(fil,&enginetempbuf[0],256) < 256)
 					{ close(fil); capturecount--; return(-1); }
 				bufplc = 0;
 			}
@@ -5205,7 +5198,8 @@ hitscan(long xs, long ys, long zs, short sectnum, long vx, long vy, long vz,
 	short *hitsect, short *hitwall, short *hitsprite, long *hitx, long *hity, long *hitz)
 {
 	short nextsector1, bad, point2;
-	long z, zz, xe, ye, ze, x1, y1, z1, x2, y2, z2, intz, inty, intx;
+	/* COMPILER_STEERED: Preserve the three ray endpoint stack slots. */
+	long z, zz, xe, ze, ye, x1, y1, z1, x2, y2, z2, intz, inty, intx;
 	long topu, bot, daxsiz, daysiz, dist, offx, offy, dx, dy, topt;
 	short tempshortcnt, tempshortnum, dasector, startwall, endwall;
 

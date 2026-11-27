@@ -1006,3 +1006,10 @@ Each entry names the command or artefact that supports it.
 - Method (from jng_recon islands/two-build, rayman CAUSES): isolate the cause in a reduced unit, then price the edit
   with a full-unit DOS build; count a gain only when a whole function reaches STRICT. Apparent trades so far were
   size cascades or wrong reconstructions — accepting them would have locked in mistakes.
+
+## Engine round (r12-engine, astra, 2026-11-27; build/workers/r12-engine/NOTES.md)
+- PROVEN screencapture STRICT (1,511 B): Ken's historical PCX write lengths and palette handling (donor: dated Build
+  sources) plus a scoped next-pixel pointer. hitscan 993 -> 991. ENGINE 87/103.
+- REJECTED the worker's grouvline variant: it needed a ksgn #pragma body found in NO historical PRAGMAS.H (every dated
+  copy, 1994-1995, uses add ebx,ebx / sbb eax,eax / cmp eax,ebx / adc), i.e. invented inline assembly; only the two
+  functions were transplanted onto the canonical ENGINE.C/PRAGMAS.H.
