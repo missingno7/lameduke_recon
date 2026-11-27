@@ -807,3 +807,8 @@ Each entry names the command or artefact that supports it.
   (gametext, getpackets, checkcommandline, cameratext; 2,608 B, DOS-confirmed); resetplayer stays at 133 bytes.
   Live: setview 9 -> 8 bytes; checkhitswitch 2, hitradius 4, scansector 7, comsend 5 unchanged. Usage:
   `python tools/permute/permute.py UNIT FUNC --cg95 --out DIR`.
+- permute v2 sweep (integrator, 2026-11-27; build/permute/sweep2/): 12 close game near misses, 200 trials each with
+  cg95 focus: only sync improved (1,310 -> 1,079 differing bytes; applied). For 9 of 12 the tool found NO applicable
+  edit (its parser/safety guards refuse most constructs of this game code; incl. operatefta at 4 bytes). Conclusion
+  (shared with the user): the permuter is a last-step helper; reasoning with the idiom index and quirks catalogue is
+  the main path.
