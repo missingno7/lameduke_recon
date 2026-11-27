@@ -679,3 +679,7 @@ Each entry names the command or artefact that supports it.
   offset raises the priority of both inlined master-switch conversions and selects the oracle's EAX; case 405 still
   selects EAX where the oracle uses ECX. checkhitwall unchanged at 78 bytes (two glass arms match in isolation;
   combined they shift neighbouring code).
+- GAMEDEF follow-up 2 (r6cx-gamedef-3): execute reaches the oracle size 7,424 (widened saved player index; byte diffs
+  5,067 -> 4,560; content .863 -> .815); parsecommand tests the final music index before incrementing (3,063 -> 3,049
+  bytes); parse unchanged (first register difference in the inlined ifrnd at 1:30900; cg95 cannot attribute it across
+  the indirect dispatch). NEGATIVE animation temporaries, parser pointer locals, fill loops.

@@ -207,7 +207,8 @@ void transnum(void)
 /* Compile one CON command into script[]. Returns 1 to end the enclosing loop (end, '}', EOF or too many errors). */
 char parsecommand(void)
 {
-    long i, j, k, *tempscrptr;
+    /* Compiler-steered: preserve the local allocation around the filename loops. */
+    long i, k, j, *tempscrptr;
     short tw, temp_line_number;
     int fp;
     char *origtptr, temp_ifelse_check, c;
@@ -341,8 +342,9 @@ char parsecommand(void)
         scriptptr--;
         transnum();
         k = *--scriptptr - 1;
+        /* Compiler-steered: test the final filename index before advancing it. */
         if (k >= 0) {
-            for (j = 0; j < 10; j++) {
+            for (j = 0; ; j++) {
                 i = keyword();
                 if (i != -1)
                     break;
@@ -359,11 +361,13 @@ char parsecommand(void)
                 }
                 textptr += i;
                 music_fn[k][j][i] = 0;
+                if (j > 8)
+                    break;
             }
             for (i = 9; i > j; i--)
                 strcpy(music_fn[k][i], music_fn[k][j]);
         } else {
-            for (j = 0; j < 10; j++) {
+            for (j = 0; ; j++) {
                 i = keyword();
                 if (i != -1)
                     break;
@@ -379,6 +383,8 @@ char parsecommand(void)
                     i++;
                 }
                 textptr += i;
+                if (j > 8)
+                    break;
             }
             for (i = 9; i > j; i--)
                 strcpy(env_music_fn[i], env_music_fn[j]);
@@ -1134,8 +1140,9 @@ return 0;
 /* Execute sprite i's actor script (from actorscrptr[picnum]+4) for one game tick. */
 void execute(short i, short p, long x)
 {
-    /* Compiler-steered: retain the widened index through actor setup. */
+    /* Compiler-steered: retain widened indices through setup and the inlined calls. */
     long index = i;
+    long player = p;
     long *actor = actorscrptr[sprite[index].picnum];
     if (!actor)
         return;
@@ -1157,11 +1164,11 @@ void execute(short i, short p, long x)
             hittype[index].actionframe = 0;
     }
 
-    while (!parse(i, p, x))
+    while (!parse(i, player, x))
         ;
     if (killit_flag) {
         deletesprite(i);
         return;
     }
-    move_actor(i, p, x);
+    move_actor(i, player, x);
 }
