@@ -1234,3 +1234,14 @@ Each entry names the command or artefact that supports it.
   3 blocks; page-address order, reusing tempx for the swap and array declaration order gave 6. First difference +0x0d.
 - rotatesprite: a control reproduces both ESP+38h stores and the asm2 reload but is 1,488 B with a 0x5c frame.
   No dated source for December's ksgn immediate pair. wallfront 79, raytrace 108 unchanged.
+
+## Unit rounds 2026-11-28 (progress branches)
+- GAME: moveeffectors case-3 wall-bound operand order (9,324 -> 9,260 B at exact extent). Packet-decoder census
+  (build/workers/u-game/round2/DECODER.md): five inline copies; staging the player index cuts sync's master shift
+  5 -> 2 B and gives sync 120/125 but drops main 302 -> 296 (shared decoder coupling). waitforeverybody 90/94 on a
+  branch with a long ready counter (+16 B extent).
+- PREMAP: spawn+prelevel scored as one problem (539/596 blocks) - no candidate beat canonical in 30 evaluations.
+  BLOCKING DECISION (cg95): the pass at compiler RVA 0x3f1b7 hoists the endwall reload into the second loop's
+  preheader in both copies; the oracle keeps EDI for coordinate arithmetic and reloads the bound at the latches
+  1:10ad3 / 1:13cbd. Changing the earlier lotag-23 wall-list cursor makes both copies use EDI and recovers both latches
+  (+15/-19 blocks). Open: which source form prevents the hoist without the losses (loop-invariant hoisting rule).

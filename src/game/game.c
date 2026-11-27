@@ -2456,7 +2456,7 @@ void moveeffectors(void)
                 t[0] = t[3];
             }
             sector[sect].floorshade = sector[sect].ceilingshade = t[0];
-            endwall = sector[sect].wallnum + sector[sect].wallptr;
+            endwall = sector[sect].wallptr + sector[sect].wallnum;
             for (x = (short)sector[sect].wallptr; x < endwall; x++)
                 if (!(wall[x].hitag & 1))
                     wall[x].shade = t[0];
