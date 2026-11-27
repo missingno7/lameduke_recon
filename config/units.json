@@ -2461,7 +2461,7 @@
      "status": "STRICT"
     },
     "render_mirror": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "resetplayer": {
      "status": "STRICT"

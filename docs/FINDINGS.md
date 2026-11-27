@@ -901,3 +901,6 @@ Each entry names the command or artefact that supports it.
 - checksectors prediction held locally (initiator/sector local reuse restores `mov edi,eax` at +0xc) but shortens it
   by 128 B and costs checkhitceiling's boundary proof (rejected). Next: operatesectors case 26 (first displaced
   destination one byte early).
+- PROVEN render_mirror STRICT (976 B, 50 references; r11-frames, astra): saving viewer y alongside viewer x before the
+  midpoint restores the oracle's 36-byte frame. PREMAP 10/12. GAMEDEF execute/parse and PLAYER processinput unchanged
+  this round (a PREMAP trial lowering spawn/prelevel byte counts dropped exact prelevel table targets 13 -> 3: rejected).

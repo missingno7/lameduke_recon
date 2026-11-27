@@ -772,18 +772,20 @@ void render_sprite_camera(short i)
 /* Draw the fake mirror: the view from wall w's midpoint toward the viewer, into MIRROR (570). */
 void render_mirror(short w)
 {
-    long x, y, z, x1, y1, x2, y2, player_x;
+    long x, y, z, x1, y1, x2, y2, player_x, player_y;
     short ang;
 
     x1 = wall[w].x;
     y1 = wall[w].y;
     x2 = wall[wall[w].point2].x;
     y2 = wall[wall[w].point2].y;
+    /* COMPILER_STEERED: capture both viewer coordinates before computing the midpoint. */
     player_x = ps[screenpeek].posx;
+    player_y = ps[screenpeek].posy;
     x = (x1 + x2) / 2;
     y = (y1 + y2) / 2;
     z = ps[screenpeek].posz;
-    ang = getangle(player_x - x, ps[screenpeek].posy - y);
+    ang = getangle(player_x - x, player_y - y);
     render_camera_tile(x, y, z, ang, wall[w].nextsector1, 570);
 }
 
