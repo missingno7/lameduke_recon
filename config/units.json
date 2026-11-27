@@ -780,7 +780,7 @@
      "status": "STRICT"
     },
     "DMA_ErrorString": {
-     "status": "CODE_BYTES_MATCH"
+     "status": "STRICT"
     },
     "DMA_VerifyChannel": {
      "status": "STRICT"
@@ -799,7 +799,8 @@
     }
    },
    "segments": {
-    "_DATA": "VERIFIED"
+    "_DATA": "VERIFIED",
+    "CONST": "VERIFIED"
    }
   },
   "ass_dpmi": {

@@ -540,3 +540,16 @@ Each entry names the command or artefact that supports it.
   to the function the relocations prove they belong to. tools/blockdiff.py follows the same extents.
 - Result: +7 STRICT whose code was already exact (draw_water_distortion, operateforcefields, activatewarpelevators,
   transnum, resetprestat, guts, FX_ErrorString); tables of NEAR owners now count against their owners.
+
+## Watcom 10.0 on the DOS host (assdos, Codex, 2026-11-27; build/workers/assdos/NOTES.md)
+- PROVEN Watcom 10.0 GA's DOS compiler is the BINB/wcc386.exe LX image run through BIN/w32run.exe (DOS/4GW
+  rejects it: DOSCALLS.234); it runs under the pinned DOSBox-X. tools/doshost.py now hosts wc100 too and
+  tools/wcc.py uses the DOS host for both wc95b and wc100 by default (LAMEDUKE_HOST=nt for fast exploration).
+- PROVEN with the guest paths recorded in Apogee's 1.04 objects (C:\PRG\AUDIO\source, C:\LN\WATCOM), DMA's
+  100-byte CONST verifies and DMA_ErrorString becomes STRICT (+88 B; ASS 351/375); no status regressed.
+- STRONG the remaining CONST padding in nine ASS pools is earlier include text in Watcom 10.0's reused source-read
+  buffer (MUSIC = ll_man.h at offset 2141, ADLIBFX = adlibfx.h, PCFX/SNDSRC = dpmi.h, BLASTER = _blaster.h,
+  PAS16 = _pas16.h), plus guest-memory reuse across compiler runs in one session (compile order changes GUSMIDI,
+  FX_MAN, GUSWAVE). OPEN: the 1994 header revisions, paths and make order that produced those bytes.
+- NEGATIVE memory size, TZ/TMP, header relocation, basenames, -zld, LF line endings, make order and reverse order:
+  no further CONST pool verified.

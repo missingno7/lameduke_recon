@@ -20,11 +20,14 @@
    "product": "WATCOM C/C++32 10.0 GA",
    "dir": "watcom-10.0",
    "wcc386": {
-    "nt": "BINNT/wcc386.exe"
+    "nt": "BINNT/wcc386.exe",
+    "dos": "BINB/wcc386.exe",
+    "dos_runtime": "BIN/w32run.exe"
    },
    "key_files": {
     "BINNT/wcc386.exe": "6c35809c0fb39a44305894010c6cc0ab2010953b8221a89b8a0978b16cd4104b",
     "BINB/wcc386.exe": "a4f4da1b8b2cd4e38b2b041975fc6b1d131255ae5eb575828b02f927fbf9bf65",
+    "BIN/w32run.exe": "d9028582ce7d2d7b0990d677e1947c10e0b0deaefb32d78319fbd2cea603cfcf",
     "LIB386/DOS/clib3r.lib": "6f250d0e791ba05c6857d57de1ac5e65b6a5db7cb390a7e8f48035e5a4bd4363"
    }
   },

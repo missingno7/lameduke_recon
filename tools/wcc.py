@@ -1,9 +1,9 @@
-"""Run a pinned Watcom compiler natively in an isolated environment.
+"""Run a pinned Watcom compiler in an isolated environment.
 
     python tools/wcc.py [--install wc95b] [--profile engine] [FLAGS...] SRC.c -fo=OUT.obj [-i=DIR ...]
 
-Key files of the install are hash-checked once per process. The environment is reduced to WATCOM, INCLUDE
-(install H/ plus explicit include dirs), PATH (install BINNT) and TMP/TEMP inside a private build/tmp directory.
+Key files of the install are hash-checked once per process. The native compiler runs with the install's
+environment and private staging. DOS compilation uses the isolated DOSBox-X runner in doshost.py.
 Adapted from rayman_recon/tools/wcc.py (GPLv2).
 """
 import os
@@ -38,8 +38,10 @@ def profile(name):
 def compile_c(src, out, flags, inst="wc95b", include=(), tool="wcc386"):
     """Compile src to out. include: extra include dirs searched before the install's H/.
 
-    wc95b compiles run on the canonical DOS host (tools/doshost.py, DOSBox-X) unless LAMEDUKE_HOST=nt."""
-    if inst == "wc95b" and tool == "wcc386" and os.environ.get("LAMEDUKE_HOST", "dos") == "dos":
+    wc95b and wc100 compiles run on the canonical DOS host (tools/doshost.py, DOSBox-X) unless LAMEDUKE_HOST=nt
+    (fast native host, same code; CONST padding residue can differ). wc100 DOS hosting: assdos worker 2026-11-27."""
+    use_dos = inst in ("wc95b", "wc100") and os.environ.get("LAMEDUKE_HOST", "dos") == "dos"
+    if tool == "wcc386" and use_dos:
         import doshost
         return doshost.compile_c(src, out, flags, inst, include)
     ent, base = install(inst)

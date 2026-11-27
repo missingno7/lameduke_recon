@@ -1,10 +1,12 @@
-"""Compile with the DOS-hosted Watcom 9.5b compiler (BIN/WCC386.EXE, bound Phar Lap extender) under DOSBox-X,
+"""Compile with the DOS-hosted Watcom compiler under DOSBox-X,
 one fresh emulator session per object. This is the canonical host for wc95b: it reproduces Ken's BUIL0422
 ENGINE.OBJ completely (code, data, all fixups, THEADR and dependency paths; only dependency timestamps differ) and
 gives environment-independent CONST padding, unlike the NT-hosted build (docs/FINDINGS.md). Written by the doshost
-worker 2026-11-26. Set LAMEDUKE_HOST=nt to use the fast NT-hosted compiler for exploration."""
+worker 2026-11-26. Watcom 10.0 uses the BINB LX image with W32RUN on the DOS PATH. The
+wc100 guest paths follow the Apogee 1.04 objects' dependency records and reproduce DMA's CONST.
+Set LAMEDUKE_HOST=nt to use the fast NT-hosted compiler for exploration."""
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import re
 import shutil
 import subprocess
@@ -21,6 +23,10 @@ import wcc  # noqa: E402
 COMPILER = 'BIN/WCC386.EXE'
 EXTENDER = 'BIN/DOS4GW.EXE'
 RUNNER = 'dosbox-x/dosbox-x.exe'
+DOS_LAYOUTS = {
+    'wc95b': (PureWindowsPath(r'C:\WATCOM'), PureWindowsPath('D:/')),
+    'wc100': (PureWindowsPath(r'C:\LN\WATCOM'), PureWindowsPath(r'C:\PRG\AUDIO\source')),
+}
 PINS = {
     COMPILER: '3fe098187af3ed4bccbf184b0f0d1a21a18cf976fe72c6178f19b8eea8b13e78',
     EXTENDER: 'b401506365892bd7bcb4362599279504a863f05bf37d323f732fd348bd1ef3c5',
@@ -51,9 +57,22 @@ def compile_staged(src, out, flags, inst, include, *, subdir='', mtime=wcc.STAGE
     src, out = Path(src).resolve(), Path(out).resolve()
     if not src.is_file():
         raise FileNotFoundError(src)
-    if inst != 'wc95b':
-        raise ValueError(f'DOS hosting is calibrated for wc95b only, got {inst}')
-    _, base = wcc.install(inst)
+    ent, base = wcc.install(inst)
+    if inst == 'wc95b':
+        compiler_rel = COMPILER
+        check_file(base / COMPILER, COMPILER)
+        launcher = EXTENDER if via_dos4gw else None
+        if launcher:
+            check_file(base / launcher, launcher)
+        runtime = ()
+    elif inst == 'wc100':
+        compiler_rel = ent['wcc386']['dos']
+        if via_dos4gw:
+            raise ValueError('The wc100 LX image requires W32RUN')
+        launcher = None
+        runtime = (ent['wcc386']['dos_runtime'],)
+    else:
+        raise ValueError(f'No DOS host configuration for {inst}')
     runner = (TOOLS_DIR / RUNNER).resolve()
     check_file(runner, RUNNER)
 
@@ -66,42 +85,49 @@ def compile_staged(src, out, flags, inst, include, *, subdir='', mtime=wcc.STAGE
     if subdir and not re.fullmatch(r'[A-Za-z0-9_]{1,8}', subdir):
         raise ValueError(f'expected a DOS stage directory name, got {subdir}')
 
+    guest_home, guest_source = DOS_LAYOUTS[inst]
+    guest_source /= subdir
     out.unlink(missing_ok=True)
     WORKER.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='dos-', dir=WORKER) as scratch:
         root = Path(scratch)
         drive_c, drive_d = root / 'c', root / 'd'
-        watcom = drive_c / 'watcom'
-        (watcom / 'BIN').mkdir(parents=True)
+        watcom = drive_c.joinpath(*guest_home.parts[1:])
         shutil.copytree(base / 'H', watcom / 'H')  # copy2 preserves dependency mtimes
-        check_file(base / COMPILER, COMPILER)
-        shutil.copy2(base / COMPILER, watcom / COMPILER)
-        if via_dos4gw:
-            check_file(base / EXTENDER, EXTENDER)
-            shutil.copy2(base / EXTENDER, watcom / EXTENDER)
-        source_dir = drive_d / subdir
+        executable_files = (compiler_rel, *runtime)
+        if launcher:
+            executable_files += (launcher,)
+        for rel in executable_files:
+            dest = watcom / rel
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(base / rel, dest)
+        source_drive = drive_c if guest_source.drive == 'C:' else drive_d
+        source_dir = source_drive.joinpath(*guest_source.parts[1:])
         source_dir.mkdir(parents=True)
-        (drive_d / 'tmp').mkdir()
+        (drive_d / 'tmp').mkdir(parents=True)
         stage_sources(source_dir, src, include, mtime)
 
-        compiler = r'C:\WATCOM\BIN\WCC386.EXE'
-        if via_dos4gw:
-            compiler = r'C:\WATCOM\BIN\DOS4GW.EXE ' + compiler
+        compiler = str(guest_home / compiler_rel.upper())
+        if launcher:
+            compiler = f'{guest_home / launcher.upper()} {compiler}'
         line = ' '.join([compiler, src.name.lower(), *flags, r'-fo=D:\OUT.OBJ'])
         if len(line) > 126:
             raise ValueError('DOS command line exceeds 126 characters')
         commands = [
-            '@echo off', r'set INCLUDE=c:\watcom\h', r'set WATCOM=C:\WATCOM',
-            r'set PATH=C:\WATCOM\BIN', r'set TMP=D:\TMP', r'set TEMP=D:\TMP',
+            '@echo off', f'set INCLUDE={str(guest_home / "H").lower()}', f'set WATCOM={guest_home}',
+            f'set PATH={guest_home / "BIN"}', r'set TMP=D:\TMP', r'set TEMP=D:\TMP',
             'set TZ=UTC0',
         ]
-        if subdir:
+        if guest_source.drive == 'C:':
+            commands.extend(['c:', f'cd {guest_source}'])
+        elif subdir:
             commands.append(f'cd {subdir}')
         commands += [line + r' > D:\BUILD.LOG', 'if errorlevel 1 goto fail',
                      r'echo ok > D:\DONE.TXT', 'goto end', ':fail',
                      r'echo failed > D:\DONE.TXT', ':end']
         (drive_d / 'run.bat').write_bytes(('\r\n'.join(commands) + '\r\n').encode('ascii'))
         conf = root / 'dosbox.conf'
+        c_mount_option = '' if source_drive == drive_c else ' -ro'
         conf.write_text(f'''[sdl]
 showmenu=false
 [dosbox]
@@ -116,7 +142,7 @@ automountall=false
 lfn=true
 [autoexec]
 @echo off
-mount c "{drive_c}" -ro
+mount c "{drive_c}"{c_mount_option}
 mount d "{drive_d}"
 d:
 call run.bat
@@ -145,5 +171,5 @@ exit
 
 
 def compile_c(src, out, flags, inst='wc95b', include=()):
-    """Build a 9.5b C unit and return (returncode, diagnostic text), as in wcc.py."""
+    """Build a DOS-hosted C unit and return (returncode, diagnostic text), as in wcc.py."""
     return compile_staged(src, out, flags, inst, include)
