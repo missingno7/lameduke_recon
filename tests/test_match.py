@@ -164,5 +164,57 @@ class ObjectEndControls(unittest.TestCase):
         self.assertFalse(match.object_end_confirmed(self.img, 1, 0x5eb70, cand[:-10]))
 
 
+GAME = ROOT / "build/verify/game_game.obj"
+
+
+@unittest.skipUnless(GAME.exists() and (ROOT / "assets/D3D.EXE").exists(), "needs a built game_game.obj and assets/")
+class JumpTableControls(unittest.TestCase):
+    """draw_water_distortion (1:03f50) ends with displayrooms' two switch tables plus alignment padding; its own
+    code ends at the table start and the tables are verified with displayrooms."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.img = Image()
+        cls.mod = omf.load(GAME)[0]
+
+    def results(self, mod, moved=None):
+        match.Bindings._cache.clear()
+        if moved:          # a modified copy of the canonical registry (overlays may not contradict it)
+            sym = json.load(open(ROOT / "config/symbols.json", encoding="utf-8"))
+            for name, addr in moved.items():
+                sym["d3d"]["functions"][name]["addr"] = addr
+            with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+                json.dump(sym, f)
+            match.Bindings.registries = [Path(f.name), ROOT / "config/library_symbols.json"]
+        try:
+            return {r["function"]: r for r in match.verify_object(self.img, mod, {"draw_water_distortion",
+                                                                                 "displayrooms"})}
+        finally:
+            match.Bindings.registries = None
+            match.Bindings._cache.clear()
+
+    def test_table_attribution_positive(self):
+        r = self.results(self.mod)
+        w = r["draw_water_distortion"]
+        self.assertEqual(w["status"], "STRICT", w)
+        self.assertGreater(w["trailing_table_of_next"], 8)
+        self.assertEqual(r["displayrooms"]["leading_table"], w["trailing_table_of_next"])
+
+    def test_table_not_attributed_without_entries(self):
+        # remove the table relocations: no run of fixups -> the span is not shortened and cannot verify
+        mod = copy.deepcopy(self.mod)
+        pubs = {n: (s, o) for n, s, o, _ in mod.publics}
+        s, o = pubs["displayrooms_"]
+        mod.fixups = [f for f in mod.fixups if not (f.seg == s and o - 0x50 <= f.off < o)]
+        r = self.results(mod)
+        self.assertNotIn("trailing_table_of_next", r["draw_water_distortion"])
+        self.assertNotEqual(r["draw_water_distortion"]["status"], "STRICT")
+
+    def test_table_end_needs_oracle_boundary(self):
+        # binding displayrooms elsewhere breaks the oracle confirmation of the table boundary
+        r = self.results(self.mod, {"displayrooms": "1:04060"})
+        self.assertNotEqual(r["draw_water_distortion"]["status"], "STRICT")
+
+
 if __name__ == "__main__":
     unittest.main()

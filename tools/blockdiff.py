@@ -313,14 +313,17 @@ class Analyzer:
             starts.update(a[1] for a in table.values() if a[0] == 1)
         self.starts = sorted(starts)
 
-    def oracle_extent(self, addr, cand_size, last):
+    def oracle_extent(self, addr, cand_size, last, lead=0, table_end=False):
         """Oracle bytes of the function at addr: up to the candidate's end when that end is a confirmed boundary
-        (STRICT extents), else up to the next bound function start; for a module's last public also up to the next
-        funcmap start (the following module may be unbound library code)."""
+        (STRICT extents, or an extent that ends at the next function's jump table, per tools/match.py), else up to
+        the next bound function start; for a module's last public also up to the next funcmap start (the following
+        module may be unbound library code). lead = bytes of this function's own jump tables before its label."""
         cend = addr + cand_size
-        i = bisect.bisect_right(self.starts, addr)
+        i = bisect.bisect_right(self.starts, addr + lead)
         end = self.starts[i] if i < len(self.starts) else len(self.img.obj[1])
-        if cend <= end and (self.img.is_boundary(1, cend, self.binds) or
+        if table_end and cend <= end:
+            end = cend
+        elif cend <= end and (self.img.is_boundary(1, cend, self.binds) or
                             match.object_end_confirmed(self.img, 1, cend, self.img.obj[1][addr:cend], self.binds)):
             end = cend
         elif last and Image._starts is not None:
@@ -375,9 +378,10 @@ class Analyzer:
                 continue
             si = si_by_name[r["segment"]]
             seg = mod.segments[si]
-            o0, size = r["seg_offset"], r["size"]
+            lead = r.get("leading_table", 0)          # switch tables before the label belong to this function
+            o0, size = r["seg_offset"] - lead, r["size"]
             code = bytes(seg.data[o0:o0 + size])
-            addr = int(r["oracle"].split(":")[1], 16)
+            addr = int(r["oracle"].split(":")[1], 16) - lead
             own = dict(code_bases)
             own[si] = (1, addr - o0)          # this function's placement fixes its own segment's base (as match.py)
             relocs = {}
@@ -437,7 +441,7 @@ class Analyzer:
                     return None
                 return self.refs.token(1, _addr + t)
             last = all(oo <= o0 for oo in pubs.get(si, {}))
-            orig, confirmed = self.oracle_extent(addr, size, last)
+            orig, confirmed = self.oracle_extent(addr, size, last, lead, "trailing_table_of_next" in r)
             if not confirmed:
                 code = trim_zero_tail(code)
             orel, obr = self.oracle_side(addr, orig)

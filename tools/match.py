@@ -65,6 +65,49 @@ def object_end_confirmed(img, obj, oend, cand, binds=None):
     return False
 
 
+def jump_table_tail(mod, si, seg, pubs, k):
+    """(table_start, entry_sites) when the span of public k ends with a jump table of public k+1: a run of >= 2
+    absolute 4-byte fixups into this segment whose targets all lie inside public k+1's span, followed only by
+    < 16 bytes without fixups (alignment before k+1's label). Else None."""
+    if k + 1 >= len(pubs):
+        return None
+    start, end = pubs[k][0], pubs[k + 1][0]
+    nend = pubs[k + 2][0] if k + 2 < len(pubs) else seg.size
+    entries, covered = {}, set()
+    for f in mod.fixups:
+        if f.seg != si:
+            continue
+        covered.update(range(f.off, f.off + f.size()))
+        if not f.self_rel and f.size() == 4 and f.kind() in ("off32", "off32l") and (f.target[0] & 3) == 0 \
+                and f.target[1] == si:
+            entries[f.off] = f.disp + struct.unpack_from("<i", seg.data, f.off)[0]
+    for pad in range(16):
+        t = end - pad
+        if any(p in covered for p in range(t, end)):
+            break
+        sites = []
+        while t - 4 >= start and (t - 4) in entries and end <= entries[t - 4] < nend:
+            t -= 4
+            sites.append(t)
+        if len(sites) >= 2:
+            return t, sorted(sites)
+    return None
+
+
+def oracle_table_confirmed(img, pobj, oend, tail, vend, end_pub, nxt_bound, next_size):
+    """The oracle confirms a trailing jump table: the next public is bound exactly after the table (and its
+    padding), and every table entry is an oracle fixup into the next function's span."""
+    t, sites = tail
+    if nxt_bound != (pobj, oend + (end_pub - vend)):
+        return False
+    lo, hi = nxt_bound[1], nxt_bound[1] + next_size
+    for s in sites:
+        ofx = img.fixups.get((pobj, oend + (s - t)))
+        if not ofx or ofx[1] != pobj or not lo <= (ofx[2] & 0xFFFFFFFF) < hi:
+            return False
+    return True
+
+
 def data_covered(seg, a=0, b=None):
     """True when [a, b) of a data segment is defined: emitted bytes, or holes the linker zero-fills."""
     b = seg.size if b is None else b
@@ -444,13 +487,29 @@ def verify_object(img, mod, only=None, seg_report=None):
                 seg_votes.setdefault(si, set()).add((a[0], a[1] - o))
         if len(seg_votes.get(si, ())) == 1:
             seg_base[si] = next(iter(seg_votes[si]))
+        tails = [jump_table_tail(mod, si, seg, pubs, k) for k in range(len(pubs))]
         for k, (o, n) in enumerate(pubs):
             name = demangle(n)
             if only and name not in only and n not in only:
                 continue
             end = pubs[k + 1][0] if k + 1 < len(pubs) else seg.size
-            res = {"function": name, "symbol": n, "segment": seg.name, "seg_offset": o, "size": end - o,
+            # Jump-table attribution (2026-11-27): Watcom 9.5 emits a function's switch tables (and the alignment
+            # padding after them) just before its entry label, i.e. inside the previous public's span. Such a
+            # trailing table is verified as part of the function that owns it; this function's own extent ends
+            # at the table start, which counts as a boundary only when the oracle has the same relocated table.
+            o_pub, end_pub = o, end
+            own_tail = tails[k]
+            prev_tail = tails[k - 1] if k > 0 else None
+            if prev_tail:
+                o = prev_tail[0]
+            if own_tail:
+                end = own_tail[0]
+            res = {"function": name, "symbol": n, "segment": seg.name, "seg_offset": o_pub, "size": end - o,
                    "status": None, "problems": [], "unverified": [], "references": []}
+            if o != o_pub:
+                res["leading_table"] = o_pub - o
+            if own_tail:
+                res["trailing_table_of_next"] = end_pub - end
             results.append(res)
             place, _ = binds.lookup(n)
             if not place:
@@ -463,8 +522,9 @@ def verify_object(img, mod, only=None, seg_report=None):
                                 ", ".join(f"{a}:{b:05x}" for a, b in sorted(votes)))
             pobj, paddr = place
             # this function's own placement fixes its segment's base for its own intra-segment references
-            seg_base[si] = (pobj, paddr - o)
+            seg_base[si] = (pobj, paddr - o_pub)
             res["oracle"] = f"{pobj}:{paddr:05x}"
+            paddr -= o_pub - o                      # oracle address of the verified extent's first byte
             cand = bytes(seg.data[o:end])
             orig = img.obj[pobj][paddr:paddr + len(cand)]
             if bytes(seg.covered[o:end]) != b"\x01" * len(cand):
@@ -585,7 +645,13 @@ def verify_object(img, mod, only=None, seg_report=None):
             nxt_bound = binds.lookup(pubs[k + 1][1])[0] if k + 1 < len(pubs) else None
             object_end_ok = k + 1 >= len(pubs) and end == seg.size and \
                 object_end_confirmed(img, pobj, oend, cand, binds)
-            if not (nxt_bound == (pobj, oend) or img.is_boundary(pobj, oend, binds) or object_end_ok):
+            table_end_ok = bool(own_tail) and nxt_bound is not None and \
+                oracle_table_confirmed(img, pobj, oend, own_tail, end, end_pub, nxt_bound,
+                                       (pubs[k + 2][0] if k + 2 < len(pubs) else seg.size) - end_pub)
+            # a table-shortened extent ends only by the oracle's table confirmation: a funcmap "start" there may be
+            # the table itself (code-referenced data), so the generic boundary sources do not apply to it
+            generic_ok = nxt_bound == (pobj, oend) or img.is_boundary(pobj, oend, binds) or object_end_ok
+            if not (table_end_ok if own_tail else generic_ok):
                 res["unverified"].append(f"extent end {pobj}:{oend:05x} is not a confirmed function boundary")
             if diffs or res["problems"]:
                 res["status"] = "NEAR_MATCH"

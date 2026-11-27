@@ -519,3 +519,24 @@ Each entry names the command or artefact that supports it.
   July-1994 BUIL0719 evidence for hitscan's sprite deltas and height: content 0.727 -> 0.765. overwritesprite and
   raytrace fewer differing bytes. Four edits marked COMPILER_STEERED in ENGINE.C.
 - NEGATIVE draw2dscreen and rotatesprite donor-guided trials changed extents and regressed STRICT neighbours.
+- NEGATIVE setview allocator pass (engfix5 follow-up): cg95 scores the stride temporary 6 for EAX vs 4 for EDX
+  (oracle uses EDX); reusing `j` fixes the six stride bytes but adds nine in the span; restoring the viewoffset
+  store before the xdimen load adds other encoding differences. 454 full-unit builds over declaration order, use
+  counts, statement order and address-taking: no net gain (still 9 bytes). build/workers/engfix5/sv/NOTES.md.
+
+## Jump-table attribution in the verifier (2026-11-27)
+- PROVEN Watcom 9.5 (and 10.0 in the ASS units) emits a function's switch tables, followed by alignment padding,
+  immediately BEFORE the function's entry label, i.e. inside the previous public's span. 36 such tables exist
+  in the candidate objects (`jump_table_tail` census), 9 of them at the end of non-STRICT functions whose own code
+  was already exact (draw_water_distortion, operateforcefields, activatewarpelevators, checkhitceiling, transnum,
+  draw_and_probe, FX_ErrorString/FX_SetupCard, GUSWAVE_AllocVoice, MUSIC_ErrorString).
+- tools/match.py now verifies such a table as part of the function that owns it: a run of >= 2 absolute 4-byte
+  fixups into the same segment whose targets all lie in the next public's span, followed only by < 16 bytes
+  without fixups. The shortened extent's end is accepted ONLY when the oracle confirms the table (next public
+  bound exactly after it; every entry an oracle fixup into the next function's span); the generic boundary
+  sources do not apply there, because a funcmap "start" can be the table itself. The table bytes are compared as
+  the owner's leading bytes. Controls: tests/test_match.py::JumpTableControls (positive draw_water_distortion;
+  negatives: table relocations removed, owner bound elsewhere). No check was removed; extents only move bytes
+  to the function the relocations prove they belong to. tools/blockdiff.py follows the same extents.
+- Result: +7 STRICT whose code was already exact (draw_water_distortion, operateforcefields, activatewarpelevators,
+  transnum, resetprestat, guts, FX_ErrorString); tables of NEAR owners now count against their owners.
