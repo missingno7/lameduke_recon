@@ -778,3 +778,13 @@ Each entry names the command or artefact that supports it.
 - Conclusion: the current transform set (declaration order, temporaries, commutative operands, independent
   statements, loop forms) does not reach the remaining ties; they need new transform kinds (scope/lifetime changes,
   type widths, expression shape) guided by the cg95 trace.
+
+## Watcom 10.0 CONST residue solver (residue, Codex, 2026-11-27; build/workers/residue/NOTES.md) — sound library
+- STRONG source-read buffer model: residue text sits at buffer offset 4096 x chunk + 2153 - round_up_4(full DOS source
+  path length); it predicted all seven held-out offsets. With C:\PRG\AUDIO\source + C:\LN\WATCOM, compiling BLASTOLD
+  immediately before MUSIC reproduces 12 of MUSIC's residue bytes and BLASTOLD before FX_MAN reproduces four (MUSIC
+  with the 1.04 include order). The dated libraries show the dpmi.h pattern 24 bytes earlier than the oracle.
+- NEGATIVE no further pool verified (differences 70 -> 45 at best: ADLIBFX 7, BLASTOLD 4, FX_MAN 2, GUSMIDI 3,
+  GUSWAVE 7, MUSIC 2, PAS16 6, PCFX 5, SNDSRC 9); WMAKE, full/reverse make order, predecessor searches and historical
+  header swaps tried. The 14 dependent ASS functions stay CODE_BYTES_MATCH (exact code). Sound-library work is
+  deprioritised (user, 2026-11-27): the game units carry the historical interest.
