@@ -272,7 +272,9 @@ long draw_and_probe(struct menu m, unsigned char shade)
 
 long lavadropsiz[16];
 
-/* Run the current menu page for one frame (pages 0,1,2,10,20,30,40,50,60,100). */
+/* Run the current menu page for one frame (pages 0,1,2,10,20,30,40,50,60,100).
+   Each page ends with its own update_menu_cursor(614) call: the oracle keeps identical choice bodies of
+   different pages apart (no cross-jumping), which one shared call after the switch does not reproduce. */
 void menus(void)
 {
     long choice;
@@ -309,6 +311,7 @@ init_cursor:
         case 6: ps[myconnectindex].gm = MODE_DEMO | MODE_GAME; break;
         case 7: current_menu = 60; break;
         }
+        update_menu_cursor(614);
         break;
 
     case 1:
@@ -321,6 +324,7 @@ init_cursor:
         case 3: ps[0].volume = 2; current_menu = 2; break;
         case 4: ps[0].volume = 3; current_menu = 2; break;
         }
+        update_menu_cursor(614);
         break;
 
     case 2:
@@ -349,6 +353,7 @@ init_cursor:
             enterlevel(MODE_GAME);
             break;
         }
+        update_menu_cursor(614);
         break;
 
     case 10:
@@ -365,6 +370,7 @@ init_cursor:
         case 7: loadplayer(6); break;
         case 8: loadplayer(7); break;
         }
+        update_menu_cursor(614);
         break;
 
     case 20:
@@ -377,6 +383,7 @@ init_cursor:
         {
         case -2: case -1: case 1: current_menu = 0; break;
         }
+        update_menu_cursor(614);
         break;
 
     case 30:
@@ -390,6 +397,7 @@ init_cursor:
         {
         case -2: case -1: case 5: current_menu = 0; break;
         }
+        update_menu_cursor(614);
         break;
 
     case 40:
@@ -398,6 +406,7 @@ init_cursor:
         {
         case -2: case -1: case 1: current_menu = 0; break;
         }
+        update_menu_cursor(614);
         break;
 
     case 50:
@@ -414,6 +423,7 @@ init_cursor:
         case 7: saveplayer(6); current_menu = 0; break;
         case 8: saveplayer(7); current_menu = 0; break;
         }
+        update_menu_cursor(614);
         break;
 
     case 60:
@@ -440,13 +450,12 @@ init_cursor:
         case 5: current_menu = 30; break;
         case 6: ps[myconnectindex].gm = MODE_DEMO; break;
         }
+        update_menu_cursor(614);
         break;
 
     default:
         return;
     }
-
-    update_menu_cursor(614);
 }
 
 /* Draw the spinning PAUSE sign (tile 1139) while the game is paused. */

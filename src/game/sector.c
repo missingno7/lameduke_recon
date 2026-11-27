@@ -843,17 +843,23 @@ void checkhitswitch(long w)
         operatemasterswitches(lotag);
         break;
     case 405:
-        for (i = headspritestat[STAT_EFFECTOR]; i >= 0; i = nextspritestat[i])
+        i = headspritestat[STAT_EFFECTOR];
+        while (i >= 0) {
             if (sprite[i].lotag == 12 && sprite[i].hitag == wall[w].lotag)
                 hittype[i][0] = 2;
+            i = nextspritestat[i];
+        }
         xyzsound(25, -1, wall[w].x, wall[w].y, 0);
         operateactivators(lotag);
         operateforcefields(lotag);
         break;
     case 406:
-        for (i = headspritestat[STAT_EFFECTOR]; i >= 0; i = nextspritestat[i])
+        i = headspritestat[STAT_EFFECTOR];
+        while (i >= 0) {
             if (sprite[i].lotag == 12 && sprite[i].hitag == wall[w].lotag)
                 hittype[i][0] = 1;
+            i = nextspritestat[i];
+        }
         xyzsound(25, -1, wall[w].x, wall[w].y, 0);
         operateactivators(lotag);
         operateforcefields(lotag);

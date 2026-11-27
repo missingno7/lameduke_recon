@@ -579,3 +579,22 @@ Each entry names the command or artefact that supports it.
   `hudpulse += 128` helps update_menu_cursor/dobonus but costs cameratext/main.
 - NEGATIVE ~870 gametext variants (local names have no effect), update_menu_cursor shade forms, lotsofglass/EGS
   store orders, displayrooms ang/look_ang operand swap (identical code), main declaration-order search (timed out).
+
+## Other game units round 4 (r4units, 2026-11-27; build/workers/r4units/NOTES.md, integrated)
+- PROVEN (mini test) Watcom 9.5 merges an identical block into one that falls through to the same join point, but
+  does not merge two identical blocks when neither falls through. So the oracle's separate copies of identical
+  bodies mean each ends in its own jump: menus pages each end with their own `update_menu_cursor(614); break;`
+  (content .945 -> .962, layout 1.000; size 5232 vs oracle 5216).
+- moveexplosions: prologue order (nexti, sect, `t = hittype[i]`, findplayer), final `else if (++t[0] == 2)
+  deletesprite(i); else ...` restoring the oracle's 10 separate deletesprite calls, `if (xvel > 0)` first in
+  1201-1205, split WATERSPLASH deletes, `yrepeat = xrepeat = v`, if/else for ternaries, else-if debris chain,
+  SHELL `hittype[i][1]`, gib `t[2]`/`t[4]`: content .475 -> .677, fuzzy .945, skeleton .998.
+- movestandables: loop-level `t` with `t[n]` and `ps[p].field` (no pointer): content .579 -> .729, skeleton 1.000.
+- checkhitswitch case 405/406 sprite loops top-tested `while` (standalone identical; the inlined copy in
+  checksectors gains the oracle's shape: checksectors layout .952 -> .976).
+- Not adopted (loses a STRICT function): `unsigned char s` in menutext + new menus makes draw_and_probe STRICT
+  (+896 B) but menutext NEAR (-352 B; start_x/ac stack-home swap unresolved after 300+ variants).
+- NEGATIVE spritesound, movefta, newgame, checkhitceiling store orders, checkhitwall, 26 checkhitswitch wall-toggle
+  forms, old-style prototypes in sector.h (no code change), moveweapons/render_mirror forms, for->while over all
+  loops; moveactors `t`/`ps[p]` raises content to .58 but shrinks it so that guts' table target moves (reverted).
+- Next lead: apply the identical-block rule to processinput (-184 B), checksectors (-224 B), prelevel (-32 B).

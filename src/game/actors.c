@@ -1067,12 +1067,13 @@ void moveexplosions(void)
     short i, nexti;
 
     for (i = headspritestat[STAT_MISC]; i >= 0; i = nexti) {
-        long *t = hittype[i], x;
+        long *t, x;
         short sect, p;
 
         nexti = nextspritestat[i];
-        p = findplayer(i, &x);
         sect = sprite[i].sectnum;
+        t = hittype[i];
+        p = findplayer(i, &x);
         switch (sprite[i].picnum) {
         case WATERBUBBLE:
             sprite[i].ang = krand() & 2047;
@@ -1101,22 +1102,27 @@ void moveexplosions(void)
                     if (sprite[i].xvel > 0)
                         sprite[i].xvel = 0;
                 }
-            } else if (t[1]) {
+            } else if (hittype[i][1]) {
                 deletesprite(i);
             } else {
                 sprite[i].xvel = (short)-sprite[i].xvel;
                 sprite[i].zvel = (short)-sprite[i].zvel;
-                t[1] = 1;
+                hittype[i][1] = 1;
             }
             continue;
         }
         if (sprite[i].picnum == WATERSPLASH) {
-            if ((sector[sect].lotag & 0x7FFF) != 1 || (t[0] += 128) > 2047) {
+            if ((sector[sect].lotag & 0x7FFF) != 1) {
+                deletesprite(i);
+                continue;
+            }
+            t[0] += 128;
+            if (t[0] > 2047) {
                 deletesprite(i);
                 continue;
             }
             sprite[i].cstat ^= 4;
-            sprite[i].xrepeat = sprite[i].yrepeat = (unsigned char)((sintable[t[0]] >> 11) + 8);
+            sprite[i].yrepeat = sprite[i].xrepeat = (unsigned char)((sintable[t[0]] >> 11) + 8);
         }
         if (sprite[i].picnum >= 970 && sprite[i].picnum <= 973) {
             FALL(&sprite[i]);
@@ -1134,11 +1140,7 @@ void moveexplosions(void)
         }
         if (sprite[i].picnum >= 1201 && sprite[i].picnum <= 1205) {
             FALL(&sprite[i]);
-            if (sprite[i].xvel <= 0) {
-                sprite[i].xvel = 0;
-                if ((krand() >> 8) >= 127)
-                    sprite[i].cstat ^= 0x80;
-            } else {
+            if (sprite[i].xvel > 0) {
                 if (sprite[i].zvel > 512) {
                     if (sprite[i].picnum == 1204)
                         sprite[i].picnum = 1202;
@@ -1150,6 +1152,10 @@ void moveexplosions(void)
                 sprite[i].xvel -= 6;
                 if ((krand() >> 8) >= 191)
                     spawn(i, 686);
+            } else {
+                sprite[i].xvel = 0;
+                if ((krand() >> 8) >= 127)
+                    sprite[i].cstat ^= 0x80;
             }
             if (MOVE_ALONG(i, sprite[i].zvel, 0) && sector[sect].floorz - 1024 < sprite[i].z) {
                 sprite[i].zvel = (short)-sprite[i].zvel;
@@ -1161,9 +1167,9 @@ void moveexplosions(void)
             }
         }
         if (sprite[i].picnum >= 870 && sprite[i].picnum <= 873) {
-            if (hittype[i][2]) {
-                if (hittype[i][4] < 256)
-                    hittype[i][4]++;
+            if (t[2]) {
+                if (t[4] < 256)
+                    t[4]++;
                 else if (x > 4096)
                     deletesprite(i);
                 continue;
@@ -1173,8 +1179,11 @@ void moveexplosions(void)
                 sprite[i].picnum++;
             if (sprite[i].picnum == HEADPIECE)
                 sprite[i].picnum = ARMPIECE;
-            sprite[i].xvel = sprite[i].xvel > 0 ? (short)(sprite[i].xvel - 1) : 0;
-            sprite[i].zvel = (short)(sprite[i].zvel + 192);
+            if (sprite[i].xvel > 0)
+                sprite[i].xvel--;
+            else
+                sprite[i].xvel = 0;
+            sprite[i].zvel += 192;
             if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
                 t[1]++;
                 sprite[i].zvel = (short)-sprite[i].zvel;
@@ -1187,14 +1196,14 @@ void moveexplosions(void)
             if (sprite[i].z + 2048 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 871;
                 sprite[i].z = sector[sect].floorz - 512;
-                hittype[i][2] = 1;
+                t[2] = 1;
                 sprite[i].cstat |= krand() & 4;
             }
         }
         if (sprite[i].picnum >= 874 && sprite[i].picnum <= 877) {
-            if (hittype[i][2]) {
-                if (hittype[i][4] < 256)
-                    hittype[i][4]++;
+            if (t[2]) {
+                if (t[4] < 256)
+                    t[4]++;
                 else if (x > 4096)
                     deletesprite(i);
                 continue;
@@ -1204,8 +1213,11 @@ void moveexplosions(void)
                 sprite[i].picnum++;
             if (sprite[i].picnum == LEGPIECE)
                 sprite[i].picnum = HEADPIECE;
-            sprite[i].xvel = sprite[i].xvel > 0 ? (short)(sprite[i].xvel - 1) : 0;
-            sprite[i].zvel = (short)(sprite[i].zvel + 128);
+            if (sprite[i].xvel > 0)
+                sprite[i].xvel--;
+            else
+                sprite[i].xvel = 0;
+            sprite[i].zvel += 128;
             if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
                 t[1]++;
                 sprite[i].zvel = (short)-sprite[i].zvel;
@@ -1218,14 +1230,14 @@ void moveexplosions(void)
             if (sprite[i].z + 2048 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 875;
                 sprite[i].z = sector[sect].floorz - 512;
-                hittype[i][2] = 1;
+                t[2] = 1;
                 sprite[i].cstat |= krand() & 4;
             }
         }
         if (sprite[i].picnum >= 878 && sprite[i].picnum <= 881) {
-            if (hittype[i][2]) {
-                if (hittype[i][4] < 256)
-                    hittype[i][4]++;
+            if (t[2]) {
+                if (t[4] < 256)
+                    t[4]++;
                 else if (x > 4096)
                     deletesprite(i);
                 continue;
@@ -1235,8 +1247,11 @@ void moveexplosions(void)
                 sprite[i].picnum++;
             if (sprite[i].picnum == 882)
                 sprite[i].picnum = LEGPIECE;
-            sprite[i].xvel = sprite[i].xvel > 0 ? (short)(sprite[i].xvel - 1) : 0;
-            sprite[i].zvel = (short)(sprite[i].zvel + 192);
+            if (sprite[i].xvel > 0)
+                sprite[i].xvel--;
+            else
+                sprite[i].xvel = 0;
+            sprite[i].zvel += 192;
             if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
                 t[1]++;
                 sprite[i].zvel = (short)-sprite[i].zvel;
@@ -1249,7 +1264,7 @@ void moveexplosions(void)
             if (sprite[i].z + 4096 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 879;
                 sprite[i].z = sector[sect].floorz - 512;
-                hittype[i][2] = 1;
+                t[2] = 1;
                 sprite[i].cstat |= krand() & 4;
             }
         }
@@ -1259,7 +1274,10 @@ void moveexplosions(void)
             if (t[0] == 0)
                 t[1] = (krand() & 3) + 1;
             t[0]++;
-            sprite[i].xrepeat = sprite[i].xrepeat == 96 ? 191 : (unsigned char)(sprite[i].xrepeat - 48);
+            if (sprite[i].xrepeat == 96)
+                sprite[i].xrepeat = 191;
+            else
+                sprite[i].xrepeat -= 48;
             sprite[i].yrepeat -= 3;
             if (t[0] == t[1])
                 for (a = 0; a < 2048; a += 768) {
@@ -1271,9 +1289,13 @@ void moveexplosions(void)
             continue;
         }
         if (sprite[i].picnum >= 235 && sprite[i].picnum <= 246) {
-            short old = sprite[i].picnum;
-
-            sprite[i].picnum = old == 238 ? 235 : old == 242 ? 239 : old == 246 ? 243 : (short)(old + 1);
+            sprite[i].picnum++;
+            if (sprite[i].picnum == 239)
+                sprite[i].picnum = 235;
+            else if (sprite[i].picnum == 243)
+                sprite[i].picnum = 239;
+            else if (sprite[i].picnum == 247)
+                sprite[i].picnum = 243;
             if (klabs(sector[sect].ceilingz - sector[sect].floorz) < 7680)
                 sprite[i].xvel = 64;
             if (ssp(i, 1) && sprite[i].z < sector[sect].floorz) {
@@ -1282,10 +1304,10 @@ void moveexplosions(void)
                 sprite[i].z += sprite[i].zvel;
                 if (sprite[i].xvel > 16)
                     sprite[i].xvel -= 4;
-            } else if (++t[0] != 2) {
-                sprite[i].zvel = (short)-sprite[i].zvel;
-            } else {
+            } else if (++t[0] == 2) {
                 deletesprite(i);
+            } else {
+                sprite[i].zvel = (short)-sprite[i].zvel;
             }
         }
     }
@@ -1410,10 +1432,12 @@ void movestandables(void)
     short i, nexti, j;
 
     for (i = headspritestat[STAT_STANDABLE]; i >= 0; i = nexti) {
-        long d;
-        short sect = sprite[i].sectnum, p;
+        long d, *t;
+        short sect, p;
 
         nexti = nextspritestat[i];
+        sect = sprite[i].sectnum;
+        t = hittype[i];
         if (sprite[i].picnum == SEENINE) {
             /* A force field post; one that dies sets every post of its hitag to
                -32, and each of those then bursts. */
@@ -1434,20 +1458,18 @@ void movestandables(void)
                 }
             }
         } else if (sprite[i].picnum >= CRANE && sprite[i].picnum < CRANE + 4) {
-            long *t = hittype[i];
-
             sprite[i].xrepeat = sprite[i].yrepeat = 64;
             if (t[0] == 0) {
-                if (checkcursectnums((short)hittype[i][1]) < 0) {
-                    FIND_IN_SECTOR((short)hittype[i][1], 627, j);
+                if (checkcursectnums((short)t[1]) < 0) {
+                    FIND_IN_SECTOR((short)t[1], 627, j);
                     if (j >= 0) {
-                        sprite[i].ang = (short)getangle(msx[hittype[i][4] + 1] - sprite[i].x, msy[hittype[i][4] + 1] - sprite[i].y);
-                        setsprite(j, msx[hittype[i][4] + 1], msy[hittype[i][4] + 1], sprite[j].z);
+                        sprite[i].ang = (short)getangle(msx[t[4] + 1] - sprite[i].x, msy[t[4] + 1] - sprite[i].y);
+                        setsprite(j, msx[t[4] + 1], msy[t[4] + 1], sprite[j].z);
                         t[0]++;
                         continue;
                     }
                 } else {
-                    sprite[i].ang = (short)getangle(msx[hittype[i][4] + 1] - sprite[i].x, msy[hittype[i][4] + 1] - sprite[i].y);
+                    sprite[i].ang = (short)getangle(msx[t[4] + 1] - sprite[i].x, msy[t[4] + 1] - sprite[i].y);
                     t[0]++;
                 }
             } else if (t[0] == 1) {
@@ -1456,7 +1478,7 @@ void movestandables(void)
                     sprite[i].xvel += 8;
                 }
                 ssp(i, 0);
-                if (sect == hittype[i][1])
+                if (sect == t[1])
                     t[0]++;
             } else if (t[0] == 2 || t[0] == 7) {
                 sprite[i].z += 1536;
@@ -1481,17 +1503,17 @@ void movestandables(void)
                 }
             } else if (t[0] == 3) {
                 if (++sprite[i].picnum == 1177) {
-                    p = checkcursectnums((short)hittype[i][1]);
+                    p = checkcursectnums((short)t[1]);
                     if (p >= 0 && ps[p].on_ground) {
                         sprite[i].owner = -2;
                         ps[p].ang = (short)getangle(sprite[i].x - ps[p].posx, sprite[i].y - ps[p].posy);
                         ps[p].on_crane = i;
                     } else {
-                        FIND_IN_SECTOR((short)hittype[i][1], 627, j);
+                        FIND_IN_SECTOR((short)t[1], 627, j);
                         if (j >= 0)
                             sprite[i].owner = j;
                     }
-                    hittype[i][2] = 0;
+                    t[2] = 0;
                     t[0]++;
                     continue;
                 }
@@ -1501,7 +1523,7 @@ void movestandables(void)
             } else if (t[0] == 5 || t[0] == 8) {
                 if (t[0] == 8 && sprite[i].picnum < 1177 && sector[sect].floorz - sprite[i].z > 0x2000)
                     sprite[i].picnum++;
-                if (sprite[i].z >= msx[hittype[i][4] + 2])
+                if (sprite[i].z >= msx[t[4] + 2])
                     sprite[i].z -= 1536;
                 else {
                     t[0]++;
@@ -1510,14 +1532,14 @@ void movestandables(void)
             } else if (t[0] == 6) {
                 if (sprite[i].xvel < 192)
                     sprite[i].xvel += 8;
-                sprite[i].ang = (short)getangle(msx[hittype[i][4]] - sprite[i].x, msy[hittype[i][4]] - sprite[i].y);
+                sprite[i].ang = (short)getangle(msx[t[4]] - sprite[i].x, msy[t[4]] - sprite[i].y);
                 MOVE_ALONG(i, sprite[i].zvel, 0);
-                if ((sprite[i].y - msy[hittype[i][4]]) * (sprite[i].y - msy[hittype[i][4]]) + (sprite[i].x - msx[hittype[i][4]]) * (sprite[i].x - msx[hittype[i][4]]) < 0x4000)
+                if ((sprite[i].y - msy[t[4]]) * (sprite[i].y - msy[t[4]]) + (sprite[i].x - msx[t[4]]) * (sprite[i].x - msx[t[4]]) < 0x4000)
                     t[0]++;
             } else if (t[0] == 9) {
                 t[0] = 0;
             }
-            setsprite((short)msy[hittype[i][4] + 2], sprite[i].x, sprite[i].y, sprite[i].z - 8704);
+            setsprite((short)msy[t[4] + 2], sprite[i].x, sprite[i].y, sprite[i].z - 8704);
             if (sprite[i].owner == -1)
                 continue;
             p = findplayer(i, &d);
@@ -1529,15 +1551,13 @@ void movestandables(void)
                 sprite[i].picnum = CRANE;
             }
             if (sprite[i].owner == -2) {
-                playertype *pl = &ps[p];
-
-                if (pl->on_crane == i && p == screenpeek)
+                if (ps[p].on_crane == i && p == screenpeek)
                     sprite[i].xrepeat = sprite[i].yrepeat = 0;
-                pl->posx = sprite[i].x - (sintable[(pl->ang + 512) & 2047] >> 6);
-                pl->posy = sprite[i].y - (sintable[pl->ang & 2047] >> 6);
-                pl->posz = sprite[i].z - 7168;
-                clipmove(&pl->posx, &pl->posy, &pl->posz, &pl->cursectnum, 0, 0, 192, 1024, 1024, 0);
-                setsprite(pl->i, pl->posx, pl->posy, pl->posz);
+                ps[p].posx = sprite[i].x - (sintable[(ps[p].ang + 512) & 2047] >> 6);
+                ps[p].posy = sprite[i].y - (sintable[ps[p].ang & 2047] >> 6);
+                ps[p].posz = sprite[i].z - 7168;
+                clipmove(&ps[p].posx, &ps[p].posy, &ps[p].posz, &ps[p].cursectnum, 0, 0, 192, 1024, 1024, 0);
+                setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz);
             } else if (sprite[i].owner >= 0) {
                 setsprite(sprite[i].owner, sprite[i].x, sprite[i].y, sprite[i].z);
             }
