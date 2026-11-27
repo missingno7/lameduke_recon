@@ -3573,7 +3573,7 @@ void drawsprite (long xb, long yp, short tilenum, short spritenum, char dapalnum
 {
 	char cstat, seesprite, swapped;
 	signed short shade;
-	long um, dm, startum, startdm, das, sectnum;
+	long dm, startum, startdm, das, sectnum, um;
 	long siz, xsiz, ysiz, xoff, yoff, xspan, yspan, templong;
 	long x1, y1, x2, y2, lx, rx, dalx2, darx2, i, j, k, x, linum, linuminc;
 	long yplc, yinc, p, tileoffs, bufplc, palookupoffs;
@@ -4714,9 +4714,9 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 
 	if (option[0] == 0)
 	{
-		p = ((xscr+viewoffset)>>2)+mul80(dmost[xscr]-1)+0xa0000;
-		p += page<<14;
+		p = mul80(dmost[xscr]-1)+((xscr+viewoffset)>>2)+0xa0000;
 		koutpw(0x3c4,2+(256<<((xscr+viewoffset)&3)));
+		p += (page<<14);
 		pinc = 80;
 	}
 	else if (option[0] != 7)
@@ -5204,11 +5204,10 @@ cansee(long xs, long ys, long zs, short sectnums, long xe, long ye, long ze, sho
 hitscan(long xs, long ys, long zs, short sectnum, long vx, long vy, long vz,
 	short *hitsect, short *hitwall, short *hitsprite, long *hitx, long *hity, long *hitz)
 {
-	// COMPILER_STEERED: Order the intersection results for their stack homes.
-	long z, zz, xe, ye, ze, x1, y1, z1, x2, y2, z2, intz, inty, intx;
-	long topt, topu, bot, daxsiz, daysiz, dist, offx, offy, dx, dy;
-	short tempshortcnt, tempshortnum, dasector, startwall, endwall;
 	short nextsector1, bad, point2;
+	long z, zz, xe, ye, ze, x1, y1, z1, x2, y2, z2, intz, inty, intx;
+	long topu, bot, daxsiz, daysiz, dist, offx, offy, dx, dy, topt;
+	short tempshortcnt, tempshortnum, dasector, startwall, endwall;
 
 
 	if (sectnum == -1) return(-1);
@@ -6839,10 +6838,13 @@ setview(long x1, long y1, long x2, long y2)
 		startumost[i] = k;
 		startdmost[i] = j;
 	}
-	// COMPILER_STEERED: Reuse the span and loop locals for the view and bottom bounds.
-	j = ((option[0] != 7) ? (y1-startumost[0])*320
-	                      : (y1-startumost[0])*640)+x1;
-	viewoffset = j;
+	{
+		long span = y1-startumost[0];
+		if (option[0] != 7)
+			viewoffset = span*320+x1;
+		else
+			viewoffset = span*640+x1;
+	}
 
 	if (xdimen < XDIM)
 		for(i=xdimen;i<XDIM;i++)

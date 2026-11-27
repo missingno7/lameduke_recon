@@ -918,3 +918,8 @@ Each entry names the command or artefact that supports it.
   temporary reuse, two masked slime indices): 4,421 -> 4,300 differing bytes, 484/521 blocks; moveexplosions matches
   the movement sequence at 1:29847 (673 -> 555). Attribution: blocker rules +2,036 bytes, quirks -1,919 / +3 blocks
   (interacting switch-layout edits), own reasoning +122.
+- Census round 3 (blockers-3): PROVEN setview STRICT (334 B, 26 relocations): the view-offset calculation gets its own
+  `span` local, which yields the oracle's register choices and store order (the flip tool's t37 -> EDX). spritesound
+  149 -> 56 differing bytes (all relocations verified); grouvline 1,478 -> 1,459. Rejected: operatesectors case 26
+  candidate (restores both displaced destinations but worsens four other SECTOR functions) and draw_and_probe STRICT
+  via a byte shade formal (costs menutext 6 bytes). Next: EBX sector-index calculation at operatesectors +0x97.

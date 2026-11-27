@@ -194,54 +194,11 @@ void xyzsound(short num, short i, long x, long y, long z)
 
 /* Play sound num at sprite i (inline copy of xyzsound). */
 /* The indices use the signed low words of the register arguments. */
-void spritesound(int number, int source)
+void spritesound(short number, int source)
 {
-    long x, y, z, cx, cy, sndist, scaled, voice;
-    short ca, sndang, priority;
-    short i;
-    short num = number;
+    short i = source;
 
-    i = source;
-    x = sprite[i].x;
-    y = sprite[i].y;
-    z = sprite[i].z;
-
-    if (SoundToggle == 0 || sound_voices[num].num > 2)
-        return;
-
-    if (camerasprite == -1) {
-        cx = ps[screenpeek].posx;
-        cy = ps[screenpeek].posy;
-        ca = ps[screenpeek].ang + ps[screenpeek].look_ang;
-    } else {
-        cx = sprite[camerasprite].x;
-        cy = sprite[camerasprite].y;
-        ca = sprite[camerasprite].ang;
-    }
-
-    sndang = 2048 + ca - getangle(cx - x, cy - y);
-    sndang &= 2047;
-    sndist = klabs(cx - x) + klabs(cy - y);
-    priority = 0;
-    if (num == 32)
-        priority = 255;
-    else if (num == 17)
-        sndist <<= 5;
-    scaled = sndist >> 6;
-    if (scaled > 255)
-        return;
-
-    voice = FX_PlayVOC3D(sound_file_table[num].ptr, 0, sndang >> 4,
-                         scaled, priority, num);
-    if (voice > 0) {
-        /* The prototype also stores Z in the Y field. */
-        sound_voices[num].y = y;
-        sound_voices[num].y = z;
-        sound_voices[num].x = x;
-        sound_voices[num].i = i == -1 ? ps[0].i : i;
-        sound_voices[num].voice = voice;
-        sound_voices[num].num++;
-    }
+    xyzsound(number, i, sprite[i].x, sprite[i].y, sprite[i].z);
 }
 
 /* Stop sound num (its last voice). */

@@ -339,7 +339,7 @@
      "status": "STRICT"
     },
     "setview": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "precache": {
      "status": "STRICT"

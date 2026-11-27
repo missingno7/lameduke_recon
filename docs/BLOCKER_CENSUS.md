@@ -1,5 +1,27 @@
 # First blockers in the canonical DOS build
 
+## Follow-up on case 26 and the remaining frame blockers
+
+At 2454e79 the five units had 30 NEAR functions. Across those 30 the largest census classes by oracle extent were switch tables (4 functions, 34,336 bytes), stack homes (5, 15,374) and frame reservations (5, 13,395). The original classifications describe the first discrepancy in the census snapshot. Both getzrange and grouvline already reserve their original frames in this control.
+
+| Function | Baseline differing bytes | Candidate differing bytes | First differing byte, before → after |
+|---|---:|---:|---|
+| ENGINE setview | 9 | 0 | +0xb5 → STRICT, 334 bytes and 26 verified references |
+| ENGINE hitscan | 1,056 | 993 | +0x17 → +0x5d |
+| ENGINE drawsprite | 7,056 | 7,054 | +0x70 → +0x77 |
+| ENGINE grouvline | 1,478 | 1,459 | +0xc3 → +0xc3, verified references 9 → 12 |
+| SOUNDS spritesound | 149 | 56 | +0x0a → +0x32, verified references 12 → 25 |
+
+The five changes remove 186 positional byte differences. A fresh whole-unit DOS build and repeat produced identical objects for each changed unit. ENGINE gains one STRICT and retains all 85 prior STRICT functions. SOUNDS retains all 12. The other function results and previously verified segments hold.
+
+**SECTOR case 26.** In operatesectors the factored index for the switch changes register at PUBLIC+0x58. In the recursive arm the first unequal-width instruction pair begins at +0xa0. The oracle interleaves the index calculation in EBX with copying ECX into EAX and clearing AL. The candidate calculates the scaled index in EAX first. Its shared return starts at +0xfd and case 9 at +0x109. The corresponding oracle destinations are +0xfe and +0x10a.
+
+A temporary sector pointer for the tag updates to 22 restores both table destinations with a different sequence from +0xaa onward. The function grows 12 bytes and checkhitceiling falls to CODE_BYTES_MATCH on extent proof. Keeping the same pointer and declaring case 9’s sp separately gives a 10,292-byte operatesectors against 10,288 in the oracle. This version restores the 856-byte checkhitceiling STRICT but adds 241 positional differences in operateactivators, 273 in cheatkeys, 3 in checkhitswitch and 560 in checksectors. Both controls were rejected.
+
+**ENGINE and MENUES negatives.** getzrange writes xmin to the correct ESP+0x54. Its following ymin store uses ESP+0x48 where the oracle uses +0x5c. Changing the wall endpoint declarations lowers the score by six at the same extent but gains no exact symbolic instruction and loses one. Pairing the bounds, changing their visit order and reusing floor endpoints did not advance the first difference. In draw_and_probe an unsigned-byte menutext shade formal restores all 896 bytes, and menus remains STRICT. Standalone menutext loses six displacement bytes out of 352. The proposal leaves MENUES at its control result.
+
+The worker records the other functions, unsuccessful predictions and verification receipts in [the follow-up census](../build/workers/blockers/case26/CENSUS.md) and [the prediction results](../build/workers/blockers/case26/predictions.md).
+
 ## Follow-up on switch cascades and frame reservations
 
 The five eligible units at 935dabb contain ten functions in these classes, covering 52,947 oracle bytes. SECTOR and MENUES have five table-first functions. ENGINE has five frame-first functions. SOUNDS and MULTI contributed none. Fresh DOS control builds covered all five units. The historical full-project census below retains its original snapshot.
