@@ -1158,10 +1158,11 @@ void execute(short i, short p, long x)
     cached_cansee = -1;
     insptr += 4;
     if (action) {
-        long delay = hittype[index].action[4];
+        /* Compiler-steered read and comparison order keeps the incoming player stack slot. */
         long ticks = synctics;
+        long delay = hittype[index].action[4];
         sprite[i].lotag += ticks;
-        if (sprite[i].lotag > delay) {
+        if (delay < sprite[i].lotag) {
             hittype[index].actioncount++;
             sprite[i].lotag = 0;
             hittype[index].actionframe += hittype[index].action[3];

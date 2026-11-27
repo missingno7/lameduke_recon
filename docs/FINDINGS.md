@@ -879,3 +879,7 @@ Each entry names the command or artefact that supports it.
 - PROVEN render_camera_tile (816 B) and render_sprite_camera (864 B) STRICT: counter reuse, declaration order, update
   order and reset placement (build/workers/blockers/camera.patch). ms: 106 -> 89 bytes (first mismatch earlier; not
   adopted). Next lead: render_mirror (reserves 40 stack bytes vs the oracle's 36).
+- GAMEDEF astra follow-up 4 (r8astra-gamedef-5): execute 2,909 -> 2,899 (ticks read before delay, delay compared
+  first: player stack slot recovered; frame still 48 vs 44); parse unchanged at 141 bytes (IFCANSEE +0x1f8). A
+  movement-pointer alternative (2,873 bytes, 3 B long) is kept in round5/reload/. GAMEDEF paused: its residues are the
+  census's frame-reservation and stack-slot classes; hand to the census-rule worker.
