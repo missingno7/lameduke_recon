@@ -691,3 +691,12 @@ Each entry names the command or artefact that supports it.
   both have savings 564; the conversion is visited first and takes EAX on the tie, so the scale keeps EAX where the
   oracle uses ECX. Moving case 406's next-sprite load earlier reverses the visit order and fixes the 2 bytes but
   changes case 406 and loses checkhitceiling's table boundary. NEGATIVE signed offset, local scope, loop order.
+
+## PLAYER on gpt-6.2-astra (r7astra-player, 2026-11-27; build/workers/r7astra-player/NOTES.md, integrated)
+- No STRICT change (5/8; shoot, animateknuckles STRICT). processinput reaches the oracle frame 0x110 (was 0x104;
+  15,664 of 15,692 B; content .665 -> .682) by staging the tracer aim adjustment; displayweapon reaches the oracle
+  frame 0x60 (case-local pistol x, regrouped drawing expressions; content .244 -> .283). The oracle's raw y spill
+  is unexplained.
+- PROVEN (witness build) a function-scoped `short` in shoot gives the first and fifth inlined findplayer results
+  distinct stack slots and reproduces both oracle offsets (0x94, 0x108) with the signed low-word reloads; that
+  variant is 73 B short overall (not adopted; build/workers/r7astra-player/address_pi/).

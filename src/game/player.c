@@ -57,13 +57,15 @@ void spawn_pistol_tracer(short snum)
     unsigned char weapon_pos;
     long sy;
     long dz;
+    long aim_offset;
 
     sx = ps[snum].posx;
     sy = ps[snum].posy;
     weapon_pos = ps[snum].weapon_pos & 127;
     sz = ps[snum].posz - (weapon_pos << 10) + 5376;
-    /* COMPILER_STEERED: apply the constant angle bias last to reduce spills. */
-    sa = ps[snum].ang + ((6 - weapon_pos) << 4) - 16;
+    /* COMPILER_STEERED: stage the weapon-angle adjustment separately. */
+    aim_offset = (6 - weapon_pos) << 4;
+    sa = ps[snum].ang - 16 + aim_offset;
     dz = (100 - ps[snum].horiz) << 11;
     hitscan(sx + (sintable[(sa + 512) & 2047] >> 8),
         sy + (sintable[sa & 2047] >> 8),
@@ -91,8 +93,9 @@ void spawn_pistol_tracer(short snum)
 /* Fire weapon tile atwith from sprite i (player or actor); with impact != 0, move projectile i onto what it hits. */
 void shoot(short i, short atwith, unsigned char impact)
 {
-    /* COMPILER_STEERED: declaration order (stack homes); p is long (the oracle
-       uses the sign-extended yvel directly). */
+    /* COMPILER_STEERED: declaring p here gives the two inlined
+       findplayer results separate stack homes in processinput. */
+    short p;
     short hitspr;
     short hitwall;
     long sx;
@@ -121,9 +124,8 @@ void shoot(short i, short atwith, unsigned char impact)
 
     /* COMPILER_STEERED: scope and order for the firing locals. */
     {
-        short sa;
         long zvel;
-        long p;
+        short sa;
 
         if (sprite[i].picnum == APLAYER) {
             sx = ps[sprite[i].yvel].posx + (syncangvel[sprite[i].yvel] >> 4);
@@ -146,8 +148,12 @@ void shoot(short i, short atwith, unsigned char impact)
                 zvel = (100 - ps[sprite[i].yvel].horiz) * 22;
                 break;
             }
-            if (ps[sprite[i].yvel].holoduke_on)
-                sprite[ps[sprite[i].yvel].holoduke_on].shade = 0;
+            {
+                /* COMPILER_STEERED: cache the owner for the condition. */
+                long owner = sprite[i].yvel;
+                if (ps[owner].holoduke_on)
+                    sprite[ps[sprite[i].yvel].holoduke_on].shade = 0;
+            }
         } else {
             sx = sprite[i].x;
             sy = sprite[i].y;
@@ -261,7 +267,7 @@ void displayweapon(short snum)
         return;
     gun_pos = (weapon_pos << 4) - 32;
     gun_pos -= sintable[ps[snum].bobcounter & 2047] >> 12;
-    weapon_xoffset = xvel + ((6 - weapon_pos) << 4) + 12;
+    weapon_xoffset = (xvel + 12) + ((6 - weapon_pos) << 4);
     if (ps[snum].last_weapon >= 0)
         cw = ps[snum].last_weapon;
     else
@@ -320,7 +326,7 @@ void displayweapon(short snum)
             else if (ps[snum].kickback_pic < 7)
                 myos((syncangvel[snum] >> 5) + weapon_xoffset + 184,
                     (looking_arc << 1) + 180 - gun_pos - (ps[snum].horiz >> 4), 1251, gs, 3);
-            else
+            else if (ps[snum].kickback_pic < 12)
                 myos((syncangvel[snum] >> 5) + weapon_xoffset + 260,
                     (looking_arc << 1) + 196 - gun_pos - (ps[snum].horiz >> 4), 1252, gs, 3);
         }
@@ -352,14 +358,14 @@ void displayweapon(short snum)
         if (ps[snum].kickback_pic < 5) {
             short pistol_frames[5] = { 0, 1, 2, 0, 0 };
 
-            weapon_xoffset += 183 - xvel;
+            short pistol_x = 183 + weapon_xoffset - xvel;
             if (ps[snum].kickback_pic == 1)
                 gs = 0;
             if (ps[snum].kickback_pic == 2) {
                 gs = 4;
-                weapon_xoffset -= 3;
+                pistol_x -= 3;
             }
-            myos((syncangvel[snum] >> 3) + (short)weapon_xoffset - (ps[snum].look_ang >> 1),
+            myos((syncangvel[snum] >> 3) + (short)pistol_x - (ps[snum].look_ang >> 1),
                 looking_arc + 240 - gun_pos - (ps[snum].horiz >> 4), 1150 + pistol_frames[ps[snum].kickback_pic], gs, 3);
         } else if (ps[snum].kickback_pic < 10)
             myos((syncangvel[snum] >> 3) + 190 - (ps[snum].look_ang >> 1),
@@ -370,7 +376,7 @@ void displayweapon(short snum)
             if (p->kickback_pic == 13)
                 spritesound(33, p->i);
             myos((syncangvel[snum] >> 3) + 240 - 8 * p->kickback_pic - (p->look_ang >> 1),
-                looking_arc + 130 + 16 * p->kickback_pic - gun_pos - (p->horiz >> 4), 1162, gs, 3);
+                looking_arc + 130 - gun_pos - (p->horiz >> 4) + 16 * p->kickback_pic, 1162, gs, 3);
             myos((syncangvel[snum] >> 3) + 220 - (p->look_ang >> 1),
                 looking_arc + 220 - gun_pos - (p->horiz >> 4), 1161, gs, 3);
         } else if (p->kickback_pic < 20) {
@@ -405,10 +411,10 @@ void displayweapon(short snum)
                 gun_pos += 20 * (ps[snum].kickback_pic - 10);
             else if (ps[snum].kickback_pic < 20)
                 gun_pos -= 9 * (ps[snum].kickback_pic - 14);
-            myos((syncangvel[snum] >> 4) + weapon_xoffset + 190 - (ps[snum].look_ang >> 1),
+            myos(weapon_xoffset + 190 + (syncangvel[snum] >> 4) - (ps[snum].look_ang >> 1),
                 looking_arc + 250 - gun_pos - (ps[snum].horiz >> 4), 1143 + frames[ps[snum].kickback_pic], gs, 3);
         } else
-            myos((syncangvel[snum] >> 4) + weapon_xoffset + 190 - (ps[snum].look_ang >> 1),
+            myos(weapon_xoffset + 190 + (syncangvel[snum] >> 4) - (ps[snum].look_ang >> 1),
                 looking_arc + 260 - gun_pos - (ps[snum].horiz >> 4), 1143, gs, 3);
         break;
     case HANDREMOTE: {
@@ -421,7 +427,7 @@ void displayweapon(short snum)
             tile = HANDREMOTE + frames[ps[snum].kickback_pic];
         else
             tile = HANDREMOTE;
-        draw_x = (syncangvel[snum] >> 4) + weapon_xoffset + 150 - (ps[snum].look_ang >> 1);
+        draw_x = weapon_xoffset + 150 + (syncangvel[snum] >> 4) - (ps[snum].look_ang >> 1);
         draw_y = looking_arc + 258 - gun_pos - (ps[snum].horiz >> 4);
         goto draw_overlay;
     }
@@ -540,15 +546,15 @@ void processinput(short snum)
     long wpos;
     long doubvel;
     long xvect;
+    long eye;
+    short psectlotag;
     long cz;
-    long fz;
     long tics2;
+    long fz;
+    long yvect;
     long hz;
     long lz;
     short i;
-    short psectlotag;
-    long yvect;
-    long eye;
 
     if (ps[snum].health <= 0) {
         if ((sector[ps[snum].cursectnum].lotag & 0x7FFF) == 2) {
