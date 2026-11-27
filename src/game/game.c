@@ -97,7 +97,8 @@ extern long ksqrt(long square);
 extern long getangle(long x, long y);
 /* GAME passes the full getangle result as the target. */
 extern long getincangle();
-extern long setsprite(short i, long x, long y, long z);
+/* COMPILER_STEERED: Watcom passes the promoted sprite index in EAX. */
+extern long setsprite();
 extern int deletesprite(short i);
 extern int changespritestat(short i, short stat);
 extern short insertsprite(long sect, long stat);
@@ -115,7 +116,8 @@ extern void spritesound(long sound, short i);
 extern void stopsound(long sound);
 extern void rotatepoint(long x, long y, long pivot_x, long pivot_y, long ang,
     long *result_x, long *result_y);
-extern int clipinsidebox(long x, long y, short w, long distance);
+/* COMPILER_STEERED: wall indices reach EBX at their promoted width. */
+extern int clipinsidebox();
 extern int cansee(long x1, long y1, long z1, short sect1,
     long x2, long y2, long z2, short sect2);
 extern void clipmove(long *x, long *y, long *z, short *sect,
@@ -504,6 +506,8 @@ void waitforeverybody(void)
         playerreadyflag[j] = 0;
     oldtotalclock = totalclock - 120;
     if (myconnectindex == connecthead) {
+        short ready; /* COMPILER_STEERED: the master accumulates ready flags in a word. */
+
         playerreadyflag[connecthead] = 1;
         do {
             if (totalclock >= oldtotalclock + 120) {
@@ -514,10 +518,10 @@ void waitforeverybody(void)
                         sendpacket(i, (unsigned char *)tempbuf, 1);
             }
             getpackets();
-            j = 0;
+            ready = 0;
             for (i = connecthead; i >= 0; i = connectpoint2[i])
-                j += playerreadyflag[i];
-        } while (j < numplayers);
+                ready += playerreadyflag[i];
+        } while (ready < numplayers);
     } else {
         do {
             if (totalclock >= oldtotalclock + 120) {
@@ -677,6 +681,7 @@ void myos(short x, short y, short tilenum, unsigned char shade,
 /* Big-font text; returns the next x. Duke Nukem 3D 1.5 keeps the name. */
 long gametext(long x, long y, unsigned char *t, unsigned char s)
 {
+    long advance; /* COMPILER_STEERED: name the promoted width in inlined draws. */
     short left;
     short ac, descender;
     long start_x = x; /* COMPILER_STEERED: preserve the incoming x before narrowing the line origin. */
@@ -706,7 +711,8 @@ long gametext(long x, long y, unsigned char *t, unsigned char s)
             descender = 0;
         }
         overwritesprite(x, y + descender, ac, s, 0, 0);
-        x += tilesizx[ac] + 1;
+        advance = tilesizx[ac];
+        x += advance + 1;
         t++;
     }
     return x;
@@ -717,35 +723,36 @@ long minitext(long x, long y, unsigned char *t, unsigned char s)
 {
     if (ps[screenpeek].dimensionmode == 2)
         return 0;
+    {
+        /* COMPILER_STEERED: only the line origin lives across glyphs. */
+        short left = x;
 
-#define TEXT_ROW y
-/* Small glyph rendering shared with the decimal printer. */
-{
-    short left = x;
-    short ac, descender;
+        while (*t) {
+            long advance;
+            short ac;
+            short descender;
 
-    while (*t) {
-        descender = 0;
-        if (*t == '\n') {
-            x = left;
-            TEXT_ROW += 8;
+            descender = 0;
+            if (*t == '\n') {
+                x = left;
+                y += 8;
+                t++;
+                continue;
+            }
+            if (*t == ' ') {
+                x += 2;
+                t++;
+                continue;
+            }
+            ac = *t + 991;
+            if (*t >= 'a' && *t <= 'z')
+                descender = 2;
+            overwritesprite(x, y + descender, ac, s, 0, 0);
             t++;
-            continue;
+            advance = tilesizx[ac];
+            x += advance + 1;
         }
-        if (*t == ' ') {
-            x += 2;
-            t++;
-            continue;
-        }
-        ac = *t + 991;
-        if (*t >= 'a' && *t <= 'z')
-            descender = 2;
-        overwritesprite(x, TEXT_ROW + descender, ac, s, 0, 0);
-        t++;
-        x += tilesizx[ac] + 1;
     }
-}
-#undef TEXT_ROW
     return x;
 }
 
@@ -1834,8 +1841,11 @@ restart:
                 ps[myconnectindex].gm &= ~MODE_TYPE;
                 menus();
             }
-            if (ud.camerasprite >= 0)
-                overwritesprite(268, 156, 481, 0, 4, 0);
+            if (ud.camerasprite >= 0) {
+                long camera_x = 268; /* COMPILER_STEERED: keep this inlined draw coordinate wide. */
+
+                overwritesprite(camera_x, 156, 481, 0, 4, 0);
+            }
             pan3dsound();
             nextpage();
             if (ps[myconnectindex].gm == MODE_END)
@@ -1924,9 +1934,12 @@ void dobonus(void)
             break;
         }
         gametext(36, 160, bonus_press_space, shade);
-        for (i = 0; i < ps[0].level; i++)
+        for (i = 0; i < ps[0].level; i++) {
+            short tile = 1133; /* COMPILER_STEERED: the completed-level marker is a word. */
+
             overwritesprite(bonus_xy[ps[0].volume][i * 2], bonus_xy[ps[0].volume][i * 2 + 1],
-                            1133, shade, 0, 0);
+                            tile, shade, 0, 0);
+        }
         overwritesprite(bonus_xy[ps[0].volume][i * 2], bonus_xy[ps[0].volume][i * 2 + 1],
                         1134, shade, 0, 0);
         if (ps[myconnectindex].gm == MODE_EOL) {
@@ -2015,7 +2028,8 @@ void update_menu_cursor(short tile)
 void displayhighscores(void)
 {
     short i;
-    short shade = (unsigned char)next_text_shade();
+    short pulse = next_text_shade(); /* COMPILER_STEERED: save the word before selecting the shade byte. */
+    short shade = (unsigned char)pulse;
 
     minitext(30, 36, score_rank_title, 0);
     minitext(50, 36, score_quote_title, 0);
@@ -2309,6 +2323,7 @@ void moveeffectors(void)
 {
     long q, l, m, x, st, j, d, *t;
     short i, k, nexti, p, sect;
+    short startwall, endwall; /* COMPILER_STEERED: wall bounds for cases 8 and 9. */
 
     i = headspritestat[STAT_EFFECTOR];
     while (i >= 0) {
@@ -2363,7 +2378,8 @@ void moveeffectors(void)
                     }
                 for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
                     if (sprite[j].picnum != 175) {
-                        sprite[j].x += (sintable[(sprite[i].ang + 512) & 2047] * sprite[i].xvel) >> 14;
+                        /* COMPILER_STEERED: both products read the speed first. */
+                        sprite[j].x += (sprite[i].xvel * sintable[(sprite[i].ang + 512) & 2047]) >> 14;
                         sprite[j].y += (sprite[i].xvel * sintable[sprite[i].ang & 2047]) >> 14;
                         setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
                     }
@@ -2548,9 +2564,10 @@ void moveeffectors(void)
                 k = sprite[j].sectnum;
                 m = sprite[j].shade;
                 if (sprite[j].lotag == st && sprite[j].hitag == sprite[i].hitag) {
-                    short endwall = sector[k].wallnum + sector[k].wallptr;
+                    startwall = sector[k].wallptr;
+                    endwall = startwall + sector[k].wallnum;
 
-                    for (l = (short)sector[k].wallptr; l < endwall; l++)
+                    for (l = startwall; l < endwall; l++)
                         if (!(wall[l].hitag & 1)) {
                             wall[l].shade += x;
                             if (wall[l].shade < m)
@@ -2615,8 +2632,10 @@ void moveeffectors(void)
             break;
         case 12:
             if (t[0] == 1) {
-                k = sector[sect].wallptr + sector[sect].wallnum;
-                for (j = (short)sector[sect].wallptr; j < k; j++)
+                short firstwall = sector[sect].wallptr;
+
+                k = firstwall + sector[sect].wallnum;
+                for (j = firstwall; j < k; j++)
                     wall[j].shade = t[1];
                 sector[sect].floorshade = t[1];
                 sector[sect].ceilingshade = t[2];

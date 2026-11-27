@@ -796,3 +796,8 @@ Each entry names the command or artefact that supports it.
   IFSTRENGTH, all 142 of IFRND and both exit destinations; all 52 parse switch destinations align: parse 495 -> 196
   differing bytes (first difference now IFCANSEE's index-load order). execute: the exact-size variant (frame 48 vs
   oracle 44, 2,948 bytes) is integrated; a frame-exact variant is 25 B short (build/workers/r8astra-gamedef/round3/).
+- GAME astra follow-up (r9astra-game-2): NEAR differing bytes 19,676 -> 17,692, no STRICT change (36/49).
+  operatefta 440 -> 4 bytes (content 1/1; the 4 bytes are swapped stack slots of the two inlined minitext line
+  origins); nonsharedkeys 320 -> 31 and displayhighscores 544 -> 153 (glyph-width and shade locals); dobonus 2,275 ->
+  1,483 with all 159 blocks matched; waitforeverybody exact size 1,952 (short ready counter); moveeffectors 14,096 ->
+  14,028 (12 B over; wall bounds reused, promoted indices; 434 blocks matched); main 449 -> 441.
