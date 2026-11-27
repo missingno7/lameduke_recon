@@ -1170,3 +1170,7 @@ Each entry names the command or artefact that supports it.
 - SW's Watcom debug trailer names C:\PRG\AUDIO\source for these modules (confirms our guest path). A fresh DOS wc100
   build there leaves 6 (PCFX), 9 (SNDSRC), 9 (ADLIBFX) differing residue bytes: the residue contains text of a
   historical DPMI.H revision we do not have. NEGATIVE for reproduction from available evidence; parked.
+- xver-2 (2026-11-27): AL_Init STRICT by restoring `AL_LeftPort = 0x388` in the PAS/SoundMan16 branch; small source
+  changes also reproduce ROTT 1.01 (561 B) and 1.03 (431 B) AL_Init bodies, and moving the interrupt disable
+  reproduces Wacky Wheels' 368-byte GUSWAVE_PlayVOC (LameDuke's still 5 B off at +07). Eight other ASS targets
+  stay NEAR (stopping decisions in build/workers/xver/REPORT.md). Sound-library rounds stop here (game priority).

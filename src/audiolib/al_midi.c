@@ -1582,6 +1582,7 @@ int AL_Init
       case SoundMan16 :
          AL_OPL3 = TRUE;
          AL_SendStereo = TRUE;
+         AL_LeftPort = 0x388;
          AL_RightPort = 0x38a;
          break;
 
