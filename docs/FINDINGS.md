@@ -1215,3 +1215,10 @@ Each entry names the command or artefact that supports it.
   ENGINE.C local pragmas (BUIL0422/ENGINE.C:409); every dated PRAGMAS.H (PTEX0726 Jul-94, buil1995) uses DEC/JNZ.
   The canonical header was kept; using the April form needs a decision on the pragma rule (AGENTS.md).
 - wallfront 79, raytrace 108 unchanged (raytrace's retry-bearing July object dated 1994-07-19).
+- grouvline drawslab test (integrator, 2026-11-27, after the user widened the pragma rule): Ken's April-1994 local
+  pragma (BUIL0422/ENGINE.C:409, verbatim, `loop startdraw`) inserted among ENGINE.C's local pragmas. The oracle's
+  grouvline has exactly three sub/loop sequences. Result (NT host): grouvline 75 -> 78/89 blocks, fuzzy .898 -> .912,
+  size 2,169 -> 2,166. The original is 2,169 bytes WITH loop, so the current grouvline source carries 3 compensating
+  wrong bytes elsewhere. The 3-byte shift displaces 17 later engine functions (96 -> 79 STRICT, each 1-2 byte call
+  displacements, code otherwise identical): an address-shift cascade, not a trade. Not integrated until grouvline's
+  extent returns to 2,169; progress branch build/workers/r12-engine/slab/ENGINE.C.

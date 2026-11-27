@@ -19,8 +19,13 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
 - Matching happens only through source processed by the historical toolchain. Never patch objects, executables,
   fixups or layouts; no `_emit`, raw opcode arrays, copied code bytes, `db` blobs of compiled code, INCBIN, or
   comparison masks. Historical .OBJ files are evidence and references; they are never substituted for source.
-- Ken's `#pragma aux` inline-assembly bodies (PRAGMAS.H) may only take forms attested in a dated Ken PRAGMAS.H
-  (external/x); inventing or altering a pragma body to fit bytes counts as fabricating code.
+- Ken's inline assembly and `#pragma aux` bodies may only take forms attested verbatim in an authenticated, dated Ken
+  Silverman source file (PRAGMAS.H, or the local pragmas of his ENGINE.C/BUILD.C/GAME.C etc. under external/x), and
+  only where evidence from the target binary supports their use. Record the exact source file, date, line and the
+  supporting binary evidence (in FINDINGS and a source comment); keep the historically appropriate placement and usage
+  where possible. Never invent, modify or combine assembly sequences to obtain a match: that is fabricating code.
+  (User decision 2026-11-27, widened from "PRAGMAS.H only": the rule protects against invented assembly, not against
+  authentic historical code in another file. First case: grouvline's drawslab LOOP form from Ken's April-1994 ENGINE.C.)
 - Compiler options are per translation unit (one original .c compiled once from a makefile, e.g. MULTI's -5r). Never
   give individual functions different settings (#pragma or otherwise) or split units to fit bytes; a unit-level option
   change must be historically plausible and explain the whole unit.
