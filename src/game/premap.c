@@ -288,7 +288,8 @@ void spawn(long j, short pn)
                 sprite[i].zvel = (short)-(krand() & 0xFF);
             } else {
                 a = sprite[i].ang;
-                sprite[i].x = sprite[j].x + (sintable[(a + 512) & 2047] >> 6);
+                /* COMPILER_STEERED: evaluate the casing offset before the source x. */
+                sprite[i].x = (sintable[(a + 512) & 2047] >> 6) + sprite[j].x;
                 sprite[i].y = (sintable[a & 2047] >> 6) + sprite[j].y;
                 sprite[i].z = sprite[j].z - 9216;
             }

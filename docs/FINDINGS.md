@@ -683,3 +683,7 @@ Each entry names the command or artefact that supports it.
   5,067 -> 4,560; content .863 -> .815); parsecommand tests the final music index before incrementing (3,063 -> 3,049
   bytes); parse unchanged (first register difference in the inlined ifrnd at 1:30900; cg95 cannot attribute it across
   the indirect dispatch). NEGATIVE animation temporaries, parser pointer locals, fill loops.
+- ACTORS follow-up 4 (r5cx-actors-4): moveexplosions reaches the oracle size 3,984 (ssp call; distance slot reused
+  for the FLAIR counter; content .663 -> .681, fuzzy .929 -> .961; frame 0x20 vs 0x1c); moveactors five exact case
+  targets (deltas +1, +1, -2; frame 0x48 as oracle); spawn non-player casing offset first: 5,313 -> 4,646 differing
+  bytes. moveweapons 17 bytes unresolved: cg95 shows the 32-bit distance sorting late and its 16-bit alias early.

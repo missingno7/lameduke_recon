@@ -948,7 +948,9 @@ wait:
                 sprite[i].cstat &= ~1;
                 continue;
             }
-            switch (t[0]) {
+            /* COMPILER_STEERED: copy the state before the switch. */
+            l = t[0];
+            switch (l) {
             case 0:
                 if (dist < 4096)
                     t[0]++;
@@ -957,7 +959,7 @@ wait:
                 t[0]++;
                 sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
                 if (dist != 0)
-                    sprite[i].zvel = ((2048 + ps[p].posz - sprite[i].z) << 8) / dist;
+                    sprite[i].zvel = ((ps[p].posz + (2048 - sprite[i].z)) << 8) / dist;
                 sprite[i].xvel = 16;
                 break;
             case 2:
@@ -1181,7 +1183,8 @@ void moveexplosions(void)
                 if ((krand() >> 8) >= 127)
                     sprite[i].cstat ^= 0x80;
             }
-            if (MOVE_ALONG(i, sprite[i].zvel, 0) && sector[sect].floorz - 1024 < sprite[i].z) {
+            /* COMPILER_STEERED: calling ssp changes the inlined move layout. */
+            if (!ssp(i, 0) && sector[sect].floorz - 1024 < sprite[i].z) {
                 sprite[i].zvel = (short)-sprite[i].zvel;
                 if (++t[0] == 3) {
                     sprite[i].z = sector[sect].floorz - 512;
@@ -1293,8 +1296,6 @@ void moveexplosions(void)
             }
         }
         if (sprite[i].picnum == FLAIR) {
-            long a;
-
             if (t[0] == 0)
                 t[1] = (krand() & 3) + 1;
             t[0]++;
@@ -1304,8 +1305,9 @@ void moveexplosions(void)
                 sprite[i].xrepeat -= 48;
             sprite[i].yrepeat -= 3;
             if (t[0] == t[1])
-                for (a = 0; a < 2048; a += 768) {
-                    sprite[i].ang = (short)((unsigned char)randomstash + a);
+                /* COMPILER_STEERED: reuse the distance slot for the emission loop. */
+                for (x = 0; x < 2048; x += 768) {
+                    sprite[i].ang = (short)((unsigned char)randomstash + x);
                     spawn(i, EXPLOSION);
                 }
             if (t[0] > 3)
