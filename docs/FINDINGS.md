@@ -1093,3 +1093,20 @@ Each entry names the command or artefact that supports it.
   four edge tests (getzrange). Attribution: donors 1,924 B / 107 blocks, oracle-guided reasoning 10,300 B / 43 blocks;
   reverse/near/quirks/permute contributed nothing here. Engine 92/103.
 - OPEN: rotatesprite (first difference +0x5, frame 4 bytes short), grouvline (+0xc3).
+
+## Research pass 2026-11-27 (user request; build/workers/{synth,vibesynd,extsrc}/REPORT.md)
+- synth (targeted synthetic corpus, 57 variants / 14 families from real blockers): rediscovered all three positive
+  controls (stopsound, cacheit, setview; 2,382 B) but gained 0 STRICT on live blockers (scansector 7 B at +0x12a;
+  checkhitswitch: a second way to give both temporaries ECX worsens it and its caller; stays 2 B at +0x374).
+  NEGATIVE for expansion: allocation decisions depend on whole-function and caller context that kernels lack.
+  The index stays a diagnostic (build/workers/synth/INDEX.md).
+- vibesynd (Syndicate, same 9.5 GA compiler by size/banner): 21 recurring transformations; 16 KNOWN in our catalogues;
+  5 NEW (callee clobber declarations, offset local reused for the loaded result, volatile formal + widened local, a
+  reassembly read-only check, a comparable-link operational technique); 38 full-unit DOS trials on six blockers:
+  0 STRICT, 0 CODE_BYTES_MATCH. Four of their claims contradict our stricter verification and are not imported.
+- extsrc (Descent, ACK-3D, Raptor x2, Duke2Reconstructed, Doom recreation): 15 compiled TUs add 0 new twins across 739
+  unmatched LameDuke blocks; nothing displaces an existing xscan donor on 40 NEAR targets. NEGATIVE for ingest.
+  Toolchain control: patched Watcom 9.5b and 9.5c reproduce all 20,725 CODE bytes of two Raptor GFX members while the
+  unpatched 9.5 GA reproduces 86/106 extents: patch levels produce different code, so the GA identification of our
+  compiler is meaningful (LameDuke's STRICT set needs GA). Descent: 168 files with RCS dates 1993-1994 (code donor
+  value nil). Doom recreation: technique of checking function order against a related port's debug symbols.

@@ -600,43 +600,43 @@
    "url": "https://github.com/videogamepreservation/descent.git",
    "commit": "f6fb1c30a06725b403dfa7db4b251ecea1c3efc1",
    "path": "external/gh/videogamepreservation_descent",
-   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+   "relevance": "1998 Parallax Descent 1 v1.5 release in one 2018 import. Development tools named as Watcom 9.5; release build notes name 10.6. Expanded RCS dates in 28 files from 1993 and 140 from 1994. Four TUs yielded zero incremental block twins."
   },
   "gh-gered_ack3d": {
    "url": "https://github.com/gered/ack3d.git",
    "commit": "ad3e79e81139ef9e1afb7ed4ea64984c62a06359",
    "path": "external/gh/gered_ack3d",
-   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+   "relevance": "The initial CD import is Windows ACK_LIB plus DOS demo sources. e2176a1 identifies a Watcom DOS CD GIF reader. The complete DOS 9.5 engine is absent from reachable history. HEAD is a 10.0a/TASM 4.0 backport. Two TUs yielded zero incremental twins."
   },
   "gh-skynettx_dosraptor": {
    "url": "https://github.com/skynettx/dosraptor.git",
    "commit": "4403569505c215c6cebe02cc3344e670499def1d",
    "path": "external/gh/skynettx_dosraptor",
-   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+   "relevance": "Original Raptor v1.2 release with restoration work and substitute audio. GFX.LIB is a 2023 rebuild. Patched Watcom 9.5b and 9.5c each reproduce full CODE and normalized fixups of two GFX members (20,725 bytes); unpatched 9.5 does not. Two TUs yielded zero incremental twins."
   },
   "gh-gamesrc-ver-recreation_raptor": {
    "url": "https://github.com/gamesrc-ver-recreation/raptor.git",
    "commit": "405f958ec8f9d6a69a1774e7609ffffed64019dd",
    "path": "external/gh/gamesrc-ver-recreation_raptor",
-   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+   "relevance": "Multi-version recreation derived from dosraptor. Documents 9.5b for GFX and v1.0/v1.1 game, 10.0 for v1.2 game; original DMX absent. Three TUs yielded zero incremental twins."
   },
   "gh-lethal-guitar_Duke2Reconstructed": {
    "url": "https://github.com/lethal-guitar/Duke2Reconstructed.git",
    "commit": "980cee990879fa5f9e53706ef63ad25df8e32d2d",
    "path": "external/gh/lethal-guitar_Duke2Reconstructed",
-   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+   "relevance": "Duke Nukem II disassembly-based reconstruction. Turbo C++ 3.0 game, Borland C++ 3.0 runtime/link and 3.1 digital audio. Reconstructed identifiers, tile-based door/elevator and jump logic give no evidenced LameDuke gameplay donor."
   },
   "gh-gamesrc-ver-recreation_doom": {
    "url": "https://github.com/gamesrc-ver-recreation/doom.git",
    "commit": "bd6beabfd561613b671fe5b8842e7d373731d2c5",
    "path": "external/gh/gamesrc-ver-recreation_doom",
-   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+   "relevance": "DOS Doom version reconstruction based on LinuxDoom, Heretic and console-port sources. Notes identify 9.5a for v1.0 and 9.5b for v1.666 onward. bded4f8 corroborates within-TU function order using Doom95 debug information. Four TUs yielded zero incremental twins."
   },
   "gh-WildPress_vibesynd": {
    "url": "https://github.com/WildPress/vibesynd.git",
    "commit": "580c708052525bd568ea2c1de059867bd1a273c5",
    "path": "external/gh/WildPress_vibesynd",
-   "relevance": "research pass 2026-11-27 (user-suggested); evaluation pending (build/workers/extsrc, vibesynd)"
+   "relevance": "Syndicate matching decompilation with the same unpatched Watcom 9.5 GA DOS compiler (size/banner; hash unverified). 494 commits reviewed: 21 recurring transformations, 16 already known to us, 5 new; 38 DOS trials on 6 blockers gained nothing (build/workers/vibesynd/REPORT.md)."
   }
  },
  "repositories": {
