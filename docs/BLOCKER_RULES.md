@@ -1,5 +1,33 @@
 # Watcom 9.5 GA rules for diagnosing a first difference
 
+## SECTOR jump-table extent and allocator controls
+
+**PROVEN for checkhitceiling and checksectors.** The 264 B immediately preceding `checksectors` at 1:1c5e0 contain 66 jump-table entries. The largest oracle target, at table+4, is PUBLIC+0x2b9c. When the candidate retains this table and the next PUBLIC binding, the verifier requires each oracle target to fall strictly below the end of the candidate public span. The minimum span is 11,165 B. The baseline span of 11,184 B has 19 B of slack. This condition proves the previous function's end at 1:1c4d8. Identity of the individual candidate destinations is a separate test when verifying `checksectors` itself.
+
+| Stock DOS control | Public span B | Leading table B | checkhitceiling | checksectors differing bytes |
+| --- | ---: | ---: | --- | ---: |
+| Canonical | 11,184 | 264 | STRICT | 7,670 |
+| Stage current sector in under_tag and permute locals, csdecl-4cur | 11,168 | 264 | STRICT | 8,137 |
+| Same operation, different declaration order, csdecl-10cur | 11,152 | 264 | CODE_BYTES_MATCH | 8,082 |
+| Reuse w and i for current-lift arguments | 11,056 | 264 | CODE_BYTES_MATCH | 7,484 |
+| Same argument reuse, also cache the initial current sector in w | 11,216 | 264 | STRICT | 8,129 |
+
+The last two controls both emit the oracle's 168-byte frame and incoming MOV EDI,EAX. Caching the initial sector in w recovers the ceiling boundary but moves checksectors' own end 32 bytes beyond its canonical boundary. These tests distinguish the entry register, the preceding extent and the current extent.
+
+**PROVEN for the captured game_oe candidate sorts.** Replaying the optimized IR reads and definitions reproduced all 1,196 measured savings across seven passes. Each qualifying operand and result slot contributes 20 to the power of its loop depth, capped at depth five. The replay follows indexed operands and alias bases to their conflict and sums modulo 2^32. The measured weights are 1, 20, 400, 8,000, 160,000 and 3,200,000. Counts per pass were 204/242/242 for `checksectors`, 147/154 for `cheatkeys`, and 100/107 for `operateactivators`. The flags 0x100 class sorts first when the bit is clear. Within each class conflicts come first and sort by decreasing unsigned savings. Entries without a conflict sort by decreasing signed temporary ID. Equal keys can change relative order in the unstable sort. The later conflict-priority list and the register choice have their own scores.
+
+| Canonical trace and replay decision | Isolated result |
+| --- | --- |
+| checksectors, candidate t115/t1_snum, pass 3, savings 260 each | 7,670 → 7,669, same extent and first byte. EDI still requires a change in the player number's interference. |
+| cheatkeys, candidate t364_dy/t365_dx, pass 1, savings 220 each | 3,332 → 3,331, same extent and frame. These are the inlined door deltas. On pass 2 each has savings 60. |
+| operateactivators, home order t1_low/t2_i alone | 3,157 → 3,149. The two homes exchange and the frame stays 100 B. |
+| operateactivators, candidate t100/t98, pass 1, savings 140 each, plus the home exchange | 3,157 → 2,760 and 281 → 237 fixup diagnostics. The extent grows 16 B to 5,012 and lacks a boundary proof. |
+| checkhitwall, register choice t179 → EAX | 78 → 76. The two changed bytes are in the signed list index conversion and following nextspritestat load at PUBLIC+0x512 and +0x515. EDI scored 2 through copy preference and eligible EAX scored 0. |
+
+In `operateactivators` block 155, t98 receives the first wall index scaled by the 35-byte record size. Its point2 field supplies the index for the same calculation into t100. The optimized IR places their final copies at instructions 7 and 15. Changing declaration order in the shared callee can improve this inline copy while changing its callers' extents. All debugger-forced results above are diagnostic. The source result and stock controls have separate DOS receipts. [SECTOR census](BLOCKER_CENSUS.md#sector-dos-verification-at-12e1107)
+
+**PROVEN for the stock list advance.** With a block-local long byte offset, block 40 splits the signed conversion (t180) from its use in forming link_offset (t167). For the conversion, EAX and EDI both score zero. For link_offset both score two. EAX wins both decisions. In the baseline the conversion t179 prefers EDI two to zero. The DOS source control at canonical case order reproduces the isolated forced-EAX function bytes and verifier references exactly. In the proposed checksectors trace, t1_snum still has no eligible register and spans blocks 0 through 395. The improved table targets arose with the player number still on the stack.
+
 ## Natural C controls for conflict order, register choice and stack homes
 
 **PROVEN for scansector on the engine profile.** In the March 1995 spelling, the short-circuit condition reads the wall's point2 and both screen bounds directly. In backend block 26 the stock compiler assigns t92 (scale) to EDX and t91 (signed p2 link) to EDI. AX holds point2. The following load of xb2 at +0x141 and its comparison at +0x148 use EAX where the oracle uses EDX. Farther on, loading spritesortcnt into EDX costs six bytes, while the oracle's EAX load costs five. The diagnostic choices were sufficient for the canonical instruction stream. Restoring the donor expression also changes other allocations and store scheduling.

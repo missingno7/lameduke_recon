@@ -949,3 +949,8 @@ Each entry names the command or artefact that supports it.
   predicate gives t92->EDX / t91->EDI yet loses 11 STRICT results; operatesectors recovers EBX at +0x97 but grows its
   frame by 16 B. Adopted: comsend 5 -> 4 (producer cursor through ESC2), spritesound 56 -> 43 (widened signed owner,
   reused listener y delta), getzrange 2,288 -> 2,270 (function-scope floor_x2).
+- SECTOR census round (blockers-5): checksectors 7,670 -> 7,522 differing bytes; confirmed jump-table entries 3/66 ->
+  37/66 (all 20 targeting PUBLIC+0x2b9c); frame 4 bytes short. checkhitwall 78 -> 46 (source list advance reproduces
+  the flip tool's forced EAX; glass cases reordered). cheatkeys/operateactivators: source controls reach their oracle
+  frames (96 / 92) but lose their own extent proofs (not adopted). Next: checksectors' first near-lift dispatch
+  (jump and destination 45 bytes late).

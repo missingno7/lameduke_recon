@@ -922,16 +922,16 @@ void checkhitwall(long dawallnum, long x, long y, long z, short atwith)
         return;
     }
     switch (wall[dawallnum].picnum) {
+    case 860: case 861: case 862: case 863:
+        wall[dawallnum].picnum = 1180;
+        xyzsound(23, -1, wall[dawallnum].x, wall[dawallnum].y, sector[wall[dawallnum].nextsector1].floorz);
+        break;
     case 819: case 820: case 821: case 822:
         wall[dawallnum].picnum = 1183;
         xyzsound(23, -1, wall[dawallnum].x, wall[dawallnum].y, sector[wall[dawallnum].nextsector1].floorz);
         break;
     case 823: case 824: case 825: case 826:
         wall[dawallnum].picnum = 1182;
-        xyzsound(23, -1, wall[dawallnum].x, wall[dawallnum].y, sector[wall[dawallnum].nextsector1].floorz);
-        break;
-    case 860: case 861: case 862: case 863:
-        wall[dawallnum].picnum = 1180;
         xyzsound(23, -1, wall[dawallnum].x, wall[dawallnum].y, sector[wall[dawallnum].nextsector1].floorz);
         break;
     case 864: case 865: case 866: case 867:
@@ -955,11 +955,18 @@ void checkhitwall(long dawallnum, long x, long y, long z, short atwith)
                 darkestwall = wall[j].shade;
         floor_shade = sector[sn].floorshade;
         ceiling_shade = sector[sn].ceilingshade;
-        for (i = headspritestat[STAT_EFFECTOR]; i >= 0; i = nextspritestat[i])
+        i = headspritestat[STAT_EFFECTOR];
+        while (i >= 0) {
+            /* COMPILER_STEERED: a separate byte offset selects EAX for the list advance. */
+            long link_offset;
+
             if (sprite[i].hitag == wall[dawallnum].lotag && sprite[i].lotag == 3) {
                 hittype[i][3] = darkestwall;
                 hittype[i][4] = 1;
             }
+            link_offset = (long)i + i;
+            i = *(short *)((char *)nextspritestat + link_offset);
+        }
         for (i = 0; i < numsectors; i++)
             if (i != sn && sector[i].hitag == wall[dawallnum].lotag) {
                 sector[i].floorpal = 0;
@@ -1113,9 +1120,9 @@ void checksectors(short snum)
     }
     }
     under_tag = sector[ps[snum].cursectnum].lotag & 32767;
-    switch (under_tag) {
-    case 15: case 16: case 17: case 18: case 19:
-    case 26: case 27: case 28:
+    if (under_tag == 28 || under_tag == 27 || under_tag == 26 ||
+        (under_tag >= 18 && under_tag <= 19) || under_tag == 17 ||
+        (under_tag >= 15 && under_tag <= 16)) {
         /* COMPILER_STEERED: reuse snum after the final player lookup. */
         source = ps[snum].i;
         snum = ps[snum].cursectnum;
