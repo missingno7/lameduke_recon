@@ -169,7 +169,7 @@ def binary_for(unit):
     raise ValueError(f'{unit}: no verified line-enabled object in the worker or integrated index')
 
 
-def reverse(index, census, az, only=None, obj=None):
+def reverse(index, census, az, only=None, obj=None, external=None, limit=3):
     from blockdiff import pair_blocks
 
     units = defaultdict(set)
@@ -184,7 +184,7 @@ def reverse(index, census, az, only=None, obj=None):
         raise ValueError('no selected non-STRICT game/engine function in build/blockdiff.json')
     groups, functions = strict_tables(index)
     profiles = load_json(ROOT / 'config' / 'units.json')['units']
-    out, used, build = [], set(), {}
+    out, used, build, external_work = [], set(), {}, []
     for unit, names in units.items():
         art = obj or binary_for(unit)
         pairs = az.object_pairs(art, names, all_funcs=True)
@@ -214,6 +214,14 @@ def reverse(index, census, az, only=None, obj=None):
                         'candidate_absent_in_oracle_bytes': sum(b['size'] for b in candidate if b['reason'] == 'absent_in_oracle'),
                         'all_shared_oracle_bytes': sum(b['size'] for b in oracle), 'unmatched_shared_oracle_bytes': actionable,
                         'differing_inline_windows': copies})
+            if external is not None:
+                external_work.append((out[-1], pair))
+    if external is not None:
+        from external_corpus import annotate_reverse
+        external.prepare(tuple(t.strip() for t in key) for _, pair in external_work
+                         for body in (pair.orig, pair.cand) for key in body.keys if key)
+        for row, pair in external_work:
+            annotate_reverse(row, pair, groups, external, limit)
     out.sort(key=lambda r: (-r['unmatched_shared_oracle_bytes'], -r['candidate_absent_in_oracle_bytes'],
                            -r['all_shared_oracle_bytes'], r['unit'], r['function']))
     return {'schema': 1, 'functions': out, 'build': build, 'strict_donor_groups': {str(g['id']): g for g in groups.values() if g['id'] in used},

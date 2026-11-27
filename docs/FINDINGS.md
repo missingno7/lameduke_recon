@@ -837,3 +837,13 @@ Each entry names the command or artefact that supports it.
 - Attribution (signed positional bytes / matched blocks; depends on edit order): quirks catalogue +1,883/+4, prior
   notes +606/+2, idioms reverse +273/-1, own reasoning +41/-1, idioms near -773/-1 (but its FLAIR-mask hit is load-
   bearing: removing it raises moveexplosions from 673 to 2,610), donors 0, permute 0.
+
+## External C<->code corpus (extcorpus, Codex, 2026-11-27; docs/IDIOMS_EXTERNAL.md)
+- 320/339 historical C files compiled with LameDuke's Watcom 9.5 and -d1 (Duke 1.5 12/12, Duke 1.3D 11/11, Ken
+  snapshots 60/62, Witchaven 14/24, TekWar 18/18, ROTT 49/53, Shadow Warrior 74/75 + addendum 82/84): 16,124 function
+  variants, 456,655 searchable blocks (build/idioms/external.json.gz, not committed; rebuild with
+  tools/idioms/build_external.py + build_external_index.py). `idioms.py reverse/near/query --external[-loose]`.
+- Measured gain over the STRICT corpus for the 61 non-STRICT game/engine/MULTI functions: +73 blocks / 1,109 B exact,
+  +32 blocks / 648 B loose (field displacements abstracted) — under 1% of the remaining bytes: LameDuke's own 581
+  STRICT functions already cover most idioms. Three DOS trials recovered blocks (overwritesprite palette offset,
+  hitscan `intz` first in both comparisons, draw2dscreen signed visibility guard) without new STRICT.

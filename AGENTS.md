@@ -85,7 +85,7 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
   Ken GAME.C ancestry, Duke 1.5 / extras / raynorpat hits). RULE: run it before writing or rewriting any function;
   start from the closest historical text and record which donor you used.
 - `tools/idioms/idioms.py` — source<->code index of every STRICT function (rebuild: `python -B tools/idioms/build_index.py`
-  into build/idioms/, not committed): `near UNIT FUNC` (matched C for each unmatched oracle block), `reverse UNIT FUNC` (oracle blocks with
+  into build/idioms/, not committed): `near UNIT FUNC` (matched C for each unmatched oracle block), `reverse UNIT FUNC [--external[-loose]]` (oracle blocks with
   STRICT twins incl. code we lack, context-effect blocks, differing inline copies), `query --asm`,
   `c --pattern`. docs/WATCOM95_QUIRKS.md + docs/quirks.json: Watcom 9.5 rules with verified examples. RULE: before
   hand-solving a block, check `idioms.py near` and the quirks catalogue.

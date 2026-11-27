@@ -7,6 +7,9 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
+from external_corpus import (
+    EXTERNAL_INDEX, ExternalBlocks, external_location, hit_location, loose_key, open_external,
+)
 from build_index import INDEX, WORK, bd, sha256_file, load_json
 
 SIZES = {'byte': 1, 'word': 2, 'dword': 4, 'fword': 6, 'qword': 8, 'tbyte': 10, 'xmmword': 16}
@@ -145,6 +148,8 @@ def code(fn, indexes, field):
 
 
 def location(fn, first=None):
+    if fn.get('corpus') == 'external':
+        return external_location(fn, fn['instructions'][first]['offset'] if first is not None else 0)
     address = fn['oracle'] if first is None else f"1:{fn['extent_start'] + fn['instructions'][first]['offset']:05x}"
     return {'unit': fn['unit'], 'function': fn['function'], 'profile': fn['profile'],
             'source': fn['source'], 'address': address}
@@ -160,15 +165,16 @@ def statement_hit(fn, span):
     return row
 
 
-def query(index, pattern):
+def query(index, pattern, normalize=tuple):
+    wanted = normalize(pattern)
     for fn in index['functions']:
         if fn['language'] != 'c':
             continue
         for span in fn['statements']:
             idx = [i for i in span['instructions'] if fn['instructions'][i]['shape']]
-            key = code(fn, idx, 'shape')
+            key = normalize(code(fn, idx, 'shape'))
             for n in range(len(key) - len(pattern) + 1):
-                if key[n:n + len(pattern)] != pattern:
+                if key[n:n + len(pattern)] != wanted:
                     continue
                 matches = idx[n:n + len(pattern)]
                 first, last = matches[0], matches[-1]
@@ -176,8 +182,8 @@ def query(index, pattern):
                 if any(fn['instructions'][i]['shape'] and i not in matches for i in range(first, last + 1)):
                     continue
                 row = statement_hit(fn, span)
-                row.update(address=location(fn, first)['address'], matched_normalized=pattern,
-                           match='statement' if key == pattern else 'sequence within line-attributed statement')
+                row.update(address=location(fn, first)['address'], matched_normalized=key[n:n + len(pattern)],
+                           match='statement' if key == wanted else 'sequence within line-attributed statement')
                 yield row
 
 
@@ -232,7 +238,7 @@ def rank_blocks(key, token_index, candidates, profile, unit):
     return ranking
 
 
-def near(index, unit, function, block_addr, limit, obj_path=None):
+def near(index, unit, function, block_addr, limit, obj_path=None, external=None):
     az = bd.Analyzer()
     if obj_path is None:
         plain = WORK / 'objects' / f'{unit}.plain.obj'
@@ -273,6 +279,10 @@ def near(index, unit, function, block_addr, limit, obj_path=None):
                                      for s in sources]})
         result.append({'address': f'1:{at:05x}', 'size': pair.orig.sizes[i], 'normalized': shape,
                        'asm': tuple(x.exact.strip() for x in block if x.exact), 'hits': hits})
+    if external is not None:
+        external.prepare(block['normalized'] for block in result)
+        for block in result:
+            block['external_hits'] = list(external.hits(block['normalized'], profile, limit))
     if want is not None and not result:
         raise ValueError(f'1:{want:05x} is not an unmatched block start in {unit}/{function}')
     return {'unit': unit, 'function': function, 'profile': profile, 'status': pair.status,
@@ -283,7 +293,10 @@ def near(index, unit, function, block_addr, limit, obj_path=None):
 def print_statements(rows):
     for row in rows:
         tag = ' [shared line]' if row['ambiguous'] else ''
-        print(f"{row['unit']}/{row['function']} [{row['profile']}] {row['address']} {row['source']}:{row['line']}{tag}")
+        if row.get('corpus') == 'external':
+            print(f"{hit_location(row)}:{row['line']}{tag}")
+        else:
+            print(f"{row['unit']}/{row['function']} [{row['profile']}] {row['address']} {row['source']}:{row['line']}{tag}")
         print('    ' + row['text'].replace('\n', '\n    '))
         print('    ' + (' ; '.join(row['symbolic']) or '<no normalized instructions attributed>'))
         if row['normalized'] != row['symbolic']:
@@ -302,6 +315,11 @@ def print_near(row):
                 print(f"      {src['line']:>5}  {' '.join(src['text'].split())}")
         if not block['hits']:
             print('    No STRICT C block shares a normalized instruction.')
+        for hit in block.get('external_hits', []):
+            print('    ' + hit_location(hit))
+            print('      ' + ' ; '.join(hit['asm']))
+            for src in hit['sources']:
+                print(f"      {src['line']:>5}  {' '.join(src['text'].split())}")
 
 
 def main():
@@ -322,21 +340,32 @@ def main():
     r.add_argument('unit')
     r.add_argument('function')
     r.add_argument('--obj', type=Path, help='compare a different object with the same census status')
+    r.add_argument('--limit', type=int, default=3, help='external hits per tier and block (default 3)')
+    for command in (q, n, r):
+        command.add_argument('--external', action='store_true', help='include external exact-normalized C donors')
+        command.add_argument('--external-loose', action='store_true',
+                             help='include both external tiers, relaxing field offsets and data addresses')
+        command.add_argument('--external-index', type=Path, default=EXTERNAL_INDEX)
     for command in (q, c, n, r):
         command.add_argument('--json', action='store_true')
     args = parser.parse_args()
     try:
         index = open_index(args.index)
+        if getattr(args, 'limit', 1) < 1:
+            raise ValueError('limit must be positive')
+        external_index = (open_external(args.external_index)
+                          if getattr(args, 'external', False) or getattr(args, 'external_loose', False) else None)
+        external = (ExternalBlocks(external_index, args.external_loose)
+                    if external_index is not None and args.command in ('near', 'reverse') else None)
         if args.command == 'near':
-            if args.limit < 1:
-                raise ValueError('limit must be positive')
-            result = near(index, args.unit, args.function, args.block, args.limit, args.obj)
+            result = near(index, args.unit, args.function, args.block, args.limit, args.obj, external)
             show = print_near
         elif args.command == 'reverse':
             from reverse_search import render, reverse
+            from external_corpus import render_reverse
             census = load_json(bd.BUILD / 'blockdiff.json')['functions']
-            result = reverse(index, census, bd.Analyzer(), (args.unit, args.function), args.obj)
-            show = lambda data: print(render(data))
+            result = reverse(index, census, bd.Analyzer(), (args.unit, args.function), args.obj, external, args.limit)
+            show = lambda data: print(render(data) + ('\n' + render_reverse(data) if external is not None else ''))
         else:
             if args.command == 'c':
                 result = list(c_search(index, args.pattern))
@@ -345,6 +374,14 @@ def main():
                 if not pattern:
                     raise ValueError('no searchable instructions after blockdiff normalization')
                 result = list(query(index, pattern))
+                if external_index is not None:
+                    hits = list(query(external_index, pattern))
+                    exact = {(h['source'], h['profile'], h['function'], h['address'], h['line'], h['column']) for h in hits}
+                    result.extend(dict(h, tier='exact') for h in hits)
+                    if args.external_loose:
+                        result.extend(dict(h, tier='loose') for h in query(external_index, pattern, loose_key)
+                                      if (h['source'], h['profile'], h['function'], h['address'], h['line'],
+                                          h['column']) not in exact)
             show = print_statements
     except (OSError, ValueError, re.error) as e:
         parser.error(str(e))
