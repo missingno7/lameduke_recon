@@ -166,7 +166,11 @@ void netoff(void)
 
 int neton(void)
 {
-    short i;
+    short i, j;
+    /* COMPILER_STEERED. Name the IPX address buffer for the copy and node-number reads. */
+    volatile unsigned char *address;
+    /* COMPILER_STEERED. Stage the low segment byte before each store. */
+    unsigned char segmentlow;
 
     if ((ipxdetect(0x7a00, 0, 0, 0) & 255) != 255) return -1;
     allocbicom();
@@ -192,7 +196,8 @@ int neton(void)
     rmnethandler[4] = 4;
     rmnethandler[5] = 0;
     rmnethandler[6] = 0xbe;                        /* mov si, segment */
-    rmnethandler[7] = rmsegment16;
+    segmentlow = rmsegment16;
+    rmnethandler[7] = segmentlow;
     rmnethandler[8] = rmsegment16 >> 8;
     rmnethandler[9] = 0x8e;                        /* mov es, si */
     rmnethandler[10] = 0xc6;
@@ -210,26 +215,30 @@ int neton(void)
     ipxcall(0, 1, 0, IPXSOCKET);
     if ((ipxcall(0xff, 0, 0, IPXSOCKET) & 255) != 0) return -2;
     simulateint(0x7a, 0L, 9L, 0L, 0L, (long)tempoutbuf, 0L);
-    memcpy(mycompaddr, (const void *)tempoutbuf, 10);
+    address = tempoutbuf;
+    memcpy(mycompaddr, (const void *)address, 10);
     mycompaddr[10] = IPXSOCKET & 255;
     mycompaddr[11] = IPXSOCKET >> 8;
-    myconnectnum = (long)tempoutbuf[6] + ((long)tempoutbuf[7] << 8)
-                 + ((long)tempoutbuf[8] << 16) + ((long)tempoutbuf[9] << 24);
+    address = tempoutbuf;
+    myconnectnum = (long)address[6] + ((long)address[7] << 8)
+                 + ((long)address[8] << 16) + ((long)address[9] << 24);
     netinitconnection(myconnectnum, mycompaddr);
 
     ecbget[8] = 1;
     ecbput[8] = 0;
     *inbufplc = 0;
     *inbufend = 0;
-    for (i = 0; i < MAXPLAYERS; i++)
-        netoutcnt[i] = netincnt[i] = 0;
-    prevpacketlength = prevpacketindex = 0;
+    for (j = 0; j < MAXPLAYERS; j++)
+        netoutcnt[j] = netincnt[j] = 0;
+    prevpacketlength = 0;
+    prevpacketindex = 0;
 
     for (i = 0; i < 30; i++) ipxin[i] = 0;
     for (i = 0; i < 48; i++) ecbget[i] = 0;
     ecbget[4] = (long)rmnethandler - rmoffset32;
     ecbget[5] = ((long)rmnethandler - rmoffset32) >> 8;
-    ecbget[6] = rmsegment16;
+    segmentlow = rmsegment16;
+    ecbget[6] = segmentlow;
     ecbget[7] = rmsegment16 >> 8;
     ecbget[10] = IPXSOCKET & 255;
     ecbget[11] = IPXSOCKET >> 8;
@@ -237,13 +246,15 @@ int neton(void)
     ecbget[35] = 0;
     ecbget[36] = (long)ipxin - rmoffset32;
     ecbget[37] = ((long)ipxin - rmoffset32) >> 8;
-    ecbget[38] = rmsegment16;
+    segmentlow = rmsegment16;
+    ecbget[38] = segmentlow;
     ecbget[39] = rmsegment16 >> 8;
     ecbget[40] = 30;
     ecbget[41] = 0;
     ecbget[42] = (long)messin - rmoffset32;
     ecbget[43] = ((long)messin - rmoffset32) >> 8;
-    ecbget[44] = rmsegment16;
+    segmentlow = rmsegment16;
+    ecbget[44] = segmentlow;
     ecbget[45] = rmsegment16 >> 8;
     ecbget[46] = MAXIPXSIZ & 255;
     ecbget[47] = MAXIPXSIZ >> 8;
@@ -359,42 +370,38 @@ void netsend(short otherconnectindex, short messleng)
         memcpy((void *)&ecbput[28], &bridgeaddr[otherconnectindex][0], 6);
 
     ecbput[34] = 2; ecbput[35] = 0;
-    ecbput[36] = (long)ipxout - rmoffset32;
+    ecbput[36] = ((long)ipxout - rmoffset32) & 255;
     ecbput[37] = ((long)ipxout - rmoffset32) >> 8;
-    ecbput[38] = rmsegment16; ecbput[39] = rmsegment16 >> 8;
+    ecbput[38] = rmsegment16 & 255; ecbput[39] = rmsegment16 >> 8;
     ecbput[40] = 30; ecbput[41] = 0;
-    ecbput[42] = (long)messout - rmoffset32;
+    ecbput[42] = ((long)messout - rmoffset32) & 255;
     ecbput[43] = ((long)messout - rmoffset32) >> 8;
-    ecbput[44] = rmsegment16; ecbput[45] = rmsegment16 >> 8;
+    ecbput[44] = rmsegment16 & 255; ecbput[45] = rmsegment16 >> 8;
     ecbput[46] = messleng & 255; ecbput[47] = messleng >> 8;
     simulateint(0x7a, 0L, 3L, 0L, 0L, (long)ecbput, 0L);
 }
 
 int comsend(unsigned char ch)
 {
-    volatile short *end;
-
     if (ch == ESC1)
     {
         outbuf[*outbufend] = ch;
         *outbufend = (*outbufend + 1) & (COMBUFSIZ - 1);
         outbuf[*outbufend] = 64;
-        end = outbufend;
+        *outbufend = (*outbufend + 1) & (COMBUFSIZ - 1);
     }
     else if (ch == ESC2)
     {
         outbuf[*outbufend] = ESC1;
-        end = outbufend;
-        *end = (*end + 1) & (COMBUFSIZ - 1);
-        /* The integer address form steers Watcom's register allocation. */
-        *(volatile unsigned char *)((long)outbuf + (long)*outbufend) = 65;
+        *outbufend = (*outbufend + 1) & (COMBUFSIZ - 1);
+        outbuf[*outbufend] = 65;
+        *outbufend = (*outbufend + 1) & (COMBUFSIZ - 1);
     }
     else
     {
         outbuf[*outbufend] = ch;
-        end = outbufend;
+        *outbufend = (*outbufend + 1) & (COMBUFSIZ - 1);
     }
-    *end = (*end + 1) & (COMBUFSIZ - 1);
     return 0;
 }
 
@@ -576,6 +583,9 @@ long simulateint(unsigned char intnum, long daeax, long daebx, long daecx,
 void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
 {
     long i, j;
+    long timeout;
+    /* COMPILER_STEERED. Hold the transmit cursor during its advance. */
+    volatile short *plc;
     unsigned char previoussequence;
 
     if (multioption <= 0) return;
@@ -591,8 +601,7 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
         {
             i = getcrc(buffer, length);
             comsend(i & 255);
-            i >>= 8;
-            comsend(i & 255);
+            comsend(i >> 8);
         }
         outbuf[*outbufend] = ESC2;
         *outbufend = (*outbufend + 1) & (COMBUFSIZ - 1);
@@ -601,19 +610,20 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
         if ((kinp(*comport + 5) & 0x40) > 0 && *outbufplc != *outbufend)
         {
             koutp(*comport, outbuf[*outbufplc]);
-            *outbufplc = (*outbufplc + 1) & (COMBUFSIZ - 1);
+            plc = outbufplc;
+            *plc = (*plc + 1) & (COMBUFSIZ - 1);
         }
         _enable();
         outcnt = (outcnt + 1) & 63;
     }
     else if (multioption >= 5)
     {
-        i = 262144;
-        while (--i > 0 && ecbput[8] != 0)
+        timeout = 262144;
+        while (--timeout > 0 && ecbput[8] != 0)
         {
         }
-        j = 1;
-        messout[0] = myconnectindex;
+        j = 0;
+        messout[j++] = myconnectindex;
 
         if (buffer[0] == 253 || buffer[0] == 254)
         {
@@ -674,7 +684,6 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
 {
     short i, j, length, sublength, start;
     unsigned char bad, toindex, totalbad;
-    unsigned char sequence;
     volatile unsigned char *ring;
 
     if (multioption <= 0) return 0;
@@ -683,7 +692,8 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
         *otherconnectindex = 1 - myconnectindex;
         for (; *inbufplc != *inbufend; )
         {
-            i = inbuf[*inbufplc];
+            /* COMPILER_STEERED. Widen the serial byte with the protocol mask. */
+            i = inbuf[*inbufplc] & 255;
             *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
             if (i != ESC2)
             {
@@ -698,12 +708,11 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
                     else if (i < 64)
                     {
                         /* COMPILER_STEERED. Keep the ring mask on the short index. */
-                        j = outbufindex[i] + COMBUFSIZ - 2;
-                        j &= COMBUFSIZ - 1;
-                        outbuf[j] = ESC1;
-                        outbuf[j + 1] = ESC2;
+                        i = ((short)outbufindex[i] + COMBUFSIZ - 2) & (COMBUFSIZ - 1);
+                        outbuf[i] = ESC1;
+                        outbuf[i + 1] = ESC2;
                         _disable();
-                        *outbufplc = j;
+                        *outbufplc = i;
                         if ((kinp(*comport + 5) & 0x40) > 0)
                         {
                             koutp(*comport, outbuf[*outbufplc]);
@@ -731,8 +740,7 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
 
             bad = 0;
             length = syncbufleng - 3 + ((comrateoption == 0) << 1);
-            sequence = syncbuf[0] >> 2;
-            if (sequence != *incnt)
+            if ((syncbuf[0] >> 2) != *incnt)
             {
                 if (*incnt == 1 && syncbuf[1] == 254)
                     myconnectindex = myconnectnum < otherconnectnum;
@@ -742,9 +750,7 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
             for (i = 0; i < length; i++) buffer[i] = syncbuf[i + 1];
             if (comrateoption > 0)
             {
-                long expected;
-                expected = (long)syncbuf[syncbufleng - 1] << 8;
-                expected += syncbuf[syncbufleng - 2];
+                long expected = syncbuf[syncbufleng - 2] + ((long)syncbuf[syncbufleng - 1] << 8);
                 if (getcrc(buffer, length) != expected) bad = 1;
             }
             syncbufleng = 0;

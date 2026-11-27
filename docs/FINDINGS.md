@@ -1041,3 +1041,9 @@ Each entry names the command or artefact that supports it.
 - Engine follow-up 3 (r12-engine-3): PROVEN neartag STRICT (1,644 B): the March-28-1995 donor's repeated wall-endpoint
   reads and dot-product operand order close all 110 bytes. ENGINE 89/103. drawmaskwall still 7 bytes (xb1[z] load
   after candidate sorting; 20 flip probes do not help).
+
+## MULTI round (r13-multi, astra, 2026-11-27; build/workers/r13-multi/NOTES.md)
+- PROVEN netsend STRICT (Ken's low-byte masks on both ECB fragment offsets and segments) and comsend STRICT (a cursor
+  advance in each branch lets Watcom merge the tails — the flip set t27 -> EDX realised naturally). MULTI 22/25.
+- neton 298 -> 10 (two initialisation loops differ in register choice; all fixups verify); sendpacket 128 -> 61 (all
+  50 blocks; separate timeout, Ken's CRC high-byte expression); getpacket 695 -> 499.

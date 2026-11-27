@@ -2047,10 +2047,10 @@
      "status": "STRICT"
     },
     "netsend": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "comsend": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "nethandler": {
      "status": "STRICT"
