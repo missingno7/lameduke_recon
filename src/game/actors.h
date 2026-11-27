@@ -33,7 +33,8 @@ extern short EGS(short sect, long x, long y, long z, unsigned char cstat,
     short picnum, signed char shade, unsigned char xrepeat, unsigned char yrepeat,
     long ang, long xvel, long zvel, short owner, short statnum);
 extern short spawn(short i, short tile);
-extern long setsprite(short i, long x, long y, long z);
+/* The crane hook call passes the full msy slot. ENGINE reads the low word. */
+extern long setsprite();
 extern int deletesprite(short i);
 extern int changespritestat(short i, short stat);
 extern long movesprite(short i, long dx, long dy, long dz, long radius,
@@ -46,7 +47,8 @@ extern short getincangle();
 extern long krand(void);
 /* Old-style declaration, as ACTORS evidently saw it (int return, no prototype; lockin audit 2026-11-27). */
 extern int findplayer();
-extern short checkcursectnums(short sectnum);
+/* ACTORS passes the full crane sector slot. SECTOR reads the low word. */
+extern short checkcursectnums();
 extern int cansee(long x1, long y1, long z1, short sect1,
     long x2, long y2, long z2, short sect2);
 extern void FTA(short quote);

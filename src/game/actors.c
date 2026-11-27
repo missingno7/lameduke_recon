@@ -292,12 +292,6 @@ void guts(short i)
     spawn_gib(i, HEADPIECE, sprite[i].ang - 1024, 32, -768);
 }
 
-#define FIND_IN_SECTOR(sn, tile, j) do { \
-    for ((j) = headspritesect[(sn)]; (j) >= 0; (j) = nextspritesect[(j)]) \
-        if (sprite[(j)].picnum == (tile)) \
-            break; \
-} while (0)
-
 #define FALL(s) do { \
     if ((s)->z < sector[(s)->sectnum].floorz) { \
         if ((s)->zvel < 2048) \
@@ -1497,9 +1491,10 @@ void movefx(void)
 void movestandables(void)
 {
     short i, nexti, j;
+    long d;
 
     for (i = headspritestat[STAT_STANDABLE]; i >= 0; i = nexti) {
-        long d, *t;
+        long zvel, *t;
         short sect, p;
 
         nexti = nextspritestat[i];
@@ -1524,20 +1519,21 @@ void movestandables(void)
                             sprite[j].shade = -32;
                 }
             }
-        } else if (sprite[i].picnum >= CRANE && sprite[i].picnum < CRANE + 4) {
+        } else if (sprite[i].picnum >= CRANE && sprite[i].picnum <= CRANE + 3) {
             sprite[i].xrepeat = sprite[i].yrepeat = 64;
             if (t[0] == 0) {
-                if (checkcursectnums((short)t[1]) < 0) {
-                    FIND_IN_SECTOR((short)t[1], 627, j);
-                    if (j >= 0) {
+                if (checkcursectnums(t[1]) >= 0) {
+                    sprite[i].ang = (short)getangle(msx[t[4] + 1] - sprite[i].x, msy[t[4] + 1] - sprite[i].y);
+                    t[0]++;
+                } else {
+                    for (j = headspritesect[t[1]]; j >= 0; j = nextspritesect[j]) {
+                        if (sprite[j].picnum != 627)
+                            continue;
                         sprite[i].ang = (short)getangle(msx[t[4] + 1] - sprite[i].x, msy[t[4] + 1] - sprite[i].y);
                         setsprite(j, msx[t[4] + 1], msy[t[4] + 1], sprite[j].z);
                         t[0]++;
-                        continue;
+                        goto nextstandable;
                     }
-                } else {
-                    sprite[i].ang = (short)getangle(msx[t[4] + 1] - sprite[i].x, msy[t[4] + 1] - sprite[i].y);
-                    t[0]++;
                 }
             } else if (t[0] == 1) {
                 if (sprite[i].xvel < 184) {
@@ -1570,15 +1566,17 @@ void movestandables(void)
                 }
             } else if (t[0] == 3) {
                 if (++sprite[i].picnum == 1177) {
-                    p = checkcursectnums((short)t[1]);
+                    p = checkcursectnums(t[1]);
                     if (p >= 0 && ps[p].on_ground) {
                         sprite[i].owner = -2;
                         ps[p].ang = (short)getangle(sprite[i].x - ps[p].posx, sprite[i].y - ps[p].posy);
                         ps[p].on_crane = i;
                     } else {
-                        FIND_IN_SECTOR((short)t[1], 627, j);
-                        if (j >= 0)
-                            sprite[i].owner = j;
+                        for (j = headspritesect[t[1]]; j >= 0; j = nextspritesect[j])
+                            if (sprite[j].picnum == 627) {
+                                sprite[i].owner = j;
+                                break;
+                            }
                     }
                     t[2] = 0;
                     t[0]++;
@@ -1590,23 +1588,23 @@ void movestandables(void)
             } else if (t[0] == 5 || t[0] == 8) {
                 if (t[0] == 8 && sprite[i].picnum < 1177 && sector[sect].floorz - sprite[i].z > 0x2000)
                     sprite[i].picnum++;
-                if (sprite[i].z >= msx[t[4] + 2])
-                    sprite[i].z -= 1536;
-                else {
+                if (sprite[i].z < msx[t[4] + 2]) {
                     t[0]++;
                     sprite[i].xvel = 0;
-                }
+                } else
+                    sprite[i].z -= 1536;
             } else if (t[0] == 6) {
                 if (sprite[i].xvel < 192)
                     sprite[i].xvel += 8;
                 sprite[i].ang = (short)getangle(msx[t[4]] - sprite[i].x, msy[t[4]] - sprite[i].y);
-                MOVE_ALONG(i, sprite[i].zvel, 0);
+                zvel = sprite[i].zvel;
+                MOVE_ALONG(i, zvel, 0);
                 if ((sprite[i].y - msy[t[4]]) * (sprite[i].y - msy[t[4]]) + (sprite[i].x - msx[t[4]]) * (sprite[i].x - msx[t[4]]) < 0x4000)
                     t[0]++;
             } else if (t[0] == 9) {
                 t[0] = 0;
             }
-            setsprite((short)msy[t[4] + 2], sprite[i].x, sprite[i].y, sprite[i].z - 8704);
+            setsprite(msy[t[4] + 2], sprite[i].x, sprite[i].y, sprite[i].z - 8704);
             if (sprite[i].owner == -1)
                 continue;
             p = findplayer(i, &d);
@@ -1617,7 +1615,9 @@ void movestandables(void)
                 sprite[i].owner = -1;
                 sprite[i].picnum = CRANE;
             }
-            if (sprite[i].owner == -2) {
+            if (sprite[i].owner >= 0)
+                setsprite(sprite[i].owner, sprite[i].x, sprite[i].y, sprite[i].z);
+            else if (sprite[i].owner == -2) {
                 if (ps[p].on_crane == i && p == screenpeek)
                     sprite[i].xrepeat = sprite[i].yrepeat = 0;
                 ps[p].posx = sprite[i].x - (sintable[(ps[p].ang + 512) & 2047] >> 6);
@@ -1625,15 +1625,14 @@ void movestandables(void)
                 ps[p].posz = sprite[i].z - 7168;
                 clipmove(&ps[p].posx, &ps[p].posy, &ps[p].posz, &ps[p].cursectnum, 0, 0, 192, 1024, 1024, 0);
                 setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz);
-            } else if (sprite[i].owner >= 0) {
-                setsprite(sprite[i].owner, sprite[i].x, sprite[i].y, sprite[i].z);
             }
         } else if (sprite[i].picnum == CANWITHSOMETHING) {
             FALL(&sprite[i]);
             j = ifhitbyweapon(i);
             if (j >= 0) {
-                if (sprite[i].lotag)
-                    EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z - 4096, 1, sprite[i].lotag, -16, 32, 32, 0, 0, -1536, sprite[j].owner, 1);
+                d = sprite[i].lotag;
+                if (d)
+                    EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z - 4096, 1, d, -16, 32, 32, 0, 0, -1536, sprite[j].owner, 1);
                 EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z - 4096, 1, 1201, sprite[i].shade, 32, 32, sprite[j].ang, 128, -1024,
                     sprite[j].owner, 5);
                 EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z, 1, 1204, sprite[i].shade, 28, 32, sprite[j].ang - 512, 128, -1024,
@@ -1644,8 +1643,15 @@ void movestandables(void)
             }
         } else {
             p = findplayer(i, &d);
-            if (sprite[i].picnum == 627 || sprite[i].picnum == 905 || sprite[i].picnum == 974)
+            switch (sprite[i].picnum) {
+            case 627:
+            case 905:
+            case 974:
                 execute(i, p, d);
+                break;
+            }
         }
+nextstandable:
+        ;
     }
 }
