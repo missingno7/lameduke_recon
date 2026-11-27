@@ -188,8 +188,8 @@ def tokenize(code, relocs, branch):
                 ref = relocs.get(fld) if fld is not None else None
                 if isinstance(ref, tuple):                      # relocated branch to a label of this function
                     t, name = ref[1], None
-                    if m == "call" and t == 0:                  # relocated recursive call: a call, as on the oracle side
-                        name = branch(0, True)
+                    if m == "call":                             # relocated recursive call (the entry may follow
+                        name = branch(t, True)                     # a leading jump table): a call, as on the oracle side
                 elif ref is not None:
                     name = ref
                 else:
@@ -347,7 +347,7 @@ class Analyzer:
                 relocs[s - addr] = self.refs.token(tobj, toff)
 
         def branch(t, is_call):
-            if 0 <= t < len(code) and not (is_call and t == 0):
+            if 0 <= t < len(code) and not is_call:      # a call is never internal: inside the extent it is recursion
                 return None
             return self.refs.token(1, addr + t)
         return relocs, branch
@@ -439,7 +439,7 @@ class Analyzer:
                     relocs[rel] = "?"
 
             def branch(t, is_call, _size=size, _addr=addr):
-                if 0 <= t < _size and not (is_call and t == 0):
+                if 0 <= t < _size and not is_call:
                     return None
                 return self.refs.token(1, _addr + t)
             last = all(oo <= o0 for oo in pubs.get(si, {}))
