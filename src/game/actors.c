@@ -110,7 +110,9 @@ void hitradius(short i, long r, short hp)
             dy_squared = dy * dy;
             dx = sprite[i].x - sprite[j].x;
             if (dx * dx + dy_squared < r * r) {
-                sprite[i].ang = getangle(sprite[j].x - sprite[i].x, sprite[j].y - sprite[i].y);
+                /* COMPILER_STEERED: reuse dy for the direction passed to getangle. */
+                dy = sprite[j].y - sprite[i].y;
+                sprite[i].ang = getangle(sprite[j].x - sprite[i].x, dy);
                 if (sprite[j].extra >= 0) {
                     hit = EGS(sprite[j].sectnum, sprite[j].x, sprite[j].y, sprite[j].z,
                         0, RADIUSEXPLOSION, -16, 0, 0, sprite[i].ang, 32, 0, sprite[i].owner, 4);
@@ -320,11 +322,11 @@ void guts(short i)
 void moveactors(void)
 {
     /* COMPILER_STEERED: short-local order selects the actor index stack home. */
-    short p, nexti, i, j, sect;
-    long l, dist;
+    short nexti, j, i, p, sect;
+    long dist;
 
     for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti) {
-        long *t;
+        long *t, l;
 
         nexti = nextspritestat[i];
         p = findplayer(i, &dist);
@@ -1091,10 +1093,13 @@ void moveweapons(void)
 void moveexplosions(void)
 {
     short i, nexti;
+    /* COMPILER_STEERED: these two locals also determine the inlined movement layout. */
+    short p;
+    long x;
 
     for (i = headspritestat[STAT_MISC]; i >= 0; i = nexti) {
-        long *t, x;
-        short sect, p;
+        long *t;
+        short sect;
 
         nexti = nextspritestat[i];
         sect = sprite[i].sectnum;
@@ -1211,7 +1216,8 @@ void moveexplosions(void)
             else
                 sprite[i].xvel = 0;
             sprite[i].zvel += 192;
-            if (!ssp(i, 0)) {
+            /* COMPILER_STEERED: expanding the movement here changes the arm-piece register allocation. */
+            if (MOVE_ALONG(i, sprite[i].zvel, 0)) {
                 t[1]++;
                 sprite[i].zvel = (short)-sprite[i].zvel;
             }
@@ -1281,7 +1287,9 @@ void moveexplosions(void)
                 sprite[i].zvel = (short)-sprite[i].zvel;
             }
             if ((krand() >> 8) >= 239) {
-                spawn_blood(i, i, (short)t[0] << 7, (short)(krand() & 32));
+                /* COMPILER_STEERED: save the low word before evaluating the blood arguments. */
+                short ang = t[0];
+                spawn_blood(i, i, ang << 7, (short)(krand() & 32));
             }
             if (sprite[i].z + 4096 > sector[sect].floorz && t[1] > 1) {
                 sprite[i].picnum = 879;
@@ -1302,7 +1310,7 @@ void moveexplosions(void)
             if (t[0] == t[1])
                 /* COMPILER_STEERED: reuse the distance slot for the emission loop. */
                 for (x = 0; x < 2048; x += 768) {
-                    sprite[i].ang = (short)((unsigned char)randomstash + x);
+                    sprite[i].ang = (short)((randomstash & 255) + x);
                     spawn(i, EXPLOSION);
                 }
             if (t[0] > 3) {

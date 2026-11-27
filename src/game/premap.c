@@ -242,10 +242,8 @@ extern long angvel, svel, vel;
 void spawn(long j, short pn)
 {
     /* COMPILER_STEERED: declaration order affects the stack slots. */
-    short clostest, s, i, sect, startwall;
-    long x;
-    short endwall;
-    long y, d;
+    short clostest, s, endwall, sect, startwall, i;
+    long x, y, d;
 
     if (j >= 0) {
         i = EGS(sprite[j].sectnum, sprite[j].x, sprite[j].y, sprite[j].z,
@@ -588,7 +586,9 @@ void spawn(long j, short pn)
             startwall = sector[sect].wallptr;
             endwall = startwall + sector[sect].wallnum;
             q = 0x7fffffff;
-            for (s = startwall; s < endwall; s++) {
+            /* COMPILER_STEERED: the explicit increment changes allocation in this scan. */
+            s = startwall;
+            while (s < endwall) {
                 x = wall[s].x;
                 y = wall[s].y;
                 d = ksqrt((sprite[i].y - y) * (sprite[i].y - y) + (sprite[i].x - x) * (sprite[i].x - x));
@@ -596,6 +596,7 @@ void spawn(long j, short pn)
                     q = d;
                     clostest = s;
                 }
+                s++;
             }
             hittype[i][1] = clostest;
             q = 0x7fffffff;
@@ -960,6 +961,9 @@ void prelevel(void)
 /* Start a new game: episode vn, level ln, skill sk; fresh inventory, pistol and ammo for player 0. */
 void newgame(unsigned char vn, unsigned char ln, unsigned char sk)
 {
+    /* COMPILER_STEERED: a short local controls the register used to clear weapon ownership. */
+    short owned;
+
     ps[0].level = ln;
     ps[0].volume = vn;
     ps[0].skill = sk;
@@ -972,10 +976,11 @@ void newgame(unsigned char vn, unsigned char ln, unsigned char sk)
     ps[0].shield_amount = 0;
     ps[0].inventory[3] = 0;
     ps[0].show_inventory = 0;
-    ps[0].gotweapon[0] = 0;
-    ps[0].gotweapon[2] = 0;
-    ps[0].gotweapon[3] = 0;
-    ps[0].gotweapon[4] = 0;
+    owned = 0;
+    ps[0].gotweapon[0] = owned;
+    ps[0].gotweapon[2] = owned;
+    ps[0].gotweapon[3] = owned;
+    ps[0].gotweapon[4] = owned;
     ps[0].screen_size = -4;
     ps[0].gotweapon[1] = 1;
     ps[0].score = 0;

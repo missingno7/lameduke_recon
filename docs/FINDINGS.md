@@ -827,3 +827,13 @@ Each entry names the command or artefact that supports it.
   all 139 bytes of IFWASWEAPON; all 52 switch destinations agree); execute 2,948 -> 2,909. Alternatives kept in
   build/workers/r8astra-gamedef/round4/: an IFCANSEE form matching 1,085 consecutive bytes from parse's entry (but
   2,354 total after later case shifts), and a 44-byte-frame execute at exact size (4,343 bytes).
+
+## Measured tool-first round: ACTORS/PREMAP (r10-actors, astra, 2026-11-27; build/workers/r10-actors/NOTES.md)
+- PROVEN hitradius STRICT (304 B): reusing `dy` for the getangle result fixes its four stack-slot bytes. ACTORS 14/18.
+- moveexplosions 2,035 -> 673 differing bytes (arm movement, blood angle, FLAIR mask, local scopes); newgame 49 -> 38
+  (shared short for the weapon clears); prelevel 13/28 exact table entries restored (the permute sweep-1 spawn
+  declaration order had silently cost prelevel's inlined copy all 13 — inlining makes callee edits cross-function);
+  spawn content .772 -> .793.
+- Attribution (signed positional bytes / matched blocks; depends on edit order): quirks catalogue +1,883/+4, prior
+  notes +606/+2, idioms reverse +273/-1, own reasoning +41/-1, idioms near -773/-1 (but its FLAIR-mask hit is load-
+  bearing: removing it raises moveexplosions from 673 to 2,610), donors 0, permute 0.

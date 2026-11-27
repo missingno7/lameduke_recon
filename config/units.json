@@ -2500,7 +2500,7 @@
      "status": "STRICT"
     },
     "hitradius": {
-     "status": "NEAR_MATCH"
+     "status": "STRICT"
     },
     "spawn_gib": {
      "status": "STRICT"
