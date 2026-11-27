@@ -624,3 +624,9 @@ Each entry names the command or artefact that supports it.
   operateactivators and cheatkeys reach the oracle's exact sizes (11,184 / 4,912 / 7,568); checksectors content .294
   -> .425 (frame 0xb4 vs oracle 0xa8); operatesectors reaches the oracle frame 0x1c4. Door layout recovered with a
   dedicated case 9 loop index, the case 21 ceiling-height operand and case 22 midpoint initialisation. SECTOR 12/18.
+
+## Engine round 6 (r6cx-engine, Codex, 2026-11-27; build/workers/r6cx-engine/NOTES.md, integrated)
+- No STRICT change (85/103). getcliplines recovers indexed sprite loads (content .253 -> .276); getzrange recovers
+  the shared face- and wall-sprite height checks (.170 -> .257); grouvline projection and declaration order (fuzzy
+  .884 -> .899); hitscan local order (-3 bytes). drawsprite/draw2dscreen trials that scored higher changed extents
+  and regressed STRICT neighbours (not adopted).
