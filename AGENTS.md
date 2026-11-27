@@ -81,6 +81,9 @@ PROVEN/STRONG/HYPOTHESIS/NEGATIVE) and `docs/TOOLCHAIN.md` before working.
 - `tools/permute/permute.py UNIT FUNC... --out DIR` — automated search over semantics-neutral C rewrites
   (declaration order, temporaries, commutative operands, independent statements, loop forms) with whole-unit STRICT
   regression checks and DOS confirmation; workers set PERMUTE_WORK to their own directory.
+- `tools/donors.py FUNC...` — one-stop donor lookup (source donors compiled with our Watcom 9.5, dated binary donors,
+  Ken GAME.C ancestry, Duke 1.5 / extras / raynorpat hits). RULE: run it before writing or rewriting any function;
+  start from the closest historical text and record which donor you used.
 - `tools/readme.py` — regenerates the README.md progress bars and the docs/STATUS.md unit table from build/verify.json (after `verify.py --update`).
 - Watcom 9.5b compiles run on the canonical DOS host (tools/doshost.py: the original DOS compiler under DOSBox-X,
   ~1.7 s per compile) because CONST padding residue depends on the host; LAMEDUKE_HOST=nt gives the same code
