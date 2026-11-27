@@ -980,3 +980,7 @@ Each entry names the command or artefact that supports it.
   functions through shared inlined helpers (minitext/gametext copies): best case nonsharedkeys 14 -> 12 while
   strget, main and dobonus change. Not adopted. These ties need a coordinated multi-function change of the inlined
   helpers, not local edits.
+- ACTORS follow-up 6 (r10-actors-6): moveactors 4,211 -> 3,524 differing bytes (slime state updates, reactor flare
+  coordinate evaluation; 57 reference problems cleared; all eight targets exact). moveexplosions stays at 74: natural
+  C reproduces the y/z spill only at a cost of 2,568 bytes; forcing spill + leg sine index leaves 3 floor-register
+  bytes.

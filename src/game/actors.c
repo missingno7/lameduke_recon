@@ -550,9 +550,10 @@ shark_steer:
                     sprite[i].yrepeat -= krand() & 7;
                 else {
                     sprite[i].xrepeat = 40;
-                    sprite[i].yrepeat = 16;
-                    sprite[i].owner = -1;
+                    /* COMPILER_STEERED: Reset the actor state before its owner and size. */
                     t[0] = 0;
+                    sprite[i].owner = -1;
+                    sprite[i].yrepeat = 16;
                 }
                 continue;
             }
@@ -561,10 +562,10 @@ shark_steer:
                 sprite[sprite[i].owner].xvel = 0;
                 l = sprite[sprite[i].owner].ang;
                 sprite[i].z = sprite[sprite[i].owner].z;
-                /* COMPILER_STEERED: the sine addend comes first in this owner-coordinate update. */
+                /* COMPILER_STEERED: set the tile before updating the owner-relative position. */
+                sprite[i].picnum = 963 + (randomstash & 1);
                 sprite[i].x = (sintable[(l + 512) & 2047] >> 11) + sprite[sprite[i].owner].x;
                 sprite[i].y = sprite[sprite[i].owner].y + (sintable[l & 2047] >> 11);
-                sprite[i].picnum = 963 + (randomstash & 1);
                 if (sprite[i].yrepeat < 64)
                     sprite[i].yrepeat += 2;
                 else if (sprite[i].xrepeat < 32)
@@ -612,11 +613,9 @@ shark_steer:
                 }
                 if (sprite[i].xvel < 32)
                     sprite[i].xvel += 4;
-                /* COMPILER_STEERED: narrowing the masked index keeps the later switch targets aligned. */
-                sprite[i].xvel = 64 - (sintable[(unsigned short)((t[1] + 512) & 2047)] >> 9);
+                sprite[i].xvel = 64 - (sintable[(t[1] + 512) & 2047] >> 9);
                 sprite[i].ang += getincangle(sprite[i].ang, getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 3);
-                /* COMPILER_STEERED: narrowing the phase keeps the actor switch targets aligned. */
-                sprite[i].xrepeat = (sintable[(unsigned short)((t[1] + 512) & 2047)] >> 11) + 36;
+                sprite[i].xrepeat = (sintable[(t[1] + 512) & 2047] >> 11) + 36;
                 sprite[i].yrepeat = (sintable[t[1] & 2047] >> 13) + 16;
                 if ((krand() >> 8) >= 251 && klabs(sector[sect].floorz - sector[sect].ceilingz) < 49152) {
                     sprite[i].zvel = 0;
@@ -631,8 +630,10 @@ shark_steer:
                     sprite[i].xrepeat -= 4;
                 if (sprite[i].zvel > -3072)
                     sprite[i].zvel -= 348;
-                sprite[i].z += sprite[i].zvel;
-                if (sector[sect].ceilingz + 4096 > sprite[i].z) {
+                /* COMPILER_STEERED: hold the rising slime height through the ceiling test. */
+                l = sprite[i].z + sprite[i].zvel;
+                sprite[i].z = l;
+                if (sector[sect].ceilingz + 4096 > l) {
                     sprite[i].z = sector[sect].ceilingz + 4096;
                     sprite[i].xvel = 0;
                     t[0]++;
@@ -736,8 +737,9 @@ shark_steer:
                     if (t[4]) {
                         sprite[i].z -= 0x2000;
                         shoot(i, BULLET, 0);
-                        sprite[i].shade = -16;
+                        /* COMPILER_STEERED: Restore the firing height before setting the shade. */
                         sprite[i].z += 0x2000;
+                        sprite[i].shade = -16;
                     }
                 } else {
                     sprite[i].shade = 4;
@@ -905,8 +907,9 @@ wait:
                     deletesprite(i);
                     continue;
                 }
-                sprite[i].z -= 6144;
+                /* COMPILER_STEERED: turn the reactor before raising its firing position. */
                 sprite[i].ang += 300;
+                sprite[i].z -= 6144;
                 shoot(i, 0, 1);
                 sprite[i].z += 6144;
                 switch (t[1]) {
@@ -918,8 +921,18 @@ wait:
                 case 7:
                 case 10:
                 case 15:
-                    EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (krand() & 0x3FFF) + 5120, 2, FLAIR,
-                        -127, 96, 48, 0, 0, 0, i, 5);
+                    /* COMPILER_STEERED: stage the flare coordinates around the random height draw. */
+                    {
+                        long x;
+                        long y;
+                        long zoffset;
+
+                        x = sprite[i].x;
+                        y = sprite[i].y;
+                        zoffset = krand() & 0x3FFF;
+                        EGS(sprite[i].sectnum, x, y, sprite[i].z - zoffset + 5120, 2, FLAIR,
+                            -127, 96, 48, 0, 0, 0, i, 5);
+                    }
                     spawn(i, EXPLOSION);
                     for (j = 0; j < 16; j += 2)
                         EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z + (j << 9), 0, 235, -8, 32, 32,
