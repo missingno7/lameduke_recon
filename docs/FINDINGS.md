@@ -636,3 +636,11 @@ Each entry names the command or artefact that supports it.
   0x4c vs 0x48. STRONG ACTORS saw `getangle` returning int (ENGINE.C defines it without a return type) and
   getincangle without a prototype (actors.h). spawn reaches the oracle's size (8,736) via the lotag-23 index and
   repeat-store order (sprite-index stack slot restored).
+
+## GAMEDEF round 6 (r6cx-gamedef, Codex, 2026-11-27; build/workers/r6cx-gamedef/NOTES.md, integrated)
+- No STRICT change (10/14; CONST/_DATA/_BSS verified). With jump tables assigned to their dispatchers: parse content
+  .322 -> .670 (fuzzy .962; 6,608 vs 6,580 B), execute .346 -> .798 (7,376 vs 7,424 B), parsecommand .719 -> .830,
+  move_actor 1.000/1.000 (all 31 block shapes; player index and movement flags in swapped stack slots, 768 vs 776 B).
+  Restored hit-result branches and the shoot/sound arguments in execute; reusing `j` for visibility restores parse's
+  entry allocation.
+- NEGATIVE explicit inventory tails and movement declaration variants.

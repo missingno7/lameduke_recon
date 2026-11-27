@@ -212,7 +212,7 @@ char parsecommand(void)
     int fp;
     char *origtptr, temp_ifelse_check, c;
 
-    if (warning + error > 12)
+    if (error + warning > 12)
         return 1;
     if (*textptr == 0 || textptr[1] == 0)
         return 1;
@@ -221,9 +221,9 @@ char parsecommand(void)
     switch (tw) {
     case CON_BLOCKCOMMENT:
         scriptptr--;
-        j = line_number;
         do {
             textptr++;
+            j = line_number;
             if (*textptr == '\n')
                 line_number++;
             if (*textptr == 0) {
@@ -238,13 +238,14 @@ char parsecommand(void)
     case CON_STATE:
         if (!parsing_actor && !parsing_state) {
             getlabel();
+            scriptptr--;
             parsing_state = 1;
-            labelcode[labelcnt++] = (long)--scriptptr;
+            labelcode[labelcnt++] = (long)scriptptr;
             return 0;
         }
         getlabel();
         for (i = 0; i < labelcnt; i++) {
-            if (!strcmp(CURRENT_LABEL, label + (i << 6))) {
+            if (!strcmp(label + (i << 6), CURRENT_LABEL)) {
                 *scriptptr = labelcode[i];
                 break;
             }
@@ -456,10 +457,12 @@ char parsecommand(void)
             printf("  * ERROR!(L%ld) Found 'actor' within 'actor'.\n", (long)line_number);
             error++;
         }
+        parsing_actor = scriptptr - 1;
         brace_depth = 0;
-        parsing_actor = --scriptptr;
+        scriptptr = parsing_actor;
         transnum();
-        actorscrptr[*--scriptptr] = parsing_actor;
+        scriptptr--;
+        actorscrptr[*scriptptr] = parsing_actor;
         for (i = 0; i < 4; i++)
             parsing_actor[i] = 0;
         for (i = 0; i < 4; i++) {
@@ -671,52 +674,50 @@ short furthestangle(short i, short angs)
 /* Apply sprite i's CON move and hitag move flags (Duke 1.5 move()). */
 void move_actor(short i, short p, long x)
 {
-/* Post-script sprite movement. The includer supplies i and p. */
-short flags, owner, goalang;
-long *moveptr;
+    unsigned short flags;
+    long *moveptr;
 
-flags = sprite[i].hitag;
-if (!hittype[i].move || !flags)
-    return;
+    flags = sprite[i].hitag;
+    if (!hittype[i].move || !flags)
+        return;
 
-hittype[i].movecount++;
-moveptr = hittype[i].move;
-if (flags & ON_OWNER) {
-    owner = sprite[i].owner;
-    if (owner >= 0 && sprite[owner].statnum == STAT_ACTOR) {
-        sprite[i].x = sprite[sprite[i].owner].x;
-        sprite[i].y = sprite[sprite[i].owner].y;
-        sprite[i].z = sprite[sprite[i].owner].z;
+    hittype[i].movecount++;
+    moveptr = hittype[i].move;
+    if (flags & ON_OWNER) {
+        if (sprite[i].owner >= 0 && sprite[sprite[i].owner].statnum == STAT_ACTOR) {
+            sprite[i].x = sprite[sprite[i].owner].x;
+            sprite[i].y = sprite[sprite[i].owner].y;
+            sprite[i].z = sprite[sprite[i].owner].z;
+        }
     }
-}
-if (flags & SLOW_TO_STOP)
-    sprite[i].xvel >>= 1;
-if (flags & FACE_PLAYER)
-    sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-if (flags & GET_H)
-    sprite[i].xvel += (moveptr[0] - sprite[i].xvel) >> 1;
-if (flags & GET_V)
-    sprite[i].zvel += ((moveptr[1] << 4) - sprite[i].zvel) >> 1;
-if (flags & HOVER) {
-    if (sprite[i].z + 8192 < sector[sprite[i].sectnum].floorz)
-        sprite[i].zvel += moveptr[1] << 4;
-    else if (sprite[i].z + 8192 > sector[sprite[i].sectnum].floorz)
-        sprite[i].zvel -= moveptr[1] << 4;
-}
-if (flags & STICK_TO_CEILING)
-    sprite[i].z = sector[sprite[i].sectnum].ceilingz + 2048;
-if (flags & STICK_TO_FLOOR)
-    sprite[i].z = sector[sprite[i].sectnum].floorz - 2048;
-if (flags & FACE_TO_PLAYER) {
-    goalang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-    sprite[i].ang += getincangle(sprite[i].ang, goalang, 1);
-}
-if (sprite[i].xvel | sprite[i].zvel) {
-    if (!ssp(i, 1) && (flags & RHR) && (sector[sprite[i].sectnum].lotag & 32767) != 1) {
-        sprite[i].ang += 256;
-        ssp(i, 1);
+    if (flags & SLOW_TO_STOP)
+        sprite[i].xvel >>= 1;
+    if (flags & FACE_PLAYER)
+        sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
+    if (flags & GET_H)
+        sprite[i].xvel += (moveptr[0] - sprite[i].xvel) >> 1;
+    if (flags & GET_V)
+        sprite[i].zvel += ((moveptr[1] << 4) - sprite[i].zvel) >> 1;
+    if (flags & HOVER) {
+        if (sprite[i].z + 8192 < sector[sprite[i].sectnum].floorz)
+            sprite[i].zvel += moveptr[1] << 4;
+        else if (sprite[i].z + 8192 > sector[sprite[i].sectnum].floorz)
+            sprite[i].zvel -= moveptr[1] << 4;
     }
-}
+    if (flags & STICK_TO_CEILING)
+        sprite[i].z = sector[sprite[i].sectnum].ceilingz + 2048;
+    if (flags & STICK_TO_FLOOR)
+        sprite[i].z = sector[sprite[i].sectnum].floorz - 2048;
+    if (flags & FACE_TO_PLAYER) {
+        sprite[i].ang += getincangle(sprite[i].ang,
+            getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 1);
+    }
+    if (sprite[i].xvel | sprite[i].zvel) {
+        if (!ssp(i, 1) && (flags & RHR) && (sector[sprite[i].sectnum].lotag & 32767) != 1) {
+            sprite[i].ang += 256;
+            ssp(i, 1);
+        }
+    }
 }
 
 /* An if operand is followed by the address of its false branch. */
@@ -738,8 +739,7 @@ if (sprite[i].xvel | sprite[i].zvel) {
 /* Run one CON instruction for actor i (player p at distance x); nonzero ends the current block. */
 char parse(short i, short p, long x)
 {
-    long j, flags, speed, *tempscrptr;
-    short goalang, angdif;
+    long j;
 
     if (killit_flag)
         return 1;
@@ -756,9 +756,9 @@ case CON_IFRND:
 
 case CON_IFCANSEE:
     if (cached_cansee == -1) {
-        goalang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-        angdif = getincangle(sprite[i].ang, goalang, 0);
-        if (angdif > -128 && angdif < 128)
+        j = getincangle(sprite[i].ang,
+            getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y), 0);
+        if (j > -128 && j < 128)
             cached_cansee = cansee(sprite[i].x, sprite[i].y,
                 sprite[i].z - (sprite[i].yrepeat << 7), sprite[i].sectnum,
                 ps[p].posx, ps[p].posy, ps[p].posz - (16 << 8), ps[p].cursectnum);
@@ -769,8 +769,19 @@ case CON_IFCANSEE:
     CON_NEXT();
 
 case CON_IFHITWEAPON:
-    hit_sprite = ifhitbyweapon(i);
-    PARSE_IF(hit_sprite >= 0);
+    j = ifhitbyweapon(i);
+    if (j >= 0) {
+        hit_sprite = j;
+        insptr += 2;
+        parse(i, p, x);
+    } else {
+        hit_sprite = -1;
+        insptr = (long *)insptr[1];
+        if (*insptr == CON_ELSE) {
+            insptr += 2;
+            parse(i, p, x);
+        }
+    }
     CON_NEXT();
 
 case CON_IFSQUISHED:
@@ -823,7 +834,7 @@ case CON_CACTOR:
 
 case CON_SHOOT:
     insptr++;
-    shoot(i, *insptr);
+    shoot(i, *insptr, 0);
     insptr++;
     CON_NEXT();
 
@@ -835,7 +846,7 @@ case CON_ADDSCORE:
 
 case CON_SOUND:
     insptr++;
-    spritesound(*insptr, i);
+    spritesound((short)*insptr, i);
     insptr++;
     CON_NEXT();
 
@@ -883,7 +894,7 @@ case CON_WEAPON:
 
 case CON_ADDHEALTH:
     insptr++;
-    if (!ud.debug && ps[p].shield_amount)
+    if (!ud.debug && ps[p].shield_amount > 0)
         ps[p].shield_amount -= 4;
     else if (ps[p].health > 0)
         ps[p].health += *insptr;
@@ -893,11 +904,13 @@ case CON_ADDHEALTH:
     CON_NEXT();
 
 case CON_STATE:
-    tempscrptr = insptr + 2;
-    insptr = (long *)insptr[1];
-    while (!parse(i, p, x))
-        ;
-    insptr = tempscrptr;
+    {
+        long *tempscrptr = insptr + 2;
+        insptr = (long *)insptr[1];
+        while (!parse(i, p, x))
+            ;
+        insptr = tempscrptr;
+    }
     CON_NEXT();
 
 case CON_LBRACE:
@@ -957,7 +970,8 @@ case CON_IFSKILL:
 
 case CON_CSTAT:
     insptr++;
-    sprite[i].cstat = *insptr++;
+    sprite[i].cstat = *insptr;
+    insptr++;
     CON_NEXT();
 
 case CON_IFMOVE:
@@ -1008,8 +1022,7 @@ case CON_ADDINVENTORY:
 
 case CON_ADDAMMO:
     insptr++;
-    ps[p].ammo_amount += *insptr;
-    insptr++;
+    ps[p].ammo_amount += *insptr++;
     CON_NEXT();
 
 case CON_HITRADIUS:
@@ -1017,33 +1030,52 @@ case CON_HITRADIUS:
     insptr += 3;
     CON_NEXT();
 
-case CON_IFP:
-    insptr++;
-    flags = *insptr;
-    speed = syncsvel[p] + syncvel[p];
-    PARSE_IF(((flags & 8) && ps[p].on_ground && (syncbits[p] & SB_CROUCH)) ||
-        ((flags & 16) && !ps[p].jumping_counter && !ps[p].on_ground &&
-            sector[ps[p].cursectnum].floorz - ps[p].posz > 18432) ||
-        ((flags & 32) && ps[p].jumping_counter > 348) ||
-        ((flags & 1) && speed >= 0 && speed < 8) ||
-        ((flags & 2) && speed >= 8 && !(syncbits[p] & SB_RUN)) ||
-        ((flags & 4) && speed >= 8 && (syncbits[p] & SB_RUN)) ||
-        ((flags & 64) && sprite[i].z - 12288 > ps[p].posz) ||
-        ((flags & 128) && speed <= -8 && !(syncbits[p] & SB_RUN)) ||
-        ((flags & 256) && speed <= -8 && (syncbits[p] & SB_RUN)) ||
-        ((flags & 512) && ps[p].look_ang < -128) ||
-        ((flags & 1024) && ps[p].look_ang > 128) ||
-        ((flags & 2048) ?
-            ((((sprite[i].ang + 3200 - sprite[ud.camerasprite].ang) & 2047) >> 8) < 2) :
-            (((flags & 4096) && ps[p].fire_flag) ||
-             ((flags & 8192) && ps[p].on_ground) ||
-             ((flags & 16384) && ps[p].jetpack_on))));
-    CON_NEXT();
+case CON_IFP: {
+        long flags, speed;
+        insptr++;
+        flags = *insptr;
+        j = 0;
+        speed = syncvel[p] + syncsvel[p];
+        if ((flags & 8) && ps[p].on_ground && (syncbits[p] & SB_CROUCH))
+            j = 1;
+        else if ((flags & 16) && !ps[p].jumping_counter && !ps[p].on_ground &&
+            sector[ps[p].cursectnum].floorz - ps[p].posz > 18432)
+            j = 1;
+        else if ((flags & 32) && ps[p].jumping_counter > 348)
+            j = 1;
+        else if ((flags & 1) && speed >= 0 && speed < 8)
+            j = 1;
+        else if ((flags & 2) && speed >= 8 && !(syncbits[p] & SB_RUN))
+            j = 1;
+        else if ((flags & 4) && speed >= 8 && (syncbits[p] & SB_RUN))
+            j = 1;
+        else if ((flags & 64) && sprite[i].z - 12288 > ps[p].posz)
+            j = 1;
+        else if ((flags & 128) && speed <= -8 && !(syncbits[p] & SB_RUN))
+            j = 1;
+        else if ((flags & 256) && speed <= -8 && (syncbits[p] & SB_RUN))
+            j = 1;
+        else if ((flags & 512) && ps[p].look_ang < -128)
+            j = 1;
+        else if ((flags & 1024) && ps[p].look_ang > 128)
+            j = 1;
+        else if (flags & 2048) {
+            /* Compiler-steered: retain the oracle's mask after the angle shift. */
+            if (((((sprite[i].ang + 3200 - sprite[ud.camerasprite].ang) & 2047) >> 8) & 7) < 2)
+                j = 1;
+        } else if ((flags & 4096) && ps[p].fire_flag)
+            j = 1;
+        else if ((flags & 8192) && ps[p].on_ground)
+            j = 1;
+        else if ((flags & 16384) && ps[p].jetpack_on)
+            j = 1;
+        PARSE_IF(j);
+        CON_NEXT();
+}
 
 case CON_ADDRAMMO:
     insptr++;
-    ps[p].ammo_r_amount += *insptr;
-    insptr++;
+    ps[p].ammo_r_amount += *insptr++;
     CON_NEXT();
 
 case CON_SINK:
@@ -1098,10 +1130,13 @@ return 0;
 /* Execute sprite i's actor script (from actorscrptr[picnum]+4) for one game tick. */
 void execute(short i, short p, long x)
 {
-    if (!actorscrptr[sprite[i].picnum])
+    long *actor;
+
+    actor = actorscrptr[sprite[i].picnum];
+    if (!actor)
         return;
 
-    insptr = actorscrptr[sprite[i].picnum];
+    insptr = actor;
     killit_flag = 0;
     hit_sprite = -1;
     cached_cansee = -1;
