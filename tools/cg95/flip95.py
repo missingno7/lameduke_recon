@@ -1,5 +1,6 @@
 """Diagnostic FLIP extension for the pinned CG95 observer."""
 import argparse
+import os
 from collections import Counter
 import ctypes as C
 import hashlib
