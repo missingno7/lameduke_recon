@@ -788,3 +788,7 @@ Each entry names the command or artefact that supports it.
   GUSWAVE 7, MUSIC 2, PAS16 6, PCFX 5, SNDSRC 9); WMAKE, full/reverse make order, predecessor searches and historical
   header swaps tried. The 14 dependent ASS functions stay CODE_BYTES_MATCH (exact code). Sound-library work is
   deprioritised (user, 2026-11-27): the game units carry the historical interest.
+- SECTOR astra follow-up 2 (r8astra-sector-3): sharing a full-width menu flag recovers four cheatkeys sliding-door
+  blocks (3,596 -> 3,332 differing bytes); checksectors, operatesectors, operateactivators, checkhitwall,
+  checkhitswitch unchanged (case-21 control loses two checksectors lift tails; glass and case-405 trials fail).
+  SECTOR paused: all six NEAR functions have exact extents; residue is allocation/scheduling.

@@ -656,6 +656,8 @@ void cheatkeys(short snum)
     /* COMPILER_STEERED: reuse the decoy sprite index for the debug-door sector scan. */
     short i;
     short source;
+    /* COMPILER_STEERED: the escape and scuba menus share a full-width flag temporary. */
+    long menu_flags;
 
     if ((syncbits[snum] & SB_KNUCKLES) && ps[snum].knuckle_incs == 0)
         ps[snum].knuckle_incs = 1;
@@ -694,14 +696,11 @@ void cheatkeys(short snum)
     if (ud.gamepaused)
         return;
     if ((syncbits[snum] & SB_ESCAPE) && !(ps[snum].gm & MODE_DEMO) && ps[snum].newowner == -1) {
-        /* COMPILER_STEERED: keep menu flag temporaries local to their branches. */
-        unsigned char gm;
-
         keystatus[1] = 0;
         /* COMPILER_STEERED: read gm before changing current_menu. */
-        gm = ps[snum].gm;
+        menu_flags = ps[snum].gm;
         current_menu = 0;
-        ps[snum].gm = gm | MODE_MENU;
+        ps[snum].gm = menu_flags | MODE_MENU;
         if (ps[snum].dimensionmode == 2) {
             ps[snum].dimensionmode = 3;
             if (snum == screenpeek)
@@ -792,9 +791,9 @@ void cheatkeys(short snum)
             ps[snum].gm = gm | MODE_MENU;
         }
         if (syncbits[snum] & SB_SCUBA) {
-            unsigned char gm = ps[snum].gm;
+            menu_flags = ps[snum].gm;
             current_menu = 10;
-            ps[snum].gm = gm | MODE_MENU;
+            ps[snum].gm = menu_flags | MODE_MENU;
         }
     } else if (syncbits[snum] & SB_DEBUG_DOORS) {
         FTA(11);
