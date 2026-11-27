@@ -731,3 +731,7 @@ Each entry names the command or artefact that supports it.
   is outside the C-defined range (undefined in portable C; reproduced under the pinned compiler, noted in source).
   spawn local reorder helps both PREMAP functions. findplayer audit: of 15 emitted calls one reads the distance as
   a short, four use the full width, ten ignore it.
+- GAMEDEF astra follow-up (r8astra-gamedef-2): parse 1,459 -> 495 differing bytes: a local-scope change gives all 40
+  instructions of the inlined IFRND at 1:30900 the oracle's registers and order; two exits still branch one byte
+  early because IFSTRENGTH is one byte short. execute 4,519 -> 2,948 differing bytes at the exact size: the low-byte
+  GET_H test gives the inlined HOVER the oracle's five-byte `add eax, 0x2000`; its frame is still 4 bytes too large.

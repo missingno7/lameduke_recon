@@ -678,7 +678,7 @@ short furthestangle(short i, short angs)
 /* Apply sprite i's CON move and hitag move flags (Duke 1.5 move()). */
 void move_actor(short i, short p, long x)
 {
-    /* Compiler-steered: the two byte tests and the height temporary's scope select the original stack layout. */
+    /* Compiler-steered: the byte tests preserve the stack layout and select the accumulator for the inlined HOVER add. */
     unsigned short flags;
     long *moveptr;
     long height;
@@ -700,7 +700,7 @@ void move_actor(short i, short p, long x)
         sprite[i].xvel >>= 1;
     if (flags & FACE_PLAYER)
         sprite[i].ang = getangle(ps[p].posx - sprite[i].x, ps[p].posy - sprite[i].y);
-    if (flags & GET_H)
+    if ((unsigned char)flags & GET_H)
         sprite[i].xvel += (moveptr[0] - sprite[i].xvel) >> 1;
     if (flags & GET_V)
         sprite[i].zvel += ((moveptr[1] << 4) - sprite[i].zvel) >> 1;
@@ -745,10 +745,8 @@ void move_actor(short i, short p, long x)
 /* Run one CON instruction for actor i (player p at distance x); nonzero ends the current block. */
 char parse(short i, short p, long x)
 {
-    /* Compiler-steered: the two function-scope temporaries preserve the interpreter's argument slots. */
-    long j;
-    long speed;
-    long *tempscrptr;
+    /* Compiler-steered: the IFP locals share function scope. STATE saves its script pointer inside the case. */
+    long j, speed, flags;
 
     if (killit_flag)
         return 1;
@@ -798,10 +796,10 @@ case CON_IFSQUISHED:
     CON_NEXT();
 
 case CON_IFDEAD:
+    /* Compiler-steered: initialize with sprite health before the player override. */
+    j = sprite[i].extra;
     if (sprite[i].picnum == APLAYER)
         j = ps[sprite[i].yvel].health - 1;
-    else
-        j = sprite[i].extra;
     PARSE_IF(j < 0);
     CON_NEXT();
 
@@ -912,13 +910,15 @@ case CON_ADDHEALTH:
     insptr++;
     CON_NEXT();
 
-case CON_STATE:
-    tempscrptr = insptr + 2;
+case CON_STATE: {
+    long *tempscrptr = insptr + 2;
+
     insptr = (long *)insptr[1];
     while (!parse(i, p, x))
         ;
     insptr = tempscrptr;
     CON_NEXT();
+}
 
 case CON_LBRACE:
     insptr++;
@@ -983,7 +983,7 @@ case CON_CSTAT:
 
 case CON_IFMOVE:
     insptr++;
-    PARSE_IF(*insptr == (long)hittype[i].move);
+    PARSE_IF((long)hittype[i].move == *insptr);
     CON_NEXT();
 
 case CON_RESETPLAYER:
@@ -1038,7 +1038,6 @@ case CON_HITRADIUS:
     CON_NEXT();
 
 case CON_IFP: {
-        long flags;
         insptr++;
         flags = *insptr;
         j = 0;
@@ -1137,27 +1136,33 @@ return 0;
 /* Execute sprite i's actor script (from actorscrptr[picnum]+4) for one game tick. */
 void execute(short i, short p, long x)
 {
-    /* Compiler-steered: retain widened indices through setup and the inlined calls. */
+    /* Compiler-steered: retain widened indices, tick count and animation period across setup. */
     long index = i;
     long player = p;
     long *actor = actorscrptr[sprite[index].picnum];
+    long *action;
+
     if (!actor)
         return;
 
-    insptr = actorscrptr[sprite[index].picnum];
+    insptr = actor;
     killit_flag = 0;
     hit_sprite = -1;
-    actor = hittype[index].action;
+    action = hittype[index].action;
     cached_cansee = -1;
     insptr += 4;
-    if (actor) {
-        sprite[i].lotag += synctics;
+    if (action) {
+        long period;
+        long ticks = synctics;
+
+        sprite[i].lotag += ticks;
         if (sprite[i].lotag > hittype[index].action[4]) {
             hittype[index].actioncount++;
             sprite[i].lotag = 0;
             hittype[index].actionframe += hittype[index].action[3];
         }
-        if (klabs(hittype[index].actionframe) >= klabs(hittype[index].action[1] * hittype[index].action[3]))
+        period = hittype[index].action[1] * hittype[index].action[3];
+        if (klabs(hittype[index].actionframe) >= klabs(period))
             hittype[index].actionframe = 0;
     }
 
