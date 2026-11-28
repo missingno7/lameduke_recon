@@ -1942,9 +1942,9 @@ void dobonus(void)
 {
     /* COMPILER_STEERED: declaration order selects the stack homes for these screen values. */
     long pct;
-    short start;
-    short pulse; /* COMPILER_STEERED: keep the pulse in a word before taking its low byte. */
     short shade;
+    short start;
+    short pulse;
 
     start = totalclock;
     menu_drag = 0;
@@ -2382,7 +2382,6 @@ void moveeffectors(void)
     long *height;
     short p;
     long *t;
-    long d;
     long x;
     long j;
     long st;
@@ -2570,7 +2569,9 @@ void moveeffectors(void)
                     x++;
                     hittype[j][4] = t[4];
                 }
-        case 14:
+        case 14: {
+            long d;
+
             if (sprite[i].owner == -1)
                 sprite[i].owner = LocateTheLocator(t[3], t[0]);
             d = klabs(sprite[sprite[i].owner].x - sprite[i].x) + klabs(sprite[sprite[i].owner].y - sprite[i].y);
@@ -2618,6 +2619,7 @@ void moveeffectors(void)
                 ms(i);
             }
             break;
+        }
         case 8:
         case 9:
             if (getanimationgoal(&sector[sect].ceilingz) < 0)
@@ -2729,7 +2731,9 @@ void moveeffectors(void)
             }
             break;
         }
-        case 13:
+        case 13: {
+            long sx, sy;
+
             if (t[2] == 0) {
                 for (j = headspritestat[STAT_STANDABLE]; j >= 0; j = nextspritestat[j])
                     if (sprite[j].picnum == 57 && sprite[j].shade == -32 && sprite[j].hitag == sprite[i].hitag) {
@@ -2774,16 +2778,25 @@ void moveeffectors(void)
             }
             if (t[2] == 4 && sprite[i].ang != 512) {
                 x = sector[sect].floorz - 12288 - ((krand() & 32) << 6);
-                nuke(sprite[i].x, sprite[i].y, x, i);
+                sx = sprite[i].x;
+                sy = sprite[i].y;
+                nuke(sx, sy, x, i);
                 for (x = 0; x < 30; x += 3) {
-                    long sx = sprite[i].x, sy = sprite[i].y;
-                    long sz = sector[sect].floorz - (krand() & 0x1000);
-                    short pic = krand() % 11;
-                    short a = krand() & 2047;
-                    short xv = (krand() & 0x80) + 64;
-                    long zv = -(krand() & 511) - 512;
+                    long sz, drop;
+                    short pic;
+                    short a;
+                    short xv;
+                    short zv;
                     long *actor;
 
+                    sx = sprite[i].x;
+                    sy = sprite[i].y;
+                    drop = krand() & 0x1000;
+                    sz = sector[sect].floorz - drop;
+                    pic = krand() % 11;
+                    a = krand() & 2047;
+                    xv = (krand() & 0x80) + 64;
+                    zv = -(krand() & 511) - 512;
                     pic += 235;
                     k = insertsprite(sect, 5);
                     sprite[k].x = sx;
@@ -2816,6 +2829,7 @@ void moveeffectors(void)
                 }
             }
             break;
+        }
         case 15:
             if (t[4]) {
                 sprite[i].xvel = 16;
