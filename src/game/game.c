@@ -2513,8 +2513,8 @@ void moveeffectors(void)
                 sector[sect].floorpal = sprite[i].owner;
             } else {
                 t[1] = t[2];
-                t[0] = t[3];
                 sector[sect].ceilingpal = 0;
+                t[0] = t[3];
                 sector[sect].floorpal = 0;
             }
             sector[sect].ceilingshade = sector[sect].floorshade = t[1];
@@ -3111,7 +3111,11 @@ void moveeffectors(void)
                     ps[p].posx += x;
                     ps[p].posy += l;
                     clipmove(&ps[p].posx, &ps[p].posy, &ps[p].posz, &ps[p].cursectnum, 0, 0, 192, 1024, 1024, 0);
-                    setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz);
+                    {
+                        struct player_struct *player = &ps[p];
+
+                        setsprite(player->i, player->posx, player->posy, player->posz);
+                    }
                 }
             sector[sect].floorxpanning += l >> 2;
             sector[sect].floorypanning += x >> 2;
