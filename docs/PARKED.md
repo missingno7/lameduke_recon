@@ -25,3 +25,4 @@ Keep each parked function at its current status or better. The integrator un-par
 | movestandables | 150/155 blocks at exact extent, first diff +0x6f | 543 trials; prefix controls reach +0x268 but pair fewer blocks; no form keeps both | u-actors rounds 1-8, u-actors2 rounds 1-5 | 2026-11-28 |
 | AL_SetVoiceTimbre | 14 B at +0x70 | Watcom 10 load order of the slot lookup vs bank address; 92 authentic forms with the attested slotVoice[][2] array, none better; the only exact form needs an invented volatile struct (rejected) | misc rounds 3-5 | 2026-11-28 |
 | strget | 56/65 blocks | 33 caller-local variants, no gain | u-game rounds 4-10 | 2026-11-28 |
+| waitforeverybody | 93/94 (94/94 + 2 B as a trade) | shared decoder with wait_for_players: the final slave sum's 2:2 ECX/ESI tie cannot break toward ESI without costing wait_for_players STRICT (302 trials, no shared form) | u-game rounds 9-11 | 2026-11-28 |
