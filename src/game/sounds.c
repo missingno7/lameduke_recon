@@ -36,11 +36,8 @@ extern struct sound_voice sound_voices[NUM_SOUNDS];
 /* BootLeg CacheMaster bookkeeping owned by this module. */
 long cache_sizes[128], cache_depth, cache_remaining;
 char *cache_cursor;
-extern struct user_defs ud;         /* the 21-byte USERDEFS.TMP block defined by GLOBAL */
 
-/* dataown: one object, one name. camerasprite and SoundToggle (sounds.h) are bound names of ud's fields
-   (2:a57b5, 2:a57ab); MusicToggle there is unused and only keeps this unit's symbol slots. playmusic tests
-   the music card chosen in SETUP.DAT (option[2], Duke 1.5's MusicDevice), not ud.MusicToggle. */
+/* SETUP.DAT stores the music device in option[2]. */
 extern char option[];
 #define MusicDevice option[2]
 
@@ -151,26 +148,25 @@ void xyzsound(short num, short i, long x, long y, long z)
 {
     long cx, cy, sndist, voice;
     short ca, sndang, priority;
+    long dy;
 
-    if (SoundToggle == 0 || sound_voices[num].num > 2)
+    if (ud.SoundToggle == 0 || sound_voices[num].num > 2)
         return;
 
-    if (camerasprite == -1) {
+    if (ud.camerasprite == -1) {
         cx = ps[screenpeek].posx;
         cy = ps[screenpeek].posy;
         ca = ps[screenpeek].ang + ps[screenpeek].look_ang;
     } else {
-        cx = sprite[camerasprite].x;
-        cy = sprite[camerasprite].y;
-        ca = sprite[camerasprite].ang;
+        cx = sprite[ud.camerasprite].x;
+        cy = sprite[ud.camerasprite].y;
+        ca = sprite[ud.camerasprite].ang;
     }
 
-    {
-        long dy = cy - y;
-        sndang = 2048 + ca - getangle(cx - x, dy);
-        sndang &= 2047;
-        sndist = klabs(cx - x) + klabs(dy);
-    }
+    dy = cy - y;
+    sndang = 2048 + ca - getangle(cx - x, dy);
+    sndang &= 2047;
+    sndist = klabs(cx - x) + klabs(dy);
     priority = 0;
     if (num == 32)
         priority = 255;
@@ -199,10 +195,11 @@ void xyzsound(short num, short i, long x, long y, long z)
 /* The indices use the signed low words of the register arguments. */
 void spritesound(short number, short source)
 {
-    long i = source;
-    long x = sprite[i].x, y = sprite[i].y, z = sprite[i].z;
+    long x = sprite[source].x;
+    long y = sprite[source].y;
+    const struct spritetype *sp = &sprite[source];
 
-    xyzsound(number, i, x, y, z);
+    xyzsound(number, source, x, y, sp->z);
 }
 
 /* Stop sound num (its last voice). */
@@ -216,18 +213,18 @@ void stopsound(short num)
 /* Re-pan all playing sounds to their owners (call once per frame). */
 void pan3dsound(void)
 {
-    long cx, cy, dx, dy, sndist;
+    long cy, cx, dx, dy, sndist;
     short ca, sndang;
     long j;
 
-    if (camerasprite == -1) {
+    if (ud.camerasprite == -1) {
         cx = ps[screenpeek].posx;
         cy = ps[screenpeek].posy;
         ca = ps[screenpeek].ang + ps[screenpeek].look_ang;
     } else {
-        cx = sprite[camerasprite].x;
-        cy = sprite[camerasprite].y;
-        ca = sprite[camerasprite].ang;
+        cx = sprite[ud.camerasprite].x;
+        cy = sprite[ud.camerasprite].y;
+        ca = sprite[ud.camerasprite].ang;
     }
 
     for (j = 0; j < NUM_SOUNDS; j++) {

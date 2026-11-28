@@ -7,8 +7,8 @@
 
 extern struct spritetype sprite[];
 extern struct player_struct ps[];
-extern short screenpeek, camerasprite;
-extern char SoundToggle, MusicToggle;
+extern short screenpeek;
+extern struct user_defs ud;
 
 extern void gameexit(char *message);
 extern int getangle(long x, long y);

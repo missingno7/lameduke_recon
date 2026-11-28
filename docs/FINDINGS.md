@@ -1314,3 +1314,8 @@ Each entry names the command or artefact that supports it.
   SOUNDS unit references them by these names (no unit defines them) - a byte-preserving source form is open.
 - GAMEDEF r3: parse's exactly-verified prefix grows 1,619 -> 1,852 B (CACTOR, SHOOT, ADDSCORE, SOUND at original
   addresses); next difference in FALL at 1:30fec (sector offset EDX vs EAX). Canonical still leads on blocks.
+- misc-3 (2026-11-28): SOUNDS ownership gap fixed - the five accesses are ud.SoundToggle / ud.camerasprite (GLOBAL's
+  packed ud fields at 2:a57ab / 2:a57b5) and reproduce the original instructions, fixup sites and targets; the 36-object
+  natural link now has ZERO undefined symbols with canonical sources. spritesound regresses 38 -> 138 B (stays NEAR;
+  accepted: the old form referenced symbols that do not exist in the original). AL_SetVoiceTimbre 685 -> 14 B at exact
+  extent (residual +0x70..+0x89: Watcom interleaves the slot lookup with the bank-address calculation).

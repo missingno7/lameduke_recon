@@ -239,60 +239,77 @@ static void AL_SetVoiceTimbre
 
    {
    int    off;
+#if (LIBVER_ASSREV >= 19950821L)
    int    carrierOffset;
+#endif
    int    slot;
 // *** VERSIONS RESTORATION ***
 // FIXME HACK
 #if (LIBVER_ASSREV < 19950821L)
 #define port 0
 #define voc voice
+#define carrierOffset off
+#define WRITE_TIMBRE_BYTE(reg, byteValue) \
+   do { int value = (byteValue); AL_SendOutput( port, (reg), value ); } while (0)
 #else
    int    port;
    int    voc;
+#define WRITE_TIMBRE_BYTE(reg, byteValue) AL_SendOutput( port, (reg), (byteValue) )
 #endif
    int    patch;
    int    channel;
    TIMBRE *timbre;
 
-   channel = Voice[ voice ].channel;
+#if (LIBVER_ASSREV < 19950821L)
+#define CURRENT_VOICE (*(VOICE *)((char *)&Voice + voiceOffset))
+   unsigned voiceOffset = voice * sizeof( VOICE );
+
+   channel = CURRENT_VOICE.channel;
 
    if ( channel == 9 )
       {
-#if (LIBVER_ASSREV < 19950821L)
-      unsigned char drumPatch = PercussionTable[ Voice[ voice ].key ].Timbre;
-      if ( Voice[ voice ].timbre == drumPatch )
+      int drumPatch;
+
+      patch = CURRENT_VOICE.key;
+      drumPatch = PercussionTable[ patch ].Timbre;
+      if ( CURRENT_VOICE.timbre == drumPatch )
          {
          return;
          }
       patch = drumPatch;
-#else
-      patch = Voice[ voice ].key + 128;
-#endif
       }
    else
       {
-#if (LIBVER_ASSREV < 19950821L)
-      int channelPatch = Channel[ channel ].Timbre;
-      if ( Voice[ voice ].timbre == channelPatch )
+      patch = Channel[ channel ].Timbre;
+      if ( CURRENT_VOICE.timbre == patch )
          {
          return;
          }
-      patch = channelPatch;
-#else
-      patch = Channel[ channel ].Timbre;
-#endif
       }
 
-#if (LIBVER_ASSREV >= 19950821L)
+   CURRENT_VOICE.timbre = patch;
+   timbre = &ADLIB_TimbreBank[ CURRENT_VOICE.timbre ];
+#undef CURRENT_VOICE
+#else
+   channel = Voice[ voice ].channel;
+
+   if ( channel == 9 )
+      {
+      patch = Voice[ voice ].key + 128;
+      }
+   else
+      {
+      patch = Channel[ channel ].Timbre;
+      }
+
    if ( Voice[ voice ].timbre == patch )
       {
       return;
       }
 
-#endif
-
    Voice[ voice ].timbre = patch;
    timbre = &ADLIB_TimbreBank[ Voice[ voice ].timbre ];
+#endif
 
    // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV >= 19950821L)
@@ -302,11 +319,16 @@ static void AL_SetVoiceTimbre
    slot = slotVoice[ voc ][ 0 ];
    off  = offsetSlot[ slot ];
 
+#if (LIBVER_ASSREV < 19950821L)
+   VoiceLevel[ slot ][ port ] = 63 - ( timbre->Level[ 0 ] & 0x3f );
+   VoiceKsl[ slot ][ port ] = timbre->Level[ 0 ] & 0xc0;
+#else
    {
       unsigned char level = timbre->Level[ 0 ];
       VoiceLevel[ slot ][ port ] = 63 - ( level & 0x3f );
       VoiceKsl[ slot ][ port ]   = level & 0xc0;
    }
+#endif
 
    AL_SendOutput( port, 0xA0 + voc, 0 );
    AL_SendOutput( port, 0xB0 + voc, 0 );
@@ -315,11 +337,11 @@ static void AL_SetVoiceTimbre
    AL_SendOutput( port, 0x80 + off, 0xff );
 
    AL_SendOutput( port, 0x60 + off, timbre->Env1[ 0 ] );
-   AL_SendOutput( port, 0x80 + off, timbre->Env2[ 0 ] );
+   WRITE_TIMBRE_BYTE( 0x80 + off, timbre->Env2[ 0 ] );
    AL_SendOutput( port, 0x20 + off, timbre->SAVEK[ 0 ] );
    AL_SendOutput( port, 0xE0 + off, timbre->Wave[ 0 ] );
 
-   AL_SendOutput( port, 0x40 + off, timbre->Level[ 0 ] );
+   WRITE_TIMBRE_BYTE( 0x40 + off, timbre->Level[ 0 ] );
    slot = slotVoice[ voc ][ 1 ];
 
    // *** VERSIONS RESTORATION ***
@@ -359,16 +381,18 @@ static void AL_SetVoiceTimbre
    // Let voice clear the release
    AL_SendOutput( port, 0x80 + carrierOffset, 0xff );
 
-   AL_SendOutput( port, 0x60 + carrierOffset, timbre->Env1[ 1 ] );
-   AL_SendOutput( port, 0x80 + carrierOffset, timbre->Env2[ 1 ] );
-   AL_SendOutput( port, 0x20 + carrierOffset, timbre->SAVEK[ 1 ] );
+   WRITE_TIMBRE_BYTE( 0x60 + carrierOffset, timbre->Env1[ 1 ] );
+   WRITE_TIMBRE_BYTE( 0x80 + carrierOffset, timbre->Env2[ 1 ] );
+   WRITE_TIMBRE_BYTE( 0x20 + carrierOffset, timbre->SAVEK[ 1 ] );
    AL_SendOutput( port, 0xE0 + carrierOffset, timbre->Wave[ 1 ] );
 // *** VERSIONS RESTORATION ***
 // FIXME REVERT HACK
 #if (LIBVER_ASSREV < 19950821L)
 #undef port
 #undef voc
+#undef carrierOffset
 #endif
+#undef WRITE_TIMBRE_BYTE
    }
 
 
