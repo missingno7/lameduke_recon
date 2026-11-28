@@ -499,16 +499,19 @@ void getpackets(void)
 void waitforeverybody(void)
 {
     long player; /* COMPILER_STEERED: keep the send index separate from the ready-count walk. */
-    long i, j, oldtotalclock;
+    long i, j;
+    long start;
 
     if (numplayers < 2)
         return;
     for (j = connecthead; j >= 0; j = connectpoint2[j])
         playerreadyflag[j] = 0;
-    oldtotalclock = totalclock - 120;
-    if (myconnectindex == connecthead) {
-        short ready; /* COMPILER_STEERED: accumulate ready flags in a word, then compare as signed longs. */
 
+    start = totalclock;
+    if (myconnectindex == connecthead) {
+        long ready, oldtotalclock;
+
+        oldtotalclock = start - 120;
         playerreadyflag[connecthead] = 1;
         do {
             if (totalclock >= oldtotalclock + 120) {
@@ -524,6 +527,9 @@ void waitforeverybody(void)
                 ready += playerreadyflag[i];
         } while ((long)ready < (long)numplayers);
     } else {
+        long oldtotalclock;
+
+        oldtotalclock = start - 120;
         do {
             if (totalclock >= oldtotalclock + 120) {
                 oldtotalclock = totalclock;
