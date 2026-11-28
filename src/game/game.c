@@ -3180,7 +3180,9 @@ void moveeffectors(void)
                     wall[j].xpanning += 4;
             ms(i);
             break;
-        case 27:
+        case 27: {
+            long p;
+
             p = findplayer(i, &x);
             if (ps[p].health > 0) {
                 if (t[0] < 0) {
@@ -3210,6 +3212,7 @@ void moveeffectors(void)
                 }
             }
             break;
+        }
         case 128: {
             short cstat;
 
