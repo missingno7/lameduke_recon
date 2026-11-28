@@ -1398,3 +1398,7 @@ Each entry names the command or artefact that supports it.
   own BSS proof, wrong fixup kind of the same width, initialised BSS as layout proof.
 - Result: setvesamode CODE_BYTES_MATCH -> STRICT (+292 B); no other status changed (614 STRICT, 14 CODE_BYTES_MATCH);
   gate OK, blockdiff selftest 614/614.
+- NEGATIVE (multiown, 2026-11-28; build/workers/multiown/REPORT.md): co-locating MULTI's globals in multi.c (declaration
+  order reproducing all 55 named BSS offsets; Nov-94 public names) leaves neton 10 B, sendpacket 10 B, getpacket 4 B
+  unchanged; 22 STRICT, CONST/_DATA/_BSS verified. Data ownership is not the cause of the MULTI ties. The co-located
+  build is a natural-ownership integration candidate (needs units.json + three binding renames); deferred.
