@@ -6459,6 +6459,38 @@
    "user_quote_time": {
     "addr": "2:a538e",
     "evidence": "GAME A/B workers + merge 2026-11-26: gameA2 worker: displayquotes tests, decrements and stores this short at 1:02412/0244e/0245f before drawing the message line; Raynorpat view.h word_12538E | gameB2 worker 2026-11-26: short set to input_text_length<<4 in wait_for_players (1:05af9), tested and decremented before the message is drawn (1:06e9b, 1:08c7d) | renamed from msgtime: extras GAMERBG.H: extern short user_quote_time; short countdown before the message line (msgtime)"
+   },
+   "startposx": {
+    "addr": "2:1bc33c",
+    "evidence": "BLOOD.EXE 1995-01-15 Watcom v3 debug ENGINE.C data symbol 2:10690c. All 14 existing D3D LE anchors in the window numtilefiles\u2013ooption0 give one local displacement +0xb5a30, including two bracketing symbols. Translated named donor layout, independently of the compiled candidate."
+   },
+   "startposy": {
+    "addr": "2:1bc340",
+    "evidence": "BLOOD.EXE 1995-01-15 Watcom v3 debug ENGINE.C data symbol 2:106910. All 14 existing D3D LE anchors in the window numtilefiles\u2013ooption0 give one local displacement +0xb5a30, including two bracketing symbols. Translated named donor layout, independently of the compiled candidate."
+   },
+   "startposz": {
+    "addr": "2:1bc344",
+    "evidence": "BLOOD.EXE 1995-01-15 Watcom v3 debug ENGINE.C data symbol 2:106914. All 14 existing D3D LE anchors in the window numtilefiles\u2013ooption0 give one local displacement +0xb5a30, including two bracketing symbols. Translated named donor layout, independently of the compiled candidate."
+   },
+   "oldzerohandler": {
+    "addr": "2:1bce30",
+    "evidence": "BLOOD.EXE 1995-01-15 Watcom v3 debug ENGINE.C data symbol 2:1073fc. All 9 existing D3D LE anchors in the window artversion\u2013headspritesect give one local displacement +0xb5a34, including two bracketing symbols. Translated named donor layout, independently of the compiled candidate."
+   },
+   "hitcnt": {
+    "addr": "2:1bde50",
+    "evidence": "BLOOD.EXE 1995-01-15 Watcom v3 debug ENGINE.C data symbol 2:10841c. All 19 existing D3D LE anchors in the window option\u2013globalcursectnum give one local displacement +0xb5a34, including two bracketing symbols. Translated named donor layout, independently of the compiled candidate."
+   },
+   "posfil": {
+    "addr": "2:1bde52",
+    "evidence": "BLOOD.EXE 1995-01-15 Watcom v3 debug ENGINE.C data symbol 2:10841e. All 19 existing D3D LE anchors in the window option\u2013globalcursectnum give one local displacement +0xb5a34, including two bracketing symbols. Translated named donor layout, independently of the compiled candidate."
+   },
+   "startang": {
+    "addr": "2:1bde5e",
+    "evidence": "BLOOD.EXE 1995-01-15 Watcom v3 debug ENGINE.C data symbol 2:10842a. All 19 existing D3D LE anchors in the window option\u2013globalcursectnum give one local displacement +0xb5a34, including two bracketing symbols. Translated named donor layout, independently of the compiled candidate."
+   },
+   "startsectnum": {
+    "addr": "2:1bde68",
+    "evidence": "BLOOD.EXE 1995-01-15 Watcom v3 debug ENGINE.C data symbol 2:108434. All 19 existing D3D LE anchors in the window option\u2013globalcursectnum give one local displacement +0xb5a34, including two bracketing symbols. Translated named donor layout, independently of the compiled candidate."
    }
   }
  }

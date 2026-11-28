@@ -50,7 +50,7 @@ size, so it can only grow by proving more of the original.
 | **Whole program (all non-library code)** | `████████████████░░░░░░░░░░░░░░`  54.0% | 613 / 666 | 194,336 / 359,569 |
 
 - Initialised data proven at its original address (CONST/_DATA): `███████░░░░░░░░░░░░░░░░░░░░░░░`  23.6% (10,630 of 45,056 file-backed bytes).
-- Uninitialised data (_BSS) whose layout is proven: 714,205 bytes.
+- Uninitialised data (_BSS) whose layout is proven: 1,812,142 bytes.
 - Functions whose code bytes match but a referenced target is not yet independently proven: 15.
 - Identified library code, not counted as reconstruction: Watcom 9.5 C runtime (CLIB3R/MATH387R/EMU387) (35,080 bytes), Creative AWE32 + Gravis GF1 vendor objects (48,812 bytes).
 - Every compiled object of the program already has candidate source; the code object is 443,461 bytes in total.

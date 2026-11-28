@@ -1172,6 +1172,34 @@
    "build_date_evidence": "Design-sheet headings, signatures and paired pages, catalogued in the Xbox Live Arcade gallery chronology. File hashes describe the public JPEGs.",
    "relevance": "Prototype terminology and design chronology, including the jetpack. No program bytes.",
    "inventory": "build/workers/histhunt2/art.json"
+  },
+  "steam-bloodrs": {
+   "title": "Blood: Refreshed Supply, November 1994 and January 1995 development snapshots",
+   "source": "User-provided local copy from a licensed Steam install",
+   "path": "external/steam-bloodrs",
+   "license": "Local proprietary research reference, redistribution rights unverified",
+   "build_date_evidence": "external/steam-bloodrs/timestamps.txt and BSTUBZIP.ZIP member timestamps",
+   "relevance": "1994-11-08 KENGAME.C and 1994-11-09 KENGAME.EXE, contemporary editor sources and binaries, and 1995-01-15 BLOOD.EXE.",
+   "sha256": {
+    "external/steam-bloodrs/19941103/BSTUBZIP/BSTUB.C": "e9274c8f7f7f27fa8954bbabc89d7c08195ef163dff249a28c788109f0f81390",
+    "external/steam-bloodrs/19941103/BSTUBZIP/KENGAME.C": "d5ff5d1a9cbad0192b8c624a1c545fe4150c1b9ca86a71835544064d52c0b425",
+    "external/steam-bloodrs/19941103/BSTUBZIP.ZIP": "037f7ee14ddae1ec42b4dec482f9cc8f0fdd2c86079a5186bbba0defc59eb7e3",
+    "external/steam-bloodrs/19941103/BUILD.EXE": "c1ab1a71f391bb6aadb71ff1c22ddc7cfc60b2c63640ea611e14bb1416969d89",
+    "external/steam-bloodrs/19941103/BUILD.H": "4e3d4c993088ec3a95797f873fc6965d104b2a99f018a6b6592b94eaa9346df6",
+    "external/steam-bloodrs/19941103/DOS4GW.EXE": "580f164bd05b438262267a7e03984529b56e3096ee158d5d2b0e6f159520d4c3",
+    "external/steam-bloodrs/19941103/EDIT.BAT": "76ef6ce6335d19bfd7a4908a53d43ef497bd92cb4dde62436d1f3137f56e4494",
+    "external/steam-bloodrs/19941103/EDITART.EXE": "d550276db2ca74e80ee9ef3f99e9be5126022d790be0dfd3f9bbbb6c98fb747e",
+    "external/steam-bloodrs/19941103/ENGINE.H": "133e2dd27780fc40fcfdaf7e730074248a950a3b9a20f73266ce26c20ad67350",
+    "external/steam-bloodrs/19941103/KENGAME.EXE": "4a11183f742fbffd2f2e6c0453572c8b9e3c7304d5c2e38b71a6581cfb80abd4",
+    "external/steam-bloodrs/19941103/PLAY.BAT": "0c2bbc3e4c5bfa033b34c57e0c901b793f4901b8f8e968ee04d9312dbc0964d9",
+    "external/steam-bloodrs/19941103/PLAY_OLD.BAT": "cce3e9bd34534ba81501ed670aec9a9fac904de9057f7bd6f4b53a9e535b00b6",
+    "external/steam-bloodrs/19941103/SETUP.EXE": "aa7bb09f56e5814d50f404349e99a777eb84a042fbaa722eb64f77567fcb90ac",
+    "external/steam-bloodrs/19950115/BLOOD.EXE": "21c4b63e536bce05086fa6607bd3b349c14a37bb39bb76cfc42b3864605cb419",
+    "external/steam-bloodrs/19950115/DOS4GW.EXE": "76eefa29751542c67596cda685a386b0dd80593c7bbda7f3792a46750540a78c",
+    "external/steam-bloodrs/19950115/PLAY.BAT": "4765bbcfa053cdb7a474c31b02d0be263022e72ec11ab4960ccb6ecbf91af8c5",
+    "external/steam-bloodrs/19950115/SETUP.EXE": "aa7bb09f56e5814d50f404349e99a777eb84a042fbaa722eb64f77567fcb90ac",
+    "external/steam-bloodrs/timestamps.txt": "413bd410a662a3e76380ebc51a255f638c39af2dbbb89ca885c400991f01cdd5"
+   }
   }
  },
  "repositories": {

@@ -1346,3 +1346,19 @@ Each entry names the command or artefact that supports it.
 - LEAD (not acquired; commercial): Blood: Refreshed Supply ships Monolith's Blood development snapshots; the November
   1994 one lists KENGAME.C, BSTUB.C, two headers and editor/game executables (Ken's Build test game ~1 month before
   LameDuke); January 1995 adds BLOOD.EXE. None match the held corpus by size/MD5.
+
+## Blood: Refreshed Supply early snapshots (blood94, sol, 2026-11-28; build/workers/blood94/REPORT.md)
+- Source: the user's licensed install; DOS/EARLY/19941103 and 19950115 copied to external/steam-bloodrs (read-only).
+  KENGAME.C (1994-11-08, Ken's Build test game as given to Monolith), KENGAME.EXE / BUILD.EXE (1994-11-08/09),
+  EDITART.EXE, BLOOD.EXE (1995-01-15). KENGAME/BLOOD carry Watcom debug trailers (public symbols for ENGINE and MULTI).
+- PROVEN: KENGAME.EXE contains relocation-aware exact copies of all 25 LameDuke MULTI functions (8,619 B), including
+  the NEAR neton, sendpacket, getpacket: MULTI did not change between 1994-11-09 and LameDuke, so those residues are
+  pure allocation-tie questions in our C (no newer source exists to copy; the Nov-94 MULTI source is not included).
+- STRONG, adopted: eight ENGINE BSS bindings (startposx/y/z, oldzerohandler, hitcnt, posfil, startang, startsectnum)
+  from BLOOD.EXE's named debug symbols, translated through 9-19 already-bound D3D anchors per window with one constant
+  displacement each; the verifier now proves the full 1,097,937-byte ENGINE _BSS layout. setvesamode stays
+  CODE_BYTES_MATCH (match.py checks private BSS-segment references separately; review open).
+- Better donors: wallfront (.68 -> .72), drawmaskwall (.63 -> .68) from Nov-94 KENGAME/BUILD.
+- NEGATIVE: Nov-94 KENGAME.C source forms (decoder condition, inline shift, casts, login count, argc width, sync send
+  traversal, strget tests) gave no new STRICT; shared inlining regressions as before. SOURCE_ANCESTRY.md lists the
+  Sep->Nov changes.
