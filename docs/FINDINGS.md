@@ -1304,3 +1304,13 @@ Each entry names the command or artefact that supports it.
 - PROVEN STRICT via version pairs (Wacky Wheels 1.1, ROTT 1.0/1.03, SW Jan-95): TS_SetTimerToMaxTaskRate, TS_Startup,
   MV_SetMixMode, MV_PlayVOC, FX_SetupCard, GUSWAVE_GetNextVOCBlock (+2,228 B). Remaining NEAR: GUSWAVE_PlayVOC (5 B at
   +07), AL_SetVoiceTimbre (OPL3 feedback test corrected on a branch, 46/50), spritesound (38 B at +09).
+- linkrun-2 (all eight demos, 18,690 simulation steps aligned by demo input index; build/workers/linkrun/FOLLOWUP_REPORT.md):
+  NO simulation divergence attributable to our game code. MYDEMO_1's first in-simulation difference (step 370) is the
+  shared stale-coordinate behaviour of the pistol tracer after a hitscan miss (both images read stale slots); the
+  step-194 sprite flip is written by a render pass. The demo-end overrun is timing: main's inlined catch-up loop sees
+  totalclock/lockclock 12539/12540 (original) vs 12541/12540 (rebuild); the ORIGINAL overruns MYDEMO_0 the same way.
+  Behavioural evidence: the rebuilt game logic (incl. the parked sync/main) behaves like the original on all demos.
+- SOUNDS ownership gap: _SoundToggle and _camerasprite are GLOBAL's packed ud fields at 2:a57ab / 2:a57b5; the canonical
+  SOUNDS unit references them by these names (no unit defines them) - a byte-preserving source form is open.
+- GAMEDEF r3: parse's exactly-verified prefix grows 1,619 -> 1,852 B (CACTOR, SHOOT, ADDSCORE, SOUND at original
+  addresses); next difference in FALL at 1:30fec (sector offset EDX vs EAX). Canonical still leads on blocks.
