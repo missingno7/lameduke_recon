@@ -216,5 +216,113 @@ class JumpTableControls(unittest.TestCase):
         self.assertNotEqual(r["draw_water_distortion"]["status"], "STRICT")
 
 
+ENGINE = ROOT / "build/verify/engine.obj"
+PITCH = ROOT / "build/verify/ass_pitch.obj"
+
+
+@unittest.skipUnless(ENGINE.exists() and (ROOT / "assets/D3D.EXE").exists(), "needs a built ENGINE and assets/")
+class BssReferenceControls(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.img = Image()
+        cls.mod = omf.load(ENGINE)[0]
+        cls.si = next(i for i, seg in enumerate(cls.mod.segments) if seg and seg.name == "_BSS")
+
+    def check_function(self, mod, name="setvesamode"):
+        segments = []
+        r, = match.verify_object(self.img, mod, {name}, segments)
+        layout, = [s for s in segments if s["segment"] == "_BSS"]
+        refs = [ref for ref in r["references"] if ref["target"] == "seg:_BSS"]
+        return r, layout, refs
+
+    def test_rmi_addresses(self):
+        r, layout, refs = self.check_function(self.mod)
+        self.assertEqual((layout["status"], layout["oracle"], layout["size"]), ("VERIFIED", "2:b1e00", 1097937))
+        self.assertEqual((r["status"], r["verified_bytes"]), ("STRICT", 292))
+        sites = {0x43: 0, 0x63: 0x22, 0x6e: 0, 0x74: 0x1c, 0x79: 0x18, 0x7f: 0, 0x99: 0, 0xb9: 0x1c}
+        self.assertEqual({f["site"]: (f["oracle_target"], f.get("verified_by")) for f in refs},
+                         {site: (f"2:{0x1bde9f + off:x}", "BSS layout") for site, off in sites.items()})
+
+    def test_unbound_public(self):
+        mod = copy.deepcopy(self.mod)
+        mod.publics = [("_unknown" if n == "_startang" else n, s, o, local) for n, s, o, local in mod.publics]
+        r, layout, refs = self.check_function(mod)
+        self.assertEqual(layout["status"], "BSS")
+        self.assertIn("_unknown", layout["problem"])
+        self.assertEqual(r["status"], "CODE_BYTES_MATCH")
+        self.assertEqual(sum("verified_by" not in ref for ref in refs), 8)
+
+    def test_conflicting_public(self):
+        mod = copy.deepcopy(self.mod)
+        mod.publics = [(n, s, o + 1 if n == "_startang" else o, local) for n, s, o, local in mod.publics]
+        r, layout, refs = self.check_function(mod)
+        self.assertEqual((layout["status"], r["status"]), ("MISMATCH", "CODE_BYTES_MATCH"))
+        self.assertTrue(all("verified_by" not in ref for ref in refs))
+
+    def test_foreign_global_before_first_public(self):
+        mod = copy.deepcopy(self.mod)
+        mod.publics = [p for p in mod.publics if p[0] != "_localtilestart"]
+        r, layout, refs = self.check_function(mod)
+        self.assertEqual((layout["status"], r["status"]), ("MISMATCH", "CODE_BYTES_MATCH"))
+        self.assertIn("localtilestart", layout["problem"])
+        self.assertTrue(all("verified_by" not in ref for ref in refs))
+
+    def test_consistent_wrong_base(self):
+        # Each anchor still implies the same base. The additional prefix byte lies in oracle padding.
+        mod = copy.deepcopy(self.mod)
+        mod.publics = [(n, s, o + 1 if s == self.si else o, local) for n, s, o, local in mod.publics]
+        r, layout, refs = self.check_function(mod)
+        self.assertEqual((layout["status"], layout["oracle"]), ("VERIFIED", "2:b1dff"))
+        self.assertEqual(r["status"], "NEAR_MATCH")
+        self.assertEqual(sum("oracle 2:" in p for p in r["problems"]), 8)
+        self.assertTrue(all("verified_by" not in ref for ref in refs))
+
+    def test_one_past_segment_with_equal_oracle_target(self):
+        # Retain all public anchors and shorten only the private tail, exactly to the ES field.
+        mod = copy.deepcopy(self.mod)
+        seg = mod.segments[self.si]
+        seg.size = 0x10c0c1
+        del seg.covered[seg.size:], seg.data[seg.size:]
+        r, layout, refs = self.check_function(mod)
+        self.assertEqual(layout["status"], "VERIFIED")
+        self.assertEqual(r["status"], "NEAR_MATCH")
+        self.assertEqual([f["site"] for f in refs if "verified_by" not in f], [0x63])
+        self.assertIn("outside segment", r["problems"][0])
+
+    @unittest.skipUnless(PITCH.exists(), "needs a built ass_pitch.obj")
+    def test_other_module_requires_its_own_bss_proof(self):
+        self.assertEqual(self.check_function(self.mod)[0]["status"], "STRICT")
+        # PITCH uses the same SEGDEF ordinal/name. Express its two named PitchTable references
+        # as equivalent segment-relative fixups (the public is at offset zero).
+        mod = omf.load(PITCH)[0]
+        idx, offset = next((s, o) for n, s, o, _ in mod.publics if n == "_PitchTable")
+        self.assertEqual((idx, offset), (self.si, 0))
+        for f in mod.fixups:
+            if mod.target_name(f) == "_PitchTable":
+                f.target = (4, idx)
+        r, layout, refs = self.check_function(mod, "PITCH_GetScale")
+        self.assertEqual((r["status"], layout["status"], len(refs)), ("STRICT", "VERIFIED", 2))
+        mod.publics = [p for p in mod.publics if p[1] != idx]
+        r, layout, refs = self.check_function(mod, "PITCH_GetScale")
+        self.assertEqual((r["status"], layout["status"]), ("CODE_BYTES_MATCH", "BSS"))
+        self.assertEqual(sum("verified_by" not in ref for ref in refs), 2)
+
+    def test_wrong_fixup_kind_same_width(self):
+        mod = copy.deepcopy(self.mod)
+        entry = next(o for n, _, o, _ in mod.publics if n == "setvesamode_")
+        fx = next(f for f in mod.fixups if f.seg == 1 and f.off == entry + 0x43)
+        fx.loc = 3  # OMF ptr16:16 occupies four bytes too
+        r, layout, refs = self.check_function(mod)
+        self.assertEqual((layout["status"], r["status"]), ("VERIFIED", "NEAR_MATCH"))
+        self.assertEqual([f["site"] for f in refs if "verified_by" not in f], [0x43])
+
+    def test_initialised_bss_is_not_a_layout_proof(self):
+        mod = copy.deepcopy(self.mod)
+        mod.segments[self.si].covered[-1] = 1
+        r, layout, refs = self.check_function(mod)
+        self.assertEqual((layout["status"], r["status"]), ("MISMATCH", "CODE_BYTES_MATCH"))
+        self.assertTrue(all("verified_by" not in ref for ref in refs))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -19,6 +19,8 @@ For every public function of the object's CODE segment (or only FUNC...):
               (b) config/symbols.json game bindings, (c) build/oracles/<o>/libsyms.json library bindings,
               (d) the object's own initialised data segments, located from the first reference and accepted
               only if their entire contents equal the oracle bytes there and every reference agrees.
+              An unnamed off32 into a verified BSS contribution uses the independently public-anchored
+              base and an in-range offset, checked against the oracle relocation at that site.
               Unplaced data segments can also be located by unanimous off32 relocations in data segments
               anchored by consistent bound publics; the complete segment checks still apply.
 Status: STRICT (all of the above), CODE_BYTES_MATCH (bytes + sites equal, some reference unverified),
@@ -262,6 +264,41 @@ def infer_data_bases(img, mod, seg_base, binds, data_si):
     return evidence
 
 
+def bss_layout(img, mod, si, binds):
+    """Place this BSS contribution from its own bound publics, independently of incoming references."""
+    seg = mod.segments[si]
+    pubs = [(n, off) for n, s, off, _ in mod.publics if s == si]
+    bound = [(n, off, binds.lookup(n)[0]) for n, off in pubs]
+    missing = [n for n, _, addr in bound if addr is None]
+    if not pubs or missing:
+        return {"status": "BSS", "problem": "unbound BSS publics: " + ", ".join(missing)[:200] if pubs else ""}
+
+    bases = {(addr[0], addr[1] - off) for _, off, addr in bound}
+    if len(bases) != 1:
+        return {"status": "MISMATCH", "problem": "BSS publics imply different bases (order/size differs from the oracle)"}
+    obj, base = bases.pop()
+    end = base + seg.size
+    placement = {"oracle": f"{obj}:{base:05x}"}
+    if obj not in img.obj or not 0 <= base < end <= len(img.obj[obj]) or any(
+            not 0 <= off < seg.size for _, off in pubs):
+        return {**placement, "status": "MISMATCH", "problem": "BSS extent or public outside the object"}
+    if any(seg.covered) or any(f.seg == si for f in mod.fixups) or \
+            img.obj[obj].count(0, base, end) != seg.size or oracle_sites_in(img, obj, base, end):
+        return {**placement, "status": "MISMATCH", "problem": "BSS span has initialisers, nonzero bytes or relocations"}
+
+    # Preserve the layout report's field-alias convention. Between public starts a bound name can
+    # denote a field/element. Names at a public start or before the first public require a definition.
+    names = {demangle(n) for n, _ in pubs} | {n for n, _ in pubs}
+    starts = {base + off for _, off in pubs}
+    first = min(starts)
+    foreign = [n for n, (o, a) in binds.game.items() if o == obj and base <= a < end
+               and n not in names and (a < first or a in starts)]
+    if foreign:
+        return {**placement, "status": "MISMATCH",
+                "problem": "bound globals inside this BSS span not defined here: " + ", ".join(sorted(foreign)[:6])}
+    return {**placement, "status": "VERIFIED", "layout_only": True}
+
+
 def segment_report(img, mod, seg_base, binds):
     """Status of the object's data segments: VERIFIED (whole contents equal the oracle at one consistent base and
     every relocation inside the segment is verified), MISMATCH, UNPLACED (no reference or binding fixes a base),
@@ -295,37 +332,7 @@ def segment_report(img, mod, seg_base, binds):
                 if a:
                     bases.add((a[0], a[1] - o))
         if seg.cls.upper() == "BSS":
-            # Layout check (contents are zero by definition): every public of the segment is bound, all imply one
-            # base, and no other bound data symbol lies inside [base, base+size) (nothing missing or foreign).
-            pubs = [(n, o) for n, s2, o, _ in mod.publics if s2 == si]
-            bound = [(n, o, binds.lookup(n)[0]) for n, o in pubs]
-            if not pubs or any(a is None for _, _, a in bound):
-                ent["status"] = "BSS"
-                ent["problem"] = "unbound BSS publics: " + ", ".join(n for n, _, a in bound if a is None)[:200] if pubs else ""
-            elif len({(a[0], a[1] - o) for _, o, a in bound}) != 1:
-                ent["status"] = "MISMATCH"
-                ent["problem"] = "BSS publics imply different bases (order/size differs from the oracle)"
-            else:
-                o2, b2 = bound[0][2][0], bound[0][2][1] - bound[0][1]
-                ent["oracle"] = f"{o2}:{b2:05x}"
-                names = {demangle(n) for n, _ in pubs} | {n for n, _ in pubs}
-                # A bound name strictly inside one of this segment's own objects (between a public and the next) is
-                # a field/element alias of storage defined here (e.g. SOUNDS' SoundToggle inside GLOBAL's settings
-                # block), not a missing definition. Names at an object start or in front of the first public remain
-                # foreign. (2026-11-26, dataown integration)
-                starts = sorted(b2 + o for _, o in pubs)
-                def _field_alias(addr):
-                    import bisect as _b
-                    i = _b.bisect_right(starts, addr) - 1
-                    return i >= 0 and starts[i] < addr and (i + 1 >= len(starts) or addr < starts[i + 1])
-                foreign = [k for k, a in binds.game.items() if a[0] == o2 and b2 <= a[1] < b2 + seg.size
-                           and k not in names and not _field_alias(a[1])]
-                if foreign:
-                    ent["status"] = "MISMATCH"
-                    ent["problem"] = "bound globals inside this BSS span not defined here: " + ", ".join(sorted(foreign)[:6])
-                else:
-                    ent["status"] = "VERIFIED"
-                    ent["layout_only"] = True
+            ent.update(bss_layout(img, mod, si, binds))
         elif ent.get("placement_problem"):
             ent["status"] = "MISMATCH"
             ent["problem"] = ent.pop("placement_problem")
@@ -438,6 +445,14 @@ def verify_object(img, mod, only=None, seg_report=None):
     results = []
     seg_base = {}          # segment index -> oracle (obj, base) inferred or placed
     seg_votes = {}
+    # Only reported (non-debug) BSS contributions are eligible. Keep these bases local to
+    # absolute segment references; prefix, data-initialiser and named-target rules are separate.
+    bss_bases = {}
+    for idx, segment in enumerate(mod.segments):
+        if segment and segment.size and segment.cls.upper() == "BSS" and not segment.name.startswith("$$"):
+            layout = bss_layout(img, mod, idx, binds)
+            if layout["status"] == "VERIFIED":
+                bss_bases[idx] = parse_addr(layout["oracle"])
 
     def prefix_unverified(si_, base_, addend_):
         """First problem of the CODE prefix that a reference at addend_ points into, else None."""
@@ -584,6 +599,17 @@ def verify_object(img, mod, only=None, seg_report=None):
                     _, tobj, toff = ofx
                     ref["oracle_target"] = f"{tobj}:{toff & 0xFFFFFFFF:x}"
                     addend = f.disp + field
+                    if tm == 0 and f.target[1] in bss_bases:
+                        tseg = f.target[1]
+                        taddr, tsrc = bss_bases[tseg], "BSS layout"
+                        if not 0 <= addend < mod.segments[tseg].size:
+                            res["problems"].append(f"+{rel:x}: {tname} offset {addend:#x} outside segment")
+                            res["references"].append(ref)
+                            continue
+                        if f.kind() not in ("off32", "off32l") or ofx[0] != 7:   # LE 7 = offset32
+                            res["problems"].append(f"+{rel:x}: expected an absolute off32 BSS relocation")
+                            res["references"].append(ref)
+                            continue
                     if tm == 0 and taddr is None:
                         tseg = f.target[1]
                         cseg = mod.segments[tseg]

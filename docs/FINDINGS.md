@@ -1383,3 +1383,18 @@ Each entry names the command or artefact that supports it.
   nextsectorneighborz needed a sentinel initialisation plus declaration order; with those, 88/88 functions and 2,950/2,950
   fixups match. The lost information is local source detail (expression form/operand order, initialisation,
   declaration order), not hidden state - the family our searches already cover.
+
+## Verifier: references into a proven BSS layout (user-authorised 2026-11-28; build/workers/bssref/REPORT.md)
+- Rule (tools/match.py): an unnamed absolute off32 reference into a BSS contribution is verified when (1) that segment's
+  layout is independently proven - every public of the segment is bound, all imply one base, no foreign bound symbol
+  inside, no initialisers, the oracle span is all zero and carries no relocations - (2) the offset lies inside the
+  segment, (3) the fixup is an absolute off32 of the oracle's kind, and (4) base + offset equals the oracle's relocation
+  target exactly. Rationale: BSS has no file-backed contents to compare; the independently bound publics fix the address
+  of every byte of the segment, which is the same evidentiary standard as a contents-verified data segment. The proof
+  covers addresses only; the identity of private storage still rests on the source (as for all private data).
+- Controls (tests/test_match.py BssReferenceControls, 9 tests): positive setvesamode (8 RMI references verify at
+  2:1bde9f.. ); rejected: unbound public, conflicting public, foreign global before the first public, consistent wrong
+  base (8 address problems), offset one past the segment even with an equal oracle target, another module without its
+  own BSS proof, wrong fixup kind of the same width, initialised BSS as layout proof.
+- Result: setvesamode CODE_BYTES_MATCH -> STRICT (+292 B); no other status changed (614 STRICT, 14 CODE_BYTES_MATCH);
+  gate OK, blockdiff selftest 614/614.

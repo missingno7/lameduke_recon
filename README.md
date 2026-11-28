@@ -44,14 +44,14 @@ size, so it can only grow by proving more of the original.
 | Part | Byte-identical (STRICT) | Functions | Bytes |
 |---|---|---:|---:|
 | Game code (GAME, PREMAP, SECTOR, PLAYER, ACTORS, SOUNDS, MENUES, GAMEDEF) | `█████████░░░░░░░░░░░░░░░░░░░░░`  29.8% | 115 / 143 | 63,332 / 212,556 |
-| Build engine (ENGINE.C + A.ASM) | `███████████████████████████░░░`  90.8% | 116 / 123 | 76,744 / 84,515 |
+| Build engine (ENGINE.C + A.ASM) | `███████████████████████████░░░`  91.2% | 117 / 123 | 77,036 / 84,515 |
 | Multiplayer (MULTI.C) | `██████████████████░░░░░░░░░░░░`  58.6% | 22 / 25 | 5,062 / 8,645 |
 | Apogee Sound System | `███████████████████████████░░░`  91.4% | 360 / 375 | 49,198 / 53,853 |
-| **Whole program (all non-library code)** | `████████████████░░░░░░░░░░░░░░`  54.0% | 613 / 666 | 194,336 / 359,569 |
+| **Whole program (all non-library code)** | `████████████████░░░░░░░░░░░░░░`  54.1% | 614 / 666 | 194,628 / 359,569 |
 
 - Initialised data proven at its original address (CONST/_DATA): `███████░░░░░░░░░░░░░░░░░░░░░░░`  23.6% (10,630 of 45,056 file-backed bytes).
 - Uninitialised data (_BSS) whose layout is proven: 1,812,142 bytes.
-- Functions whose code bytes match but a referenced target is not yet independently proven: 15.
+- Functions whose code bytes match but a referenced target is not yet independently proven: 14.
 - Identified library code, not counted as reconstruction: Watcom 9.5 C runtime (CLIB3R/MATH387R/EMU387) (35,080 bytes), Creative AWE32 + Gravis GF1 vendor objects (48,812 bytes).
 - Every compiled object of the program already has candidate source; the code object is 443,461 bytes in total.
 
