@@ -1324,3 +1324,8 @@ Each entry names the command or artefact that supports it.
   REJECTED AL_SetVoiceTimbre's STRICT candidate: it replaced the attested `int slotVoice[NUM_VOICES][2]` array (all
   surviving ASS sources) with an invented struct carrying a `volatile` member only to steer Watcom 10's load order.
   Bytes exact, but not historically authentic; AL_SetVoiceTimbre stays NEAR (14 B) with the attested array.
+- GAME round 10: waitforeverybody reaches 94/94 blocks at exact 1,952 B with only 2 B different (final slave-side sum:
+  Watcom keeps ECX on a 2:2 preference tie, oracle ESI) - but the shared decoder edit costs wait_for_players its STRICT
+  (393 B): a 1-for-1 trade, not adopted (build/workers/u-game/round10/high-control). Case 24: the oracle pushes the
+  clipmove clearance first (+0x2d7b) and materializes &ps later (+0x2d9e); earlier player-field reads use indexed
+  operands with embedded addresses.
