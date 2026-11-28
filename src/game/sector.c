@@ -540,9 +540,11 @@ elevator_up:
         i = headspritestat[STAT_EFFECTOR];
         while (i >= 0) {
             if (i != j && sprite[i].lotag == 11 && sprite[i].hitag == sprite[j].hitag && hittype[i][4] == 0) {
+                long *data = hittype[i];
+
                 sector[sprite[i].sectnum].lotag ^= 0x8000;
-                hittype[i][4] = 1;
-                hittype[i][3] = -hittype[i][3];
+                data[4] = 1;
+                data[3] = -data[3];
             }
             i = nextspritestat[i];
         }
@@ -664,7 +666,6 @@ void operateforcefields(short low)
 void cheatkeys(short snum)
 {
     short i;
-    unsigned char menu_flags;
 
     if ((syncbits[snum] & SB_KNUCKLES) && ps[snum].knuckle_incs == 0)
         ps[snum].knuckle_incs = 1;
@@ -703,11 +704,13 @@ void cheatkeys(short snum)
     if (ud.gamepaused)
         return;
     if ((syncbits[snum] & SB_ESCAPE) && !(ps[snum].gm & MODE_DEMO) && ps[snum].newowner == -1) {
+        unsigned char escape_flags;
+
         keystatus[1] = 0;
         /* COMPILER_STEERED: read gm before changing current_menu. */
-        menu_flags = ps[snum].gm;
+        escape_flags = ps[snum].gm;
         current_menu = 0;
-        ps[snum].gm = menu_flags | MODE_MENU;
+        ps[snum].gm = escape_flags | MODE_MENU;
         if (ps[snum].dimensionmode == 2) {
             ps[snum].dimensionmode = 3;
             if (snum == screenpeek)
@@ -798,23 +801,20 @@ void cheatkeys(short snum)
             ps[snum].gm = gm | MODE_MENU;
         }
         if (syncbits[snum] & SB_SCUBA) {
-            menu_flags = ps[snum].gm;
+            unsigned char scuba_flags = ps[snum].gm;
             current_menu = 10;
-            ps[snum].gm = menu_flags | MODE_MENU;
+            ps[snum].gm = scuba_flags | MODE_MENU;
         }
     } else if (syncbits[snum] & SB_DEBUG_DOORS) {
-        short source;
-
         FTA(11);
         for (i = 0; i < numsectors; i++) {
             switch ((short)(sector[i].lotag & 0xfff)) {
             case 15: case 16: case 17: case 18: case 19:
             case 20: case 21: case 22: case 23:
             case 25: case 26: case 27: case 28: case 29:
-                source = ps[snum].i;
                 if (sector[i].lotag & 0xbfff)
                     sector[i].lotag &= ~0x4000;
-                operatesectors(i, source);
+                operatesectors(i, ps[snum].i);
                 break;
             }
         }
