@@ -5951,7 +5951,7 @@ raytrace (long x, long y, long xvect, long yvect, long *intx, long *inty)
 {
 	short z, hitwall;
 	/* COMPILER_STEERED. Keep the endpoint stack homes and stage the side products. */
-	long x1, y2, y3, y4, y1, x2, x3, x4, dx, dy, bot, topu, nintx, ninty;
+	long side, x2, y1, x3, x4, x1, y2, y3, y4, dx, dy, bot, topu, nintx, ninty;
 	long templong2, templong1, templong3, templong4, cnt;
 
 	x3 = x; y3 = y;
@@ -5984,9 +5984,8 @@ raytrace (long x, long y, long xvect, long yvect, long *intx, long *inty)
 					do
 					{
 						nintx = x3 + scale(x4-x3,topu,bot);
-						templong3 = (y2-y1)*(nintx-x1);
 						ninty = y3 + scale(y4-y3,topu,bot);
-						templong2 = (ninty-y1)*(x2-x1) - templong3;
+						side = (x2-x1)*(ninty-y1) - (nintx-x1)*(y2-y1);
 						cnt--;
 						topu--;
 						if (cnt < 0)
@@ -5994,7 +5993,7 @@ raytrace (long x, long y, long xvect, long yvect, long *intx, long *inty)
 							*intx = x3; *inty = y3;
 							return(z);
 						}
-					} while (templong2 <= 0);
+					} while (side <= 0);
 					if (klabs(x3-nintx)+klabs(y3-ninty) < klabs(x3 - *intx)+klabs(y3 - *inty))
 					{
 						*intx = nintx;

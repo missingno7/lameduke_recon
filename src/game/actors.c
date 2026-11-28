@@ -320,19 +320,19 @@ void guts(short i)
 /* Update active actors (status 1): hard-coded tiles here, everything else through CON execute(). */
 void moveactors(void)
 {
-    short nexti;
+    short j;
     long dist;
     long l;
-    short sect;
-    short j;
+    short i;
+    short nexti;
     long *t;
     long zoffset;
-    int zstep;
-    short i;
+    short zstep;
+    short sect;
     short p;
 
     for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti) {
-        int pic;
+        short pic;
 
         nexti = nextspritestat[i];
         p = findplayer(i, &dist);
@@ -1004,8 +1004,11 @@ wait:
                 sprite[i].z += sprite[i].zvel;
                 if (sprite[i].xvel < 256)
                     sprite[i].xvel += 16;
-                if (MOVE_ALONG(i, sprite[i].zvel, 0))
-                    t[0]++;
+                {
+                    long dz = sprite[i].zvel;
+                    if (MOVE_ALONG(i, dz, 0))
+                        t[0]++;
+                }
                 if (dist < 768) {
                     j = 1024 - (randomstash & 2047);
                     sprite[i].ang += j;
@@ -1499,16 +1502,17 @@ void movefx(void)
 /* Update standables (status 6): force posts, cranes, cans; script standables run CON. */
 void movestandables(void)
 {
+    short nexti;
     short i;
     short p;
     short j;
-    long *t;
     short sect;
     short craneplayer;
-    short nexti;
     long d;
 
     for (i = headspritestat[STAT_STANDABLE]; i >= 0; i = nexti) {
+        long *t;
+
         nexti = nextspritestat[i];
         sect = sprite[i].sectnum;
         t = hittype[i];
@@ -1610,12 +1614,14 @@ burst:
                         sprite[i].picnum++;
                 }
                 {
+                    spritetype *s = &sprite[i];
                     long goal = msx[t[4] + 2];
-                    if (sprite[i].z < goal) {
+                    if (s->z < goal) {
                         t[0]++;
                         sprite[i].xvel = 0;
-                    } else
+                    } else {
                         sprite[i].z -= 1536;
+                    }
                 }
             } else if (t[0] == 6) {
                 if (sprite[i].xvel < 192)
