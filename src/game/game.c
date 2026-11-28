@@ -2371,8 +2371,11 @@ void closedemowrite(void)
  * (short) casts on the wall-loop starts keep this NEAR reconstruction's signed loads (COMPILER_STEERED). */
 void moveeffectors(void)
 {
+    long q;
+    long l;
+    long m;
     short nexti;
-    short sect;
+    short i;
     short startwall;
     short endwall;
     short k;
@@ -2381,15 +2384,13 @@ void moveeffectors(void)
     long *t;
     long d;
     long x;
-    long q;
-    short i;
-    long m;
     long j;
-    long l;
     long st;
 
     i = headspritestat[STAT_EFFECTOR];
     while (i >= 0) {
+        short sect;
+
         nexti = nextspritestat[i];
         sect = sprite[i].sectnum;
         t = &hittype[i][0];
@@ -2701,7 +2702,9 @@ void moveeffectors(void)
                 }
             }
             break;
-        case 12:
+        case 12: {
+            short k;
+
             if (t[0] == 1) {
                 short firstwall = sector[sect].wallptr;
 
@@ -2725,6 +2728,7 @@ void moveeffectors(void)
                     t[0] = 0;
             }
             break;
+        }
         case 13:
             if (t[2] == 0) {
                 for (j = headspritestat[STAT_STANDABLE]; j >= 0; j = nextspritestat[j])
@@ -2937,7 +2941,8 @@ void moveeffectors(void)
             else
                 sprite[i].xvel = -128;
             if (sprite[i].xvel) {
-                long dx, dy;
+                long dy;
+                long dx;
 
                 dx = (sintable[(sprite[i].ang + 512) & 2047] * sprite[i].xvel) >> 14;
                 dy = (sintable[sprite[i].ang & 2047] * sprite[i].xvel) >> 14;
@@ -3151,7 +3156,9 @@ void moveeffectors(void)
                 }
             }
             break;
-        case 128:
+        case 128: {
+            short cstat;
+
             if (wall[t[2]].cstat | 32) {
                 wall[t[2]].cstat &= (255 - 32);
                 wall[t[2]].cstat |= 16;
@@ -3165,20 +3172,25 @@ void moveeffectors(void)
             if (t[0] < t[1])
                 t[0]++;
             else {
-                wall[t[2]].cstat &= (128 + 32 + 8 + 4 + 2);
-                wall[wall[t[2]].nextwall1].cstat &= (128 + 32 + 8 + 4 + 2);
+                cstat = wall[t[2]].cstat;
+                wall[t[2]].cstat = cstat & (128 + 32 + 8 + 4 + 2);
+                cstat = wall[wall[t[2]].nextwall1].cstat;
+                wall[wall[t[2]].nextwall1].cstat = cstat & (128 + 32 + 8 + 4 + 2);
                 deletesprite(i);
                 goto BOLT;
             }
             break;
+        }
         case 1: /* rotation pivots and transporters have no per-tic work here; */
         case 7: /* the labels still shape the dispatch tree (split at 15) */
             break;
         case 129: {
+            unsigned short step;
             unsigned char frames[12] = { 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0 };
 
-            wall[t[2]].overpicnum = 790 + frames[t[0]];
-            wall[wall[t[2]].nextwall1].overpicnum = 790 + frames[t[0] + 2];
+            step = t[0];
+            wall[t[2]].overpicnum = 790 + frames[step];
+            wall[wall[t[2]].nextwall1].overpicnum = 790 + frames[step + 2];
             t[0]++;
             if (t[0] > 9) {
                 deletesprite(i);
