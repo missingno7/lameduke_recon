@@ -678,11 +678,10 @@ short furthestangle(short i, short angs)
 /* Apply sprite i's CON move and hitag move flags (Duke 1.5 move()). */
 void move_actor(short i, short p, long x)
 {
-    /* Compiler-steered byte tests for the movement flags. */
+    /* Compiler-steered: the two byte tests and the height temporary's scope select the original stack layout. */
     unsigned short flags;
-    long *moveptr;
     long height;
-    unsigned char *bytes = (unsigned char *)&flags;
+    long *moveptr;
 
     flags = sprite[i].hitag;
     if (!hittype[i][ACTOR_MOVE_PTR] || !flags)
@@ -690,7 +689,7 @@ void move_actor(short i, short p, long x)
 
     hittype[i][ACTOR_MOVE_COUNT]++;
     moveptr = (long *)hittype[i][ACTOR_MOVE_PTR];
-    if (bytes[1] & (ON_OWNER >> 8)) {
+    if (((unsigned char *)&flags)[1] & (ON_OWNER >> 8)) {
         if (sprite[i].owner >= 0 && sprite[sprite[i].owner].statnum == STAT_ACTOR) {
             sprite[i].x = sprite[sprite[i].owner].x;
             sprite[i].y = sprite[sprite[i].owner].y;
@@ -705,7 +704,7 @@ void move_actor(short i, short p, long x)
         sprite[i].xvel += (moveptr[0] - sprite[i].xvel) >> 1;
     if (flags & GET_V)
         sprite[i].zvel += ((moveptr[1] << 4) - sprite[i].zvel) >> 1;
-    if (((unsigned char *)&flags)[0] & HOVER) {
+    if (flags & HOVER) {
         if ((height = sprite[i].z + 8192) < sector[sprite[i].sectnum].floorz)
             sprite[i].zvel += moveptr[1] << 4;
         else if (height > sector[sprite[i].sectnum].floorz)
@@ -1175,9 +1174,11 @@ void execute(short i, short p, long x)
     if (hittype[i][ACTOR_ACTION_PTR]) {
         sprite[i].lotag += synctics;
         if (sprite[i].lotag > ACTION_SCRIPT(i)[4]) {
+            long step;
             hittype[i][ACTOR_ACTION_COUNT]++;
             sprite[i].lotag = 0;
-            hittype[i][ACTOR_ACTION_FRAME] = ACTION_SCRIPT(i)[3] + hittype[i][ACTOR_ACTION_FRAME];
+            step = ACTION_SCRIPT(i)[3];
+            hittype[i][ACTOR_ACTION_FRAME] += step;
         }
         if (klabs(hittype[i][ACTOR_ACTION_FRAME]) >=
             klabs(ACTION_SCRIPT(i)[1] * ACTION_SCRIPT(i)[3]))
