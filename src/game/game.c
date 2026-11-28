@@ -3111,11 +3111,7 @@ void moveeffectors(void)
                     ps[p].posx += x;
                     ps[p].posy += l;
                     clipmove(&ps[p].posx, &ps[p].posy, &ps[p].posz, &ps[p].cursectnum, 0, 0, 192, 1024, 1024, 0);
-                    {
-                        struct player_struct *player = &ps[p];
-
-                        setsprite(player->i, player->posx, player->posy, player->posz);
-                    }
+                    setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz);
                 }
             sector[sect].floorxpanning += l >> 2;
             sector[sect].floorypanning += x >> 2;
@@ -3157,16 +3153,23 @@ void moveeffectors(void)
                 sprite[i].shade = 0;
             } else
                 sector[sect].floorz += sprite[i].zvel;
-            for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
-                if (sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PLAYER) {
-                    sprite[j].x += l;
-                    sprite[j].y += x;
-                    setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z + sprite[i].zvel);
-                }
+            {
+                long j;
+
+                for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
+                    if (sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PLAYER) {
+                        sprite[j].x += l;
+                        sprite[j].y += x;
+                        setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z + sprite[i].zvel);
+                    }
+            }
             for (p = connecthead; p >= 0; p = connectpoint2[p])
                 if (ps[p].cursectnum == sect && ps[p].on_ground) {
-                    ps[p].posx += l;
-                    ps[p].posy += x;
+                    long newx = l + ps[p].posx;
+                    long newy = x + ps[p].posy;
+
+                    ps[p].posx = newx;
+                    ps[p].posy = newy;
                     ps[p].posz += sprite[i].zvel;
                     setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + 9216);
                 }
@@ -3236,12 +3239,10 @@ void moveeffectors(void)
         case 7: /* the labels still shape the dispatch tree (split at 15) */
             break;
         case 129: {
-            unsigned short step;
             unsigned char frames[12] = { 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0 };
 
-            step = t[0];
-            wall[t[2]].overpicnum = 790 + frames[step];
-            wall[wall[t[2]].nextwall1].overpicnum = 790 + frames[step + 2];
+            wall[t[2]].overpicnum = 790 + frames[t[0]];
+            wall[wall[t[2]].nextwall1].overpicnum = 790 + frames[t[0] + 2];
             t[0]++;
             if (t[0] > 9) {
                 deletesprite(i);
