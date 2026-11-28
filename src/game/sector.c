@@ -291,7 +291,7 @@ void operatesectors(short sn, short ii)
     case 9: {
         /* The sliding-door geometry follows Ken's September 1994 routine. */
         /* COMPILER_STEERED: initialize both center coordinates here for the inlined door scans. */
-        long cy = 0, cx = 0, last, first, sp, dx, dy, displacement;
+        long cx = 0, cy = 0, last, first, sp, dx, dy, displacement;
         short w, prev;
         long door[2], door_index;
 
@@ -499,9 +499,13 @@ elevator_up:
                 daz = sector[nextsectorneighborz(sn, sector[sn].floorz, -1, -1)].ceilingz;
             else
                 daz = middle;
-            if (setanimation(sn, &sector[sn].ceilingz, daz, sector[sn].extra) >= 0) {
-                sector[sn].lotag ^= 0x8000;
-                spritesound(6, ii);
+            {
+                long *plane = &sector[sn].ceilingz;
+
+                if (setanimation(sn, plane, daz, sector[sn].extra) >= 0) {
+                    sector[sn].lotag ^= 0x8000;
+                    spritesound(6, ii);
+                }
             }
         }
         a = getanimationgoal(&sector[sn].floorz);
@@ -1123,14 +1127,16 @@ void checksectors(short snum)
         return;
     }
     }
-    w = sector[ps[snum].cursectnum].lotag & 32767;
-    if ((unsigned short)w < 15 || ((unsigned short)w > 19 && ((unsigned short)w < 26 || (unsigned short)w > 28)))
-        goto wall_switch;
     {
-        short current_sector = ps[snum].cursectnum;
-        short owner = ps[snum].i;
-        operatesectors(current_sector, owner);
-        return;
+        short under_tag = sector[ps[snum].cursectnum].lotag & 32767;
+        if ((unsigned short)under_tag < 15 || ((unsigned short)under_tag > 19 && ((unsigned short)under_tag < 26 || (unsigned short)under_tag > 28)))
+            goto wall_switch;
+        {
+            short current_sector = ps[snum].cursectnum;
+            short owner = ps[snum].i;
+            operatesectors(current_sector, owner);
+            return;
+        }
     }
 wall_switch: {
     short target = neartagwall;
