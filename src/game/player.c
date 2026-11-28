@@ -53,18 +53,18 @@ void spawn_pistol_tracer(short snum)
     short hitwall;
     long sy;
     short i;
-    long hity;
+    long hitx;
     short hitsect;
     long sz;
     long sa;
+    long hity;
     long hitz;
-    long hitx;
 
+    weapon_pos = ps[snum].weapon_pos & 127;
+    sa = ps[snum].ang - 16;
     sx = ps[snum].posx;
     sy = ps[snum].posy;
-    weapon_pos = ps[snum].weapon_pos & 127;
-    sz = ps[snum].posz - (weapon_pos << 10) + 5376;
-    sa = ps[snum].ang - 16;
+    sz = (ps[snum].posz + 5376) - (weapon_pos << 10);
     hitscan(sx + (sintable[(TRACER_AIM_ANGLE(sa, weapon_pos) + 512) & 2047] >> 8),
         sy + (sintable[TRACER_AIM_ANGLE(sa, weapon_pos) & 2047] >> 8),
         sz, ps[snum].cursectnum,
@@ -636,9 +636,13 @@ void processinput(short snum)
         ps[snum].posz += ps[snum].poszv;
         if (fz - 3840 < ps[snum].posz)
             ps[snum].posz += (fz - 3840 - ps[snum].posz) >> 1;
-        if (cz + 1024 > ps[snum].posz) {
-            ps[snum].posz = cz + 1024;
-            ps[snum].poszv = 0;
+        {
+            long top = cz + 1024;
+
+            if (top > ps[snum].posz) {
+                ps[snum].posz = top;
+                ps[snum].poszv = 0;
+            }
         }
         goto doturn;
     }
