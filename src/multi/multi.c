@@ -691,6 +691,9 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
 
 short getpacket(short *otherconnectindex, unsigned char *buffer)
 {
+    /* COMPILER_STEERED. Share the widened input position and flat address. */
+    long position;
+    unsigned long address;
     short start, length, sublength, i, j;
     unsigned char totalbad, bad, toindex;
 
@@ -751,7 +754,7 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
 
             bad = 0;
             length = syncbufleng - 3 + ((comrateoption == 0) << 1);
-            if (*incnt != ((syncbuf[0] & 255) >> 2))
+            if (*incnt != (syncbuf[0] >> 2))
             {
                 if (*incnt == 1 && syncbuf[1] == 254)
                     myconnectindex = myconnectnum < otherconnectnum;
@@ -797,7 +800,13 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
         while (totalbad < 2)
         {
             if (*inbufplc == *inbufend) return 0;
-            toindex = inbuf[*inbufplc];
+            {
+                long cursor;
+                unsigned long base;
+                cursor = *inbufplc;
+                base = (unsigned long)inbuf;
+                toindex = *(volatile unsigned char *)(cursor + base);
+            }
             *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
             bad = 0;
             if (toindex == 255)
@@ -817,7 +826,9 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
             }
             else if (toindex != 254)
             {
-                j = inbuf[*inbufplc];
+                position = *inbufplc;
+                address = (unsigned long)inbuf;
+                j = *(volatile unsigned char *)(position + address);
                 *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
                 if (j != netincnt[*otherconnectindex]) bad = 1;
                 netincnt[*otherconnectindex]++;
@@ -837,14 +848,11 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
             for (i = 0; i < sublength; i++)
             {
                 /* COMPILER_STEERED. Accumulate the flat input address after forming dst. */
-                long offset;
-                unsigned long address;
                 unsigned char *dst;
-                offset = *inbufplc;
+                position = *inbufplc;
                 address = (unsigned long)inbuf;
                 dst = buffer + i;
-                address += offset;
-                *dst = *(volatile unsigned char *)address;
+                *dst = *(volatile unsigned char *)(position + address);
                 *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
             }
 
