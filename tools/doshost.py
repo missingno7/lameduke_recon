@@ -132,7 +132,7 @@ def compile_staged(src, out, flags, inst, include, *, subdir='', mtime=wcc.STAGE
 showmenu=false
 [dosbox]
 working directory option=default
-memsize=32
+memsize={os.environ.get('LAMEDUKE_DOS_MEMSIZE', '32')}
 [cpu]
 core=dynamic
 cycles=max

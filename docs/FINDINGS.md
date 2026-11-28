@@ -1362,3 +1362,11 @@ Each entry names the command or artefact that supports it.
 - NEGATIVE: Nov-94 KENGAME.C source forms (decoder condition, inline shift, casts, login count, argc width, sync send
   traversal, strget tests) gave no new STRICT; shared inlining regressions as before. SOURCE_ANCESTRY.md lists the
   Sep->Nov changes.
+
+## Structural review 2026-11-28: compiler memory pressure (integrator) - NEGATIVE
+- Hypothesis: the original 1994 build machine had less memory, so Watcom 9.5's memory-pressure fallbacks (block-by-block
+  allocation, sort-merge fallback; docs/CG_SOURCE.md UNTESTED) changed the large game functions. Test: DOS host memsize
+  (new diagnostic env LAMEDUKE_DOS_MEMSIZE, default 32) for PLAYER and GAME. 32, 8, 4 and 3 MB give identical PLAYER
+  code (processinput/displayweapon unchanged); 3 MB kills GAME and 2 MB kills PLAYER with "E1118 ***FATAL*** Out of
+  memory". No intermediate degraded mode or optimisation warning appears: the compiler either has enough memory or
+  aborts. Memory pressure does not explain the residues.
