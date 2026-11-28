@@ -2371,8 +2371,9 @@ void closedemowrite(void)
  * (short) casts on the wall-loop starts keep this NEAR reconstruction's signed loads (COMPILER_STEERED). */
 void moveeffectors(void)
 {
+    long m;
     long *height;
-    long q, l, m, x, st, j, d, *t;
+    long q, l, x, st, j, d, *t;
     short i, k, nexti, p;
     short startwall, endwall; /* COMPILER_STEERED: wall bounds for cases 8, 9 and 26. */
 
