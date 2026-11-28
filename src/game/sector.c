@@ -291,7 +291,7 @@ void operatesectors(short sn, short ii)
     case 9: {
         /* The sliding-door geometry follows Ken's September 1994 routine. */
         /* COMPILER_STEERED: initialize both center coordinates here for the inlined door scans. */
-        long cx = 0, cy = 0, last, first, sp, dx, dy, displacement;
+        long cy = 0, cx = 0, last, first, sp, dx, dy, displacement;
         short w, prev;
         long door[2], door_index;
 
