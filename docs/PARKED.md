@@ -20,3 +20,4 @@ Keep each parked function at its current status or better. The integrator un-par
 | rotatesprite | 17 B (5 stack slots), 75/75 blocks | sine home ESP+20h unreachable with the current temporary set (declaration-order replay caps it at +14h); Feb-95 corroborates +20h | r12-engine rounds 8-10, u-engine2 (462 probes) | 2026-11-28 |
 | wallfront, grouvline | 67 B (entry block) / 448 B | allocation and statement-form residue; no gain over 3 rounds | r12-engine 9-10, u-engine2 | 2026-11-28 |
 | moveactors (frame) | 497/521 blocks; 4 entry homes | no declaration order/scope recovers all entry homes and keeps 497 (best 7/10 slots at 496); slot table build/workers/u-actors2/r4/FRAME.md | u-actors, u-actors2 rounds 1-4 | 2026-11-28 |
+| raytrace | 27 B, 23/24 blocks | retry block: Watcom coalesces the leading product with the y delta in EAX; Jul/Dec multiply into EBX; 101 EBX probes never place it at +0x198 | u-engine2 passes 2-4 (860 probes) | 2026-11-28 |
