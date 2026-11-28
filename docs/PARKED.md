@@ -33,3 +33,5 @@ Keep each parked function at its current status or better. The integrator un-par
 | getpacket | 4 B at +0x1e0, 81/81 blocks, all fixups | serial sequence comparison swaps EBX/EDX roles (replay: one CMP encoding byte); 422 variants of operand order, fresh-load placement and widths, none closer | u-multi rounds 1-4 | 2026-11-28 |
 | update_menu_cursor | 2 B (+0x109/+0x10c), 21/21 blocks | lower Y clamp store takes BX (next scratch after the upper store's DX folds to an immediate); a separate comparison gives DI but moves homes and layout | u-game rounds 12-14 | 2026-11-28 |
 | lotsofglass | 8/9 blocks | block at +0x54 (argument preparation + inlined sprite-store scheduling); early-X control shrinks it to 464 B | u-game rounds 12-14 | 2026-11-28 |
+| moveexplosions | 74 B at +0x59c, 166/167 | Y/Z spill decision (frame map + cg95); FLAIR control restores ECX for the arm floor but raises residue to 127 B | owcg, u-actors, u-last | 2026-11-28 |
+| spawn_pistol_tracer | 413 B, 4/5 | inlined into processinput: standalone output homes and CWDE controls each cost the inline copy (processinput 392 -> 374) | smallgame, blind, u-player2, u-last | 2026-11-28 |
