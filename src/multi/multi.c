@@ -692,9 +692,9 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
 short getpacket(short *otherconnectindex, unsigned char *buffer)
 {
     short start, length, sublength, i, j;
-    /* COMPILER_STEERED. Widen the read cursor before fetching the ring base. */
+    /* COMPILER_STEERED. This declaration order preserves the receive function extent. */
+    unsigned char toindex, totalbad, bad;
     long offset;
-    unsigned char bad, toindex, totalbad;
     volatile unsigned char *ring;
 
     if (multioption <= 0) return 0;
@@ -761,7 +761,9 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
             for (i = 0; i < length; i++) buffer[i] = syncbuf[i + 1];
             if (comrateoption > 0)
             {
-                long expected = syncbuf[syncbufleng - 2] + ((long)syncbuf[syncbufleng - 1] << 8);
+                long high = (long)syncbuf[syncbufleng - 1] << 8;
+                long expected = syncbuf[syncbufleng - 2];
+                expected += high;
                 if (getcrc(buffer, length) != expected) bad = 1;
             }
             syncbufleng = 0;
@@ -785,11 +787,9 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
         start = *inbufplc;
         if (*inbufplc == *inbufend) return 0;
         totalbad = 0;
-        offset = *inbufplc;
-        ring = inbuf;
-        length = ring[offset];
+        length = inbuf[*inbufplc];
         *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
-        length += (short)ring[*inbufplc] << 8;
+        length += (short)inbuf[*inbufplc] << 8;
         *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
         *otherconnectindex = inbuf[*inbufplc];
         *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
@@ -825,17 +825,18 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
             else
                 netincnt[*otherconnectindex] = 0;
 
-            offset = *inbufplc;
-            ring = inbuf;
-            sublength = ring[offset];
+            sublength = inbuf[*inbufplc];
             *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
-            sublength += (short)ring[*inbufplc] << 8;
+            sublength += (short)inbuf[*inbufplc] << 8;
             *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
             for (i = 0; i < sublength; i++)
             {
-                /* COMPILER_STEERED. Form the destination before reading the ring. */
-                unsigned char *dst = buffer + i;
-                *dst = inbuf[*inbufplc];
+                /* COMPILER_STEERED. Stage both addresses before reading the byte. */
+                unsigned char *dst;
+                offset = *inbufplc;
+                ring = inbuf;
+                dst = buffer + i;
+                *dst = ring[offset];
                 *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
             }
 
