@@ -2371,16 +2371,25 @@ void closedemowrite(void)
  * (short) casts on the wall-loop starts keep this NEAR reconstruction's signed loads (COMPILER_STEERED). */
 void moveeffectors(void)
 {
-    long m;
+    short nexti;
+    short sect;
+    short startwall;
+    short endwall;
+    short k;
     long *height;
-    long q, l, x, st, j, d, *t;
-    short i, k, nexti, p;
-    short startwall, endwall; /* COMPILER_STEERED: wall bounds for cases 8, 9 and 26. */
+    short p;
+    long *t;
+    long d;
+    long x;
+    long q;
+    short i;
+    long m;
+    long j;
+    long l;
+    long st;
 
     i = headspritestat[STAT_EFFECTOR];
     while (i >= 0) {
-        short sect;
-
         nexti = nextspritestat[i];
         sect = sprite[i].sectnum;
         t = &hittype[i][0];
@@ -2668,6 +2677,7 @@ void moveeffectors(void)
             break;
         case 11:
             if (t[4]) {
+                long j;
                 short step;
                 short last;
 
@@ -2675,8 +2685,9 @@ void moveeffectors(void)
                 t[2] += step;
                 t[4] += step;
                 ms(i);
-                last = (short)((short)sector[sect].wallptr + sector[sect].wallnum);
-                for (j = (short)sector[sect].wallptr; j < last; j++)
+                j = (short)sector[sect].wallptr;
+                last = (short)(j + sector[sect].wallnum);
+                for (; j < last; j++)
                     for (p = connecthead; p >= 0; p = connectpoint2[p])
                         if (clipinsidebox(ps[p].posx, ps[p].posy, j, 128) == 1) {
                             t[4] -= step;
@@ -2763,11 +2774,13 @@ void moveeffectors(void)
                 for (x = 0; x < 30; x += 3) {
                     long sx = sprite[i].x, sy = sprite[i].y;
                     long sz = sector[sect].floorz - (krand() & 0x1000);
-                    short pic = krand() % 11 + 235, a = krand() & 2047;
+                    short pic = krand() % 11;
+                    short a = krand() & 2047;
                     short xv = (krand() & 0x80) + 64;
                     long zv = -(krand() & 511) - 512;
                     long *actor;
 
+                    pic += 235;
                     k = insertsprite(sect, 5);
                     sprite[k].x = sx;
                     sprite[k].y = sy;
