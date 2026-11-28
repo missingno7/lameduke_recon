@@ -239,6 +239,7 @@ static void AL_SetVoiceTimbre
 
    {
    int    off;
+   int    carrierOffset;
    int    slot;
 // *** VERSIONS RESTORATION ***
 // FIXME HACK
@@ -257,18 +258,28 @@ static void AL_SetVoiceTimbre
 
    if ( channel == 9 )
       {
-      #if (LIBVER_ASSREV < 19950821L)
-      patch = PercussionTable[ Voice[ voice ].key ].Timbre;
-      if ( Voice[ voice ].timbre == patch ) return;
+#if (LIBVER_ASSREV < 19950821L)
+      unsigned char drumPatch = PercussionTable[ Voice[ voice ].key ].Timbre;
+      if ( Voice[ voice ].timbre == drumPatch )
+         {
+         return;
+         }
+      patch = drumPatch;
 #else
       patch = Voice[ voice ].key + 128;
 #endif
       }
    else
       {
-      patch = Channel[ channel ].Timbre;
 #if (LIBVER_ASSREV < 19950821L)
-      if ( Voice[ voice ].timbre == patch ) return;
+      int channelPatch = Channel[ channel ].Timbre;
+      if ( Voice[ voice ].timbre == channelPatch )
+         {
+         return;
+         }
+      patch = channelPatch;
+#else
+      patch = Channel[ channel ].Timbre;
 #endif
       }
 
@@ -281,7 +292,7 @@ static void AL_SetVoiceTimbre
 #endif
 
    Voice[ voice ].timbre = patch;
-   timbre = &ADLIB_TimbreBank[ patch ];
+   timbre = &ADLIB_TimbreBank[ Voice[ voice ].timbre ];
 
    // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV >= 19950821L)
@@ -291,8 +302,11 @@ static void AL_SetVoiceTimbre
    slot = slotVoice[ voc ][ 0 ];
    off  = offsetSlot[ slot ];
 
-   VoiceLevel[ slot ][ port ] = 63 - ( timbre->Level[ 0 ] & 0x3f );
-   VoiceKsl[ slot ][ port ]   = timbre->Level[ 0 ] & 0xc0;
+   {
+      unsigned char level = timbre->Level[ 0 ];
+      VoiceLevel[ slot ][ port ] = 63 - ( level & 0x3f );
+      VoiceKsl[ slot ][ port ]   = level & 0xc0;
+   }
 
    AL_SendOutput( port, 0xA0 + voc, 0 );
    AL_SendOutput( port, 0xB0 + voc, 0 );
@@ -310,7 +324,7 @@ static void AL_SetVoiceTimbre
 
    // *** VERSIONS RESTORATION ***
 #if (LIBVER_ASSREV < 19950821L)
-   if ( AL_SendStereo )
+   if ( AL_OPL3 )
 #else
    if ( AL_SendStereo )
 #endif
@@ -336,19 +350,19 @@ static void AL_SetVoiceTimbre
          }
       }
 
-   off = offsetSlot[ slot ];
+   carrierOffset = offsetSlot[ slot ];
 
    VoiceLevel[ slot ][ port ] = 63 - ( timbre->Level[ 1 ] & 0x3f );
    VoiceKsl[ slot ][ port ]   = timbre->Level[ 1 ] & 0xc0;
-   AL_SendOutput( port, 0x40 + off, 63 );
+   AL_SendOutput( port, 0x40 + carrierOffset, 63 );
 
    // Let voice clear the release
-   AL_SendOutput( port, 0x80 + off, 0xff );
+   AL_SendOutput( port, 0x80 + carrierOffset, 0xff );
 
-   AL_SendOutput( port, 0x60 + off, timbre->Env1[ 1 ] );
-   AL_SendOutput( port, 0x80 + off, timbre->Env2[ 1 ] );
-   AL_SendOutput( port, 0x20 + off, timbre->SAVEK[ 1 ] );
-   AL_SendOutput( port, 0xE0 + off, timbre->Wave[ 1 ] );
+   AL_SendOutput( port, 0x60 + carrierOffset, timbre->Env1[ 1 ] );
+   AL_SendOutput( port, 0x80 + carrierOffset, timbre->Env2[ 1 ] );
+   AL_SendOutput( port, 0x20 + carrierOffset, timbre->SAVEK[ 1 ] );
+   AL_SendOutput( port, 0xE0 + carrierOffset, timbre->Wave[ 1 ] );
 // *** VERSIONS RESTORATION ***
 // FIXME REVERT HACK
 #if (LIBVER_ASSREV < 19950821L)
