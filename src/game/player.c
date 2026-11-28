@@ -96,12 +96,12 @@ void shoot(short i, short atwith, unsigned char impact)
     /* COMPILER_STEERED: declaring p here gives the two inlined
        findplayer results separate stack homes in processinput. */
     short hitspr;
+    short p;
     short hitwall;
     long sx;
     long sy;
     long sz;
     long j;
-    short p;
     long distance;
     short sect;
     if (impact) {
@@ -559,8 +559,8 @@ void processinput(short snum)
     short psectlotag;
     long wpos;
     short i;
-    long lz;
     long hz;
+    long lz;
     long tics2;
     long eye;
 
@@ -590,11 +590,11 @@ void processinput(short snum)
     else if (syncbits[snum] & SB_LOOK_RIGHT)
         ps[snum].look_ang += 192;
     ps[snum].look_ang -= ps[snum].look_ang / 3;
+    /* COMPILER_STEERED: compute the run step early to get a stack home for it. */
+    tics2 = doubvel + doubvel;
     if (ps[snum].on_crane >= 0)
         goto domove;
 
-    /* COMPILER_STEERED: compute the run step early to get a stack home for it. */
-    tics2 = doubvel + doubvel;
     getzrange(ps[snum].posx, ps[snum].posy, ps[snum].posz, ps[snum].cursectnum, &cz, &hz, &fz, &lz, 128, 0);
     if (ps[snum].jetpack_on == 0) {
         int dx = ps[snum].oposx - ps[snum].posx, dy = ps[snum].oposy - ps[snum].posy;
@@ -732,8 +732,8 @@ void processinput(short snum)
     }
     if (cz + 4096 > ps[snum].posz) {
         ps[snum].posz = cz + 4096;
-        ps[snum].poszv = 512;
         ps[snum].jumping_counter = 0;
+        ps[snum].poszv = 512;
     }
     ps[snum].posz += ps[snum].poszv;
 
