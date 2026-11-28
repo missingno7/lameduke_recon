@@ -747,7 +747,7 @@ void move_actor(short i, short p, long x)
 char parse(short i, short p, long x)
 {
     /* Compiler-steered declaration order also affects the inlined interpreter. */
-    long j, flags, speed;
+    long j, value, speed;
 
     if (killit_flag)
         return 1;
@@ -886,9 +886,10 @@ case CON_ADDBATTERYAMMO:
 
 case CON_NUKE:
     insptr++;
-    /* Compiler-steered load order for the coordinate arguments. */
+    /* Stage the Y and Z arguments in the interpreter scratch values. */
     j = sprite[i].y;
-    nuke(sprite[i].x, j, sprite[i].z, i);
+    value = sprite[i].z;
+    nuke(sprite[i].x, j, value, i);
     CON_NEXT();
 
 case CON_KILLIT:
@@ -1014,7 +1015,16 @@ case CON_IFPLAYERSWEAPON:
 
 case CON_IFMOVECOUNT:
     insptr++;
-    PARSE_IF(hittype[i][ACTOR_MOVE_COUNT] >= *insptr);
+    if (!(hittype[i][ACTOR_MOVE_COUNT] >= *insptr)) {
+        insptr = (long *)insptr[1];
+        if (*insptr == CON_ELSE) {
+            insptr += 2;
+            parse(i, p, x);
+        }
+    } else {
+        insptr += 2;
+        parse(i, p, x);
+    }
     CON_NEXT();
 
 case CON_RESETMOVECOUNT:
@@ -1047,41 +1057,41 @@ case CON_HITRADIUS:
 case CON_IFP: {
         /* Compiler-steered widths keep the IFSTRENGTH opcode and pointer in separate registers. */
         insptr++;
-        flags = *insptr;
+        value = *insptr;
         j = 0;
         speed = syncvel[p] + syncsvel[p];
-        if ((flags & 8) && ps[p].on_ground && (syncbits[p] & SB_CROUCH))
+        if ((value & 8) && ps[p].on_ground && (syncbits[p] & SB_CROUCH))
             j = 1;
-        else if (((unsigned char)flags & 16) && !ps[p].jumping_counter && !ps[p].on_ground &&
+        else if (((unsigned char)value & 16) && !ps[p].jumping_counter && !ps[p].on_ground &&
             sector[ps[p].cursectnum].floorz - ps[p].posz > 18432)
             j = 1;
-        else if ((flags & 32) && ps[p].jumping_counter > 348)
+        else if ((value & 32) && ps[p].jumping_counter > 348)
             j = 1;
-        else if ((flags & 1) && speed >= 0 && speed < 8)
+        else if ((value & 1) && speed >= 0 && speed < 8)
             j = 1;
-        else if ((flags & 2) && speed >= 8 && !(syncbits[p] & SB_RUN))
+        else if ((value & 2) && speed >= 8 && !(syncbits[p] & SB_RUN))
             j = 1;
-        else if ((flags & 4) && speed >= 8 && (syncbits[p] & SB_RUN))
+        else if ((value & 4) && speed >= 8 && (syncbits[p] & SB_RUN))
             j = 1;
-        else if ((flags & 64) && sprite[i].z - 12288 > ps[p].posz)
+        else if ((value & 64) && sprite[i].z - 12288 > ps[p].posz)
             j = 1;
-        else if ((flags & 128) && speed <= -8 && !(syncbits[p] & SB_RUN))
+        else if ((value & 128) && speed <= -8 && !(syncbits[p] & SB_RUN))
             j = 1;
-        else if ((flags & 256) && speed <= -8 && (syncbits[p] & SB_RUN))
+        else if ((value & 256) && speed <= -8 && (syncbits[p] & SB_RUN))
             j = 1;
-        else if ((flags & 512) && ps[p].look_ang < -128)
+        else if ((value & 512) && ps[p].look_ang < -128)
             j = 1;
-        else if ((flags & 1024) && ps[p].look_ang > 128)
+        else if ((value & 1024) && ps[p].look_ang > 128)
             j = 1;
-        else if ((unsigned short)flags & 2048) {
+        else if ((unsigned short)value & 2048) {
             /* Compiler-steered: retain the oracle's mask after the angle shift. */
             if (((((sprite[i].ang + 3200 - sprite[ud.camerasprite].ang) & 2047) >> 8) & 7) < 2)
                 j = 1;
-        } else if ((flags & 4096) && ps[p].fire_flag)
+        } else if ((value & 4096) && ps[p].fire_flag)
             j = 1;
-        else if ((flags & 8192) && ps[p].on_ground)
+        else if ((value & 8192) && ps[p].on_ground)
             j = 1;
-        else if ((flags & 16384) && ps[p].jetpack_on)
+        else if ((value & 16384) && ps[p].jetpack_on)
             j = 1;
         PARSE_IF(j);
         CON_NEXT();
@@ -1123,7 +1133,16 @@ case CON_GUTS:
 
 case CON_IFSPAWNEDBY:
     insptr++;
-    PARSE_IF(sprite[i].owner >= 0 && sprite[i].owner == *insptr);
+    if (!(sprite[i].owner >= 0 && sprite[i].owner == *insptr)) {
+        insptr = (long *)insptr[1];
+        if (*insptr == CON_ELSE) {
+            insptr += 2;
+            parse(i, p, x);
+        }
+    } else {
+        insptr += 2;
+        parse(i, p, x);
+    }
     CON_NEXT();
 
 case CON_ENDA:
