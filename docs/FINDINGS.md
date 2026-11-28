@@ -1339,3 +1339,10 @@ Each entry names the command or artefact that supports it.
 - NEGATIVE (integrator, 2026-11-28): local variable NAMES do not influence Watcom 9.5 allocation tie-breaking. Two full
   renamings of checkhitswitch's locals (i/j/lotag/displacement -> zq/aq/mm/bb and a/b/c/d) compile to objects identical
   in all 18 SECTOR functions (game_oe, NT host). Ties follow declaration order, creation order and use counts only.
+
+## LameDuke variants and late-1994 material (histhunt2, astra, 2026-11-28; build/workers/histhunt2/REPORT.md)
+- NEGATIVE: no second public LameDuke build. Eight more distributions carry the oracle D3D.EXE, all three CON files and
+  all 31 maps byte-identical (a 1997 Czech magazine repack only adds saves and two SETUP.DAT bytes).
+- LEAD (not acquired; commercial): Blood: Refreshed Supply ships Monolith's Blood development snapshots; the November
+  1994 one lists KENGAME.C, BSTUB.C, two headers and editor/game executables (Ken's Build test game ~1 month before
+  LameDuke); January 1995 adds BLOOD.EXE. None match the held corpus by size/MD5.

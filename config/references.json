@@ -1098,6 +1098,80 @@
    "commit": "9aa9243a7ce76899188f5fabb91262e66408cfbc",
    "path": "external/gh/DrBellubins_DecompileAnything",
    "relevance": "decompilation research survey 2026-11-28 (build/workers/dsurvey/REPORT.md): no direct gain; D-helix point-wise equivalence idea ported as an experiment"
+  },
+  "hrac-199702-lameduke": {
+   "url": "https://discmaster.textfiles.com/file/22617/Hrac_09_1997-02_cd.bin/DEMOS/LAMEDUKE/DUKE3D.EXE",
+   "local": "build/workers/histhunt2/dl/hrac-sfx.exe",
+   "size": 4043177,
+   "sha256": "760fdbda0a625a2ca7a39980850122c48ffb7795bce741a4c89c547e321d71a3",
+   "title": "HrĂˇÄŤ 9, February 1997, LameDuke RAR self-extractor",
+   "page": "https://discmaster.textfiles.com/browse/22617",
+   "retrieved": "2026-11-28",
+   "build_date_evidence": "D3D.EXE inner timestamp 1994-12-30 18:38:34, original 1997-01-29 publisher release note retained",
+   "relevance": "Independent cover-disc witness. 102 of 103 release members equal by SHA-256, including D3D.EXE, three CON files and 31 MAPs. SETUP.DAT and three added saves are user state.",
+   "inventory": "build/workers/histhunt2/packages.json"
+  },
+  "gdm-feb1995-build": {
+   "url": "https://media.gdcvault.com/GD_Mag_Archives/GDM_FebMar_1995.pdf",
+   "local": "build/workers/histhunt2/dl/gd-febmar95.pdf",
+   "size": 604994,
+   "sha256": "4ecc58acefecffed1569bce827ff508fa045ec44965feb849547d182cebfd6b9",
+   "title": "The Sultans of Shareware, Game Developer, February/March 1995",
+   "build_date_evidence": "Printed February 1995 folios 59-61, with Shadow Warrior screenshot caption on page 60.",
+   "relevance": "Contemporary press witness to the Build projects. No executable or source.",
+   "retrieved": "2026-11-28"
+  },
+  "duke3d-xbla-period-concepts": {
+   "title": "Seven Duke Nukem 3D concept sheets by Chuck Jones, November 1994 to February 1995",
+   "page": "https://web.archive.org/web/20260910094140/https://dukenukem.fandom.com/wiki/Duke_Nukem_3D_prototypes",
+   "members": [
+    {
+     "url": "https://static.wikia.nocookie.net/dukenukem/images/6/61/94-02Nov07-01.jpg/revision/latest?cb=20210322210630&format=original",
+     "local": "build/workers/histhunt2/dl/94-02Nov07-01.jpg",
+     "size": 166578,
+     "sha256": "ec6afe7eb7b175a54981f31e8056741a9fde4757095f5034d6c03aa7a09fd969"
+    },
+    {
+     "url": "https://static.wikia.nocookie.net/dukenukem/images/5/55/94-02Nov29-01.jpg/revision/latest?cb=20210322210630&format=original",
+     "local": "build/workers/histhunt2/dl/94-02Nov29-01.jpg",
+     "size": 149662,
+     "sha256": "a9b7105c0efe8836b7724664f65a3b0ca5ac869f1c2245c1506d5633fc3fecf3"
+    },
+    {
+     "url": "https://static.wikia.nocookie.net/dukenukem/images/5/5b/94-03Dec02-01.jpg/revision/latest?cb=20210322210631&format=original",
+     "local": "build/workers/histhunt2/dl/94-03Dec02-01.jpg",
+     "size": 203355,
+     "sha256": "a652170e776cb431c28169d25b43daccef871979ba24f45da4bb32e768993d2a"
+    },
+    {
+     "url": "https://static.wikia.nocookie.net/dukenukem/images/a/ab/94-03Dec04-01.jpg/revision/latest?cb=20210322210632&format=original",
+     "local": "build/workers/histhunt2/dl/94-03Dec04-01.jpg",
+     "size": 136453,
+     "sha256": "3fc4aabaab9a64a05a857b35caaf9657cf6b19320345a3fae51c6ecf89c41d44"
+    },
+    {
+     "url": "https://static.wikia.nocookie.net/dukenukem/images/e/e0/95-02Jan24-01.jpg/revision/latest?cb=20210322210647&format=original",
+     "local": "build/workers/histhunt2/dl/95-02Jan24-01.jpg",
+     "size": 135868,
+     "sha256": "18d64a99833e3ccfc06f8721539522405e55bd3b46780aa39868092b09faee95"
+    },
+    {
+     "url": "https://static.wikia.nocookie.net/dukenukem/images/4/47/95-02Jan24-02.jpg/revision/latest?cb=20210322210652&format=original",
+     "local": "build/workers/histhunt2/dl/95-02Jan24-02.jpg",
+     "size": 128792,
+     "sha256": "16820bf093a96ce2ddd0bc55ada1166a3965692e771b7009cba2d6ecaeedd820"
+    },
+    {
+     "url": "https://static.wikia.nocookie.net/dukenukem/images/e/ef/95-03Feb27-01.jpg/revision/latest?cb=20210322210700&format=original",
+     "local": "build/workers/histhunt2/dl/95-03Feb27-01.jpg",
+     "size": 157166,
+     "sha256": "fef4272dc4d300bb7ed59260d61da448f335d88b596d0280451f8f2f20203a1f"
+    }
+   ],
+   "retrieved": "2026-11-28",
+   "build_date_evidence": "Design-sheet headings, signatures and paired pages, catalogued in the Xbox Live Arcade gallery chronology. File hashes describe the public JPEGs.",
+   "relevance": "Prototype terminology and design chronology, including the jetpack. No program bytes.",
+   "inventory": "build/workers/histhunt2/art.json"
   }
  },
  "repositories": {
@@ -1178,6 +1252,156 @@
   "l7p_full_builds": "Legend of the Seven Paladins full builds 1994-09-26 and 1994-11-01: not public.",
   "sw_beta_decrypted": "Nuke.YKT's decrypted (dongle-cracked) Shadow Warrior beta executables on hendricks266.duke4.net: not acquired (circumvention; user decision).",
   "more": "Further leads with sources: build/workers/acquire/inventory.json 'leads', 'identified_only', 'unavailable'.",
-  "watcom95-goodies-multi": "The installed 1993-05-05 GOODIES/BIMODAL.C, BIMO.ASM and SIMULATE.C provide sample-source provenance for Ken's MULTI. Compare the names and comments against the author-published multi.c. See histhunt/REPORT.md."
+  "watcom95-goodies-multi": "The installed 1993-05-05 GOODIES/BIMODAL.C, BIMO.ASM and SIMULATE.C provide sample-source provenance for Ken's MULTI. Compare the names and comments against the author-published multi.c. See histhunt/REPORT.md.",
+  "lameduke-extra-distributions": {
+   "existing_keys": [
+    "lameduke",
+    "idtech-misc-lameduke"
+   ],
+   "mirrors": [
+    {
+     "url": "https://discmaster.textfiles.com/file/22389/CITE.iso/wads/lameduke/lameduke.zip",
+     "local": "build/workers/histhunt2/dl/tgm27.zip",
+     "size": 4021011,
+     "sha256": "597800e5e29b2ce6a0461063082acad69f3de28c23ef36c66a0ac5e4c65c63fb"
+    },
+    {
+     "url": "https://archive.org/download/duke-nukem-series-prototypes/Duke%20Nukem%203D/LameDuke.zip",
+     "local": "build/workers/histhunt2/dl/ia-series.zip",
+     "size": 4021011,
+     "sha256": "597800e5e29b2ce6a0461063082acad69f3de28c23ef36c66a0ac5e4c65c63fb"
+    },
+    {
+     "url": "https://files.gamefilearchive.com/ftp/ftp.3drealms.com/misc/lameduke.zip",
+     "local": "build/workers/histhunt2/dl/gamefile.zip",
+     "size": 4021011,
+     "sha256": "597800e5e29b2ce6a0461063082acad69f3de28c23ef36c66a0ac5e4c65c63fb"
+    },
+    {
+     "url": "https://discmaster.textfiles.com/file/11878/2016.01.27.ftp.3drealms.com.tar.xz/2016.01.27.ftp.3drealms.com.tar/ftp.3drealms.com/misc/lameduke.zip",
+     "local": "build/workers/histhunt2/dl/discmaster-11878.zip",
+     "size": 4021011,
+     "sha256": "597800e5e29b2ce6a0461063082acad69f3de28c23ef36c66a0ac5e4c65c63fb"
+    },
+    {
+     "url": "https://discmaster.textfiles.com/file/19863/ftp.3drealms.com-20090517.zip/misc/lameduke.zip",
+     "local": "build/workers/histhunt2/dl/discmaster-19863.zip",
+     "size": 4021011,
+     "sha256": "597800e5e29b2ce6a0461063082acad69f3de28c23ef36c66a0ac5e4c65c63fb"
+    },
+    {
+     "url": "https://discmaster.textfiles.com/file/29589/dxzeff.com.zip/dxzeff.com/3DREALMS/misc/lameduke.zip",
+     "local": "build/workers/histhunt2/dl/discmaster-29589.zip",
+     "size": 4021011,
+     "sha256": "597800e5e29b2ce6a0461063082acad69f3de28c23ef36c66a0ac5e4c65c63fb"
+    },
+    {
+     "url": "https://dukeworld.duke4.net/classic%20dukeworld/share/lameduke.zip",
+     "local": "build/workers/histhunt2/dl/duke4.zip",
+     "size": 4021011,
+     "sha256": "597800e5e29b2ce6a0461063082acad69f3de28c23ef36c66a0ac5e4c65c63fb"
+    }
+   ],
+   "relevance": "Seven more paths to the standard ZIP, including The Games Machine CD 27 and Duke4. All match the held ZIP in full."
+  },
+  "blood-refreshed-19941103": {
+   "title": "Blood: Refreshed Supply early DOS materials, 1994-11-03",
+   "publisher": "https://steamcommunity.com/app/3884520/allnews/",
+   "curator": "https://www.altarofstone.com/forums/viewtopic.php?t=236",
+   "store": "https://www.gog.com/en/game/blood_refreshed_supply",
+   "manifest_url": "https://gog-cdn-fastly.gog.com/content-system/v2/meta/b1/3e/b13ebdf974c182e2d0ac69451a638475",
+   "manifest_build": "59891806308755564",
+   "directory": "DOS/EARLY/19941103",
+   "date_evidence": "Curator credits 3D Realms for the November 3 and January 16 builds. January directory in GOG is 19950115. Member modification timestamps not established.",
+   "status": "Commercially published, identified through public catalogue metadata. New executable and source payloads unacquired.",
+   "file_count": 61,
+   "size_md5_matches_local": 2,
+   "binary_and_source_manifest": [
+    {
+     "path": "DOS\\EARLY\\19941103\\BSTUBZIP\\BSTUB.C",
+     "size": 25159,
+     "md5": "29a2e44b4302ac009a79651b9f00e8e9"
+    },
+    {
+     "path": "DOS\\EARLY\\19941103\\BSTUBZIP\\KENGAME.C",
+     "size": 84728,
+     "md5": "b351e586dee215c1b66cce775c367079"
+    },
+    {
+     "path": "DOS\\EARLY\\19941103\\BSTUBZIP.ZIP",
+     "size": 24581,
+     "md5": "5149d729aaa56abb063a9b41562c38de"
+    },
+    {
+     "path": "DOS\\EARLY\\19941103\\BUILD.EXE",
+     "size": 237875,
+     "md5": "85ce78fd0fe6e8d3cd879be0043a0004"
+    },
+    {
+     "path": "DOS\\EARLY\\19941103\\BUILD.H",
+     "size": 3466,
+     "md5": "386c77f12ff3a2b61d0c9277d08abaf6"
+    },
+    {
+     "path": "DOS\\EARLY\\19941103\\DOS4GW.EXE",
+     "size": 254556,
+     "md5": "498c3f0c7bc7a9206a7b1b049f0c3234"
+    },
+    {
+     "path": "DOS\\EARLY\\19941103\\EDITART.EXE",
+     "size": 87158,
+     "md5": "68a4b185cff6000ffda0a7addc604637"
+    },
+    {
+     "path": "DOS\\EARLY\\19941103\\ENGINE.H",
+     "size": 52056,
+     "md5": "6d1a020cd3cd384a33fcfad874b670c8"
+    },
+    {
+     "path": "DOS\\EARLY\\19941103\\KENGAME.EXE",
+     "size": 273659,
+     "md5": "6b3101d06082fb183b8a2d9b88fe1296"
+    },
+    {
+     "path": "DOS\\EARLY\\19941103\\SETUP.EXE",
+     "size": 32032,
+     "md5": "4421ab8ee7506f324849ef97aae07365"
+    }
+   ],
+   "inventory": "build/workers/histhunt2/blood-overlap.json",
+   "relevance": "New candidate for Ken GAME.C ancestry and engine comparison: BSTUB.C, KENGAME.C, headers, BUILD.EXE, EDITART.EXE, KENGAME.EXE."
+  },
+  "blood-refreshed-19950115": {
+   "title": "Blood: Refreshed Supply early DOS materials, 1995-01-15/16",
+   "publisher": "https://steamcommunity.com/app/3884520/allnews/",
+   "curator": "https://www.altarofstone.com/forums/viewtopic.php?t=236",
+   "store": "https://www.gog.com/en/game/blood_refreshed_supply",
+   "manifest_url": "https://gog-cdn-fastly.gog.com/content-system/v2/meta/b1/3e/b13ebdf974c182e2d0ac69451a638475",
+   "manifest_build": "59891806308755564",
+   "directory": "DOS/EARLY/19950115",
+   "date_evidence": "Curator credits 3D Realms for the November 3 and January 16 builds. January directory in GOG is 19950115. Member modification timestamps not established.",
+   "status": "Commercially published, identified through public catalogue metadata. New executable and source payloads unacquired.",
+   "file_count": 60,
+   "size_md5_matches_local": 1,
+   "binary_and_source_manifest": [
+    {
+     "path": "DOS\\EARLY\\19950115\\BLOOD.EXE",
+     "size": 283748,
+     "md5": "095ca0da421533baa34a7fa6f7503333"
+    },
+    {
+     "path": "DOS\\EARLY\\19950115\\DOS4GW.EXE",
+     "size": 231155,
+     "md5": "62f27cfbc988cf4cb3549e80d882bc28"
+    },
+    {
+     "path": "DOS\\EARLY\\19950115\\SETUP.EXE",
+     "size": 32032,
+     "md5": "4421ab8ee7506f324849ef97aae07365"
+    }
+   ],
+   "inventory": "build/workers/histhunt2/blood-overlap.json",
+   "relevance": "Independent January BLOOD.EXE, dated the same day as the held January Shadow Warrior control by directory name or one day later by curator credit. Engine donor value unmeasured."
+  }
  }
 }
