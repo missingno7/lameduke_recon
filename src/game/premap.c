@@ -435,8 +435,8 @@ void spawn(long j, short pn)
     case 631:
         /* COMPILER_STEERED: repeat-store order affects the inlined prelevel switch. */
         sprite[i].shade = -24;
-        sprite[i].xrepeat = 52;
         show2dsprite[i >> 3] |= 1 << (i & 7);
+        sprite[i].xrepeat = 52;
         sprite[i].yrepeat = 43;
         /* COMPILER_STEERED: the explicit assignment affects Watcom register allocation. */
         if (sprite[i].picnum == 408)
