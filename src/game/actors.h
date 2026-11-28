@@ -61,6 +61,7 @@ extern void shoot(short i, short tile, unsigned char trace);
 extern void kickview(short p, short i);
 extern void execute(short i, short p, long dist);
 /* ACTORS passes the reactor shade as a full-width expression. */
+/* ACTORS passes the reactor shade as a full-width expression. */
 extern void myos();
 extern void operatesectors(short sect, short i);
 extern void operateactivators(short lotag);

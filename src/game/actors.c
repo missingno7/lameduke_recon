@@ -914,9 +914,8 @@ wait:
                     deletesprite(i);
                     continue;
                 }
-                /* COMPILER_STEERED: lower the firing position before turning the reactor. */
-                sprite[i].z -= 6144;
                 sprite[i].ang += 300;
+                sprite[i].z -= 6144;
                 shoot(i, 0, 1);
                 sprite[i].z += 6144;
                 switch (t[1]) {
