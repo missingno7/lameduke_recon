@@ -343,7 +343,10 @@ void moveactors(void)
         }
         if (sprite[i].picnum == MASTERSWITCH) {
             /* Fire an armed master switch when its countdown expires. */
-            if (sprite[i].yvel != 1 || --sprite[i].hitag > 0)
+            if (sprite[i].yvel != 1)
+                continue;
+            sprite[i].hitag--;
+            if (sprite[i].hitag > 0)
                 continue;
             operatesectors(sect, i);
             for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j]) {

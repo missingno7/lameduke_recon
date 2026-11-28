@@ -29,8 +29,9 @@ extern char music_fn[4][10][13], env_music_fn[10][13];
 
 extern long hittype[MAXSPRITES][5], msy[1024], msx[1024];
 
+/* The can passes a full tile slot. EGS uses its low 16 bits. */
 extern short EGS(short sect, long x, long y, long z, unsigned char cstat,
-    short picnum, signed char shade, unsigned char xrepeat, unsigned char yrepeat,
+    long picnum, signed char shade, unsigned char xrepeat, unsigned char yrepeat,
     long ang, long xvel, long zvel, short owner, short statnum);
 extern short spawn(short i, short tile);
 /* The crane hook call passes the full msy slot. ENGINE reads the low word. */
