@@ -8,7 +8,7 @@ Keep each parked function at its current status or better. The integrator un-par
 | Function | Residual | Class | Methods already tried (see FINDINGS) | Parked |
 |---|---|---|---|---|
 | scansector | 7 B | allocation-only | declaration order/use counts, permute v3 (32-variant), synth, vibesynd, engine rounds 3-5 | 2026-11-27 |
-| checkhitswitch | 2 B at +0x374 | allocation tie (case 405/406 conflict priority) | owcg (equal savings 160+404), synth (second ECX route worsens caller), inverse (case-406 priority 568->488 breaks switch table), vibesynd | 2026-11-27 |
+| checkhitswitch | 2 B at +0x374 before 2026-11-28 sector integration 49dcd8c; now 912 B / 1,748 B (+8; activator inline change, accepted for unit block gain) | allocation tie (case 405/406 conflict priority) | owcg (equal savings 160+404), synth (second ECX route worsens caller), inverse (case-406 priority 568->488 breaks switch table), vibesynd | 2026-11-27 |
 | drawmaskwall | 7 B | allocation (xb1[z] EBP vs ESI) | owcg trace, inverse (stock build reaches ESI but extent 4 B short, costs 18 STRICT), engine rounds | 2026-11-27 |
 | neton | 10 B | allocation-only (replay exact) | r13-multi rounds, flip/climb, inverse | 2026-11-27 |
 | sendpacket | 10 B | allocation-only (replay exact) | r13-multi-2, flip replay | 2026-11-27 |

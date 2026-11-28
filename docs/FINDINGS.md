@@ -1336,3 +1336,6 @@ Each entry names the command or artefact that supports it.
   fixed windows (parse 8 B short; not integrated). SECTOR 1,201 -> 1,202 and PLAYER 479 -> 480 only via variants that
   shorten checksectors / displayweapon by 16 B (not integrated: exact extents are worth more than one block).
   ACTORS ties canonical. Verdict: small, real value for isolating single hunks; not a general unblocker. Closed.
+- NEGATIVE (integrator, 2026-11-28): local variable NAMES do not influence Watcom 9.5 allocation tie-breaking. Two full
+  renamings of checkhitswitch's locals (i/j/lotag/displacement -> zq/aq/mm/bb and a/b/c/d) compile to objects identical
+  in all 18 SECTOR functions (game_oe, NT host). Ties follow declaration order, creation order and use counts only.
