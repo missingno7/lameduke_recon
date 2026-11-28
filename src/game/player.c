@@ -393,8 +393,9 @@ pistol_frame:
             myos((syncangvel[snum] >> 3) + 220 - (ps[snum].look_ang >> 1),
                 looking_arc + 210 - gun_pos - (ps[snum].horiz >> 4), 1161, gs, 3);
         } else if (ps[snum].kickback_pic < 25) {
+            draw_y = looking_arc + 245 - gun_pos - (ps[snum].horiz >> 4);
             myos((syncangvel[snum] >> 3) + 160 - (ps[snum].look_ang >> 1),
-                looking_arc + 245 - gun_pos - (ps[snum].horiz >> 4), 1164, gs, 3);
+                draw_y, 1164, gs, 3);
             myos((syncangvel[snum] >> 3) + 220 - (ps[snum].look_ang >> 1),
                 looking_arc + 220 - gun_pos - (ps[snum].horiz >> 4), 1161, gs, 3);
         } else if (ps[snum].kickback_pic < 27)
