@@ -340,7 +340,7 @@ void displayweapon(short snum)
 
         switch (ps[snum].kickback_pic) {
         case 0:
-            myos(weapon_xoffset + 160 + (syncangvel[snum] >> 4) - (ps[snum].look_ang >> 1),
+            myos((weapon_xoffset + 160 - (ps[snum].look_ang >> 1)) + (syncangvel[snum] >> 4),
                 looking_arc + 240 - gun_pos - (ps[snum].horiz >> 4), 882, gs, 3);
             break;
         case 4:
@@ -435,11 +435,11 @@ pistol_frame:
 
             tile = HANDREMOTE + frames[kick];
             draw_x = (weapon_xoffset + 150) + (syncangvel[snum] >> 4) - (ps[snum].look_ang >> 1);
-            draw_y = looking_arc + 258 - gun_pos - (ps[snum].horiz >> 4);
+            draw_y = (258 - gun_pos) + looking_arc - (ps[snum].horiz >> 4);
             goto draw_overlay;
         } else {
             draw_x = (weapon_xoffset + 150) + (syncangvel[snum] >> 4) - (ps[snum].look_ang >> 1);
-            draw_y = looking_arc + 258 - gun_pos - (ps[snum].horiz >> 4);
+            draw_y = (258 - gun_pos) + looking_arc - (ps[snum].horiz >> 4);
             tile = HANDREMOTE;
             goto draw_overlay;
         }
