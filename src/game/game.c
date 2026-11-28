@@ -2692,14 +2692,16 @@ void moveeffectors(void)
         case 10:
             if ((sector[sect].lotag & 0x7fff) == 23) {
                 if (sector[sect].lotag & 0x8000) {
-                    if (sprite[i].hitag < ++t[0]) {
+                    t[0]++;
+                    if (t[0] > sprite[i].hitag) {
                         operatesectors(sect, i);
                         t[0] = 0;
                     }
                 }
             } else if (sector[sect].floorz > sector[sect].ceilingz) {
                 if (t[1] == 0) {
-                    if (sprite[i].hitag < ++t[0]) {
+                    t[0]++;
+                    if (t[0] > sprite[i].hitag) {
                         operatesectors(sect, i);
                         t[1] = 1;
                     }
@@ -3044,7 +3046,7 @@ void moveeffectors(void)
         case 22:
             if (t[1]) {
                 if (getanimationgoal(&sector[t[0]].ceilingz) >= 0)
-                    sector[sect].ceilingz += sprite[i].yvel * synctics;
+                    sector[sect].ceilingz += synctics * sprite[i].yvel;
                 else
                     t[1] = 0;
             }
@@ -3091,8 +3093,8 @@ void moveeffectors(void)
             }
             break;
         case 24:
-            x = (sprite[i].yvel * sintable[(sprite[i].ang + 512) & 2047]) >> 18;
-            l = (sprite[i].yvel * sintable[sprite[i].ang & 2047]) >> 18;
+            x = (sintable[(sprite[i].ang + 512) & 2047] * sprite[i].yvel) >> 18;
+            l = (sintable[sprite[i].ang & 2047] * sprite[i].yvel) >> 18;
             for (j = headspritesect[sect]; j >= 0; j = nextspritesect[j])
                 if (sprite[j].statnum != STAT_TRANSPORT && sprite[j].statnum != STAT_DEFAULT && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PLAYER)
                     if (sprite[j].picnum < 1175 || sprite[j].picnum > 1178) {
