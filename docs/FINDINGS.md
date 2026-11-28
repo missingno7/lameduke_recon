@@ -1402,3 +1402,17 @@ Each entry names the command or artefact that supports it.
   order reproducing all 55 named BSS offsets; Nov-94 public names) leaves neton 10 B, sendpacket 10 B, getpacket 4 B
   unchanged; 22 STRICT, CONST/_DATA/_BSS verified. Data ownership is not the cause of the MULTI ties. The co-located
   build is a natural-ownership integration candidate (needs units.json + three binding renames); deferred.
+
+## Structural review: global live-set bit saturation (bits, sol, 2026-11-28; build/workers/bits/{REPORT,CENSUS}.md)
+- PROVEN (9.5 binary trace): Watcom 9.5 assigns 128 global live-set bits per batch; eligible temps are ranked by
+  weighted use before memory names; temps missing the cutoff can receive bits in later passes, but the first-batch holder
+  set shapes the allocation. Control: adding one early local to STRICT drawsprite (175 candidates) moves bit 127 from xs
+  to y2 and reverses two distant register-vs-spill decisions.
+- Saturated NEAR functions (candidates > 128): main 458, moveeffectors 411, moveactors 379, prelevel 291, operatesectors
+  274, dobonus 219, checksectors 194, processinput 180, moveexplosions 148, displayrooms 147, movestandables 146,
+  cheatkeys 140, execute 129. These are exactly the large parked functions whose correct local fixes could not coexist:
+  in a saturated function any temp/variable added, removed or re-weighted anywhere changes the first-batch holder set
+  and hence distant allocation. Unsaturated parked functions (font helpers, rotatesprite, getpacket, update_menu_cursor,
+  parse, spawn, displayweapon, operateactivators) are NOT explained by this.
+- Implication: for saturated functions the target is the original's candidate set and weighted-use ranking (number of
+  source variables/temps, their uses and loop weights), especially around the cutoff - not local register choices.
