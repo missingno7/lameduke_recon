@@ -237,12 +237,12 @@ signed char clubframes[6][20] = {
 void displayweapon(short snum)
 {
     /* COMPILER_STEERED: local order for the knee table and draw argument allocation. */
+    short pistol_x;
     short look;
     long draw_x;
     long xvel;
     unsigned short cw;
     long gs;
-    short pistol_x;
     unsigned char weapon_pos;
     long tile;
     long weapon_xoffset;
@@ -329,7 +329,7 @@ void displayweapon(short snum)
                     (looking_arc << 1) + 180 - gun_pos - (ps[snum].horiz >> 4), 1251, gs, 3);
             else if (kick < 12)
                 myos((weapon_xoffset + 260) + (syncangvel[snum] >> 5),
-                    (looking_arc << 1) + 196 - gun_pos - (ps[snum].horiz >> 4), 1252, gs, 3);
+                    ((looking_arc << 1) - gun_pos) + 196 - (ps[snum].horiz >> 4), 1252, gs, 3);
         }
         break;
     }
@@ -431,7 +431,9 @@ pistol_frame:
         if (ps[snum].kickback_pic > 4)
             gun_pos -= 12 * (ps[snum].kickback_pic - 4);
         if (ps[snum].kickback_pic != 0) {
-            tile = HANDREMOTE + frames[ps[snum].kickback_pic];
+            short kick = ps[snum].kickback_pic;
+
+            tile = HANDREMOTE + frames[kick];
             draw_x = (weapon_xoffset + 150) + (syncangvel[snum] >> 4) - (ps[snum].look_ang >> 1);
             draw_y = looking_arc + 258 - gun_pos - (ps[snum].horiz >> 4);
             goto draw_overlay;
