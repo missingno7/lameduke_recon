@@ -1370,3 +1370,16 @@ Each entry names the command or artefact that supports it.
   code (processinput/displayweapon unchanged); 3 MB kills GAME and 2 MB kills PLAYER with "E1118 ***FATAL*** Out of
   memory". No intermediate degraded mode or optimisation warning appears: the compiler either has enough memory or
   aborts. Memory pressure does not explain the residues.
+
+## Structural review: authentic lab (lab, sol, 2026-11-28; build/workers/lab/REPORT.md)
+- PROVEN: Ken's BUIL0422/GAME.OBJ reproduces from BUIL0422/GAME.C with DOS Watcom 9.5 GA -4r (13,685 code bytes, 260
+  CONST bytes, 972 fixups; only five dependency timestamps differ). With BUIL0422/ENGINE (88 functions) this gives two
+  authentic same-lineage source/object labs.
+- NEGATIVE (translation-unit context): swapping definition order of a callee and its caller, and prototype vs K&R
+  declarations, preserved all 88 ENGINE function extents and both inline copies. An earlier body edit only moved shared
+  tails / a jump table across neighbouring extents, and an earlier string edit only shifted literal references - known
+  layout effects. No hidden compiler state carries across functions in 9.5.
+- Blind-reconstruction control on the authentic pair: cansee exact blind; clipinsidebox needed operand order;
+  nextsectorneighborz needed a sentinel initialisation plus declaration order; with those, 88/88 functions and 2,950/2,950
+  fixups match. The lost information is local source detail (expression form/operand order, initialisation,
+  declaration order), not hidden state - the family our searches already cover.
