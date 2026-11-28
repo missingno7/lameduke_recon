@@ -1329,3 +1329,10 @@ Each entry names the command or artefact that supports it.
   (393 B): a 1-for-1 trade, not adopted (build/workers/u-game/round10/high-control). Case 24: the oracle pushes the
   clipmove clearance first (+0x2d7b) and materializes &ps later (+0x2d9e); earlier player-field reads use indexed
   operands with embedded addresses.
+
+## Edit-set combination search (combine, sol, 2026-11-28; build/workers/combine/REPORT.md, FOLLOWUP_REPORT.md)
+- Pair screening / hunk isolation over edits already present in workers' sources, scored by unit matched blocks with all
+  STRICT preserved. PREMAP 545 -> 547 (one hunk isolated from a lower-scoring bundle; integrated). GAMEDEF +1 only on
+  fixed windows (parse 8 B short; not integrated). SECTOR 1,201 -> 1,202 and PLAYER 479 -> 480 only via variants that
+  shorten checksectors / displayweapon by 16 B (not integrated: exact extents are worth more than one block).
+  ACTORS ties canonical. Verdict: small, real value for isolating single hunks; not a general unblocker. Closed.
