@@ -1108,9 +1108,12 @@ int MV_SetMixMode
    switch( MV_MixMode )
       {
       case MONO_8BIT :
+         MV_SampleSize = sizeof( MONO8 );
+         MV_Silence = SILENCE_8BIT;
          break;
       case STEREO_8BIT :
          MV_SampleSize = sizeof( STEREO8 );
+         MV_Silence = SILENCE_8BIT;
          break;
       case MONO_16BIT :
          MV_SampleSize = sizeof( MONO16 );
@@ -1647,10 +1650,7 @@ int MV_PlayVOC
    {
    VoiceNode   *voice;
    int         buffer;
-   unsigned    offset;
    unsigned    flags;
-   register int volume = vol;
-   int rightVolume = right;
 
    if ( !MV_Installed )
       {
@@ -1666,11 +1666,10 @@ int MV_PlayVOC
       return( MV_Error );
       }
 
-   offset = *( unsigned short int * )( ptr + 0x14 );
+   voice->NextBlock = ptr + *( unsigned short int * )( ptr + 0x14 );
    voice->DemandFeed  = NULL;
    voice->LoopStart   = NULL;
    voice->LoopCount   = 0;
-   voice->NextBlock   = ptr + offset;
    voice->BlockLength = 0;
    voice->PitchScale  = PITCH_GetScale( pitchoffset );
 
@@ -1684,19 +1683,18 @@ int MV_PlayVOC
       voice->Active[ buffer ] = TRUE;
       }
 
-   voice->Volume      = MIX_VOLUME( volume );
+   voice->Volume      = MIX_VOLUME( vol );
 
    if ( MV_SwapLeftRight )
       {
       // SBPro uses reversed panning
-      rightVolume = max( 0, min( rightVolume, 255 ) );
-      voice->LeftVolume = rightVolume >> 4;
+      voice->LeftVolume  = MIX_VOLUME( right );
       voice->RightVolume = MIX_VOLUME( left );
       }
    else
       {
       voice->LeftVolume  = MIX_VOLUME( left );
-      voice->RightVolume = MIX_VOLUME( rightVolume );
+      voice->RightVolume = MIX_VOLUME( right );
       }
 
    voice->priority = priority;
@@ -1706,9 +1704,8 @@ int MV_PlayVOC
    LL_AddToTail( VoiceNode, &MV_VoiceList, voice );
    RestoreInterrupts( flags );
 
-   buffer = voice->handle;
    MV_SetErrorCode( MV_Ok );
-   return( buffer );
+   return( voice->handle );
    }
 
 

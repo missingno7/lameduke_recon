@@ -46,8 +46,8 @@ size, so it can only grow by proving more of the original.
 | Game code (GAME, PREMAP, SECTOR, PLAYER, ACTORS, SOUNDS, MENUES, GAMEDEF) | `█████████░░░░░░░░░░░░░░░░░░░░░`  29.6% | 114 / 143 | 62,868 / 212,556 |
 | Build engine (ENGINE.C + A.ASM) | `███████████████████████████░░░`  90.8% | 116 / 123 | 76,744 / 84,515 |
 | Multiplayer (MULTI.C) | `██████████████████░░░░░░░░░░░░`  58.6% | 22 / 25 | 5,062 / 8,645 |
-| Apogee Sound System | `██████████████████████████░░░░`  86.5% | 353 / 375 | 46,598 / 53,853 |
-| **Whole program (all non-library code)** | `████████████████░░░░░░░░░░░░░░`  53.2% | 605 / 666 | 191,272 / 359,569 |
+| Apogee Sound System | `███████████████████████████░░░`  90.7% | 359 / 375 | 48,826 / 53,853 |
+| **Whole program (all non-library code)** | `████████████████░░░░░░░░░░░░░░`  53.8% | 611 / 666 | 193,500 / 359,569 |
 
 - Initialised data proven at its original address (CONST/_DATA): `███████░░░░░░░░░░░░░░░░░░░░░░░`  23.6% (10,630 of 45,056 file-backed bytes).
 - Uninitialised data (_BSS) whose layout is proven: 714,205 bytes.

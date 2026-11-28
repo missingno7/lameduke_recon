@@ -86,7 +86,7 @@ static unsigned short StackSelector = NULL;
 
 #endif
 
-static tasklist TaskList;
+static volatile tasklist TaskList;
 static unsigned long StackPointer;
 static unsigned long oldStackPointer;
 static void ( __interrupt __far *OldInt8 )( void );

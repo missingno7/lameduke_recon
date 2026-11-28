@@ -13,21 +13,21 @@ Run `python tools/gate.py` then `python tools/status.py` for live numbers.
 | ass_blastold | 51 | 49 | 6,373 |
 | ass_dma | 7 | 7 | 931 |
 | ass_dpmi | 7 | 7 | 410 |
-| ass_fx_man | 15 | 13 | 2,323 |
+| ass_fx_man | 15 | 14 | 2,815 |
 | ass_gus | 4 | 4 | 509 |
 | ass_gusmidi | 14 | 11 | 598 |
-| ass_guswave | 18 | 15 | 1,542 |
+| ass_guswave | 18 | 16 | 1,978 |
 | ass_irq | 5 | 5 | 956 |
 | ass_ll_man | 5 | 5 | 185 |
 | ass_midi | 26 | 26 | 4,392 |
 | ass_mpu401 | 15 | 15 | 605 |
-| ass_multivoc | 36 | 34 | 7,106 |
+| ass_multivoc | 36 | 36 | 8,154 |
 | ass_music | 22 | 21 | 1,697 |
 | ass_pas16 | 42 | 41 | 6,026 |
 | ass_pcfx | 14 | 13 | 1,311 |
 | ass_pitch | 5 | 5 | 461 |
 | ass_sndsrc | 17 | 14 | 1,354 |
-| ass_task_man | 18 | 16 | 1,941 |
+| ass_task_man | 18 | 18 | 2,193 |
 | ass_user | 2 | 2 | 188 |
 | game_sounds | 13 | 12 | 1,467 |
 | game_gamedef | 14 | 12 | 8,360 |
@@ -39,7 +39,7 @@ Run `python tools/gate.py` then `python tools/status.py` for live numbers.
 | game_premap | 12 | 10 | 5,413 |
 | game_actors | 18 | 15 | 6,712 |
 
-Totals: 605 STRICT / 666 functions, 191,272 bytes; LameDuke 252 STRICT (144,674 bytes); Apogee Sound System 353 (46,598 bytes); CODE_BYTES_MATCH 15; verified data 10,630 bytes, verified _BSS layout 714,205 bytes.
+Totals: 611 STRICT / 666 functions, 193,500 bytes; LameDuke 252 STRICT (144,674 bytes); Apogee Sound System 359 (48,826 bytes); CODE_BYTES_MATCH 15; verified data 10,630 bytes, verified _BSS layout 714,205 bytes.
 
 Identified, not reconstructed: Watcom 9.5 runtime (docs/RUNTIME_CENSUS.md), Creative AWE32 and Gravis GF1 vendor objects (docs/AUDIOLIB.md).
 

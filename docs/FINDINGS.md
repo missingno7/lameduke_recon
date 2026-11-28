@@ -1299,3 +1299,8 @@ Each entry names the command or artefact that supports it.
   before rendering); a LASERSITE difference is shared stale-slot behaviour after hitscan misses. REAL difference: at
   the end of MYDEMO_1 the rebuild runs past the recorded inputs in the catch-up loop and never opens MYDEMO_2.
   Follow-up (linkrun-2): tick-aligned sampling, trace of the overrun, all eight demos.
+
+## Sound System leftovers (misc, astra, 2026-11-28; build/workers/misc/REPORT.md)
+- PROVEN STRICT via version pairs (Wacky Wheels 1.1, ROTT 1.0/1.03, SW Jan-95): TS_SetTimerToMaxTaskRate, TS_Startup,
+  MV_SetMixMode, MV_PlayVOC, FX_SetupCard, GUSWAVE_GetNextVOCBlock (+2,228 B). Remaining NEAR: GUSWAVE_PlayVOC (5 B at
+  +07), AL_SetVoiceTimbre (OPL3 feedback test corrected on a branch, 46/50), spritesound (38 B at +09).

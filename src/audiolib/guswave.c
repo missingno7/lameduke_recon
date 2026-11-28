@@ -658,11 +658,10 @@ void GUSWAVE_GetNextVOCBlock
 
          case 1 :
             tc = ( unsigned int )*ptr << 8;
-            tc = 65536 - tc;
-            samplespeed = 256000000L / tc;
+            packtype = *( ptr + 1 );
             ptr += 2;
             blocklength -= 2;
-            packtype = *( ptr - 1 );
+            samplespeed = 256000000L / ( 65536 - tc );
             if ( packtype )
                {
                ptr += blocklength;
@@ -679,9 +678,14 @@ void GUSWAVE_GetNextVOCBlock
             break;
 
          case 3 :
+            ptr += blocklength;
+            break;
+
          case 4 :
+            ptr += blocklength;
+            break;
+
          case 5 :
-         case 8 :
             ptr += blocklength;
             break;
 
@@ -707,11 +711,15 @@ void GUSWAVE_GetNextVOCBlock
                }
             break;
 
+         case 8 :
+            ptr += blocklength;
+            break;
+
          case 9 :
             samplespeed = *( unsigned long * )ptr;
+            BitsPerSample = *( ptr + 4 );
             Channels = *( ptr + 5 );
             Format = *( unsigned short * )( ptr + 6 );
-            BitsPerSample = *( ptr + 4 );
             if ( BitsPerSample == 8 && Channels == 1 && Format == VOC_8BIT )
                {
                done = TRUE;

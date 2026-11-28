@@ -207,7 +207,8 @@ int FX_SetupCard
          if ( DeviceStatus != BLASTER_Ok )
             {
             FX_SetErrorCode( FX_SoundCardError );
-            return( FX_Error );
+            status = FX_Error;
+            break;
             }
 #endif
          device->MaxVoices = 8;
