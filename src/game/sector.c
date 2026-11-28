@@ -273,7 +273,7 @@ void operatesectors(short sn, short ii)
     /* COMPILER_STEERED: declaration order chosen by search (r3sector perm.py); it only moves register ties. */
     short a;
     long j, middle, daz;
-    short p, i;
+    short i, p;
 
     switch ((short)(sector[sn].lotag & 32767)) {
     case 26:
@@ -377,16 +377,20 @@ void operatesectors(short sn, short ii)
                 activatewarpelevators(a, 1);
         }
         break;
-    case 16:
+    case 16: {
+        long *floor;
+
 lift_down:
         a = nextsectorneighborz(sn, sector[sn].floorz, 1, 1);
         if (a == -1) {
             sector[sn].lotag ^= 1;
             goto lift_up;
         }
-        setanimation(sn, &sector[sn].floorz, sector[a].floorz, sector[sn].extra);
+        floor = &sector[sn].floorz;
+        setanimation(sn, floor, sector[a].floorz, sector[sn].extra);
         spritesound(SOUND_LIFT_START, ii);
         break;
+    }
     case 17:
 lift_up:
         a = nextsectorneighborz(sn, sector[sn].floorz, 1, -1);
@@ -799,20 +803,19 @@ void cheatkeys(short snum)
             ps[snum].gm = menu_flags | MODE_MENU;
         }
     } else if (syncbits[snum] & SB_DEBUG_DOORS) {
+        short source;
+
         FTA(11);
         for (i = 0; i < numsectors; i++) {
             switch ((short)(sector[i].lotag & 0xfff)) {
             case 15: case 16: case 17: case 18: case 19:
             case 20: case 21: case 22: case 23:
-            case 25: case 26: case 27: case 28: case 29: {
-                short source;
-
+            case 25: case 26: case 27: case 28: case 29:
                 source = ps[snum].i;
                 if (sector[i].lotag & 0xbfff)
                     sector[i].lotag &= ~0x4000;
                 operatesectors(i, source);
                 break;
-            }
             }
         }
         operateforcefields(-1);
@@ -1055,7 +1058,7 @@ char checkhitceiling(short sn)
 /* Sector specials and the use key for player snum. */
 void checksectors(short snum)
 {
-    short source, target, w;
+    short w;
     long i = -1;
 
     switch (sector[ps[snum].cursectnum].lotag) {
@@ -1114,9 +1117,9 @@ void checksectors(short snum)
     case 9:
     case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
     case 25: case 26: case 27: case 29: {
-        target = neartagsector;
-        w = ps[snum].i;
-        operatesectors(target, w);
+        short sector_number = neartagsector;
+        short owner = ps[snum].i;
+        operatesectors(sector_number, owner);
         return;
     }
     }
@@ -1125,13 +1128,15 @@ void checksectors(short snum)
         goto wall_switch;
     {
         short current_sector = ps[snum].cursectnum;
-        source = ps[snum].i;
-        operatesectors(current_sector, source);
+        short owner = ps[snum].i;
+        operatesectors(current_sector, owner);
         return;
     }
-wall_switch:
-    target = neartagwall;
+wall_switch: {
+    short target = neartagwall;
+
     checkhitswitch(target);
+}
 }
 
 /* Align all warp elevators of a group to the master (shade > 16) at level start. */
