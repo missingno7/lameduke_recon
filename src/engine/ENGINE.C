@@ -5951,7 +5951,7 @@ raytrace (long x, long y, long xvect, long yvect, long *intx, long *inty)
 {
 	short z, hitwall;
 	/* COMPILER_STEERED. Keep the endpoint stack homes and stage the side products. */
-	long side, x2, y1, x3, x4, x1, y2, y3, y4, dx, dy, bot, topu, nintx, ninty;
+	long side, x2, x1, x3, x4, y1, y2, y3, y4, bot, topu, nintx, ninty;
 	long templong2, templong1, templong3, templong4, cnt;
 
 	x3 = x; y3 = y;
@@ -5964,12 +5964,9 @@ raytrace (long x, long y, long xvect, long yvect, long *intx, long *inty)
 		x1 = clipx1[z]; y1 = clipy1[z];
 		x2 = clipx2[z]; y2 = clipy2[z];
 
-		dx = x2-x1;
-		templong1 = dx*(y3-y1);
-		dy = y2-y1;
-		templong2 = (x4-x1)*dy;
-		templong1 -= (x3-x1)*dy;
-		templong2 = dx*(y4-y1)-templong2;
+		templong1 = (x2-x1)*(y3-y1) - (x3-x1)*(y2-y1);
+		templong2 = (x2-x1)*(y4-y1);
+		templong2 -= (x4-x1)*(y2-y1);
 		if ((templong1 >= 0) && (templong2 < 0))
 		{
 			templong3 = (x4-x3)*(y1-y3) - (x1-x3)*(y4-y3);
