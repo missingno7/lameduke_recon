@@ -243,7 +243,7 @@ void spawn(long j, short pn)
 {
     /* COMPILER_STEERED: declaration order affects the stack slots. */
     short clostest, s, endwall, sect, startwall, i;
-    long x, y, d;
+    long x, y, d, q;
 
     if (j >= 0) {
         i = EGS(sprite[j].sectnum, sprite[j].x, sprite[j].y, sprite[j].z,
@@ -571,18 +571,14 @@ void spawn(long j, short pn)
             sprite[i].xrepeat = sprite[i].yrepeat = 64;
             sprite[i].shade = 0;
             hittype[i][1] = tempwallptr;
-            x = tempwallptr;
             for (s = 0; s < numsectors; s++)
                 if (sector[s].hitag == sprite[i].hitag) {
-                    msx[x] = s;
-                    x++;
+                    msx[tempwallptr] = s;
                     tempwallptr++;
                     hittype[i][0]++;
                 }
             break;
         case 20: {
-            long q;
-
             startwall = sector[sect].wallptr;
             endwall = startwall + sector[sect].wallnum;
             q = 0x7fffffff;
@@ -595,8 +591,8 @@ void spawn(long j, short pn)
                     clostest = s;
                 }
             }
-            hittype[i][1] = clostest;
             q = 0x7fffffff;
+            hittype[i][1] = clostest;
             for (s = startwall; s < endwall; s++) {
                 x = wall[s].x;
                 y = wall[s].y;
@@ -888,7 +884,10 @@ void prelevel(void)
     for (i = headspritestat[STAT_DEFAULT]; i >= 0; i = nexti) {
         nexti = nextspritestat[i];
         if (sprite[i].picnum == 310) {
-            sector[sprite[i].sectnum].extra = sprite[i].lotag;
+            struct sectortype *sc;
+
+            sc = &sector[sprite[i].sectnum];
+            sc->extra = sprite[i].lotag;
             deletesprite(i);
         }
     }
