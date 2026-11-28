@@ -1187,9 +1187,11 @@ void execute(short i, short p, long x)
 
     while (!parse(i, p, x))
         ;
-    if (killit_flag) {
-        deletesprite(i);
-        return;
-    }
+    if (killit_flag)
+        goto delete_actor;
     move_actor(i, p, x);
+    return;
+
+delete_actor:
+    deletesprite(i);
 }
