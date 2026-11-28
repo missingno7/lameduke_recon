@@ -1503,6 +1503,7 @@ void movestandables(void)
     short j;
     long *t;
     short sect;
+    short craneplayer;
     short nexti;
     long d;
 
@@ -1513,22 +1514,26 @@ void movestandables(void)
         if (sprite[i].picnum == SEENINE) {
             /* A force field post; one that dies sets every post of its hitag to
                -32, and each of those then bursts. */
-            if (sprite[i].shade == -32) {
-                spawn(i, EXPLOSION);
-                sprite[i].z -= 0x2000;
-                shoot(i, OTHERSHOTSPARK, 1);
-                sprite[i].z += 0x2000;
-                spawn(i, EXPLOSION);
-                spawn(i, EXPLOSION);
-                deletesprite(i);
-            } else {
-                j = ifhitbyweapon(i);
-                if ((j >= 0 && sprite[i].extra < 0) || sprite[i].shade == -31) {
-                    for (j = headspritestat[STAT_STANDABLE]; j >= 0; j = nextspritestat[j])
-                        if (sprite[i].hitag == sprite[j].hitag && sprite[j].picnum == SEENINE)
-                            sprite[j].shade = -32;
-                }
+            if (sprite[i].shade == -32)
+                goto burst;
+            j = ifhitbyweapon(i);
+            if ((j >= 0 && sprite[i].extra < 0) || sprite[i].shade == -31) {
+                for (j = headspritestat[STAT_STANDABLE]; j >= 0; j = nextspritestat[j])
+                    if (sprite[i].hitag == sprite[j].hitag && sprite[j].picnum == SEENINE)
+                        sprite[j].shade = -32;
             }
+            goto nextstandable;
+burst:
+            spawn(i, EXPLOSION);
+            {
+                long z = sprite[i].z;
+                sprite[i].z = z - 0x2000;
+            }
+            shoot(i, OTHERSHOTSPARK, 1);
+            sprite[i].z = sprite[i].z + 0x2000;
+            spawn(i, EXPLOSION);
+            spawn(i, EXPLOSION);
+            deletesprite(i);
         } else if (sprite[i].picnum >= CRANE && sprite[i].picnum <= CRANE + 3) {
             sprite[i].xrepeat = sprite[i].yrepeat = 64;
             if (t[0] == 0) {
@@ -1603,11 +1608,14 @@ void movestandables(void)
                     if (sector[sect].floorz - z > 0x2000)
                         sprite[i].picnum++;
                 }
-                if (sprite[i].z < msx[t[4] + 2]) {
-                    t[0]++;
-                    sprite[i].xvel = 0;
-                } else
-                    sprite[i].z -= 1536;
+                {
+                    long goal = msx[t[4] + 2];
+                    if (sprite[i].z < goal) {
+                        t[0]++;
+                        sprite[i].xvel = 0;
+                    } else
+                        sprite[i].z -= 1536;
+                }
             } else if (t[0] == 6) {
                 if (sprite[i].xvel < 192)
                     sprite[i].xvel += 8;
@@ -1617,9 +1625,9 @@ void movestandables(void)
                 }
                 ssp(i, 0);
                 {
-                    long y = msy[t[4]], x = msx[t[4]];
+                    long y = msy[t[4]];
                     long dy = sprite[i].y - y;
-                    long dx = sprite[i].x - x;
+                    long dx = sprite[i].x - msx[t[4]];
                     if (dx * dx + dy * dy < 0x4000)
                         t[0]++;
                 }
@@ -1630,24 +1638,24 @@ crane_hook:
             setsprite(msy[t[4] + 2], sprite[i].x, sprite[i].y, sprite[i].z - 8704);
             if (sprite[i].owner == -1)
                 continue;
-            p = findplayer(i, &d);
+            craneplayer = findplayer(i, &d);
             j = ifhitbyweapon(i);
             if (j >= 0) {
-                if (sprite[i].owner == -2 && ps[p].on_crane == i)
-                    ps[p].on_crane = -1;
+                if (sprite[i].owner == -2 && ps[craneplayer].on_crane == i)
+                    ps[craneplayer].on_crane = -1;
                 sprite[i].owner = -1;
                 sprite[i].picnum = CRANE;
             }
             if (sprite[i].owner >= 0)
                 setsprite(sprite[i].owner, sprite[i].x, sprite[i].y, sprite[i].z);
             else if (sprite[i].owner == -2) {
-                if (ps[p].on_crane == i && p == screenpeek)
+                if (ps[craneplayer].on_crane == i && craneplayer == screenpeek)
                     sprite[i].xrepeat = sprite[i].yrepeat = 0;
-                ps[p].posx = sprite[i].x - (sintable[(ps[p].ang + 512) & 2047] >> 6);
-                ps[p].posy = sprite[i].y - (sintable[ps[p].ang & 2047] >> 6);
-                ps[p].posz = sprite[i].z - 7168;
-                clipmove(&ps[p].posx, &ps[p].posy, &ps[p].posz, &ps[p].cursectnum, 0, 0, 192, 1024, 1024, 0);
-                setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz);
+                ps[craneplayer].posx = sprite[i].x - (sintable[(ps[craneplayer].ang + 512) & 2047] >> 6);
+                ps[craneplayer].posy = sprite[i].y - (sintable[ps[craneplayer].ang & 2047] >> 6);
+                ps[craneplayer].posz = sprite[i].z - 7168;
+                clipmove(&ps[craneplayer].posx, &ps[craneplayer].posy, &ps[craneplayer].posz, &ps[craneplayer].cursectnum, 0, 0, 192, 1024, 1024, 0);
+                setsprite(ps[craneplayer].i, ps[craneplayer].posx, ps[craneplayer].posy, ps[craneplayer].posz);
             }
         } else if (sprite[i].picnum == CANWITHSOMETHING) {
             FALL(&sprite[i]);
