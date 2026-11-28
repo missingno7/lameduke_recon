@@ -60,7 +60,8 @@ extern void MUSIC_SetVolume(long volume);
 extern void shoot(short i, short tile, unsigned char trace);
 extern void kickview(short p, short i);
 extern void execute(short i, short p, long dist);
-extern void myos(long x, long y, short tile, short shade, long flags);
+/* ACTORS passes the reactor shade as a full-width expression. */
+extern void myos();
 extern void operatesectors(short sect, short i);
 extern void operateactivators(short lotag);
 extern void operatemasterswitches(short lotag);

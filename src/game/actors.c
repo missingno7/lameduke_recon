@@ -320,16 +320,18 @@ void guts(short i)
 /* Update active actors (status 1): hard-coded tiles here, everything else through CON execute(). */
 void moveactors(void)
 {
-    /* COMPILER_STEERED: the declaration order and separate turret step keep i, nexti and p in their original stack slots. */
     short nexti;
-    long dist, l;
-    short j, sect;
-    long *t, zoffset;
+    long dist;
+    long l;
+    short sect;
+    short j;
+    long *t;
+    long zoffset;
     int zstep;
-    short i, p;
+    short i;
+    short p;
 
     for (i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti) {
-        /* COMPILER_STEERED: tile temporary scope affects allocation in the master switch. */
         int pic;
 
         nexti = nextspritestat[i];
@@ -555,10 +557,9 @@ shark_steer:
                     sprite[i].yrepeat -= krand() & 7;
                 else {
                     sprite[i].xrepeat = 40;
-                    /* COMPILER_STEERED: Reset the actor state before its owner and size. */
-                    t[0] = 0;
-                    sprite[i].owner = -1;
                     sprite[i].yrepeat = 16;
+                    sprite[i].owner = -1;
+                    t[0] = 0;
                 }
                 continue;
             }
@@ -890,7 +891,7 @@ wait:
         } else if (sprite[i].picnum >= REACTOR && sprite[i].picnum <= 625) {
             /* COMPILER_STEERED: the frame-first sum pairs with the narrow slime phase above. */
             if ((krand() >> 8) >= 63)
-                sprite[i].picnum = t[2] + 620;
+                sprite[i].picnum = 620 + (short)t[2];
             else
                 sprite[i].picnum = 623 + t[2];
             if (++t[2] == 3)
