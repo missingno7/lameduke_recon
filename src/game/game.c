@@ -2053,15 +2053,25 @@ void update_menu_cursor(short tile)
     if (moustat != 0) {
         scale = ud.mouse_sensitivity + 129;
         menu_x += (mousx * scale) >> 9;
-        menu_y = ((mousy * scale) >> 9) + menu_y;
+        {
+            long delta = scale;
+
+            delta *= mousy;
+
+            menu_y = menu_y + (delta >> 9);
+        }
         {
             short pos_x = menu_x;
 
-            if (pos_x < 0)
-                menu_x = 0;
-            else if (pos_x > 319)
+            if (pos_x >= 0)
+                goto x_upper;
+            menu_x = 0;
+            goto x_clamped;
+        x_upper:
+            if (pos_x > 319)
                 menu_x = 319;
         }
+    x_clamped:
         {
             short pos_y = menu_y;
 
@@ -2807,8 +2817,8 @@ void moveeffectors(void)
                     short pic;
                     short a;
                     short xv;
-                    short zv;
                     long *actor;
+                    short zv;
 
                     sx = sprite[i].x;
                     sy = sprite[i].y;
