@@ -692,10 +692,7 @@ void sendpacket(short otherconnectindex, unsigned char *buffer, short length)
 short getpacket(short *otherconnectindex, unsigned char *buffer)
 {
     short start, length, sublength, i, j;
-    /* COMPILER_STEERED. This declaration order preserves the receive function extent. */
-    unsigned char toindex, totalbad, bad;
-    long offset;
-    volatile unsigned char *ring;
+    unsigned char totalbad, bad, toindex;
 
     if (multioption <= 0) return 0;
     if (multioption < 5)
@@ -726,7 +723,10 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
                         *outbufplc = i;
                         if ((kinp(*comport + 5) & 0x40) > 0)
                         {
-                            koutp(*comport, outbuf[*outbufplc]);
+                            /* COMPILER_STEERED. Stage the flat UART byte address. */
+                            long position = *outbufplc;
+                            unsigned long address = (unsigned long)outbuf;
+                            koutp(*comport, *(volatile unsigned char *)(position + address));
                             *outbufplc = (*outbufplc + 1) & (COMBUFSIZ - 1);
                         }
                         _enable();
@@ -751,7 +751,7 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
 
             bad = 0;
             length = syncbufleng - 3 + ((comrateoption == 0) << 1);
-            if ((syncbuf[0] >> 2) != *incnt)
+            if (*incnt != ((syncbuf[0] & 255) >> 2))
             {
                 if (*incnt == 1 && syncbuf[1] == 254)
                     myconnectindex = myconnectnum < otherconnectnum;
@@ -827,16 +827,24 @@ short getpacket(short *otherconnectindex, unsigned char *buffer)
 
             sublength = inbuf[*inbufplc];
             *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
-            sublength += (short)inbuf[*inbufplc] << 8;
+            {
+                long position = *inbufplc;
+                volatile unsigned char *input = inbuf;
+                input += position;
+                sublength += (short)*input << 8;
+            }
             *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
             for (i = 0; i < sublength; i++)
             {
-                /* COMPILER_STEERED. Stage both addresses before reading the byte. */
+                /* COMPILER_STEERED. Accumulate the flat input address after forming dst. */
+                long offset;
+                unsigned long address;
                 unsigned char *dst;
                 offset = *inbufplc;
-                ring = inbuf;
+                address = (unsigned long)inbuf;
                 dst = buffer + i;
-                *dst = ring[offset];
+                address += offset;
+                *dst = *(volatile unsigned char *)address;
                 *inbufplc = (*inbufplc + 1) & (COMBUFSIZ - 1);
             }
 
