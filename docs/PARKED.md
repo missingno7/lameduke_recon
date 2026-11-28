@@ -35,3 +35,4 @@ Keep each parked function at its current status or better. The integrator un-par
 | lotsofglass | 8/9 blocks | block at +0x54 (argument preparation + inlined sprite-store scheduling); early-X control shrinks it to 464 B | u-game rounds 12-14 | 2026-11-28 |
 | moveexplosions | 74 B at +0x59c, 166/167 | Y/Z spill decision (frame map + cg95); FLAIR control restores ECX for the arm floor but raises residue to 127 B | owcg, u-actors, u-last | 2026-11-28 |
 | spawn_pistol_tracer | 413 B, 4/5 | inlined into processinput: standalone output homes and CWDE controls each cost the inline copy (processinput 392 -> 374) | smallgame, blind, u-player2, u-last | 2026-11-28 |
+| dobonus | 157/159 (158 diagnostic) | completed marker at +0x14b: the oracle keeps the table bank in EDX across both loads and stages the row in EDI; the bank's zero-score tie goes to EAX in every source form tried | u-game rounds 12-17 | 2026-11-28 |
