@@ -1289,3 +1289,13 @@ Each entry names the command or artefact that supports it.
 - One new idea: caching the RPG frame in displayweapon gains 104 matched block bytes (all PLAYER STRICT kept) but leaves
   it 80 B short - queued for the PLAYER worker. Use blind reconstruction as a targeted check when semantics or control
   flow are disputed, not routinely.
+
+## Rebuilt executable and demo playback (linkrun, sol, 2026-11-28; build/workers/linkrun/REPORT.md) - diagnostic only
+- Watcom 9.5 GA WLINK links all 36 units with ZERO undefined symbols in the worker snapshot (two SOUNDS references
+  resolved via existing ud fields there, a diagnostic edit costing two STRICT; canonical ownership gap under study).
+- Original D3D.EXE plays MYDEMO_1 deterministically (sound off): two runs agree on all 2,958 sampled simulation states
+  (only the IRQ-driven totalclock differs). The rebuilt EXE plays the same demo.
+- First divergences: tick 194 is a timer-phase effect (rebuild one timer count ahead takes an extra simulation step
+  before rendering); a LASERSITE difference is shared stale-slot behaviour after hitscan misses. REAL difference: at
+  the end of MYDEMO_1 the rebuild runs past the recorded inputs in the catch-up loop and never opens MYDEMO_2.
+  Follow-up (linkrun-2): tick-aligned sampling, trace of the overrun, all eight demos.
