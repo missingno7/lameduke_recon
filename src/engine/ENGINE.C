@@ -4700,7 +4700,7 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 	/* COMPILER_STEERED. This declaration order puts dist, dinc, incr and grid
 	   at ESP+08h, +10h, +18h and +20h in the traversal loops. */
 	long pinc, dist[2], dinc[2], grid[2], p, lastdist;
-	long gx, gy, incr[2], tempx, tempy, x1, y1, y2, x2, stx, sty, cnt, dend;
+	long gx, gy, incr[2], tempx, tempy, x1, y1, y2, x2, sty, stx, cnt, dend;
 	long zoffs, heibufoffs, tilebufoffs, they, um, dm, zx, dat, col;
 
 	d1 >>= 6;
