@@ -1416,3 +1416,11 @@ Each entry names the command or artefact that supports it.
   parse, spawn, displayweapon, operateactivators) are NOT explained by this.
 - Implication: for saturated functions the target is the original's candidate set and weighted-use ranking (number of
   source variables/temps, their uses and loop weights), especially around the cutoff - not local register choices.
+- bitsfix (2026-11-28; build/workers/bitsfix/{LEDGER,CUTOFF,TRIALS}.md): 31 full-unit DOS probes on the five
+  near-threshold saturated functions, 0 integration candidates. execute: the only deferred value was t949 (an unused cache
+  of 176); caching the script lookup brings demand 129 -> 128 but costs 2 blocks (223 -> 221). cheatkeys: promoting the
+  shield-menu player index into bit 122 leaves the menu flag in DL (oracle BH), 263 -> 260. movestandables /
+  moveexplosions: shedding one candidate by local reuse loses blocks. displayrooms reaches the oracle extent but costs
+  playback STRICT. CONCLUSION: saturation explains WHY local fixes interact globally, but merely reaching or crossing the
+  cutoff does not converge; it requires the original's exact candidate set and weights, which local evidence does not
+  determine.
