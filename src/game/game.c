@@ -2053,15 +2053,23 @@ void update_menu_cursor(short tile)
     if (moustat != 0) {
         scale = ud.mouse_sensitivity + 129;
         menu_x += (mousx * scale) >> 9;
-        menu_y += (mousy * scale) >> 9;
-        if (menu_x < 0)
-            menu_x = 0;
-        else if (menu_x > 319)
-            menu_x = 319;
-        if (menu_y < 0)
-            menu_y = 0;
-        else if (menu_y > 199)
-            menu_y = 199;
+        menu_y = ((mousy * scale) >> 9) + menu_y;
+        {
+            short pos_x = menu_x;
+
+            if (pos_x < 0)
+                menu_x = 0;
+            else if (pos_x > 319)
+                menu_x = 319;
+        }
+        {
+            short pos_y = menu_y;
+
+            if (pos_y < 0)
+                menu_y = 0;
+            else if (pos_y > 199)
+                menu_y = 199;
+        }
     }
 
     {
@@ -2111,8 +2119,15 @@ void lotsofglass(short i, short n)
         z = sprite[i].z - (krand() & 4095);
         if (z < sector[sprite[i].sectnum].ceilingz)
             z = sprite[i].z;
-        EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, z, 0, 970 + (j & 3), -32, 18, 18,
-            sprite[i].ang - 256 + (krand() & 511), 64, 1024 - (krand() & 2047), sprite[i].owner, 5);
+        {
+            short velocity;
+
+            /* COMPILER_STEERED: keep the velocity draw inside the EGS argument. */
+
+            EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, z, 0, 970 + (j & 3), -32, 18, 18,
+                sprite[i].ang - 256 + (krand() & 511), 64,
+                (velocity = 1024 - (krand() & 2047), velocity), sprite[i].owner, 5);
+        }
     }
 }
 
