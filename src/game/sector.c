@@ -429,21 +429,21 @@ elevator_up:
             daz = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
         else
             daz = sector[nextsectorneighborz(sn, sector[sn].ceilingz, -1, -1)].ceilingz;
-        j = sector[sn].extra;
-        i = headspritestat[STAT_EFFECTOR];
-        while (i >= 0) {
-            if (sprite[i].lotag == 22 && sprite[i].hitag == sector[sn].hitag) {
+        a = sector[sn].extra;
+        p = headspritestat[STAT_EFFECTOR];
+        while (p >= 0) {
+            if (sprite[p].lotag == 22 && sprite[p].hitag == sector[sn].hitag) {
                 if (sector[sn].lotag & 0x8000)
-                    sprite[i].yvel = j;
+                    sprite[p].yvel = a;
                 else
-                    sprite[i].yvel = -j;
-                hittype[i][0] = sn;
-                hittype[i][1] = 1;
+                    sprite[p].yvel = -a;
+                hittype[p][0] = sn;
+                hittype[p][1] = 1;
             }
-            i = nextspritestat[i];
+            p = nextspritestat[p];
         }
         sector[sn].lotag ^= 0x8000;
-        setanimation(sn, &sector[sn].ceilingz, daz, j);
+        setanimation(sn, &sector[sn].ceilingz, daz, a);
         spritesound(6, ii);
         break;
     case 20:
@@ -484,12 +484,12 @@ elevator_up:
         break;
     case 22:
         middle = (sector[sn].ceilingz + sector[sn].floorz) >> 1;
-        i = getanimationgoal(&sector[sn].ceilingz);
-        if (i >= 0) {
+        a = getanimationgoal(&sector[sn].ceilingz);
+        if (a >= 0) {
             if (middle == animategoal[sn])
-                animategoal[i] = sector[nextsectorneighborz(sn, sector[sn].floorz, -1, -1)].ceilingz;
+                animategoal[a] = sector[nextsectorneighborz(sn, sector[sn].floorz, -1, -1)].ceilingz;
             else
-                animategoal[i] = middle;
+                animategoal[a] = middle;
         } else {
             if (middle == sector[sn].ceilingz)
                 daz = sector[nextsectorneighborz(sn, sector[sn].floorz, -1, -1)].ceilingz;
@@ -500,13 +500,13 @@ elevator_up:
                 spritesound(6, ii);
             }
         }
-        i = getanimationgoal(&sector[sn].floorz);
-        if (i >= 0) {
+        a = getanimationgoal(&sector[sn].floorz);
+        if (a >= 0) {
             if (middle == animategoal[sn])
-                animategoal[i] = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
+                animategoal[a] = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
             else
-                animategoal[i] = middle;
-            daz = animategoal[i];
+                animategoal[a] = middle;
+            daz = animategoal[a];
         } else {
             if (middle == sector[sn].floorz)
                 daz = sector[nextsectorneighborz(sn, sector[sn].ceilingz, 1, 1)].floorz;
@@ -659,11 +659,8 @@ void operateforcefields(short low)
 /* Handle player snum's interface and inventory keys (Duke3D 1.5 cheatkeys), including the /d door cheat. */
 void cheatkeys(short snum)
 {
-    /* COMPILER_STEERED: reuse the decoy sprite index for the debug-door sector scan. */
     short i;
-    short source;
-    /* COMPILER_STEERED: the escape and scuba menus share a full-width flag temporary. */
-    long menu_flags;
+    unsigned char menu_flags;
 
     if ((syncbits[snum] & SB_KNUCKLES) && ps[snum].knuckle_incs == 0)
         ps[snum].knuckle_incs = 1;
@@ -802,6 +799,8 @@ void cheatkeys(short snum)
             ps[snum].gm = menu_flags | MODE_MENU;
         }
     } else if (syncbits[snum] & SB_DEBUG_DOORS) {
+        short source;
+
         FTA(11);
         for (i = 0; i < numsectors; i++) {
             switch ((short)(sector[i].lotag & 0xfff)) {
