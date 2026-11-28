@@ -291,9 +291,9 @@ void operatesectors(short sn, short ii)
     case 9: {
         /* The sliding-door geometry follows Ken's September 1994 routine. */
         /* COMPILER_STEERED: initialize both center coordinates here for the inlined door scans. */
-        long cx = 0, cy = 0, first, last, sp, dx, dy, displacement;
+        long cx = 0, cy = 0, last, first, sp, dx, dy, displacement;
         short w, prev;
-        long door_index, door[2];
+        long door[2], door_index;
 
         first = sector[sn].wallptr;
         last = first + sector[sn].wallnum - 1;
@@ -799,19 +799,20 @@ void cheatkeys(short snum)
             ps[snum].gm = menu_flags | MODE_MENU;
         }
     } else if (syncbits[snum] & SB_DEBUG_DOORS) {
-        short source;
-
         FTA(11);
         for (i = 0; i < numsectors; i++) {
             switch ((short)(sector[i].lotag & 0xfff)) {
             case 15: case 16: case 17: case 18: case 19:
             case 20: case 21: case 22: case 23:
-            case 25: case 26: case 27: case 28: case 29:
+            case 25: case 26: case 27: case 28: case 29: {
+                short source;
+
                 source = ps[snum].i;
                 if (sector[i].lotag & 0xbfff)
                     sector[i].lotag &= ~0x4000;
                 operatesectors(i, source);
                 break;
+            }
             }
         }
         operateforcefields(-1);
@@ -1054,10 +1055,8 @@ char checkhitceiling(short sn)
 /* Sector specials and the use key for player snum. */
 void checksectors(short snum)
 {
-    short w;
-    short target;
+    short source, target, w;
     long i = -1;
-    short source;
 
     switch (sector[ps[snum].cursectnum].lotag) {
     case 32767:
