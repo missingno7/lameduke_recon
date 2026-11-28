@@ -776,6 +776,8 @@ int GUSWAVE_PlayVOC
    int VoiceNumber;
    int type;
    int pan;
+   unsigned short gf1pan;
+   unsigned dataOffset;
    unsigned flags;
 
    voice = GUSWAVE_AllocVoice( priority );
@@ -788,7 +790,8 @@ int GUSWAVE_PlayVOC
    type = 0;
    type = TYPE_8BIT | TYPE_INVERT_MSB;
    voice->GF1voice = -1;
-   voice->NextBlock = sample + *( unsigned short * )( sample + 0x14 );
+   dataOffset = *( unsigned short * )( sample + 0x14 );
+   voice->NextBlock = sample + dataOffset;
    voice->LoopStart = NULL;
    voice->LoopCount = 0;
    voice->BlockLength = 0;
@@ -798,6 +801,7 @@ int GUSWAVE_PlayVOC
 
    angle &= 31;
    pan = GUSWAVE_PanTable[ angle ];
+   gf1pan = pan;
    if ( volume < 0 )
       {
       volume = 0;
@@ -809,7 +813,7 @@ int GUSWAVE_PlayVOC
 
    volume = 255 - volume;
    VoiceNumber = gf1_play_digital( priority, voice->sound, voice->length,
-      voice->mem, GUSWAVE_Volume - volume * 4, pan,
+      voice->mem, GUSWAVE_Volume - volume * 4, gf1pan,
       voice->RateScale, type, &GUS_HoldBuffer, GUSWAVE_CallBack );
 
    if ( VoiceNumber == NO_MORE_VOICES )

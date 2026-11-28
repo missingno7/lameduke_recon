@@ -1319,3 +1319,8 @@ Each entry names the command or artefact that supports it.
   natural link now has ZERO undefined symbols with canonical sources. spritesound regresses 38 -> 138 B (stays NEAR;
   accepted: the old form referenced symbols that do not exist in the original). AL_SetVoiceTimbre 685 -> 14 B at exact
   extent (residual +0x70..+0x89: Watcom interleaves the slot lookup with the bank-address calculation).
+- misc-4 (2026-11-28): spritesound STRICT (natural declaration order + direct xyzsound call, ud accesses kept) and
+  GUSWAVE_PlayVOC STRICT (staged dataOffset / gf1pan locals; Wacky Wheels body) - 613 STRICT.
+  REJECTED AL_SetVoiceTimbre's STRICT candidate: it replaced the attested `int slotVoice[NUM_VOICES][2]` array (all
+  surviving ASS sources) with an invented struct carrying a `volatile` member only to steer Watcom 10's load order.
+  Bytes exact, but not historically authentic; AL_SetVoiceTimbre stays NEAR (14 B) with the attested array.

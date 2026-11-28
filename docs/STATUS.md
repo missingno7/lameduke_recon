@@ -16,7 +16,7 @@ Run `python tools/gate.py` then `python tools/status.py` for live numbers.
 | ass_fx_man | 15 | 14 | 2,815 |
 | ass_gus | 4 | 4 | 509 |
 | ass_gusmidi | 14 | 11 | 598 |
-| ass_guswave | 18 | 16 | 1,978 |
+| ass_guswave | 18 | 17 | 2,350 |
 | ass_irq | 5 | 5 | 956 |
 | ass_ll_man | 5 | 5 | 185 |
 | ass_midi | 26 | 26 | 4,392 |
@@ -29,7 +29,7 @@ Run `python tools/gate.py` then `python tools/status.py` for live numbers.
 | ass_sndsrc | 17 | 14 | 1,354 |
 | ass_task_man | 18 | 18 | 2,193 |
 | ass_user | 2 | 2 | 188 |
-| game_sounds | 13 | 12 | 1,467 |
+| game_sounds | 13 | 13 | 1,931 |
 | game_gamedef | 14 | 12 | 8,360 |
 | multi | 25 | 22 | 5,062 |
 | game_menues | 11 | 10 | 8,634 |
@@ -39,7 +39,7 @@ Run `python tools/gate.py` then `python tools/status.py` for live numbers.
 | game_premap | 12 | 10 | 5,413 |
 | game_actors | 18 | 15 | 6,712 |
 
-Totals: 611 STRICT / 666 functions, 193,500 bytes; LameDuke 252 STRICT (144,674 bytes); Apogee Sound System 359 (48,826 bytes); CODE_BYTES_MATCH 15; verified data 10,630 bytes, verified _BSS layout 714,205 bytes.
+Totals: 613 STRICT / 666 functions, 194,336 bytes; LameDuke 253 STRICT (145,138 bytes); Apogee Sound System 360 (49,198 bytes); CODE_BYTES_MATCH 15; verified data 10,630 bytes, verified _BSS layout 714,205 bytes.
 
 Identified, not reconstructed: Watcom 9.5 runtime (docs/RUNTIME_CENSUS.md), Creative AWE32 and Gravis GF1 vendor objects (docs/AUDIOLIB.md).
 

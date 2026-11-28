@@ -146,9 +146,9 @@ void playmusic(char *fn)
 /* Play sound num at map position x,y (owner sprite i, -1 = player 0). */
 void xyzsound(short num, short i, long x, long y, long z)
 {
-    long cx, cy, sndist, voice;
-    short ca, sndang, priority;
-    long dy;
+    short sndang, ca;
+    long voice, dy, sndist, cy, cx;
+    short priority;
 
     if (ud.SoundToggle == 0 || sound_voices[num].num > 2)
         return;
@@ -195,11 +195,7 @@ void xyzsound(short num, short i, long x, long y, long z)
 /* The indices use the signed low words of the register arguments. */
 void spritesound(short number, short source)
 {
-    long x = sprite[source].x;
-    long y = sprite[source].y;
-    const struct spritetype *sp = &sprite[source];
-
-    xyzsound(number, source, x, y, sp->z);
+    xyzsound(number, source, sprite[source].x, sprite[source].y, sprite[source].z);
 }
 
 /* Stop sound num (its last voice). */
