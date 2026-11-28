@@ -704,7 +704,7 @@ shark_steer:
                     ps[p].score += 1000;
                     spawn(i, EXPLOSION);
                     for (dist = 0; dist < 30; dist += 3)
-                        EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z, 0, krand() % 11 + 235, -8, 32, 32,
+                        EGS(sect, sprite[i].x, sprite[i].y, sprite[i].z, 0, (short)(krand() % 11 + 235), -8, 32, 32,
                             krand() & 2047, (krand() & 128) + 64, -(krand() & 511) - 512, i, 5);
                     /* COMPILER_STEERED: Set the actor state before incrementing the kill count. */
                     t[0] = 2;
@@ -1495,26 +1495,22 @@ void movefx(void)
 /* Update standables (status 6): force posts, cranes, cans; script standables run CON. */
 void movestandables(void)
 {
-    short i, nexti, j;
+    short i;
+    short p;
+    short j;
+    long *t;
+    short sect;
+    short nexti;
+    long d;
 
     for (i = headspritestat[STAT_STANDABLE]; i >= 0; i = nexti) {
-        long zvel, *t;
-        short sect, p;
-        long d;
-
         nexti = nextspritestat[i];
         sect = sprite[i].sectnum;
         t = hittype[i];
         if (sprite[i].picnum == SEENINE) {
             /* A force field post; one that dies sets every post of its hitag to
                -32, and each of those then bursts. */
-            if (sprite[i].shade != -32) {
-                if ((ifhitbyweapon(i) >= 0 && sprite[i].extra < 0) || sprite[i].shade == -31) {
-                    for (j = headspritestat[STAT_STANDABLE]; j >= 0; j = nextspritestat[j])
-                        if (sprite[i].hitag == sprite[j].hitag && sprite[j].picnum == SEENINE)
-                            sprite[j].shade = -32;
-                }
-            } else {
+            if (sprite[i].shade == -32) {
                 spawn(i, EXPLOSION);
                 sprite[i].z -= 0x2000;
                 shoot(i, OTHERSHOTSPARK, 1);
@@ -1522,6 +1518,13 @@ void movestandables(void)
                 spawn(i, EXPLOSION);
                 spawn(i, EXPLOSION);
                 deletesprite(i);
+            } else {
+                j = ifhitbyweapon(i);
+                if ((j >= 0 && sprite[i].extra < 0) || sprite[i].shade == -31) {
+                    for (j = headspritestat[STAT_STANDABLE]; j >= 0; j = nextspritestat[j])
+                        if (sprite[i].hitag == sprite[j].hitag && sprite[j].picnum == SEENINE)
+                            sprite[j].shade = -32;
+                }
             }
         } else if (sprite[i].picnum >= CRANE && sprite[i].picnum <= CRANE + 3) {
             sprite[i].xrepeat = sprite[i].yrepeat = 64;
@@ -1556,8 +1559,7 @@ void movestandables(void)
                         t[0]++;
                 }
                 if (t[0] == 7) {
-                    long clearance = sector[sect].floorz - sprite[i].z;
-                    if (clearance >= 5120)
+                    if (sector[sect].floorz - sprite[i].z >= 5120)
                         goto crane_hook;
                     if (sprite[i].picnum > CRANE)
                         sprite[i].picnum--;
@@ -1593,8 +1595,11 @@ void movestandables(void)
                 if (++t[2] > 10)
                     t[0]++;
             } else if (t[0] == 5 || t[0] == 8) {
-                if (t[0] == 8 && sprite[i].picnum < 1177 && sector[sect].floorz - sprite[i].z > 0x2000)
-                    sprite[i].picnum++;
+                if (t[0] == 8 && sprite[i].picnum < 1177) {
+                    long z = sprite[i].z;
+                    if (sector[sect].floorz - z > 0x2000)
+                        sprite[i].picnum++;
+                }
                 if (sprite[i].z < msx[t[4] + 2]) {
                     t[0]++;
                     sprite[i].xvel = 0;
@@ -1604,13 +1609,17 @@ void movestandables(void)
                 if (sprite[i].xvel < 192)
                     sprite[i].xvel += 8;
                 {
-                    long y = msy[t[4]], x = msx[t[4]];
-                    sprite[i].ang = (short)getangle(x - sprite[i].x, y - sprite[i].y);
+                    long y = msy[t[4]];
+                    sprite[i].ang = (short)getangle(msx[t[4]] - sprite[i].x, y - sprite[i].y);
                 }
-                zvel = sprite[i].zvel;
-                MOVE_ALONG(i, zvel, 0);
-                if ((sprite[i].y - msy[t[4]]) * (sprite[i].y - msy[t[4]]) + (sprite[i].x - msx[t[4]]) * (sprite[i].x - msx[t[4]]) < 0x4000)
-                    t[0]++;
+                ssp(i, 0);
+                {
+                    long y = msy[t[4]], x = msx[t[4]];
+                    long dy = sprite[i].y - y;
+                    long dx = sprite[i].x - x;
+                    if (dx * dx + dy * dy < 0x4000)
+                        t[0]++;
+                }
             } else if (t[0] == 9) {
                 t[0] = 0;
             }
@@ -1632,8 +1641,8 @@ crane_hook:
                 if (ps[p].on_crane == i && p == screenpeek)
                     sprite[i].xrepeat = sprite[i].yrepeat = 0;
                 ps[p].posx = sprite[i].x - (sintable[(ps[p].ang + 512) & 2047] >> 6);
-                ps[p].posz = sprite[i].z - 7168;
                 ps[p].posy = sprite[i].y - (sintable[ps[p].ang & 2047] >> 6);
+                ps[p].posz = sprite[i].z - 7168;
                 clipmove(&ps[p].posx, &ps[p].posy, &ps[p].posz, &ps[p].cursectnum, 0, 0, 192, 1024, 1024, 0);
                 setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz);
             }
@@ -1653,12 +1662,12 @@ crane_hook:
                 deletesprite(i);
             }
         } else {
-            short player = findplayer(i, &d);
+            p = findplayer(i, &d);
             switch (sprite[i].picnum) {
             case 627:
             case 905:
             case 974:
-                execute(i, player, d);
+                execute(i, p, d);
                 break;
             }
         }
