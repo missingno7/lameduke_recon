@@ -4700,8 +4700,8 @@ grouvline (long xscr, long d1, long d2, short sectnum)
 	/* COMPILER_STEERED. This declaration order puts dist, dinc, incr and grid
 	   at ESP+08h, +10h, +18h and +20h in the traversal loops. */
 	long pinc, dist[2], dinc[2], grid[2], p, lastdist;
-	long gx, gy, incr[2], tempx, tempy, x1, y1, x2, y2, stx, sty, cnt, dend;
-	long tilebufoffs, heibufoffs, zoffs, they, um, dm, zx, dat, col;
+	long gx, gy, incr[2], tempx, tempy, x1, y1, y2, x2, stx, sty, cnt, dend;
+	long zoffs, heibufoffs, tilebufoffs, they, um, dm, zx, dat, col;
 
 	d1 >>= 6;
 	d2 >>= 6;
@@ -5950,9 +5950,9 @@ void keepaway(long *x, long *y, short clipwall)
 raytrace (long x, long y, long xvect, long yvect, long *intx, long *inty)
 {
 	short z, hitwall;
-	// COMPILER_STEERED: Order the first endpoint locals for Watcom's stack homes.
-	long y1, x2, x3, x4, x1, y2, y3, y4, dx, dy, bot, topu, nintx, ninty;
-	long templong1, templong2, templong3, templong4, cnt;
+	/* COMPILER_STEERED. Keep the endpoint stack homes and stage the side products. */
+	long x1, y2, y3, y4, y1, x2, x3, x4, dx, dy, bot, topu, nintx, ninty;
+	long templong2, templong1, templong3, templong4, cnt;
 
 	x3 = x; y3 = y;
 	x4 = x3+(xvect>>14); y4 = y3+(yvect>>14);
@@ -5964,9 +5964,12 @@ raytrace (long x, long y, long xvect, long yvect, long *intx, long *inty)
 		x1 = clipx1[z]; y1 = clipy1[z];
 		x2 = clipx2[z]; y2 = clipy2[z];
 
-		dx = x2-x1; dy = y2-y1;
-		templong1 = dx*(y3-y1) - (x3-x1)*dy;
-		templong2 = dx*(y4-y1) - (x4-x1)*dy;
+		dx = x2-x1;
+		templong1 = dx*(y3-y1);
+		dy = y2-y1;
+		templong2 = (x4-x1)*dy;
+		templong1 -= (x3-x1)*dy;
+		templong2 = dx*(y4-y1)-templong2;
 		if ((templong1 >= 0) && (templong2 < 0))
 		{
 			templong3 = (x4-x3)*(y1-y3) - (x1-x3)*(y4-y3);
@@ -5981,8 +5984,9 @@ raytrace (long x, long y, long xvect, long yvect, long *intx, long *inty)
 					do
 					{
 						nintx = x3 + scale(x4-x3,topu,bot);
+						templong3 = (y2-y1)*(nintx-x1);
 						ninty = y3 + scale(y4-y3,topu,bot);
-						templong2 = (x2-x1)*(ninty-y1) - (nintx-x1)*(y2-y1);
+						templong2 = (ninty-y1)*(x2-x1) - templong3;
 						cnt--;
 						topu--;
 						if (cnt < 0)
@@ -7088,16 +7092,17 @@ wallmost(long *mostbuf, long w, long z)
 
 rotatesprite(long sx, long sy, long z, short a, short picnum)
 {
-	/* COMPILER_STEERED. This declaration order preserves the projection and clipping
-	   stack slots. The scratch i holds the lower x bound, then the signed column step. */
+	/* COMPILER_STEERED. Preserve the projection stack slots. After clipping,
+	   reuse the scan limit for the fractional step and keep the integer step separate. */
 	long xsiz, ysiz;
-	long k, sinang, xstep, ystep;
+	long k, sinang, p, ystep;
 	long gx, gy;
+	long widthcos, heightsin, projectx, projecty;
 	long startu, startv, u, v, du, dv;
 	long t, dx, cosang;
 	long umin, vmax, vmin, umax;
 	long i, lastx, x, y1, y2, yoffs;
-	long bufplc, p, pitch, buf, frac, stride;
+	long bufplc, xstep, pitch, buf, step, stride;
 	short count;
 	short tilewidth, tileheight;
 
@@ -7117,8 +7122,12 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 	ystep = mulscale(cosang,t,14);
 	xstep = mulscale(sinang,t,14);
 
-	gx = sx-mulscale(cosang*xsiz-sinang*ysiz,z,15);
-	gy = sy-mulscale(sinang*xsiz+cosang*ysiz,z,15);
+	widthcos = cosang*xsiz;
+	heightsin = sinang*ysiz;
+	projectx = widthcos-heightsin;
+	gx = sx-mulscale(projectx,z,15);
+	projecty = sinang*xsiz+cosang*ysiz;
+	gy = sy-mulscale(projecty,z,15);
 
 	umin = 0; umax = ysiz<<16;
 	vmin = 0; vmax = xsiz<<16;
@@ -7150,7 +7159,7 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 	startv = t-mulscale(dx,xstep,16);
 	startu = mulscale(ystep,dx,16)+mulscale(k,xstep,16);
 
-	for(x=i;x<=lastx;x++,startv-=xstep,startu+=ystep)
+	for (x=i; x<=lastx; startv-=xstep, startu+=ystep, x++)
 	{
 		v = startv; u = startu;
 		y1 = startumost[x-windowx1]-yoffs;
@@ -7205,7 +7214,7 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 			if (option[0] == 0)
 			{
 				koutp(0x3c5,1<<(x&3));
-				p = y1*80+(x>>2)+(page<<14)+0xa0000;
+				p = (page<<14)+(y1*80+(x>>2))+0xa0000;
 				pitch = 80;
 			}
 			else if (option[0] != 7)
@@ -7223,23 +7232,22 @@ rotatesprite(long sx, long sy, long z, short a, short picnum)
 			buf = bufplc+(u>>16)*stride;
 			if (xstep > 0)
 			{
-				i = xstep>>16;
-				i *= stride;
-				frac = xstep&65535;
+				step = (xstep>>16)*stride;
+				y2 = xstep&65535;
 				u &= 65535;
 			}
 			else
 			{
-				i = -((-xstep)>>16);
-				i *= stride;
-				frac = (-xstep)&65535;
+				y2 = -xstep;
+				step = (-(y2>>16))*stride;
+				y2 &= 65535;
 				u = (-u)&65535;
 				stride = -stride;
 			}
 			asm1 = pitch;
-			asm3 = frac<<16;
+			asm3 = y2<<16;
+			asm2 = step;
 			asm4 = stride;
-			asm2 = i;
 			spritevline(ystep,v,(short)count,u<<16,buf,p);
 		}
 	}
