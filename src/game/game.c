@@ -2668,12 +2668,14 @@ void moveeffectors(void)
         case 11:
             if (t[4]) {
                 short step;
+                short last;
 
                 step = (sprite[i].yvel >> 3) * t[3];
                 t[2] += step;
                 t[4] += step;
                 ms(i);
-                for (j = (short)sector[sect].wallptr; j < (short)(sector[sect].wallptr + sector[sect].wallnum); j++)
+                last = (short)((short)sector[sect].wallptr + sector[sect].wallnum);
+                for (j = (short)sector[sect].wallptr; j < last; j++)
                     for (p = connecthead; p >= 0; p = connectpoint2[p])
                         if (clipinsidebox(ps[p].posx, ps[p].posy, j, 128) == 1) {
                             t[4] -= step;
@@ -2911,7 +2913,9 @@ void moveeffectors(void)
                         hittype[l][0] = 1;
             }
             break;
-        case 20:
+        case 20: {
+            short p;
+
             if (t[0] == 0)
                 break;
             if (t[0] == 1)
@@ -2951,6 +2955,7 @@ void moveeffectors(void)
                 sector[sect].ceilingypanning -= dy >> 3;
             }
             break;
+        }
         case 21:
             if (t[0] == 0)
                 break;
@@ -3156,12 +3161,10 @@ void moveeffectors(void)
         case 7: /* the labels still shape the dispatch tree (split at 15) */
             break;
         case 129: {
-            long next_frame; /* COMPILER_STEERED: name the opposite wall's frame index. */
             unsigned char frames[12] = { 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0 };
 
             wall[t[2]].overpicnum = 790 + frames[t[0]];
-            next_frame = t[0] + 2;
-            wall[wall[t[2]].nextwall1].overpicnum = 790 + frames[next_frame];
+            wall[wall[t[2]].nextwall1].overpicnum = 790 + frames[t[0] + 2];
             t[0]++;
             if (t[0] > 9) {
                 deletesprite(i);
