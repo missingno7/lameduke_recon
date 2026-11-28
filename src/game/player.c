@@ -237,16 +237,16 @@ signed char clubframes[6][20] = {
 void displayweapon(short snum)
 {
     /* COMPILER_STEERED: local order for the knee table and draw argument allocation. */
-    short pistol_x;
+    short look;
     long draw_x;
     long xvel;
-    short looking_arc;
-    long gs;
     unsigned short cw;
+    long gs;
+    short pistol_x;
     unsigned char weapon_pos;
     long tile;
     long weapon_xoffset;
-    short look;
+    short looking_arc;
     long draw_y;
     unsigned char gun_pos;
 
@@ -309,28 +309,30 @@ void displayweapon(short snum)
                 looking_arc + 280 - gun_pos - (ps[snum].horiz >> 4), 1231, gs, 3);
         break;
     }
-    case RPG:
-        if (ps[snum].kickback_pic > 11) {
+    case RPG: {
+        short kick = ps[snum].kickback_pic;
+        if (kick > 11) {
             unsigned char recoil[9] = { 40, 30, 22, 16, 12, 16, 22, 30, 30 };
 
             if (ps[snum].kickback_pic <= 13)
                 gs = ps[snum].kickback_pic - 12;
-            myos((weapon_xoffset + 270) + (syncangvel[snum] >> 5) - recoil[ps[snum].kickback_pic - 11],
+            myos(weapon_xoffset + ((syncangvel[snum] >> 5) + 270) - recoil[kick - 11],
                 (looking_arc << 1) + 186 - gun_pos - (ps[snum].horiz >> 4), 1252, gs, 3);
         } else {
-            weapon_xoffset += sintable[(1024 - (ps[snum].kickback_pic << 7)) & 2047] >> 9;
-            gun_pos += sintable[(1536 - (ps[snum].kickback_pic << 7)) & 2047] >> 10;
-            if (ps[snum].kickback_pic < 4)
+            weapon_xoffset += sintable[(1024 - (kick << 7)) & 2047] >> 9;
+            gun_pos += sintable[(1536 - (kick << 7)) & 2047] >> 10;
+            if (kick < 4)
                 myos((weapon_xoffset + 150) + (syncangvel[snum] >> 5),
                     (looking_arc << 1) + 224 - gun_pos - (ps[snum].horiz >> 4), 1250, gs, 3);
-            else if (ps[snum].kickback_pic < 7)
+            else if (kick < 7)
                 myos((weapon_xoffset + 184) + (syncangvel[snum] >> 5),
                     (looking_arc << 1) + 180 - gun_pos - (ps[snum].horiz >> 4), 1251, gs, 3);
-            else if (ps[snum].kickback_pic < 12)
+            else if (kick < 12)
                 myos((weapon_xoffset + 260) + (syncangvel[snum] >> 5),
                     (looking_arc << 1) + 196 - gun_pos - (ps[snum].horiz >> 4), 1252, gs, 3);
         }
         break;
+    }
     case BULLET: {
         /* Watcom emits this initializer in the code prefix even when the
            body selects the same tiles directly. */
@@ -359,7 +361,7 @@ pistol_frame:
         if (ps[snum].kickback_pic < 5) {
             short pistol_frames[5] = { 0, 1, 2, 0, 0 };
 
-            pistol_x = 183 + (weapon_xoffset - xvel);
+            pistol_x = 183 + weapon_xoffset - xvel;
             if (ps[snum].kickback_pic == 1)
                 gs = 0;
             if (ps[snum].kickback_pic == 2) {
