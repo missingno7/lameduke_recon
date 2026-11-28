@@ -619,7 +619,9 @@ void operateactivators(short low)
     while (i >= 0) {
         if (sprite[i].lotag == low) {
         if (sprite[i].picnum == 23) {
-            sector[sprite[i].sectnum].lotag ^= 0x4000;
+            struct spritetype *activator = &sprite[i];
+
+            sector[activator->sectnum].lotag ^= 0x4000;
         } else {
             operatesectors(sprite[i].sectnum, i);
         }
@@ -1062,8 +1064,9 @@ char checkhitceiling(short sn)
 /* Sector specials and the use key for player snum. */
 void checksectors(short snum)
 {
-    short w;
     long i = -1;
+    short w;
+    short target;
 
     switch (sector[ps[snum].cursectnum].lotag) {
     case 32767:
@@ -1087,7 +1090,8 @@ void checksectors(short snum)
     ps[snum].toggle_key_flag = 1;
     neartag(ps[snum].posx, ps[snum].posy, ps[snum].posz + 5120, ps[snum].cursectnum, ps[snum].ang,
         &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1024);
-    if (wall[neartagwall].picnum == 180 || ps[snum].newowner >= 0) {
+    w = neartagwall;
+    if (wall[w].picnum == 180 || ps[snum].newowner >= 0) {
         if (syncbits[snum] & SB_ESCAPE)
             i = -1;
         else {
@@ -1128,7 +1132,9 @@ void checksectors(short snum)
     }
     }
     {
-        short under_tag = sector[ps[snum].cursectnum].lotag & 32767;
+        short under_tag = sector[ps[snum].cursectnum].lotag;
+
+        under_tag &= 32767;
         if ((unsigned short)under_tag < 15 || ((unsigned short)under_tag > 19 && ((unsigned short)under_tag < 26 || (unsigned short)under_tag > 28)))
             goto wall_switch;
         {
@@ -1138,11 +1144,9 @@ void checksectors(short snum)
             return;
         }
     }
-wall_switch: {
-    short target = neartagwall;
-
+wall_switch:
+    target = neartagwall;
     checkhitswitch(target);
-}
 }
 
 /* Align all warp elevators of a group to the master (shade > 16) at level start. */
